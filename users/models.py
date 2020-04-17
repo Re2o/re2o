@@ -192,8 +192,8 @@ class User(
     EMAIL_STATE_UNVERIFIED = 1
     EMAIL_STATE_PENDING = 2
     EMAIL_STATES = (
-        (0, _("Verified")),
-        (1, _("Unverified")),
+        (0, _("Confirmed")),
+        (1, _("Not confirmed")),
         (2, _("Waiting for email confirmation")),
     )
 

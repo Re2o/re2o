@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-19 23:43+0100\n"
+"POT-Creation-Date: 2020-04-18 00:48+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -339,19 +339,19 @@ msgstr "Si vous n'avez aucune idée de ce que vous avez fait :"
 msgid "Go back to a safe page"
 msgstr "Retourner à une page sécurisée"
 
-#: templates/pagination.html:34
+#: templates/pagination.html:35
 msgid "First"
 msgstr "Première page"
 
-#: templates/pagination.html:40
+#: templates/pagination.html:41
 msgid "Previous"
 msgstr "Précédent"
 
-#: templates/pagination.html:60
+#: templates/pagination.html:61
 msgid "Next"
 msgstr "Suivant"
 
-#: templates/pagination.html:66
+#: templates/pagination.html:67
 msgid "Last"
 msgstr "Dernière page"
 

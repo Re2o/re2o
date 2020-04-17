@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-19 23:43+0100\n"
+"POT-Creation-Date: 2020-04-18 00:48+0200\n"
 "PO-Revision-Date: 2018-06-24 20:10+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -82,94 +82,81 @@ msgstr "Ports"
 msgid "Switches"
 msgstr "Commutateurs réseau"
 
-#: search/forms.py:62 search/forms.py:77 search/templates/search/search.html:29
+#: search/forms.py:62 search/forms.py:78 search/templates/search/search.html:29
 #: search/templates/search/search.html:48
 msgid "Search"
 msgstr "Rechercher"
 
-#: search/forms.py:65 search/forms.py:80
+#: search/forms.py:65 search/forms.py:81
 msgid ""
-"Use « » and «,» to specify distinct words, «\"query\"» for"
-" an exact search, «\\» to escape a character and «+» to"
-" combine keywords."
+"Use « » and «,» to specify distinct words, «\"query\"» for an exact search, "
+"«\\» to escape a character and «+» to combine keywords."
 msgstr ""
-"Utilisez « » et «,» pour spécifier différents mots, «\"recherche\"» pour"
-" une recherche exacte, «\\» pour échapper un caractère et «+» pour"
-" combiner des mots clés."
+"Utilisez « » et «,» pour spécifier différents mots, «\"recherche\"» pour une "
+"recherche exacte, «\\» pour échapper un caractère et «+» pour combiner des "
+"mots clés."
 
-#: search/forms.py:88
+#: search/forms.py:90
 msgid "Users filter"
 msgstr "Filtre utilisateurs"
 
-#: search/forms.py:95
+#: search/forms.py:97
 msgid "Display filter"
 msgstr "Filtre affichage"
 
-#: search/forms.py:101
+#: search/forms.py:103
 msgid "Start date"
 msgstr "Date de début"
 
-#: search/forms.py:102
+#: search/forms.py:104
 msgid "End date"
 msgstr "Date de fin"
-
-#: search/models.py:195
-msgid "Verified"
-msgstr "Confirmé"
-
-#: search/models.py:196
-msgid "Unverified"
-msgstr "Non-confirmé"
-
-#: search/models.py:197
-msgid "Waiting for email confirmation"
-msgstr "En attente de confirmation du mail"
 
 #: search/templates/search/index.html:29
 msgid "Search results"
 msgstr "Résultats de la recherche"
 
-#: search/templates/search/index.html:33
+#: search/templates/search/index.html:34
 msgid "Results among users:"
 msgstr "Résultats parmi les utilisateurs :"
 
-#: search/templates/search/index.html:37
+#: search/templates/search/index.html:44
 msgid "Results among clubs:"
 msgstr "Résultats parmi les clubs :"
 
-#: search/templates/search/index.html:41
+#: search/templates/search/index.html:54
 msgid "Results among machines:"
 msgstr "Résultats parmi les machines :"
 
-#: search/templates/search/index.html:45
+#: search/templates/search/index.html:64
 msgid "Results among invoices:"
 msgstr "Résultats parmi les factures :"
 
-#: search/templates/search/index.html:49
+#: search/templates/search/index.html:74
 msgid "Results among whitelists:"
 msgstr "Résultats parmi les accès à titre gracieux :"
 
-#: search/templates/search/index.html:53
+#: search/templates/search/index.html:84
 msgid "Results among bans:"
 msgstr "Résultats parmi les bannissements :"
 
-#: search/templates/search/index.html:57
+#: search/templates/search/index.html:94
 msgid "Results among rooms:"
 msgstr "Résultats parmi les chambres :"
 
-#: search/templates/search/index.html:61
+#: search/templates/search/index.html:104
 msgid "Results among ports:"
 msgstr "Résultats parmi les ports :"
 
-#: search/templates/search/index.html:65
+#: search/templates/search/index.html:114
 msgid "Results among switches:"
 msgstr "Résultats parmi les commutateurs réseau :"
 
-#: search/templates/search/index.html:69
+#: search/templates/search/index.html:123
 msgid "No result"
 msgstr "Pas de résultat"
 
-#: search/templates/search/index.html:71
+#: search/templates/search/index.html:125
 #, python-format
 msgid "Only the first %(max_result)s results are displayed in each category."
 msgstr ""
@@ -183,3 +170,12 @@ msgstr "Recherche simple"
 #: search/templates/search/sidebar.html:35
 msgid "Advanced search"
 msgstr "Recherche avancée"
+
+#~ msgid "Verified"
+#~ msgstr "Confirmé"
+
+#~ msgid "Unverified"
+#~ msgstr "Non-confirmé"
+
+#~ msgid "Waiting for email confirmation"
+#~ msgstr "En attente de confirmation du mail"

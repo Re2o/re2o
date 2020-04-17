@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 01:24+0100\n"
+"POT-Creation-Date: 2020-04-18 00:48+0200\n"
 "PO-Revision-Date: 2018-06-23 16:35+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -55,91 +55,91 @@ msgstr "Sélectionnez un type de machine"
 msgid "Automatic IPv4 assignment"
 msgstr "Assignation automatique IPv4"
 
-#: machines/forms.py:177
+#: machines/forms.py:172
 msgid "Current aliases"
 msgstr "Alias actuels"
 
-#: machines/forms.py:199
+#: machines/forms.py:194
 msgid "Machine type to add"
 msgstr "Type de machine à ajouter"
 
-#: machines/forms.py:200
+#: machines/forms.py:195
 msgid "Related IP type"
 msgstr "Type d'IP relié"
 
-#: machines/forms.py:208
+#: machines/forms.py:203
 msgid "Current machine types"
 msgstr "Types de machines actuels"
 
-#: machines/forms.py:232
+#: machines/forms.py:227
 msgid "IP type to add"
 msgstr "Type d'IP à ajouter"
 
-#: machines/forms.py:260
+#: machines/forms.py:255
 msgid "Current IP types"
 msgstr "Types d'IP actuels"
 
-#: machines/forms.py:283
+#: machines/forms.py:278
 msgid "Extension to add"
 msgstr "Extension à ajouter"
 
-#: machines/forms.py:284 machines/templates/machines/aff_extension.html:37
+#: machines/forms.py:279 machines/templates/machines/aff_extension.html:37
 msgid "A record origin"
 msgstr "Enregistrement A origin"
 
-#: machines/forms.py:285 machines/templates/machines/aff_extension.html:39
+#: machines/forms.py:280 machines/templates/machines/aff_extension.html:39
 msgid "AAAA record origin"
 msgstr "Enregistrement AAAA origin"
 
-#: machines/forms.py:286
+#: machines/forms.py:281
 msgid "SOA record to use"
 msgstr "Enregistrement SOA à utiliser"
 
-#: machines/forms.py:287
+#: machines/forms.py:282
 msgid "Sign with DNSSEC"
 msgstr "Signer avec DNSSEC"
 
-#: machines/forms.py:295
+#: machines/forms.py:290
 msgid "Current extensions"
 msgstr "Extensions actuelles"
 
-#: machines/forms.py:337
+#: machines/forms.py:332
 msgid "Current SOA records"
 msgstr "Enregistrements SOA actuels"
 
-#: machines/forms.py:370
+#: machines/forms.py:365
 msgid "Current MX records"
 msgstr "Enregistrements MX actuels"
 
-#: machines/forms.py:405
+#: machines/forms.py:400
 msgid "Current NS records"
 msgstr "Enregistrements NS actuels"
 
-#: machines/forms.py:435
+#: machines/forms.py:430
 msgid "Current TXT records"
 msgstr "Enregistrements TXT actuels"
 
-#: machines/forms.py:465
+#: machines/forms.py:460
 msgid "Current DNAME records"
 msgstr "Enregistrements DNAME actuels"
 
-#: machines/forms.py:495
+#: machines/forms.py:490
 msgid "Current SRV records"
 msgstr "Enregistrements SRV actuels"
 
-#: machines/forms.py:526
+#: machines/forms.py:521
 msgid "Current NAS devices"
 msgstr "Dispositifs NAS actuels"
 
-#: machines/forms.py:559
+#: machines/forms.py:554
 msgid "Current roles"
 msgstr "Rôles actuels"
 
-#: machines/forms.py:601
+#: machines/forms.py:596
 msgid "Current services"
 msgstr "Services actuels"
 
-#: machines/forms.py:643
+#: machines/forms.py:638
 msgid "Current VLANs"
 msgstr "VLANs actuels"
 

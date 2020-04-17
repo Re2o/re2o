@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-19 23:43+0100\n"
+"POT-Creation-Date: 2020-04-18 00:48+0200\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -243,7 +243,7 @@ msgstr "Utilisateurs complètement archivés"
 msgid "Not yet active users"
 msgstr "Utilisateurs pas encore actifs"
 
-#: logs/views.py:273
+#: logs/views.py:264
 msgid "Contributing members"
 msgstr "Adhérents cotisants"
 
