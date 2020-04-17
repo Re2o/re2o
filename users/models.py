@@ -655,15 +655,14 @@ class User(
         ):
             self.full_archive()
         elif (
-            self.__original_state == self.STATE_EMAIL_NOT_YET_CONFIRMED
-            and self.state not in [self.STATE_EMAIL_NOT_YET_CONFIRMED, self.STATE_DISABLED]
-        ):
-            self.email_change_date = None
-        elif (
             self.__original_state != self.STATE_EMAIL_NOT_YET_CONFIRMED
             and self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
         ):
             self.email_change_date = timezone.now()
+        elif (
+            self.state == self.STATE_ACTIVE
+        ):
+            self.email_change_date = None
 
     def ldap_sync(
         self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False
