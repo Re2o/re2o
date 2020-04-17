@@ -812,8 +812,8 @@ class User(
         if self.state == self.STATE_FULL_ARCHIVE:
             return False
 
-        # Always keep the oldest change date
-        if self.email_change_date is None:
+        # Don't allow users without a confirmed email to postpone their due date
+        if self.state == self.STATE_ACTIVE or not self.email_change_date:
             self.email_change_date = timezone.now()
 
         self.save()
@@ -821,7 +821,7 @@ class User(
         return True
 
     def confirm_email_before_date(self):
-        if self.email_change_date is None or self.email_state == self.EMAIL_STATE_VERIFIED:
+        if self.email_state == self.EMAIL_STATE_VERIFIED:
             return None
 
         days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
@@ -946,8 +946,6 @@ class User(
 
     def confirm_mail(self):
         """Marque l'email de l'utilisateur comme confirmé"""
-        # Reset the email change date and update the email status
-        self.email_change_date = None
         self.email_state = self.EMAIL_STATE_VERIFIED
 
     @cached_property
