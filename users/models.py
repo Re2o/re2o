@@ -800,23 +800,31 @@ class User(
         return
 
     def send_confirm_email_if_necessary(self, request):
-        """Update the user's email state
+        """Update the user's email state:
+        * If the user changed email, it needs to be confirmed
+        * If they're not fully archived, send a confirmation email
+
         Returns whether an email was sent"""
         # Only update the state if the email changed
         if self.__original_email == self.email:
             return False
 
-        self.email_state = self.EMAIL_STATE_PENDING
+        # If the user was previously in the PENDING or UNVERIFIED state,
+        # we can't update email_change_date otherwise it would push back
+        # their due date
+        # However, if the user is in the VERIFIED state, we reset the date
+        if self.email_state == self.EMAIL_STATE_VERIFIED:
+            self.email_change_date = timezone.now()
 
-        # Fully archived users shouldn't get an email
+        # Remember that the user needs to confirm their email address again
+        self.email_state = self.EMAIL_STATE_PENDING
+        self.save()
+
+        # Fully archived users shouldn't get an email, so stop here
         if self.state == self.STATE_FULL_ARCHIVE:
             return False
 
-        # Don't allow users without a confirmed email to postpone their due date
-        if self.email_state == self.EMAIL_STATE_VERIFIED or not self.email_change_date:
-            self.email_change_date = timezone.now()
-
-        self.save()
+        # Send the email
         self.confirm_email_address_mail(request)
         return True
 
