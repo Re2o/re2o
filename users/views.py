@@ -126,7 +126,7 @@ def new_user(request):
     if user.is_valid():
         user = user.save()
 
-        if user.did_set_initial_passwd:
+        if user.pwd_ntlm:
             user.send_confirm_email_if_necessary(request)
             messages.success(
                 request,
