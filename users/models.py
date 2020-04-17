@@ -179,14 +179,21 @@ class User(
     STATE_ARCHIVE = 2
     STATE_NOT_YET_ACTIVE = 3
     STATE_FULL_ARCHIVE = 4
-    STATE_EMAIL_NOT_YET_CONFIRMED = 5
     STATES = (
         (0, _("Active")),
         (1, _("Disabled")),
         (2, _("Archived")),
         (3, _("Not yet active")),
         (4, _("Fully archived")),
-        (5, _("Waiting for email confirmation")),
+    )
+
+    EMAIL_STATE_VERIFIED = 0
+    EMAIL_STATE_UNVERIFIED = 1
+    EMAIL_STATE_PENDING = 2
+    EMAIL_STATES = (
+        (0, _("Verified")),
+        (1, _("Unverified")),
+        (2, _("Waiting for email confirmation")),
     )
 
     surname = models.CharField(max_length=255)
@@ -222,6 +229,7 @@ class User(
     )
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_NOT_YET_ACTIVE)
+    email_state = models.IntegerField(choices=EMAIL_STATES, default=EMAIL_STATE_PENDING)
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
     uid_number = models.PositiveIntegerField(default=get_fresh_user_uid, unique=True)
@@ -332,7 +340,6 @@ class User(
         return (
             self.state == self.STATE_ACTIVE
             or self.state == self.STATE_NOT_YET_ACTIVE
-            or self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
             or (
                 allow_archived
                 and self.state in (self.STATE_ARCHIVE, self.STATE_FULL_ARCHIVE)
@@ -395,7 +402,7 @@ class User(
     @cached_property
     def get_shadow_expire(self):
         """Return the shadow_expire value for the user"""
-        if self.state == self.STATE_DISABLED:
+        if self.state == self.STATE_DISABLED or self.email_state == self.EMAIL_STATE_UNVERIFIED:
             return str(0)
         else:
             return None
@@ -487,7 +494,8 @@ class User(
     def has_access(self):
         """ Renvoie si un utilisateur a accès à internet """
         return (
-            self.state in [User.STATE_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]
+            self.state == User.STATE_ACTIVE
+            and self.email_state != User.EMAIL_STATE_UNVERIFIED
             and not self.is_ban()
             and (self.is_connected() or self.is_whitelisted())
         ) or self == AssoOption.get_cached_value("utilisateur_asso")
@@ -658,21 +666,6 @@ class User(
         ):
             self.full_archive()
 
-    def email_change_date_sync(self):
-        """Update user's email_change_date based on state update"""
-        if (
-            self.__original_state != self.STATE_ACTIVE
-            and self.state == self.STATE_ACTIVE
-        ):
-            self.email_change_date = None
-            self.save()
-        elif (
-            self.__original_state != self.STATE_EMAIL_NOT_YET_CONFIRMED
-            and self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
-        ):
-            self.email_change_date = timezone.now()
-            self.save()
-
     def ldap_sync(
         self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False
     ):
@@ -687,7 +680,6 @@ class User(
         Si l'instance n'existe pas, on crée le ldapuser correspondant"""
         if sys.version_info[0] >= 3 and (
             self.state == self.STATE_ACTIVE
-            or self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
             or self.state == self.STATE_ARCHIVE
             or self.state == self.STATE_DISABLED
         ):
@@ -807,7 +799,7 @@ class User(
         return
 
     def confirm_email_before_date(self):
-        if self.email_change_date is None or self.state != self.STATE_EMAIL_NOT_YET_CONFIRMED:
+        if self.email_change_date is None or self.email_state == self.EMAIL_STATE_VERIFIED:
             return None
 
         days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")

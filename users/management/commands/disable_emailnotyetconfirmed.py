@@ -31,13 +31,13 @@ class Command(BaseCommand):
         """First deleting invalid invoices, and then deleting the users"""
         days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
         users_to_disable = (
-            User.objects.filter(state=User.STATE_EMAIL_NOT_YET_CONFIRMED)
+            User.objects.filter(email_state=User.EMAIL_STATE_PENDING)
             .filter(email_change_date__lte=timezone.now() - timedelta(days=days))
             .distinct()
         )
         print("Disabling " + str(users_to_disable.count()) + " users.")
 
         for user in users_to_disable:
-            user.state = User.STATE_DISABLED
+            user.email_state = User.EMAIL_STATE_UNVERIFIED
             user.notif_disable()
             user.save()

@@ -745,7 +745,6 @@ def mass_archive(request):
             .exclude(id__in=all_has_access(search_time=date))
             .exclude(state=User.STATE_NOT_YET_ACTIVE)
             .exclude(state=User.STATE_FULL_ARCHIVE)
-            .exclude(state=User.STATE_EMAIL_NOT_YET_CONFIRMED)
         )
         if not full_archive:
             to_archive_list = to_archive_list.exclude(state=User.STATE_ARCHIVE)
@@ -981,7 +980,7 @@ def reset_password(request):
             user = User.objects.get(
                 pseudo=userform.cleaned_data["pseudo"],
                 email=userform.cleaned_data["email"],
-                state__in=[User.STATE_ACTIVE, User.STATE_NOT_YET_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED],
+                state__in=[User.STATE_ACTIVE, User.STATE_NOT_YET_ACTIVE],
             )
         except User.DoesNotExist:
             messages.error(request, _("The user doesn't exist."))
@@ -1060,7 +1059,7 @@ def resend_confirmation_email(request, logged_user, userid):
     try:
         user = User.objects.get(
             id=userid,
-            state__in=[User.STATE_EMAIL_NOT_YET_CONFIRMED],
+            email_state__in=[User.EMAIL_STATE_PENDING, User.EMAIL_STATE_UNVERIFIED],
         )
     except User.DoesNotExist:
         messages.error(request, _("The user doesn't exist."))
