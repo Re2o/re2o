@@ -223,10 +223,6 @@ msgstr "Nom"
 msgid "Use a mailing list"
 msgstr "Utiliser une liste de diffusion"
 
-#: users/forms.py:662
-msgid "State"
-msgstr "État"
-
 #: users/forms.py:663
 msgid "Email state"
 msgstr "État du mail"
@@ -1146,7 +1142,7 @@ msgstr "Bannissement"
 msgid "Not banned"
 msgstr "Non banni"
 
-#: users/templates/users/profil.html:251
+#: users/templates/users/profil.html:251 users/forms.py:662
 msgid "State"
 msgstr "État"
 
