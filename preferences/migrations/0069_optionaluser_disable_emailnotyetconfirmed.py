@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='optionaluser',
-            name='suspend_emailnotyetconfirmed',
-            field=models.IntegerField(default=2, help_text='Users with an email address not yet confirmed will be suspended after this number of days.')
+            name='disable_emailnotyetconfirmed',
+            field=models.IntegerField(default=2, help_text='Users with an email address not yet confirmed will be disabled after this number of days.')
         ),
     ]
 

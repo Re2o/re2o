@@ -174,13 +174,12 @@ class User(
     Champs principaux : name, surnname, pseudo, email, room, password
     Herite du django BaseUser et du système d'auth django"""
 
-    STATE_ACTIVE = 0  # Can login and has Internet (if invoice is valid)
-    STATE_DISABLED = 1  # Cannot login to Re2o and doesn't have Internet
+    STATE_ACTIVE = 0
+    STATE_DISABLED = 1
     STATE_ARCHIVE = 2
     STATE_NOT_YET_ACTIVE = 3
     STATE_FULL_ARCHIVE = 4
     STATE_EMAIL_NOT_YET_CONFIRMED = 5
-    STATE_SUSPENDED = 6  # Can login to Re2o but doesn't have Internet
     STATES = (
         (0, _("Active")),
         (1, _("Disabled")),
@@ -188,7 +187,6 @@ class User(
         (3, _("Not yet active")),
         (4, _("Fully archived")),
         (5, _("Waiting for email confirmation")),
-        (5, _("Suspended")),
     )
 
     surname = models.CharField(max_length=255)
@@ -397,7 +395,7 @@ class User(
     @cached_property
     def get_shadow_expire(self):
         """Return the shadow_expire value for the user"""
-        if self.state == self.STATE_DISABLED or self.STATE_SUSPENDED:
+        if self.state == self.STATE_DISABLED:
             return str(0)
         else:
             return None
@@ -692,7 +690,6 @@ class User(
             or self.state == self.STATE_EMAIL_NOT_YET_CONFIRMED
             or self.state == self.STATE_ARCHIVE
             or self.state == self.STATE_DISABLED
-            or self.state == self.STATE_SUSPENDED
         ):
             self.refresh_from_db()
             try:
@@ -813,7 +810,7 @@ class User(
         if self.email_change_date is None or self.state != self.STATE_EMAIL_NOT_YET_CONFIRMED:
             return None
 
-        days = OptionalUser.get_cached_value("suspend_emailnotyetconfirmed")
+        days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
         return self.email_change_date + timedelta(days=days)
 
     def confirm_email_address_mail(self, request):
@@ -900,9 +897,9 @@ class User(
         )
         return
 
-    def notif_suspension(self):
+    def notif_disable(self):
         """Envoi un mail de notification informant que l'adresse mail n'a pas été confirmée"""
-        template = loader.get_template("users/email_suspension_notif")
+        template = loader.get_template("users/email_disable_notif")
         context = {
             "name": self.get_full_name(),
             "asso_name": AssoOption.get_cached_value("name"),
