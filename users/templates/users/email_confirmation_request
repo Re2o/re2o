@@ -1,0 +1,39 @@
+Bonjour {{ name }},
+
+Vous trouverez ci-dessous une URL permettant de confirmer votre
+adresse mail pour votre compte {{ site_name }}. Celui-ci vous permet de gérer l'ensemble
+de vos équipements, votre compte, vos factures, et tous les services proposés sur le réseau.
+
+    {{ url }}
+
+Contactez les administrateurs si vous n'êtes pas à l'origine de cette requête.
+
+Ce lien expirera dans {{ expire_in }} heures.
+S'il a expiré, vous pouvez renvoyer un mail de confirmation depuis votre compte {{ site_name }}.
+
+/!\ Attention : Si vous ne confirmez pas votre email avant le {{ confirm_before_fr }}, votre compte sera suspendu.
+
+Respectueusement,
+
+L'équipe de {{ asso }} (contact : {{ asso_mail }}).
+
+---
+
+Hello {{ name }},
+
+You will find below an URL allowing you to confirm the email address of your account
+on {{ site_name }}. It enables you to manage your devices, your account, your invoices, and all
+the services offered on the network.
+
+    {{ url }}
+
+Contact the administrators if you didn't request this.
+
+This link will expire in {{ expire_in }} hours.
+If it has expired, you can send a new confirmation email from your account on {{ site_name }}.
+
+/!\ Warning: If you do not confirm your email before {{ confirm_before_en }}, your account will be suspended.
+
+Regards,
+
+The {{ asso }} team (contact: {{ asso_mail }}).

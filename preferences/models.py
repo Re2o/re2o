@@ -107,6 +107,12 @@ class OptionalUser(AclMixin, PreferencesModel):
             "Not yet active users will be deleted after this number of days."
         ),
     )
+    disable_emailnotyetconfirmed = models.IntegerField(
+        default=2,
+        help_text=_(
+            "Users with an email address not yet confirmed will be disabled after this number of days."
+        ),
+    )
     self_adhesion = models.BooleanField(
         default=False, help_text=_("A new user can create their account on Re2o.")
     )
@@ -115,6 +121,15 @@ class OptionalUser(AclMixin, PreferencesModel):
         help_text=_(
             "If True, all new created and connected users are active."
             " If False, only when a valid registration has been paid."
+        ),
+    )
+    allow_set_password_during_user_creation = models.BooleanField(
+        default=False,
+        help_text=_(
+            "If True, users have the choice to receive an email containing"
+            " a link to reset their password during creation, or to directly"
+            " set their password in the page."
+            " If False, an email is always sent."
         ),
     )
     allow_archived_connexion = models.BooleanField(

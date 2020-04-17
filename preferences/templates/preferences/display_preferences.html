@@ -128,6 +128,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <th>{% trans "Allow archived users to log in" %}</th>
                     <td>{{ useroptions.allow_archived_connexion|tick }}</td>
                 </tr>
+                <tr>
+                    <th>{% trans "Allow directly entering a password during account creation" %}</th>
+                    <td>{{ useroptions.allow_set_password_during_user_creation|tick }}</td>
+                    <th>{% trans "Delay before disabling accounts without a verified email" %}</th>
+                    <td>{% blocktrans with disable_emailnotyetconfirmed=useroptions.disable_emailnotyetconfirmed %}{{ disable_emailnotyetconfirmed }} days{% endblocktrans %}</td>
+                </tr>
             </table>
 
             <h4 id="users">{% trans "Users general permissions" %}</h4>

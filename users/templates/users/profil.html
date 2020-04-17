@@ -4,9 +4,11 @@ Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2017  Gabriel Détraz
-Copyright © 2017  Lara Kermarec
-Copyright © 2017  Augustin Lemesle
+Copyright © 2017-2020  Gabriel Détraz
+Copyright © 2017-2020  Lara Kermarec
+Copyright © 2017-2020  Augustin Lemesle
+Copyright © 2017-2020  Hugo Levy--Falk
+Copyright © 2017-2020  Jean-Romain Garnier
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,6 +40,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% blocktrans with name=users.name surname=users.surname %}Profile of {{ name }} {{ surname }}{% endblocktrans %}</h2>
     {% endif %}
 </div>
+
+
+{% if users.email_state == users.EMAIL_STATE_PENDING %}
+<div class="alert alert-warning">
+    {% blocktrans with confirm_before_date=users.confirm_email_before_date|date:"DATE_FORMAT" %}Please confirm your email address before {{ confirm_before_date }}, or your account will be suspended.{% endblocktrans %}
+    <br/>
+    <a href="{% url 'users:resend-confirmation-email' users.id %}">
+        {% blocktrans %}Didn't receive the email?{% endblocktrans %}
+    </a>
+</div>
+{% elif users.email_state == users.EMAIL_STATE_UNVERIFIED %}
+<div class="alert alert-danger">
+    {% blocktrans %}Your account has been suspended, please confirm your email address.{% endblocktrans %}
+</div>
+{% endif %}
+
+
 <div class="dashboard_container">
     <div class="row">
         <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col_md-6{% endif %}">
@@ -51,14 +70,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% elif not users.has_access %}
             <div class="panel panel-danger">
                 <div class="panel-heading dashboard">{% trans "No connection" %}</div>
+
                 <div class="panel-body dashboard">
-                    {% can_create Facture %}
-                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
-                        <i class="fa fa-sign-in"></i> {% trans "Pay for a connection" %}
-                    </a>
-                    {% acl_else %}
-                    {% trans "Ask someone with the appropriate rights to pay for a connection." %}
-                    {% acl_end %}
+                    {% if users.email_state == users.EMAIL_STATE_UNVERIFIED %}
+                        <a class="btn btn-danger btn-sm" role="button" href="{% url 'users:resend-confirmation-email' users.id %}">
+                            <i class="fa fa-sign-in"></i> {% trans "Resend the email" %}
+                        </a>
+                    {% else %}
+                        {% can_create Facture %}
+                        <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                            <i class="fa fa-sign-in"></i> {% trans "Pay for a connection" %}
+                        </a>
+                        {% acl_else %}
+                        {% trans "Ask someone with the appropriate rights to pay for a connection." %}
+                        {% acl_end %}
+                {% endif %}
                 </div>
             </div>
             {% else %}
@@ -181,7 +207,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
                     <div class="col-md-6">
                         <dt>{% trans "Email address" %}</dt>
-                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a></dd>
+                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a>{% if users.email_state != users.EMAIL_STATE_VERIFIED %}<br/><i class="text-warning">{% trans "Pending confirmation..." %}</i>{% endif %}</dd>
                     </div>
 
                     <div class="col-md-6">

@@ -3,9 +3,11 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2017-2020  Gabriel Détraz
+# Copyright © 2017-2020  Lara Kermarec
+# Copyright © 2017-2020  Augustin Lemesle
+# Copyright © 2017-2020  Hugo Levy--Falk
+# Copyright © 2017-2020  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -119,26 +121,42 @@ def new_user(request):
     user = AdherentCreationForm(request.POST or None, user=request.user)
     GTU_sum_up = GeneralOption.get_cached_value("GTU_sum_up")
     GTU = GeneralOption.get_cached_value("GTU")
+    is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
+
     if user.is_valid():
         user = user.save()
-        user.reset_passwd_mail(request)
-        messages.success(
-            request,
-            _("The user %s was created, an email to set the password was sent.")
-            % user.pseudo,
-        )
+
+        if user.password:
+            user.send_confirm_email_if_necessary(request)
+            messages.success(
+                request,
+                _("The user %s was created, a confirmation email was sent.")
+                % user.pseudo,
+            )
+        else:
+            user.reset_passwd_mail(request)
+            messages.success(
+                request,
+                _("The user %s was created, an email to set the password was sent.")
+                % user.pseudo,
+            )
+
         return redirect(reverse("users:profil", kwargs={"userid": str(user.id)}))
-    return form(
-        {
-            "userform": user,
-            "GTU_sum_up": GTU_sum_up,
-            "GTU": GTU,
-            "showCGU": True,
-            "action_name": _("Commit"),
-        },
-        "users/user.html",
-        request,
-    )
+
+    # Anonymous users are allowed to create new accounts
+    # but they should be treated differently
+    params = {
+        "userform": user,
+        "GTU_sum_up": GTU_sum_up,
+        "GTU": GTU,
+        "showCGU": True,
+        "action_name": _("Commit"),
+    }
+
+    if is_set_password_allowed:
+        params["load_js_file"] = "/static/js/toggle_password_fields.js"
+
+    return form(params, "users/user.html", request)
 
 
 @login_required
@@ -204,8 +222,12 @@ def edit_info(request, user, userid):
         )
     if user_form.is_valid():
         if user_form.changed_data:
-            user_form.save()
+            user = user_form.save()
             messages.success(request, _("The user was edited."))
+
+            if user.send_confirm_email_if_necessary(request):
+                messages.success(request, _("Sent a new confirmation email."))
+
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
         {"userform": user_form, "action_name": _("Edit")},
@@ -221,8 +243,10 @@ def state(request, user, userid):
     state_form = StateForm(request.POST or None, instance=user)
     if state_form.is_valid():
         if state_form.changed_data:
-            state_form.save()
-            messages.success(request, _("The state was edited."))
+            user_instance = state_form.save()
+            messages.success(request, _("The states were edited."))
+            if user_instance.trigger_email_changed_state(request):
+                messages.success(request, _("An email to confirm the address was sent."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
         {"userform": state_form, "action_name": _("Edit")},
@@ -522,6 +546,10 @@ def edit_email_settings(request, user_instance, **_kwargs):
         if email_settings.changed_data:
             email_settings.save()
             messages.success(request, _("The email settings were edited."))
+
+            if user_instance.send_confirm_email_if_necessary(request):
+                messages.success(request, _("An email to confirm your address was sent."))
+
         return redirect(
             reverse("users:profil", kwargs={"userid": str(user_instance.id)})
         )
@@ -974,12 +1002,15 @@ def reset_password(request):
 
 
 def process(request, token):
-    """Process, lien pour la reinitialisation du mot de passe"""
+    """Process, lien pour la reinitialisation du mot de passe
+    et la confirmation de l'email"""
     valid_reqs = Request.objects.filter(expires_at__gt=timezone.now())
     req = get_object_or_404(valid_reqs, token=token)
 
     if req.type == Request.PASSWD:
         return process_passwd(request, req)
+    elif req.type == Request.EMAIL:
+        return process_email(request, req)
     else:
         messages.error(request, _("Error: please contact an admin."))
         redirect(reverse("index"))
@@ -992,15 +1023,64 @@ def process_passwd(request, req):
     u_form = PassForm(request.POST or None, instance=user, user=request.user)
     if u_form.is_valid():
         with transaction.atomic(), reversion.create_revision():
+            user.confirm_mail()
             u_form.save()
             reversion.set_comment("Password reset")
-        req.delete()
+
+        # Delete all remaining requests
+        Request.objects.filter(user=user, type=Request.PASSWD).delete()
         messages.success(request, _("The password was changed."))
         return redirect(reverse("index"))
     return form(
         {"userform": u_form, "action_name": _("Change the password")},
         "users/user.html",
         request,
+    )
+
+
+def process_email(request, req):
+    """Process la confirmation de mail, renvoie le formulaire
+    de validation"""
+    user = req.user
+    if request.method == "POST":
+        with transaction.atomic(), reversion.create_revision():
+            user.confirm_mail()
+            user.save()
+            reversion.set_comment("Email confirmation")
+
+        # Delete all remaining requests
+        Request.objects.filter(user=user, type=Request.EMAIL).delete()
+        messages.success(request, _("The %s address was confirmed." % user.email))
+        return redirect(reverse("index"))
+
+    return form(
+        {"email": user.email, "name": user.get_full_name()},
+        "users/confirm_email.html",
+        request
+    )
+
+
+@login_required
+@can_edit(User)
+def resend_confirmation_email(request, logged_user, userid):
+    """ Renvoi du mail de confirmation """
+    try:
+        user = User.objects.get(
+            id=userid,
+            email_state__in=[User.EMAIL_STATE_PENDING, User.EMAIL_STATE_UNVERIFIED],
+        )
+    except User.DoesNotExist:
+        messages.error(request, _("The user doesn't exist."))
+
+    if request.method == "POST":
+        user.confirm_email_address_mail(request)
+        messages.success(request, _("An email to confirm your address was sent."))
+        return redirect(reverse("users:profil", kwargs={"userid": userid}))
+
+    return form(
+        {"email": user.email},
+        "users/resend_confirmation_email.html",
+        request
     )
 
 

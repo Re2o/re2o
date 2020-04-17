@@ -3,9 +3,11 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2017-2020  Gabriel Détraz
+# Copyright © 2017-2020  Lara Kermarec
+# Copyright © 2017-2020  Augustin Lemesle
+# Copyright © 2017-2020  Hugo Levy--Falk
+# Copyright © 2017-2020  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -113,6 +115,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         """Changement du mot de passe"""
         user = super(PassForm, self).save(commit=False)
         user.set_password(self.cleaned_data.get("passwd1"))
+        user.state = User.STATE_NOT_YET_ACTIVE
         user.set_active()
         user.save()
 
@@ -380,7 +383,42 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 class AdherentCreationForm(AdherentForm):
     """Formulaire de création d'un user.
     AdherentForm auquel on ajoute une checkbox afin d'éviter les
-    doublons d'utilisateurs"""
+    doublons d'utilisateurs et, optionnellement,
+    un champ mot de passe"""
+    # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
+    init_password_by_mail_info = _(
+        "If this options is set, you will receive a link to set"
+        " your initial password by email. If you do not have"
+        " any means of accessing your emails, you can disable"
+        " this option to set your password immediatly."
+        " You will still receive an email to confirm your address."
+        " Failure to confirm your address will result in an"
+        " automatic suspension of your account until you do."
+    )
+
+    init_password_by_mail = forms.BooleanField(
+        help_text=init_password_by_mail_info,
+        required=False,
+        initial=True
+    )
+    init_password_by_mail.label = _("Send password reset link by email.")
+
+    # Champs pour initialiser le mot de passe
+    # Validators are handled manually since theses fields aren't always required
+    password1 = forms.CharField(
+        required=False,
+        label=_("Password"),
+        widget=forms.PasswordInput,
+        #validators=[MinLengthValidator(8)],
+        max_length=255,
+    )
+    password2 = forms.CharField(
+        required=False,
+        label=_("Password confirmation"),
+        widget=forms.PasswordInput,
+        #validators=[MinLengthValidator(8)],
+        max_length=255,
+    )
 
     # Champ permettant d'éviter au maxium les doublons d'utilisateurs
     former_user_check_info = _(
@@ -421,6 +459,53 @@ class AdherentCreationForm(AdherentForm):
                 _("General Terms of Use"),
             )
         )
+
+        # Remove password fields if option is disabled
+        if not OptionalUser.get_cached_value("allow_set_password_during_user_creation"):
+            self.fields.pop("init_password_by_mail")
+            self.fields.pop("password1")
+            self.fields.pop("password2")
+
+    def clean_password1(self):
+        """Ignore ce champs si la case init_password_by_mail est décochée"""
+        send_email = self.cleaned_data.get("init_password_by_mail")
+        if send_email:
+            return None
+
+        password1 = self.cleaned_data.get("password1")
+        if len(password1) < 8:
+            raise forms.ValidationError(_("Password must contain at least 8 characters."))
+
+        return password1
+
+    def clean_password2(self):
+        """Verifie que password1 et 2 sont identiques (si nécessaire)"""
+        send_email = self.cleaned_data.get("init_password_by_mail")
+        if send_email:
+            return None
+
+        # Check that the two password entries match
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(_("The passwords don't match."))
+
+        return password2
+
+    def save(self, commit=True):
+        """Set the user's password, if entered
+        Returns the user and a bool indicating whether
+        an email to init the password should be sent"""
+        # Save the provided password in hashed format
+        user = super(AdherentForm, self).save(commit=False)
+
+        is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
+        set_passwd = is_set_password_allowed and not self.cleaned_data.get("init_password_by_mail")
+        if set_passwd:
+            user.set_password(self.cleaned_data["password1"])
+
+        user.save()
+        return user
 
 
 class AdherentEditForm(AdherentForm):
@@ -565,22 +650,17 @@ class EditServiceUserForm(ServiceUserForm):
 
 
 class StateForm(FormRevMixin, ModelForm):
-    """ Changement de l'état d'un user"""
+    """Change state of an user, and if its main email is verified or not"""
 
     class Meta:
         model = User
-        fields = ["state"]
+        fields = ["state", "email_state"]
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
-
-    def save(self, commit=True):
-        user = super(StateForm, self).save(commit=False)
-        if self.cleaned_data["state"]:
-            user.state = self.cleaned_data.get("state")
-            user.state_sync()
-        user.save()
+        self.fields["state"].label = _("State")
+        self.fields["email_state"].label = _("Email state")
 
 
 class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):

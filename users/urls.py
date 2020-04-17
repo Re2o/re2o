@@ -3,9 +3,11 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2017-2020  Gabriel Détraz
+# Copyright © 2017-2020  Lara Kermarec
+# Copyright © 2017-2020  Augustin Lemesle
+# Copyright © 2017-2020  Hugo Levy--Falk
+# Copyright © 2017-2020  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,6 +44,7 @@ urlpatterns = [
     url(r"^state/(?P<userid>[0-9]+)$", views.state, name="state"),
     url(r"^groups/(?P<userid>[0-9]+)$", views.groups, name="groups"),
     url(r"^password/(?P<userid>[0-9]+)$", views.password, name="password"),
+    url(r"^confirm_email/(?P<userid>[0-9]+)$", views.resend_confirmation_email, name="resend-confirmation-email"),
     url(
         r"^del_group/(?P<userid>[0-9]+)/(?P<listrightid>[0-9]+)$",
         views.del_group,

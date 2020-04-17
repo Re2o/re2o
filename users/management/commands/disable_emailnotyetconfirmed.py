@@ -1,6 +1,4 @@
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2017-2020  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models import Q
 
 from users.models import User
 from cotisations.models import Facture
@@ -28,17 +25,19 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-    help = "Delete non members users (not yet active)."
+    help = "Disable users who haven't confirmed their email."
 
     def handle(self, *args, **options):
         """First deleting invalid invoices, and then deleting the users"""
         days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
-        users_to_delete = (
-            User.objects.filter(Q(state=User.STATE_NOT_YET_ACTIVE))
-            .filter(registered__lte=timezone.now() - timedelta(days=days))
-            .exclude(facture__valid=True)
+        users_to_disable = (
+            User.objects.filter(email_state=User.EMAIL_STATE_PENDING)
+            .filter(email_change_date__lte=timezone.now() - timedelta(days=days))
             .distinct()
         )
-        print("Deleting " + str(users_to_delete.count()) + " users.")
-        Facture.objects.filter(user__in=users_to_delete).delete()
-        users_to_delete.delete()
+        print("Disabling " + str(users_to_disable.count()) + " users.")
+
+        for user in users_to_disable:
+            user.email_state = User.EMAIL_STATE_UNVERIFIED
+            user.notif_disable()
+            user.save()

@@ -3,9 +3,11 @@
 # Il  se veut agnostique au réseau considéré, de manière à être installable
 # en quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2017-2020  Gabriel Détraz
+# Copyright © 2017-2020  Lara Kermarec
+# Copyright © 2017-2020  Augustin Lemesle
+# Copyright © 2017-2020  Hugo Levy--Falk
+# Copyright © 2017-2020  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -62,6 +64,7 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -144,6 +147,7 @@ class UserManager(BaseUserManager):
         )
 
         user.set_password(password)
+        user.confirm_mail()
         if su:
             user.is_superuser = True
         user.save(using=self._db)
@@ -184,6 +188,15 @@ class User(
         (4, _("Fully archived")),
     )
 
+    EMAIL_STATE_VERIFIED = 0
+    EMAIL_STATE_UNVERIFIED = 1
+    EMAIL_STATE_PENDING = 2
+    EMAIL_STATES = (
+        (0, _("Confirmed")),
+        (1, _("Not confirmed")),
+        (2, _("Waiting for email confirmation")),
+    )
+
     surname = models.CharField(max_length=255)
     pseudo = models.CharField(
         max_length=32,
@@ -217,6 +230,7 @@ class User(
     )
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(choices=STATES, default=STATE_NOT_YET_ACTIVE)
+    email_state = models.IntegerField(choices=EMAIL_STATES, default=EMAIL_STATE_PENDING)
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
     uid_number = models.PositiveIntegerField(default=get_fresh_user_uid, unique=True)
@@ -224,6 +238,7 @@ class User(
     shortcuts_enabled = models.BooleanField(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
+    email_change_date = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "pseudo"
     REQUIRED_FIELDS = ["surname", "email"]
@@ -335,7 +350,7 @@ class User(
     def set_active(self):
         """Enable this user if he subscribed successfully one time before
         Reenable it if it was archived
-        Do nothing if disabed"""
+        Do nothing if disabled or waiting for email confirmation"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
             if self.facture_set.filter(valid=True).filter(
                 Q(vente__type_cotisation="All") | Q(vente__type_cotisation="Adhesion")
@@ -388,7 +403,7 @@ class User(
     @cached_property
     def get_shadow_expire(self):
         """Return the shadow_expire value for the user"""
-        if self.state == self.STATE_DISABLED:
+        if self.state == self.STATE_DISABLED or self.email_state == self.EMAIL_STATE_UNVERIFIED:
             return str(0)
         else:
             return None
@@ -481,6 +496,7 @@ class User(
         """ Renvoie si un utilisateur a accès à internet """
         return (
             self.state == User.STATE_ACTIVE
+            and self.email_state != User.EMAIL_STATE_UNVERIFIED
             and not self.is_ban()
             and (self.is_connected() or self.is_whitelisted())
         ) or self == AssoOption.get_cached_value("utilisateur_asso")
@@ -783,6 +799,90 @@ class User(
         )
         return
 
+    def send_confirm_email_if_necessary(self, request):
+        """Update the user's email state:
+        * If the user changed email, it needs to be confirmed
+        * If they're not fully archived, send a confirmation email
+
+        Returns whether an email was sent"""
+        # Only update the state if the email changed
+        if self.__original_email == self.email:
+            return False
+
+        # If the user was previously in the PENDING or UNVERIFIED state,
+        # we can't update email_change_date otherwise it would push back
+        # their due date
+        # However, if the user is in the VERIFIED state, we reset the date
+        if self.email_state == self.EMAIL_STATE_VERIFIED:
+            self.email_change_date = timezone.now()
+
+        # Remember that the user needs to confirm their email address again
+        self.email_state = self.EMAIL_STATE_PENDING
+        self.save()
+
+        # Fully archived users shouldn't get an email, so stop here
+        if self.state == self.STATE_FULL_ARCHIVE:
+            return False
+
+        # Send the email
+        self.confirm_email_address_mail(request)
+        return True
+
+    def trigger_email_changed_state(self, request):
+        """Trigger an email, and changed values after email_state been manually updated"""
+        if self.email_state == self.EMAIL_STATE_VERIFIED:
+            return False
+
+        self.email_change_date = timezone.now()
+        self.save()
+
+        self.confirm_email_address_mail(request)
+        return True
+
+    def confirm_email_before_date(self):
+        if self.email_state == self.EMAIL_STATE_VERIFIED:
+            return None
+
+        days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
+        return self.email_change_date + timedelta(days=days)
+
+    def confirm_email_address_mail(self, request):
+        """Prend en argument un request, envoie un mail pour
+        confirmer l'adresse"""
+        # Delete all older requests for this user, that aren't for this email
+        filter = Q(user=self) & Q(type=Request.EMAIL) & ~Q(email=self.email)
+        Request.objects.filter(filter).delete()
+
+        # Create the request and send the email
+        req = Request()
+        req.type = Request.EMAIL
+        req.user = self
+        req.email = self.email
+        req.save()
+
+        template = loader.get_template("users/email_confirmation_request")
+        context = {
+            "name": req.user.get_full_name(),
+            "asso": AssoOption.get_cached_value("name"),
+            "asso_mail": AssoOption.get_cached_value("contact"),
+            "site_name": GeneralOption.get_cached_value("site_name"),
+            "url": request.build_absolute_uri(
+                reverse("users:process", kwargs={"token": req.token})
+            ),
+            "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs")),
+            "confirm_before_fr": self.confirm_email_before_date().strftime("%d/%m/%Y"),
+            "confirm_before_en": self.confirm_email_before_date().strftime("%Y-%m-%d"),
+        }
+        send_mail(
+            "Confirmation du mail de %(name)s / Email confirmation for "
+            "%(name)s" % {"name": AssoOption.get_cached_value("name")},
+            template.render(context),
+            GeneralOption.get_cached_value("email_from"),
+            [req.user.email],
+            fail_silently=False,
+        )
+        return
+
     def autoregister_machine(self, mac_address, nas_type):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
@@ -836,6 +936,24 @@ class User(
         )
         return
 
+    def notif_disable(self):
+        """Envoi un mail de notification informant que l'adresse mail n'a pas été confirmée"""
+        template = loader.get_template("users/email_disable_notif")
+        context = {
+            "name": self.get_full_name(),
+            "asso_name": AssoOption.get_cached_value("name"),
+            "asso_email": AssoOption.get_cached_value("contact"),
+            "site_name": GeneralOption.get_cached_value("site_name"),
+        }
+        send_mail(
+            "Suspension automatique / Automatic suspension",
+            template.render(context),
+            GeneralOption.get_cached_value("email_from"),
+            [self.email],
+            fail_silently=False,
+        )
+        return
+
     def set_password(self, password):
         """ A utiliser de préférence, set le password en hash courrant et
         dans la version ntlm"""
@@ -844,6 +962,10 @@ class User(
         super().set_password(password)
         self.pwd_ntlm = hashNT(password)
         return
+
+    def confirm_mail(self):
+        """Marque l'email de l'utilisateur comme confirmé"""
+        self.email_state = self.EMAIL_STATE_VERIFIED
 
     @cached_property
     def email_address(self):
@@ -1190,6 +1312,7 @@ class User(
             "room": self.can_change_room,
         }
         self.__original_state = self.state
+        self.__original_email = self.email
 
     def clean(self, *args, **kwargs):
         """Check if this pseudo is already used by any mailalias.
@@ -1771,6 +1894,7 @@ class Request(models.Model):
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     token = models.CharField(max_length=32)
     user = models.ForeignKey("User", on_delete=models.CASCADE)
+    email = models.EmailField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     expires_at = models.DateTimeField()
 
