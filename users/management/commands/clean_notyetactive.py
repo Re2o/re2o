@@ -28,13 +28,13 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-    help = "Delete non members users (not yet active or disabled too long ago without an invoice)."
+    help = "Delete non members users (not yet active or suspended too long ago without an invoice)."
 
     def handle(self, *args, **options):
         """First deleting invalid invoices, and then deleting the users"""
-        days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
+        days = OptionalUser.get_cached_value("delete_notyetactive")
         users_to_delete = (
-            User.objects.filter(Q(state=User.STATE_NOT_YET_ACTIVE) | Q(state=User.STATE_DISABLED))
+            User.objects.filter(Q(state=User.STATE_NOT_YET_ACTIVE) | Q(state=User.STATE_SUSPENDED))
             .filter(registered__lte=timezone.now() - timedelta(days=days))
             .exclude(facture__valid=True)
             .distinct()

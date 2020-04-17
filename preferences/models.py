@@ -107,10 +107,10 @@ class OptionalUser(AclMixin, PreferencesModel):
             "Not yet active users will be deleted after this number of days."
         ),
     )
-    disable_emailnotyetconfirmed = models.IntegerField(
+    suspend_emailnotyetconfirmed = models.IntegerField(
         default=2,
         help_text=_(
-            "Users with an email address not yet confirmed will be disabled after this number of days."
+            "Users with an email address not yet confirmed will be suspended after this number of days."
         ),
     )
     self_adhesion = models.BooleanField(

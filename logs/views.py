@@ -270,6 +270,16 @@ def stats_general(request):
                     ),
                     Club.objects.filter(state=Club.STATE_EMAIL_NOT_YET_CONFIRMED).count(),
                 ],
+                "suspended_users": [
+                    _("Suspended users"),
+                    User.objects.filter(state=User.STATE_SUSPENDED).count(),
+                    (
+                        Adherent.objects.filter(
+                            state=Adherent.STATE_SUSPENDED
+                        ).count()
+                    ),
+                    Club.objects.filter(state=Club.STATE_SUSPENDED).count(),
+                ],
                 "adherent_users": [
                     _("Contributing members"),
                     _all_adherent.count(),
