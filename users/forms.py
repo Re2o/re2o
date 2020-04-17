@@ -875,6 +875,22 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                 )
             )
 
+    def save(self, commit=True):
+        """Update email state if email was changed"""
+        user = super(EmailSettingsForm, self).save(commit=commit)
+
+        if self.initial["email"] and user.email != self.initial["email"]:
+            # Send a confirmation email
+            if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE]:
+                user.email_state = User.EMAIL_STATE_PENDING
+                self.should_send_confirmation_email = True
+
+                # Always keep the oldest change date
+                if user.email_change_date is None:
+                    user.email_change_date = timezone.now()
+
+        user.save()
+
     class Meta:
         model = User
         fields = ["email", "local_email_enabled", "local_email_redirect"]
