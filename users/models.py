@@ -895,6 +895,24 @@ class User(
         )
         return
 
+    def notif_disable(self):
+        """Envoi un mail de notification informant que l'adresse mail n'a pas été confirmée"""
+        template = loader.get_template("users/email_disable_notif")
+        context = {
+            "name": self.get_full_name(),
+            "asso_name": AssoOption.get_cached_value("name"),
+            "asso_email": AssoOption.get_cached_value("contact"),
+            "site_name": GeneralOption.get_cached_value("site_name"),
+        }
+        send_mail(
+            "Suspension automatique / Automatic suspension",
+            template.render(context),
+            GeneralOption.get_cached_value("email_from"),
+            [self.email],
+            fail_silently=False,
+        )
+        return
+
     def set_password(self, password):
         """ A utiliser de préférence, set le password en hash courrant et
         dans la version ntlm"""
