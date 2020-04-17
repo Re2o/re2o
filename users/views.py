@@ -1063,7 +1063,7 @@ def process_email(request, req):
             reversion.set_comment("Email confirmation")
 
         req.delete()
-        messages.success(request, _("The %(email)s address was confirmed." % user.email))
+        messages.success(request, _("The %s address was confirmed." % user.email))
         return redirect(reverse("index"))
 
     return form(
