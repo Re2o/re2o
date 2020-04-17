@@ -351,8 +351,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         label=_("Force the move?"), initial=False, required=False
     )
 
-    should_send_confirmation_email = False
-
     def clean_email(self):
         if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
             "email"
@@ -826,7 +824,6 @@ class EMailAddressForm(FormRevMixin, ModelForm):
 
 class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """Edit email-related settings"""
-    should_send_confirmation_email = False
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -848,22 +845,6 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                     OptionalUser.objects.first().local_email_domain
                 )
             )
-
-    def save(self, commit=True):
-        """Update email state if email was changed"""
-        user = super(EmailSettingsForm, self).save(commit=commit)
-
-        if self.initial["email"] and user.email != self.initial["email"]:
-            # Send a confirmation email
-            if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE]:
-                user.email_state = User.EMAIL_STATE_PENDING
-                self.should_send_confirmation_email = True
-
-                # Always keep the oldest change date
-                if user.email_change_date is None:
-                    user.email_change_date = timezone.now()
-
-        user.save()
 
     class Meta:
         model = User
