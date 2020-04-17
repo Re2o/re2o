@@ -50,10 +50,6 @@ msgstr "Pas encore adhéré"
 msgid "Fully archived"
 msgstr "Complètement archivés"
 
-#: search/forms.py:38
-msgid "Waiting for email confirmation"
-msgstr "En attente de confirmation d'email"
-
 #: search/forms.py:41
 msgid "Users"
 msgstr "Utilisateurs"
@@ -116,6 +112,18 @@ msgstr "Date de début"
 #: search/forms.py:102
 msgid "End date"
 msgstr "Date de fin"
+
+#: search/models.py:195
+msgid "Verified"
+msgstr "Confirmé"
+
+#: search/models.py:196
+msgid "Unverified"
+msgstr "Non-confirmé"
+
+#: search/models.py:197
+msgid "Waiting for email confirmation"
+msgstr "En attente de confirmation d'email"
 
 #: search/templates/search/index.html:29
 msgid "Search results"
