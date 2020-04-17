@@ -979,7 +979,7 @@ msgstr "Email de confirmation"
 #: users/templates/users/confirm_email.html:36
 #, python-format
 msgid "Confirm the email"
-msgstr "Confirmer l'email"
+msgstr "Confirmer le mail"
 
 #: users/templates/users/confirm_email.html:36
 #, python-format
@@ -1263,7 +1263,7 @@ msgstr "Renvoyer l'email de confirmation ?"
 #: users/templates/users/resend_confirmation_email.html:36
 #, python-format
 msgid "The confirmation email will be sent to"
-msgstr "L'email de confirmation sera envoyé à"
+msgstr "Le mail de confirmation sera envoyé à"
 
 #: users/templates/users/sidebar.html:33
 msgid "Create a club or organisation"

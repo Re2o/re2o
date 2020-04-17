@@ -123,7 +123,7 @@ msgstr "Non-confirmé"
 
 #: search/models.py:197
 msgid "Waiting for email confirmation"
-msgstr "En attente de confirmation d'email"
+msgstr "En attente de confirmation du mail"
 
 #: search/templates/search/index.html:29
 msgid "Search results"

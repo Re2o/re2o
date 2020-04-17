@@ -874,7 +874,7 @@ class User(
             "confirm_before_en": self.confirm_email_before_date().strftime("%Y-%m-%d"),
         }
         send_mail(
-            "Confirmation de l'email de %(name)s / Email confirmation for "
+            "Confirmation du mail de %(name)s / Email confirmation for "
             "%(name)s" % {"name": AssoOption.get_cached_value("name")},
             template.render(context),
             GeneralOption.get_cached_value("email_from"),

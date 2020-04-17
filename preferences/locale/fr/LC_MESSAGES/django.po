@@ -315,7 +315,7 @@ msgstr ""
 "Si True, les utilisateurs ont le choix de recevoir un email avec"
 " un lien pour changer leur mot de passe lors de la création de leur compte, "
 " ou alors de choisir leur mot de passe immédiatement."
-" Si False, un email est toujours envoyé."
+" Si False, un mail est toujours envoyé."
 
 #: preferences/models.py:121
 msgid "If True, archived users are allowed to connect."
