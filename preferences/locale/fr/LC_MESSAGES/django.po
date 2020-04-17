@@ -286,6 +286,14 @@ msgstr ""
 "jours."
 
 #: preferences/models.py:111
+msgid ""
+"Users with an email address not yet confirmed will be disabled after"
+" this number of days."
+msgstr ""
+"Les utilisateurs n'ayant pas confirmé leur addresse mail seront"
+" désactivés après ce nombre de jours"
+
+#: preferences/models.py:114
 msgid "A new user can create their account on Re2o."
 msgstr "Un nouvel utilisateur peut créer son compte sur Re2o."
 
@@ -1066,14 +1074,19 @@ msgstr "%(delete_notyetactive)s jours"
 msgid "All users are active by default"
 msgstr "Tous les utilisateurs sont actifs par défault"
 
-msgid "Allow directly entering a password during account creation"
-msgstr "Permettre le choix d'un mot de passe directement lors de la création du compte"
-
 #: preferences/templates/preferences/display_preferences.html:130
 msgid "Allow archived users to log in"
 msgstr "Autoriser les utilisateurs archivés à se connecter"
 
 #: preferences/templates/preferences/display_preferences.html:133
+msgid "Allow directly entering a password during account creation"
+msgstr "Permettre le choix d'un mot de passe directement lors de la création du compte"
+
+#: preferences/templates/preferences/display_preferences.html:136
+msgid "Delay before disabling accounts without a verified email"
+msgstr "Délai avant la désactivation des comptes sans adresse mail confirmé"
+
+#: preferences/templates/preferences/display_preferences.html:136
 msgid "Users general permissions"
 msgstr "Permissions générales des utilisateurs"
 

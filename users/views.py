@@ -129,7 +129,7 @@ def new_user(request):
             user.confirm_email_address_mail(request)
             messages.success(
                 request,
-                _("The user %s was created.")
+                _("The user %s was created, a confirmation email was sent.")
                 % user.pseudo,
             )
         else:
@@ -226,7 +226,7 @@ def edit_info(request, user, userid):
 
             if user_form.should_send_confirmation_email:
                 user.confirm_email_address_mail(request)
-                messages.success(request, _("Sent a new confirmation email"))
+                messages.success(request, _("Sent a new confirmation email."))
 
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(

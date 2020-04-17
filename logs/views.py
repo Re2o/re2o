@@ -261,7 +261,7 @@ def stats_general(request):
                     Club.objects.filter(state=Club.STATE_NOT_YET_ACTIVE).count(),
                 ],
                 "email_not_confirmed_users": [
-                    _("Email not yet confirmed users"),
+                    _("Waiting for email confirmation users"),
                     User.objects.filter(state=User.STATE_EMAIL_NOT_YET_CONFIRMED).count(),
                     (
                         Adherent.objects.filter(

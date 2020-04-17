@@ -131,7 +131,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <tr>
                     <th>{% trans "Allow directly entering a password during account creation" %}</th>
                     <td>{{ useroptions.allow_set_password_during_user_creation|tick }}</td>
-                    <th>{% trans "Disable email not yet confirmed users after" %}</th>
+                    <th>{% trans "Delay before disabling accounts without a verified email" %}</th>
                     <td>{% blocktrans with disable_emailnotyetconfirmed=useroptions.disable_emailnotyetconfirmed %}{{ disable_emailnotyetconfirmed }} days{% endblocktrans %}</td>
                 </tr>
             </table>
