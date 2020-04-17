@@ -388,8 +388,8 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
         if not self.is_anon and self.initial["email"] and user.email != self.initial["email"]:
             # Send a confirmation email
-            if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]:
-                user.state = User.STATE_EMAIL_NOT_YET_CONFIRMED
+            if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE]:
+                user.email_state = User.EMAIL_STATE_PENDING
                 self.should_send_confirmation_email = True
 
                 # Always keep the oldest change date
@@ -682,7 +682,6 @@ class StateForm(FormRevMixin, ModelForm):
             user.state = self.cleaned_data.get("state")
             user.state_sync()
 
-        user.email_change_date_sync()
         user.save()
 
 

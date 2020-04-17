@@ -116,7 +116,8 @@ def all_has_access(search_time=None, including_asso=True):
     if search_time is None:
         search_time = timezone.now()
     filter_user = (
-        (Q(state=User.STATE_ACTIVE) | Q(state=User.STATE_EMAIL_NOT_YET_CONFIRMED))
+        Q(state=User.STATE_ACTIVE)
+        & ~Q(email_state=User.EMAIL_STATE_UNVERIFIED)
         & ~Q(
             ban__in=Ban.objects.filter(
                 Q(date_start__lt=search_time) & Q(date_end__gt=search_time)

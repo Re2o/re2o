@@ -469,7 +469,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                 RadiusOption.get_attributes("non_member_attributes", attributes_kwargs),
             )
         for user in room_user:
-            if user.is_ban() or user.state not in [User.STATE_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]:
+            if user.is_ban() or user.state != User.STATE_ACTIVE:
                 return (
                     sw_name,
                     room,
@@ -479,6 +479,21 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                     ),
                     RadiusOption.get_cached_value("banned") != RadiusOption.REJECT,
                     RadiusOption.get_attributes("banned_attributes", attributes_kwargs),
+                )
+            elif user.email_state == User.EMAIL_STATE_UNVERIFIED:
+                return (
+                    sw_name,
+                    room,
+                    u"Utilisateur suspendu (mail non confirme)",
+                    getattr(
+                        RadiusOption.get_cached_value("non_member_vlan"),
+                        "vlan_id",
+                        None,
+                    ),
+                    RadiusOption.get_cached_value("non_member") != RadiusOption.REJECT,
+                    RadiusOption.get_attributes(
+                        "non_member_attributes", attributes_kwargs
+                    ),
                 )
             elif not (user.is_connected() or user.is_whitelisted()):
                 return (

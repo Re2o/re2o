@@ -42,7 +42,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 </div>
 
 
-{% if users.state == users.STATE_EMAIL_NOT_YET_CONFIRMED %}
+{% if users.email_state == users.EMAIL_STATE_PENDING %}
 <div class="alert alert-warning">
     {% blocktrans with confirm_before_date=users.confirm_email_before_date|date:"DATE_FORMAT" %}Please confirm your email address before {{ confirm_before_date }}, or your account will be suspended.{% endblocktrans %}
     <br/>
@@ -50,9 +50,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% blocktrans %}Didn't receive the email?{% endblocktrans %}
     </a>
 </div>
-{% elif users.state == users.STATE_DISABLED %}
+{% elif users.email_state == users.EMAIL_STATE_UNVERIFIED %}
 <div class="alert alert-danger">
-    {% blocktrans %}Your account has been suspended.{% endblocktrans %}
+    {% blocktrans %}Your account has been suspended, please confirm your email address.{% endblocktrans %}
 </div>
 {% endif %}
 

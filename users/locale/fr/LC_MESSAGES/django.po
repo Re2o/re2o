@@ -1008,8 +1008,8 @@ msgstr "Vous n'avez pas reçu le mail ?"
 
 #: users/templates/users/profil.html:53
 #, python-format
-msgid "Your account has been suspended."
-msgstr "Votre compte a été suspendu."
+msgid "Your account has been suspended, please confirm your email address."
+msgstr "Votre compte a été suspendu, veuillez confirmer votre adresse mail."
 
 #: users/templates/users/profil.html:46
 msgid "Your account has been banned."
