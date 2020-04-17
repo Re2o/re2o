@@ -831,10 +831,15 @@ class User(
     def confirm_email_address_mail(self, request):
         """Prend en argument un request, envoie un mail pour
         confirmer l'adresse"""
+        # Delete all older requests for this user, that aren't for this email
+        filter = Q(user=self) & Q(type=Request.EMAIL) & ~Q(email=self.email)
+        Request.objects.filter(filter).delete()
+
         # Create the request and send the email
         req = Request()
         req.type = Request.EMAIL
         req.user = self
+        req.email = self.email
         req.save()
 
         template = loader.get_template("users/email_confirmation_request")
@@ -1873,6 +1878,7 @@ class Request(models.Model):
     type = models.CharField(max_length=2, choices=TYPE_CHOICES)
     token = models.CharField(max_length=32)
     user = models.ForeignKey("User", on_delete=models.CASCADE)
+    email = models.EmailField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     expires_at = models.DateTimeField()
 
