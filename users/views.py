@@ -1069,7 +1069,7 @@ def resend_confirmation_email(request, logged_user, userid):
         messages.error(request, _("The user doesn't exist."))
 
     if request.method == "POST":
-        user.send_confirm_email_if_necessary(request)
+        user.confirm_email_address_mail(request)
         messages.success(request, _("An email to confirm your address was sent."))
         return redirect(reverse("users:profil", kwargs={"userid": userid}))
 
