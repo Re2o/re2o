@@ -238,7 +238,7 @@ class User(
     shortcuts_enabled = models.BooleanField(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
-    email_change_date = models.DateTimeField(default=None, null=True)
+    email_change_date = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "pseudo"
     REQUIRED_FIELDS = ["surname", "email"]
