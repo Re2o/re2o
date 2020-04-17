@@ -226,7 +226,7 @@ class User(
     shortcuts_enabled = models.BooleanField(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
-    email_change_date = None
+    email_change_date = models.DateTimeField(default=None, null=True)
 
     USERNAME_FIELD = "pseudo"
     REQUIRED_FIELDS = ["surname", "email"]
@@ -795,6 +795,7 @@ class User(
         req.type = Request.EMAIL
         req.user = self
         req.save()
+
         template = loader.get_template("users/email_confirmation_request")
         context = {
             "name": req.user.get_full_name(),
