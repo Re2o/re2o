@@ -41,4 +41,5 @@ class Command(BaseCommand):
 
         for user in users_to_disable:
             user.state = User.STATE_DISABLED
+            user.notif_disable()
             user.save()

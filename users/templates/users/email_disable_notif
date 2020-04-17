@@ -1,0 +1,20 @@
+Bonjour {{ name }},
+
+Votre connexion a été automatiquement suspendue car votre adresse mail n'a pas été confirmée. Vous pouvez renvoyer un mail de confirmation sur votre compte {{ site_name }} pour réactiver votre connexion.
+
+Pour de plus amples renseignements, contactez {{ asso_name }} à l'adresse {{ asso_mail }}.
+
+Respectueusement,
+L'équipe de {{ asso_name }}.
+
+---
+
+Hello {{ name }},
+
+Your connection has automatically been suspended because you have not confirmed your email address. You can ask for a new confirmation email to be sent on your profil at {{ site_name }} to enable your connection.
+
+
+For more information, contactez {{ asso_name }} at {{ asso_mail }}.
+
+Regards,
+The {{ asso_name }} team.
