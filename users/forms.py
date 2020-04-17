@@ -502,11 +502,11 @@ class AdherentCreationForm(AdherentForm):
         user = super(AdherentForm, self).save(commit=False)
 
         is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
-        send_email = not is_set_password_allowed or self.cleaned_data.get("init_password_by_mail")
-        if not send_email:
+        set_passwd = is_set_password_allowed and not self.cleaned_data.get("init_password_by_mail")
+        if set_passwd:
             user.set_password(self.cleaned_data["password1"])
 
-        user.should_send_password_reset_email = send_email
+        user.did_set_initial_passwd = set_passwd
         user.save()
         return user
 
