@@ -828,6 +828,16 @@ class User(
         self.confirm_email_address_mail(request)
         return True
 
+    def trigger_email_changed_state(self, request):
+        """Trigger an email, and changed values after email_state been manually updated"""
+        if self.email_state == self.EMAIL_STATE_VERIFIED:
+            return False
+
+        self.email_change_date = timezone.now()
+
+        self.confirm_email_address_mail(request)
+        return True
+
     def confirm_email_before_date(self):
         if self.email_state == self.EMAIL_STATE_VERIFIED:
             return None

@@ -650,11 +650,11 @@ class EditServiceUserForm(ServiceUserForm):
 
 
 class StateForm(FormRevMixin, ModelForm):
-    """ Changement de l'état d'un user"""
+    """Change state of an user, and if its main email is verified or not"""
 
     class Meta:
         model = User
-        fields = ["state"]
+        fields = ["state" ,"email_state"]
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)

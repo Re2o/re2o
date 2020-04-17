@@ -243,8 +243,10 @@ def state(request, user, userid):
     state_form = StateForm(request.POST or None, instance=user)
     if state_form.is_valid():
         if state_form.changed_data:
-            state_form.save()
-            messages.success(request, _("The state was edited."))
+            user_instance = state_form.save()
+            messages.success(request, _("The states were edited."))
+            if user_instance.trigger_email_changed_state(request):
+                messages.success(request, _("An email to confirm the address was sent."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
         {"userform": state_form, "action_name": _("Edit")},
