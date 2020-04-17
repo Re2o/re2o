@@ -105,7 +105,6 @@ from .forms import (
     ClubForm,
     MassArchiveForm,
     PassForm,
-    ConfirmMailForm,
     ResetPasswordForm,
     ClubAdminandMembersForm,
     GroupForm,
@@ -1047,7 +1046,9 @@ def resend_confirmation_email(request, userid):
         return redirect(reverse("users:profil", kwargs={"userid": userid}))
 
     return form(
-        {"email": user.email}, "users/resend_confirmation_email.html", request
+        {"email": user.email},
+        "users/resend_confirmation_email.html",
+        request
     )
 
 
@@ -1055,19 +1056,20 @@ def process_email(request, req):
     """Process la confirmation de mail, renvoie le formulaire
     de validation"""
     user = req.user
-    u_form = ConfirmMailForm(request.POST or None, instance=user, user=request.user)
-    if u_form.is_valid():
+    if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
-            u_form.save()
+            user.confirm_mail()
+            user.save()
             reversion.set_comment("Email confirmation")
+
         req.delete()
-        messages.success(request, _("The email was confirmed."))
+        messages.success(request, _("The %(email)s address was confirmed." % user.email))
         return redirect(reverse("index"))
 
     return form(
-        {"userform": u_form, "action_name": _("Confirm the email")},
-        "users/user.html",
-        request,
+        {"email": user.email, "firstname": user.firstname, "lastname": user.surname},
+        "users/confirm_email.html",
+        request
     )
 
 
