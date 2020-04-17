@@ -813,7 +813,7 @@ class User(
             return False
 
         # Don't allow users without a confirmed email to postpone their due date
-        if self.state == self.STATE_ACTIVE or not self.email_change_date:
+        if self.email_state == self.EMAIL_STATE_VERIFIED or not self.email_change_date:
             self.email_change_date = timezone.now()
 
         self.save()
