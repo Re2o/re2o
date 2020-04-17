@@ -834,6 +834,7 @@ class User(
             return False
 
         self.email_change_date = timezone.now()
+        self.save()
 
         self.confirm_email_address_mail(request)
         return True
