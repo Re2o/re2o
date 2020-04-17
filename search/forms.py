@@ -35,6 +35,7 @@ CHOICES_USER = (
     ("2", _("Archived")),
     ("3", _("Not yet active")),
     ("4", _("Fully archived")),
+    ("5", _("Waiting for email confirmation")),
 )
 
 CHOICES_AFF = (
