@@ -339,7 +339,7 @@ class User(
     def set_active(self):
         """Enable this user if he subscribed successfully one time before
         Reenable it if it was archived
-        Do nothing if disabed"""
+        Do nothing if disabled or waiting for email confirmation"""
         if self.state == self.STATE_NOT_YET_ACTIVE:
             if self.facture_set.filter(valid=True).filter(
                 Q(vente__type_cotisation="All") | Q(vente__type_cotisation="Adhesion")
