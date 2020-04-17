@@ -70,14 +70,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% elif not users.has_access %}
             <div class="panel panel-danger">
                 <div class="panel-heading dashboard">{% trans "No connection" %}</div>
+
                 <div class="panel-body dashboard">
-                    {% can_create Facture %}
-                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
-                        <i class="fa fa-sign-in"></i> {% trans "Pay for a connection" %}
-                    </a>
-                    {% acl_else %}
-                    {% trans "Ask someone with the appropriate rights to pay for a connection." %}
-                    {% acl_end %}
+                    {% if users.email_state == users.EMAIL_STATE_UNVERIFIED %}
+                        <a class="btn btn-danger btn-sm" role="button" href="{% url 'users:resend-confirmation-email' users.id %}">
+                            <i class="fa fa-sign-in"></i> {% trans "Resend the email" %}
+                        </a>
+                    {% else %}
+                        {% can_create Facture %}
+                        <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                            <i class="fa fa-sign-in"></i> {% trans "Pay for a connection" %}
+                        </a>
+                        {% acl_else %}
+                        {% trans "Ask someone with the appropriate rights to pay for a connection." %}
+                        {% acl_end %}
+                {% endif %}
                 </div>
             </div>
             {% else %}
