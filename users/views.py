@@ -1032,25 +1032,22 @@ def process_passwd(request, req):
 
 
 def resend_confirmation_email(request, userid):
-    """ Renvoie du mail de confirmation """
-    try:
-        user = User.objects.get(
-            id=userid,
-            state__in=[User.STATE_EMAIL_NOT_YET_CONFIRMED],
-        )
-    except User.DoesNotExist:
-        messages.error(request, _("The user doesn't exist."))
-        return redirect(reverse("users:profil", kwargs={"userid": userid}))
+    """ Renvoi du mail de confirmation """
+    if request.method == "POST":
+        try:
+            user = User.objects.get(
+                id=userid,
+                state__in=[User.STATE_EMAIL_NOT_YET_CONFIRMED],
+            )
+            user.confirm_email_address_mail(request)
+            messages.success(request, _("An email to confirm your address was sent."))
+        except User.DoesNotExist:
+            messages.error(request, _("The user doesn't exist."))
 
-    if userform.is_valid():
-        user.confirm_email_address_mail(request)
-        messages.success(request, _("An email to confirm your address was sent."))
         return redirect(reverse("users:profil", kwargs={"userid": userid}))
 
     return form(
-        {"email": user.email},
-        "users/resend_confirmation_email.html",
-        request,
+        {"email": user.email}, "users/resend_confirmation_email.html", request
     )
 
 
