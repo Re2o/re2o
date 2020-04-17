@@ -920,12 +920,9 @@ class User(
 
     def confirm_mail(self):
         """Marque l'email de l'utilisateur comme confirmé"""
-        # Reset the email change date
+        # Reset the email change date and update the email status
         self.email_change_date = None
-
-        # Let the "set_active" method handle the rest
-        self.state = self.STATE_NOT_YET_ACTIVE
-        self.set_active()
+        self.email_state = self.EMAIL_STATE_VERIFIED
 
     @cached_property
     def email_address(self):
