@@ -1360,8 +1360,8 @@ msgid "Sent a new confirmation email."
 msgstr "Un nouveau mail de confirmation a été envoyé."
 
 #: users/views.py:225
-msgid "The state was edited."
-msgstr "L'état a été modifié."
+msgid "The states were edited."
+msgstr "Les états ont été modifié."
 
 #: users/views.py:242
 msgid "The groups were edited."
