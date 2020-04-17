@@ -809,7 +809,7 @@ class User(
             return None
 
         days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
-        return str(self.email_change_date + timedelta(days=days))
+        return self.email_change_date + timedelta(days=days)
 
     def confirm_email_address_mail(self, request):
         """Prend en argument un request, envoie un mail pour
@@ -829,7 +829,8 @@ class User(
                 reverse("users:process", kwargs={"token": req.token})
             ),
             "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs")),
-            "confirm_before": self.confirm_email_before_date(),
+            "confirm_before_fr": self.confirm_email_before_date().strftime("%d/%m/%Y"),
+            "confirm_before_en": self.confirm_email_before_date().strftime("%Y-%m-%d"),
         }
         send_mail(
             "Confirmation de l'email de %(name)s / Email confirmation for "
