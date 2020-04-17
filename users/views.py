@@ -1030,6 +1030,28 @@ def process_passwd(request, req):
     )
 
 
+def process_email(request, req):
+    """Process la confirmation de mail, renvoie le formulaire
+    de validation"""
+    user = req.user
+    if request.method == "POST":
+        with transaction.atomic(), reversion.create_revision():
+            user.confirm_mail()
+            user.save()
+            reversion.set_comment("Email confirmation")
+
+        req.delete()
+        messages.success(request, _("The %s address was confirmed." % user.email))
+        return redirect(reverse("index"))
+
+    return form(
+        {"email": user.email, "firstname": user.name, "lastname": user.surname},
+        "users/confirm_email.html",
+        request
+    )
+
+
+@can_edit(User)
 def resend_confirmation_email(request, userid):
     """ Renvoi du mail de confirmation """
     try:
@@ -1048,27 +1070,6 @@ def resend_confirmation_email(request, userid):
     return form(
         {"email": user.email},
         "users/resend_confirmation_email.html",
-        request
-    )
-
-
-def process_email(request, req):
-    """Process la confirmation de mail, renvoie le formulaire
-    de validation"""
-    user = req.user
-    if request.method == "POST":
-        with transaction.atomic(), reversion.create_revision():
-            user.confirm_mail()
-            user.save()
-            reversion.set_comment("Email confirmation")
-
-        req.delete()
-        messages.success(request, _("The %s address was confirmed." % user.email))
-        return redirect(reverse("index"))
-
-    return form(
-        {"email": user.email, "firstname": user.name, "lastname": user.surname},
-        "users/confirm_email.html",
         request
     )
 
