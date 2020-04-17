@@ -1028,6 +1028,10 @@ msgstr "Pas de connexion"
 msgid "Pay for a connection"
 msgstr "Payer une connexion"
 
+#: users/templates/users/profil.html:81
+msgid "Resend the email"
+msgstr "Renvoyer le mail"
+
 #: users/templates/users/profil.html:60
 msgid "Ask someone with the appropriate rights to pay for a connection."
 msgstr ""
