@@ -682,14 +682,6 @@ class StateForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(StateForm, self).__init__(*args, prefix=prefix, **kwargs)
 
-    def save(self, commit=True):
-        user = super(StateForm, self).save(commit=False)
-        if self.cleaned_data["state"]:
-            user.state = self.cleaned_data.get("state")
-            user.state_sync()
-
-        user.save()
-
 
 class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     """ Gestion des groupes d'un user"""
