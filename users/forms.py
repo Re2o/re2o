@@ -330,7 +330,11 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields["room"].label = _("Room")
             self.fields["room"].empty_label = _("No room")
         self.fields["school"].empty_label = _("Select a school")
-        self.initial["email"] = kwargs["instance"].email
+
+        if not kwargs["user"].is_anonymous():
+            self.initial["email"] = kwargs["user"].email
+        else:
+            self.initial["email"] = None
 
     class Meta:
         model = Adherent
@@ -383,7 +387,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         """On met à jour l'état de l'utilisateur en fonction de son mail"""
         user = super(AdherentForm, self).save(commit=commit)
 
-        if user.email != self.initial["email"]:
+        if self.initial["email"] is not None and user.email != self.initial["email"]:
             # Send a confirmation email
             if user.state in [User.STATE_ACTIVE, User.STATE_DISABLED, User.STATE_NOT_YET_ACTIVE, User.STATE_EMAIL_NOT_YET_CONFIRMED]:
                 user.state = User.STATE_EMAIL_NOT_YET_CONFIRMED
