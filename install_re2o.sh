@@ -745,6 +745,7 @@ interactive_guide() {
 
     install_webserver "$web_serveur" "$is_tls" "$url_server"
 
+    copy_templates_files
 
 
     ###########################
