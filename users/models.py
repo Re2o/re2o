@@ -1394,14 +1394,15 @@ class Adherent(User):
         :return: a message and a boolean which is True if the user can create
             a user or if the `options.all_can_create` is set.
         """
-        if not user_request.is_authenticated and not OptionalUser.get_cached_value(
-            "self_adhesion"
-        ):
-            return False, _("Self registration is disabled."), None
+        if not user_request.is_authenticated:
+            if not OptionalUser.get_cached_value(
+                "self_adhesion"
+            ):
+                return False, _("Self registration is disabled."), None
+            else:
+                return True, None, None
         else:
-            if OptionalUser.get_cached_value(
-                "all_can_create_adherent"
-            ) or OptionalUser.get_cached_value("self_adhesion"):
+            if OptionalUser.get_cached_value("all_can_create_adherent"): 
                 return True, None, None
             else:
                 can = user_request.has_perm("users.add_user")
