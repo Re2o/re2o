@@ -1623,15 +1623,15 @@ class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             raise ValidationError(
                 _("You can't create a CNAME record pointing to itself.")
             )
-        HOSTNAME_LABEL_PATTERN = re.compile(r"(?!-)[A-Z\d-]+(?<!-)$", re.IGNORECASE)
-        dns = self.name.lower()
-        if len(dns) > 63:
+        HOSTNAME_LABEL_PATTERN = re.compile(r"(?!-)[a-z\d-]+(?<!-)$")
+        self.name = self.name.lower()
+        if len(self.name) > 63:
             raise ValidationError(
-                _("The domain name %s is too long (over 63 characters).") % dns
+                _("The domain name %s is too long (over 63 characters).") % self.name
             )
-        if not HOSTNAME_LABEL_PATTERN.match(dns):
+        if not HOSTNAME_LABEL_PATTERN.match(self.name):
             raise ValidationError(
-                _("The domain name %s contains forbidden characters.") % dns
+                _("The domain name %s contains forbidden characters.") % self.name
             )
         self.validate_unique()
         super(Domain, self).clean()
