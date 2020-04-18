@@ -73,7 +73,8 @@ def send_mail_invoice(invoice):
         "tpl_path": os.path.join(settings.BASE_DIR, LOGO_PATH),
     }
 
-    pdf = create_pdf("cotisations/factures.tex", ctx)
+    template = CotisationsOption.get_cached_value("invoice_template").template.name.split("/")[-1]
+    pdf = create_pdf(template, ctx)
     template = get_template("cotisations/email_invoice")
 
     ctx = {
