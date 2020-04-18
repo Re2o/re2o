@@ -207,6 +207,7 @@ class User(
     email = models.EmailField(
         blank=True,
         null=True,
+        unique=True,
         help_text=_("External email address allowing us to contact you."),
     )
     local_email_redirect = models.BooleanField(
