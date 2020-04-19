@@ -165,7 +165,7 @@ def new_facture(request, user, userid):
                             "error": e,
                         },
                     )
-                    return reverse("cotisations:new-facture", kwargs={"userid": user.pk})
+                    return redirect(reverse("cotisations:new-facture", kwargs={"userid": user.pk}))
         else:
             messages.error(request, _("You need to choose at least one article."))
 
@@ -1050,7 +1050,7 @@ def credit_solde(request, user, **_kwargs):
                         "error": e,
                     },
                 )
-                return reverse("cotisations:credit-solde", kwargs={"userid": user.id})
+                return redirect(reverse("cotisations:credit-solde", kwargs={"userid": user.id}))
 
     p = get_object_or_404(Paiement, is_balance=True)
     return form(
