@@ -384,12 +384,12 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         et que l'ancien user a une connexion désactivée"""
         # Handle case where regular users can force move
         room = self.cleaned_data.get("room")
-        can_force_move = OptionalUser.get_cached_value("self_force_move_disabled_user_room")
-        if not can_force_move or not room:
+        room_policy = OptionalUser.get_cached_value("self_room_policy")
+        if room_policy == OptionalUser.DISABLED or not room:
             return room
 
         # Remove the previous user's room, if allowed and necessary
-        remove_user_room(room, force=False)
+        remove_user_room(room, force=bool(room_policy == OptionalUser.ALL_ROOM))
 
         # Run standard clean process
         return room

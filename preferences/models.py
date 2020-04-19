@@ -71,6 +71,15 @@ class OptionalUser(AclMixin, PreferencesModel):
     """Options pour l'user : obligation ou nom du telephone,
     activation ou non du solde, autorisation du negatif, fingerprint etc"""
 
+    DISABLED = "DISABLED"
+    ONLY_INACTIVE = "ONLY_INACTIVE"
+    ALL_ROOM = "ALL_ROOM"
+    ROOM_POLICY = (
+        (DISABLED, _("Users can't select their room")),
+        (ONLY_INACTIVE, _("Users can only select a room occupied by a user with a disabled connection.")),
+        (ALL_ROOM, _("Users can select all rooms")),
+    )
+
     is_tel_mandatory = models.BooleanField(default=True)
     gpg_fingerprint = models.BooleanField(default=True)
     all_can_create_club = models.BooleanField(
@@ -79,18 +88,17 @@ class OptionalUser(AclMixin, PreferencesModel):
     all_can_create_adherent = models.BooleanField(
         default=False, help_text=_("Users can create a member.")
     )
-
     shell_default = models.OneToOneField(
         "users.ListShell", on_delete=models.PROTECT, blank=True, null=True
     )
     self_change_shell = models.BooleanField(
         default=False, help_text=_("Users can edit their shell.")
     )
-    self_change_room = models.BooleanField(
-        default=False, help_text=_("Users can edit their room.")
-    )
-    self_force_move_disabled_user_room = models.BooleanField(
-        default=False, help_text=_("Users can select a room occupied by a user with a disabled connection.")
+    self_room_policy = models.CharField(
+        max_length=32,
+        choices=ROOM_POLICY,
+        default="DISABLED",
+        help_text=_("Policy on self users room edition")
     )
     local_email_accounts_enabled = models.BooleanField(
         default=False, help_text=_("Enable local email accounts for users.")
