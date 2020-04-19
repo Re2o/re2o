@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-19 17:12+0200\n"
+"POT-Creation-Date: 2020-04-19 18:55+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language: fr_FR\n"
@@ -154,8 +154,8 @@ msgstr "Peut voir un objet facture"
 msgid "Can edit all the previous invoices"
 msgstr "Peut modifier toutes les factures précédentes"
 
-#: cotisations/models.py:145 cotisations/models.py:456 cotisations/views.py:376
-#: cotisations/views.py:571
+#: cotisations/models.py:145 cotisations/models.py:456 cotisations/views.py:390
+#: cotisations/views.py:585
 msgid "invoice"
 msgstr "facture"
 
@@ -784,7 +784,7 @@ msgstr "Contrôlé"
 #: cotisations/templates/cotisations/control.html:107
 #: cotisations/templates/cotisations/delete.html:38
 #: cotisations/templates/cotisations/edit_facture.html:64
-#: cotisations/views.py:170 cotisations/views.py:222 cotisations/views.py:276
+#: cotisations/views.py:184 cotisations/views.py:236 cotisations/views.py:290
 msgid "Confirm"
 msgstr "Confirmer"
 
@@ -921,7 +921,7 @@ msgstr "Rechargement de solde"
 msgid "Pay %(amount)s €"
 msgstr "Payer %(amount)s €"
 
-#: cotisations/templates/cotisations/payment.html:42 cotisations/views.py:1026
+#: cotisations/templates/cotisations/payment.html:42 cotisations/views.py:1061
 msgid "Pay"
 msgstr "Payer"
 
@@ -933,120 +933,125 @@ msgstr "Créer une facture"
 msgid "Control the invoices"
 msgstr "Contrôler les factures"
 
-#: cotisations/views.py:157
+#: cotisations/views.py:164 cotisations/views.py:1032 cotisations/views.py:1049
+#, python-format
+msgid "Failed to send email: %(error)s."
+msgstr "Échec de l'envoi du mail : %(error)s."
+
+#: cotisations/views.py:170
 msgid "You need to choose at least one article."
 msgstr "Vous devez choisir au moins un article."
 
-#: cotisations/views.py:171
+#: cotisations/views.py:185
 msgid "New invoice"
 msgstr "Nouvelle facture"
 
-#: cotisations/views.py:216
+#: cotisations/views.py:230
 msgid "The cost estimate was created."
 msgstr "Le devis a été créé."
 
-#: cotisations/views.py:226
+#: cotisations/views.py:240
 msgid "New cost estimate"
 msgstr "Nouveau devis"
 
-#: cotisations/views.py:270
+#: cotisations/views.py:284
 msgid "The custom invoice was created."
 msgstr "La facture personnalisée a été créée."
 
-#: cotisations/views.py:280
+#: cotisations/views.py:294
 msgid "New custom invoice"
 msgstr "Nouvelle facture personnalisée"
 
-#: cotisations/views.py:355 cotisations/views.py:436
+#: cotisations/views.py:369 cotisations/views.py:450
 msgid "The invoice was edited."
 msgstr "La facture a été modifiée."
 
-#: cotisations/views.py:373 cotisations/views.py:568
+#: cotisations/views.py:387 cotisations/views.py:582
 msgid "The invoice was deleted."
 msgstr "La facture a été supprimée."
 
-#: cotisations/views.py:396
+#: cotisations/views.py:410
 msgid "The cost estimate was edited."
 msgstr "Le devis a été modifié."
 
-#: cotisations/views.py:403
+#: cotisations/views.py:417
 msgid "Edit cost estimate"
 msgstr "Modifier le devis"
 
-#: cotisations/views.py:417
+#: cotisations/views.py:431
 msgid "An invoice was successfully created from your cost estimate."
 msgstr "Une facture a bien été créée à partir de votre devis."
 
-#: cotisations/views.py:443
+#: cotisations/views.py:457
 msgid "Edit custom invoice"
 msgstr "Modifier la facture personnalisée"
 
-#: cotisations/views.py:505
+#: cotisations/views.py:519
 msgid "The cost estimate was deleted."
 msgstr "Le devis a été supprimé."
 
-#: cotisations/views.py:508
+#: cotisations/views.py:522
 msgid "cost estimate"
 msgstr "devis"
 
-#: cotisations/views.py:592
+#: cotisations/views.py:606
 msgid "The article was created."
 msgstr "L'article a été créé."
 
-#: cotisations/views.py:597 cotisations/views.py:671 cotisations/views.py:765
+#: cotisations/views.py:611 cotisations/views.py:685 cotisations/views.py:779
 msgid "Add"
 msgstr "Ajouter"
 
-#: cotisations/views.py:598
+#: cotisations/views.py:612
 msgid "New article"
 msgstr "Nouvel article"
 
-#: cotisations/views.py:615
+#: cotisations/views.py:629
 msgid "The article was edited."
 msgstr "L'article a été modifié."
 
-#: cotisations/views.py:620 cotisations/views.py:703 cotisations/views.py:789
+#: cotisations/views.py:634 cotisations/views.py:717 cotisations/views.py:803
 msgid "Edit"
 msgstr "Modifier"
 
-#: cotisations/views.py:621
+#: cotisations/views.py:635
 msgid "Edit article"
 msgstr "Modifier l'article"
 
-#: cotisations/views.py:638
+#: cotisations/views.py:652
 msgid "The articles were deleted."
 msgstr "Les articles ont été supprimés."
 
-#: cotisations/views.py:643 cotisations/views.py:742 cotisations/views.py:827
+#: cotisations/views.py:657 cotisations/views.py:756 cotisations/views.py:841
 msgid "Delete"
 msgstr "Supprimer"
 
-#: cotisations/views.py:644
+#: cotisations/views.py:658
 msgid "Delete article"
 msgstr "Supprimer l'article"
 
-#: cotisations/views.py:665
+#: cotisations/views.py:679
 msgid "The payment method was created."
 msgstr "Le moyen de paiment a été créé."
 
-#: cotisations/views.py:672
+#: cotisations/views.py:686
 msgid "New payment method"
 msgstr "Nouveau moyen de paiement"
 
-#: cotisations/views.py:697
+#: cotisations/views.py:711
 msgid "The payment method was edited."
 msgstr "Le moyen de paiment a été modifié."
 
-#: cotisations/views.py:704
+#: cotisations/views.py:718
 msgid "Edit payment method"
 msgstr "Modifier le moyen de paiement"
 
-#: cotisations/views.py:726
+#: cotisations/views.py:740
 #, python-format
 msgid "The payment method %(method_name)s was deleted."
 msgstr "Le moyen de paiement %(method_name)s a été supprimé."
 
-#: cotisations/views.py:733
+#: cotisations/views.py:747
 #, python-format
 msgid ""
 "The payment method %(method_name)s can't be deleted because there are "
@@ -1055,32 +1060,32 @@ msgstr ""
 "Le moyen de paiement %(method_name)s ne peut pas être supprimé car il y a "
 "des factures qui l'utilisent."
 
-#: cotisations/views.py:743
+#: cotisations/views.py:757
 msgid "Delete payment method"
 msgstr "Supprimer le moyen de paiement"
 
-#: cotisations/views.py:760
+#: cotisations/views.py:774
 msgid "The bank was created."
 msgstr "La banque a été créée."
 
-#: cotisations/views.py:766
+#: cotisations/views.py:780
 msgid "New bank"
 msgstr "Nouvelle banque"
 
-#: cotisations/views.py:784
+#: cotisations/views.py:798
 msgid "The bank was edited."
 msgstr "La banque a été modifiée."
 
-#: cotisations/views.py:790
+#: cotisations/views.py:804
 msgid "Edit bank"
 msgstr "Modifier la banque"
 
-#: cotisations/views.py:812
+#: cotisations/views.py:826
 #, python-format
 msgid "The bank %(bank_name)s was deleted."
 msgstr "La banque %(bank_name)s a été supprimée."
 
-#: cotisations/views.py:818
+#: cotisations/views.py:832
 #, python-format
 msgid ""
 "The bank %(bank_name)s can't be deleted because there are invoices using it."
@@ -1088,22 +1093,22 @@ msgstr ""
 "La banque %(bank_name)s ne peut pas être supprimée car il y a des factures "
 "qui l'utilisent."
 
-#: cotisations/views.py:828
+#: cotisations/views.py:842
 msgid "Delete bank"
 msgstr "Supprimer la banque"
 
-#: cotisations/views.py:862
+#: cotisations/views.py:876
 msgid "Your changes have been properly taken into account."
 msgstr "Vos modifications ont correctement été prises en compte."
 
-#: cotisations/views.py:994
+#: cotisations/views.py:1008
 msgid "You are not allowed to credit your balance."
 msgstr "Vous n'êtes pas autorisé à créditer votre solde."
 
-#: cotisations/views.py:1025
+#: cotisations/views.py:1060
 msgid "Refill your balance"
 msgstr "Recharger votre solde"
 
-#: cotisations/views.py:1044
+#: cotisations/views.py:1079
 msgid "Could not find a voucher for that invoice."
 msgstr "Impossible de trouver un reçu pour cette facture."
