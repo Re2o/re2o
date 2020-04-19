@@ -257,15 +257,10 @@ msgid "Current attributes"
 msgstr "Attributs actuels"
 
 #: preferences/models.py:78
-#, fuzzy
-#| msgid "Users can edit their room"
 msgid "Users can't select their room"
-msgstr "Les utilisateurs peuvent modifier leur chambre"
+msgstr "Les utilisateurs ne peuvent pas modifier leur chambre"
 
 #: preferences/models.py:79
-#, fuzzy
-#| msgid ""
-#| "Users can select a room occupied by a user with a disabled connection."
 msgid ""
 "Users can only select a room occupied by a user with a disabled connection."
 msgstr ""
@@ -273,10 +268,8 @@ msgstr ""
 "connexion est désactivée."
 
 #: preferences/models.py:80
-#, fuzzy
-#| msgid "Users can edit their room"
 msgid "Users can select all rooms"
-msgstr "Les utilisateurs peuvent modifier leur chambre"
+msgstr "Les utilisateurs peuvent choisir toutes les chambres"
 
 #: preferences/models.py:86
 msgid "Users can create a club."
