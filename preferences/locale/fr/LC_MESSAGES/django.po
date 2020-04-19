@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-18 01:38+0200\n"
+"POT-Creation-Date: 2020-04-19 03:09+0200\n"
 "PO-Revision-Date: 2018-06-24 15:54+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -35,7 +35,7 @@ msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
 #: preferences/forms.py:65
-#: preferences/templates/preferences/display_preferences.html:150
+#: preferences/templates/preferences/display_preferences.html:148
 msgid "Telephone number required"
 msgstr "Numéro de téléphone requis"
 
@@ -256,46 +256,64 @@ msgstr "Modèles de document actuels"
 msgid "Current attributes"
 msgstr "Attributs actuels"
 
-#: preferences/models.py:77
+#: preferences/models.py:78
+#, fuzzy
+#| msgid "Users can edit their room"
+msgid "Users can't select their room"
+msgstr "Les utilisateurs peuvent modifier leur chambre"
+
+#: preferences/models.py:79
+#, fuzzy
+#| msgid ""
+#| "Users can select a room occupied by a user with a disabled connection."
+msgid ""
+"Users can only select a room occupied by a user with a disabled connection."
+msgstr ""
+"Les utilisateurs peuvent sélectionner la chambre d'un adhérent dont la "
+"connexion est désactivée."
+
+#: preferences/models.py:80
+#, fuzzy
+#| msgid "Users can edit their room"
+msgid "Users can select all rooms"
+msgstr "Les utilisateurs peuvent modifier leur chambre"
+
+#: preferences/models.py:86
 msgid "Users can create a club."
 msgstr "Les utilisateurs peuvent créer un club."
 
-#: preferences/models.py:80
+#: preferences/models.py:89
 msgid "Users can create a member."
 msgstr "Les utilisateurs peuvent créer un adhérent."
 
-#: preferences/models.py:87
+#: preferences/models.py:95
 msgid "Users can edit their shell."
 msgstr "Les utilisateurs peuvent modifier leur interface en ligne de commande."
 
-#: preferences/models.py:92
-msgid "Users can select a room occupied by a user with a disabled connection."
-msgstr "Les utilisateurs peuvent sélectionner la chambre d'un adhérent dont la connexion est désactivée."
+#: preferences/models.py:101
+msgid "Policy on self users room edition"
+msgstr "Autorisation d'édtion du champ chambre par les utilisateurs"
 
-#: preferences/models.py:90
-msgid "Users can edit their room."
-msgstr "Les utilisateurs peuvent modifier leur chambre."
-
-#: preferences/models.py:93
+#: preferences/models.py:104
 msgid "Enable local email accounts for users."
 msgstr "Activer les comptes mail locaux pour les utilisateurs."
 
-#: preferences/models.py:98
+#: preferences/models.py:109
 msgid "Domain to use for local email accounts."
 msgstr "Domaine à utiliser pour les comptes mail locaux."
 
-#: preferences/models.py:102
+#: preferences/models.py:113
 msgid "Maximum number of local email addresses for a standard user."
 msgstr ""
 "Nombre maximum d'adresses mail locales autorisé pour un utilisateur standard."
 
-#: preferences/models.py:107
+#: preferences/models.py:118
 msgid "Not yet active users will be deleted after this number of days."
 msgstr ""
 "Les utilisateurs n'ayant jamais adhéré seront supprimés après ce nombre de "
 "jours."
 
-#: preferences/models.py:113
+#: preferences/models.py:124
 msgid ""
 "Users with an email address not yet confirmed will be disabled after this "
 "number of days."
@@ -303,11 +321,11 @@ msgstr ""
 "Les utilisateurs n'ayant pas confirmé leur addresse mail seront désactivés "
 "après ce nombre de jours"
 
-#: preferences/models.py:117
+#: preferences/models.py:128
 msgid "A new user can create their account on Re2o."
 msgstr "Un nouvel utilisateur peut créer son compte sur Re2o."
 
-#: preferences/models.py:122
+#: preferences/models.py:133
 msgid ""
 "If True, all new created and connected users are active. If False, only when "
 "a valid registration has been paid."
@@ -315,7 +333,7 @@ msgstr ""
 "Si True, tous les nouveaux utilisations créés et connectés sont actifs. Si "
 "False, seulement quand une inscription validée a été payée."
 
-#: preferences/models.py:129
+#: preferences/models.py:140
 msgid ""
 "If True, users have the choice to receive an email containing a link to "
 "reset their password during creation, or to directly set their password in "
@@ -326,172 +344,172 @@ msgstr ""
 "de choisir leur mot de passe immédiatement. Si False, un mail est toujours "
 "envoyé."
 
-#: preferences/models.py:136
+#: preferences/models.py:147
 msgid "If True, archived users are allowed to connect."
 msgstr "Si True, les utilisateurs archivés sont autorisés à se connecter."
 
-#: preferences/models.py:140
+#: preferences/models.py:151
 msgid "Can view the user preferences"
 msgstr "Peut voir les préférences d'utilisateur"
 
-#: preferences/models.py:141
+#: preferences/models.py:152
 msgid "user preferences"
 msgstr "Préférences d'utilisateur"
 
-#: preferences/models.py:148
+#: preferences/models.py:159
 msgid "Email domain must begin with @."
 msgstr "Un domaine mail doit commencer par @."
 
-#: preferences/models.py:166
+#: preferences/models.py:177
 msgid "Automatic configuration by RA"
 msgstr "Configuration automatique par RA"
 
-#: preferences/models.py:167
+#: preferences/models.py:178
 msgid "IP addresses assignment by DHCPv6"
 msgstr "Attribution d'adresses IP par DHCPv6"
 
-#: preferences/models.py:168
+#: preferences/models.py:179
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: preferences/models.py:177
+#: preferences/models.py:188
 msgid "default Time To Live (TTL) for CNAME, A and AAAA records"
 msgstr ""
 "Temps de vie (TTL) par défault pour des enregistrements CNAME, A et AAAA"
 
-#: preferences/models.py:187
+#: preferences/models.py:198
 msgid "Can view the machine preferences"
 msgstr "Peut voir les préférences de machine"
 
-#: preferences/models.py:188
+#: preferences/models.py:199
 msgid "machine preferences"
 msgstr "Préférences de machine"
 
-#: preferences/models.py:208 preferences/models.py:666
+#: preferences/models.py:219 preferences/models.py:677
 msgid "On the IP range's VLAN of the machine"
 msgstr "Sur le VLAN de la plage d'IP de la machine"
 
-#: preferences/models.py:209 preferences/models.py:667
+#: preferences/models.py:220 preferences/models.py:678
 msgid "Preset in \"VLAN for machines accepted by RADIUS\""
 msgstr "Prédéfinie dans « VLAN pour les machines acceptées par RADIUS »"
 
-#: preferences/models.py:215
+#: preferences/models.py:226
 msgid "Web management, activated in case of automatic provision."
 msgstr "Gestion web, activée en cas de provision automatique."
 
-#: preferences/models.py:220
+#: preferences/models.py:231
 msgid ""
 "SSL web management, make sure that a certificate is installed on the switch."
 msgstr ""
 "Gestion web SSL, vérifiez qu'un certificat est installé sur le commutateur "
 "réseau."
 
-#: preferences/models.py:226
+#: preferences/models.py:237
 msgid "REST management, activated in case of automatic provision."
 msgstr "Gestion REST, activée en cas de provision automatique."
 
-#: preferences/models.py:233
+#: preferences/models.py:244
 msgid "IP range for the management of switches."
 msgstr "Plage d'IP pour la gestion des commutateurs réseau."
 
-#: preferences/models.py:239
+#: preferences/models.py:250
 msgid "Provision of configuration mode for switches."
 msgstr "Mode de provision de configuration pour les commutateurs réseau."
 
-#: preferences/models.py:242
+#: preferences/models.py:253
 msgid "SFTP login for switches."
 msgstr "Identifiant SFTP pour les commutateurs réseau."
 
-#: preferences/models.py:245
+#: preferences/models.py:256
 msgid "SFTP password."
 msgstr "Mot de passe SFTP."
 
-#: preferences/models.py:349
+#: preferences/models.py:360
 msgid "Can view the topology preferences"
 msgstr "Peut voir les préférences de topologie"
 
-#: preferences/models.py:350
+#: preferences/models.py:361
 msgid "topology preferences"
 msgstr "préférences de topologie"
 
-#: preferences/models.py:363
+#: preferences/models.py:374
 msgid "RADIUS key."
 msgstr "Clé RADIUS."
 
-#: preferences/models.py:365
+#: preferences/models.py:376
 msgid "Comment for this key."
 msgstr "Commentaire pour cette clé."
 
-#: preferences/models.py:368
+#: preferences/models.py:379
 msgid "Default key for switches."
 msgstr "Clé par défaut pour les commutateurs réseau."
 
-#: preferences/models.py:372
+#: preferences/models.py:383
 msgid "Can view a RADIUS key object"
 msgstr "Peut voir un objet clé RADIUS"
 
-#: preferences/models.py:373 preferences/views.py:331
+#: preferences/models.py:384 preferences/views.py:331
 msgid "RADIUS key"
 msgstr "Clé RADIUS"
 
-#: preferences/models.py:374
+#: preferences/models.py:385
 #: preferences/templates/preferences/display_preferences.html:207
 msgid "RADIUS keys"
 msgstr "clés RADIUS"
 
-#: preferences/models.py:381
+#: preferences/models.py:392
 msgid "Default RADIUS key for switches already exists."
 msgstr "Clé par défaut pour les commutateurs réseau."
 
-#: preferences/models.py:384
+#: preferences/models.py:395
 msgid "RADIUS key "
 msgstr "clé RADIUS "
 
-#: preferences/models.py:390
+#: preferences/models.py:401
 msgid "Switch login."
 msgstr "Identifiant du commutateur réseau."
 
-#: preferences/models.py:391
+#: preferences/models.py:402
 msgid "Password."
 msgstr "Mot de passe."
 
-#: preferences/models.py:393
+#: preferences/models.py:404
 msgid "Default credentials for switches."
 msgstr "Identifiants par défaut pour les commutateurs réseau."
 
-#: preferences/models.py:400
+#: preferences/models.py:411
 msgid "Can view a switch management credentials object"
 msgstr "Peut voir un objet identifiants de gestion de commutateur réseau"
 
-#: preferences/models.py:403 preferences/views.py:394
+#: preferences/models.py:414 preferences/views.py:394
 msgid "switch management credentials"
 msgstr "identifiants de gestion de commutateur réseau"
 
-#: preferences/models.py:406
+#: preferences/models.py:417
 msgid "Switch login "
 msgstr "Identifiant du commutateur réseau "
 
-#: preferences/models.py:418
+#: preferences/models.py:429
 msgid "Delay between the email and the membership's end."
 msgstr "Délai entre le mail et la fin d'adhésion."
 
-#: preferences/models.py:424
+#: preferences/models.py:435
 msgid "Message displayed specifically for this reminder."
 msgstr "Message affiché spécifiquement pour ce rappel."
 
-#: preferences/models.py:428
+#: preferences/models.py:439
 msgid "Can view a reminder object"
 msgstr "Peut voir un objet rappel"
 
-#: preferences/models.py:429 preferences/views.py:276
+#: preferences/models.py:440 preferences/views.py:276
 msgid "reminder"
 msgstr "rappel"
 
-#: preferences/models.py:430
+#: preferences/models.py:441
 msgid "reminders"
 msgstr "rappels"
 
-#: preferences/models.py:451
+#: preferences/models.py:462
 msgid ""
 "General message displayed on the French version of the website (e.g. in case "
 "of maintenance)."
@@ -499,7 +517,7 @@ msgstr ""
 "Message général affiché sur la version française du site (ex : en cas de "
 "maintenance)."
 
-#: preferences/models.py:459
+#: preferences/models.py:470
 msgid ""
 "General message displayed on the English version of the website (e.g. in "
 "case of maintenance)."
@@ -507,75 +525,75 @@ msgstr ""
 "Message général affiché sur la version anglaise du site (ex : en cas de "
 "maintenance)."
 
-#: preferences/models.py:474
+#: preferences/models.py:485
 msgid "Can view the general preferences"
 msgstr "Peut voir les préférences générales"
 
-#: preferences/models.py:475
+#: preferences/models.py:486
 msgid "general preferences"
 msgstr "préférences générales"
 
-#: preferences/models.py:495
+#: preferences/models.py:506
 msgid "Can view the service preferences"
 msgstr "Peut voir les préférences de service"
 
-#: preferences/models.py:496 preferences/views.py:227
+#: preferences/models.py:507 preferences/views.py:227
 msgid "service"
 msgstr "service"
 
-#: preferences/models.py:497
+#: preferences/models.py:508
 msgid "services"
 msgstr "services"
 
-#: preferences/models.py:507
+#: preferences/models.py:518
 msgid "Contact email address."
 msgstr "Adresse mail de contact."
 
-#: preferences/models.py:513
+#: preferences/models.py:524
 msgid "Description of the associated email address."
 msgstr "Description de l'adresse mail associée."
 
-#: preferences/models.py:523
+#: preferences/models.py:534
 msgid "Can view a contact email address object"
 msgstr "Peut voir un objet adresse mail de contact"
 
-#: preferences/models.py:525
+#: preferences/models.py:536
 msgid "contact email address"
 msgstr "adresse mail de contact"
 
-#: preferences/models.py:526
+#: preferences/models.py:537
 msgid "contact email addresses"
 msgstr "adresses mail de contact"
 
-#: preferences/models.py:534 preferences/views.py:634
+#: preferences/models.py:545 preferences/views.py:634
 msgid "mandate"
 msgstr "mandat"
 
-#: preferences/models.py:535
+#: preferences/models.py:546
 msgid "mandates"
 msgstr "mandats"
 
-#: preferences/models.py:536
+#: preferences/models.py:547
 msgid "Can view a mandate object"
 msgstr "Peut voir un objet mandat"
 
-#: preferences/models.py:543
+#: preferences/models.py:554
 msgid "president of the association"
 msgstr "président de l'association"
 
-#: preferences/models.py:544
+#: preferences/models.py:555
 msgid "Displayed on subscription vouchers."
 msgstr "Affiché sur les reçus de cotisation."
 
-#: preferences/models.py:546
+#: preferences/models.py:557
 msgid "start date"
 msgstr "date de début"
 
-#: preferences/models.py:547
+#: preferences/models.py:558
 msgid "end date"
 msgstr "date de fin"
 
-#: preferences/models.py:560
+#: preferences/models.py:571
 msgid ""
 "No mandates have been created. Please go to the preferences page to create "
 "one."
@@ -583,140 +601,140 @@ msgstr ""
 "Aucun mandat n'a été créé. Veuillez vous rendre sur la page de préférences "
 "pour en créer un."
 
-#: preferences/models.py:575
+#: preferences/models.py:586
 msgid "Networking organisation school Something"
 msgstr "Association de réseau de l'école Machin"
 
-#: preferences/models.py:578
+#: preferences/models.py:589
 msgid "Threadneedle Street"
 msgstr "1 rue de la Vrillière"
 
-#: preferences/models.py:579
+#: preferences/models.py:590
 msgid "London EC2R 8AH"
 msgstr "75001 Paris"
 
-#: preferences/models.py:582
+#: preferences/models.py:593
 msgid "Organisation"
 msgstr "Association"
 
-#: preferences/models.py:589
+#: preferences/models.py:600
 msgid "Can view the organisation preferences"
 msgstr "Peut voir les préférences d'association"
 
-#: preferences/models.py:590
+#: preferences/models.py:601
 msgid "organisation preferences"
 msgstr "préférences d'association"
 
-#: preferences/models.py:608
+#: preferences/models.py:619
 msgid "Can view the homepage preferences"
 msgstr "Peut voir les préférences de page d'accueil"
 
-#: preferences/models.py:609
+#: preferences/models.py:620
 msgid "homepage preferences"
 msgstr "Préférences de page d'accueil"
 
-#: preferences/models.py:623
+#: preferences/models.py:634
 msgid "Welcome email in French."
 msgstr "Mail de bienvenue en français."
 
-#: preferences/models.py:626
+#: preferences/models.py:637
 msgid "Welcome email in English."
 msgstr "Mail de bienvenue en anglais."
 
-#: preferences/models.py:631
+#: preferences/models.py:642
 msgid "Can view the email message preferences"
 msgstr "Peut voir les préférences de message pour les mails"
 
-#: preferences/models.py:633
+#: preferences/models.py:644
 msgid "email message preferences"
 msgstr "préférences de messages pour les mails"
 
-#: preferences/models.py:638
+#: preferences/models.py:649
 msgid "RADIUS attribute"
 msgstr "attribut RADIUS"
 
-#: preferences/models.py:639
+#: preferences/models.py:650
 msgid "RADIUS attributes"
 msgstr "attributs RADIUS"
 
-#: preferences/models.py:643 preferences/views.py:587
+#: preferences/models.py:654 preferences/views.py:587
 msgid "attribute"
 msgstr "attribut"
 
-#: preferences/models.py:644
+#: preferences/models.py:655
 msgid "See https://freeradius.org/rfc/attributes.html."
 msgstr "Voir https://freeradius.org/rfc/attributes.html."
 
-#: preferences/models.py:646
+#: preferences/models.py:657
 msgid "value"
 msgstr "valeur"
 
-#: preferences/models.py:648
+#: preferences/models.py:659
 msgid "comment"
 msgstr "commentaire"
 
-#: preferences/models.py:649
+#: preferences/models.py:660
 msgid "Use this field to document this attribute."
 msgstr "Utilisez ce champ pour documenter cet attribut."
 
-#: preferences/models.py:660
+#: preferences/models.py:671
 msgid "RADIUS policy"
 msgstr "politique de RADIUS"
 
-#: preferences/models.py:661
+#: preferences/models.py:672
 #: preferences/templates/preferences/display_preferences.html:285
 msgid "RADIUS policies"
 msgstr "politiques de RADIUS"
 
-#: preferences/models.py:672
+#: preferences/models.py:683
 msgid "Reject the machine"
 msgstr "Rejeter la machine"
 
-#: preferences/models.py:673
+#: preferences/models.py:684
 msgid "Place the machine on the VLAN"
 msgstr "Placer la machine sur le VLAN"
 
-#: preferences/models.py:682
+#: preferences/models.py:693
 msgid "policy for unknown machines"
 msgstr "politique pour les machines inconnues"
 
-#: preferences/models.py:690
+#: preferences/models.py:701
 msgid "unknown machines VLAN"
 msgstr "VLAN pour les machines inconnues"
 
-#: preferences/models.py:691
+#: preferences/models.py:702
 msgid "VLAN for unknown machines if not rejected."
 msgstr "VLAN pour les machines inconnues si non rejeté."
 
-#: preferences/models.py:697
+#: preferences/models.py:708
 msgid "unknown machines attributes"
 msgstr "attributs pour les machines inconnues"
 
-#: preferences/models.py:698
+#: preferences/models.py:709
 msgid "Answer attributes for unknown machines."
 msgstr "Attributs de réponse pour les machines inconnues."
 
-#: preferences/models.py:704
+#: preferences/models.py:715
 msgid "policy for unknown ports"
 msgstr "politique pour les ports inconnus"
 
-#: preferences/models.py:712
+#: preferences/models.py:723
 msgid "unknown ports VLAN"
 msgstr "VLAN pour les ports inconnus"
 
-#: preferences/models.py:713
+#: preferences/models.py:724
 msgid "VLAN for unknown ports if not rejected."
 msgstr "VLAN pour les ports inconnus si non rejeté."
 
-#: preferences/models.py:719
+#: preferences/models.py:730
 msgid "unknown ports attributes"
 msgstr "attributs pour les ports inconnus"
 
-#: preferences/models.py:720
+#: preferences/models.py:731
 msgid "Answer attributes for unknown ports."
 msgstr "Attributs de réponse pour les ports inconnus."
 
-#: preferences/models.py:727
+#: preferences/models.py:738
 msgid ""
 "Policy for machines connecting from unregistered rooms (relevant on ports "
 "with STRICT RADIUS mode)"
@@ -724,87 +742,87 @@ msgstr ""
 "Politique pour les machines se connectant depuis des chambre non "
 "enregistrées (pertinent pour les ports avec le mode de RADIUS STRICT)"
 
-#: preferences/models.py:737
+#: preferences/models.py:748
 msgid "unknown rooms VLAN"
 msgstr "VLAN pour les chambres inconnues"
 
-#: preferences/models.py:738
+#: preferences/models.py:749
 msgid "VLAN for unknown rooms if not rejected."
 msgstr "VLAN pour les chambres inconnues si non rejeté."
 
-#: preferences/models.py:744
+#: preferences/models.py:755
 msgid "unknown rooms attributes"
 msgstr "attributs pour les chambres inconnues"
 
-#: preferences/models.py:745
+#: preferences/models.py:756
 msgid "Answer attributes for unknown rooms."
 msgstr "Attributs de réponse pour les chambres inconnues."
 
-#: preferences/models.py:751
+#: preferences/models.py:762
 msgid "policy for non members"
 msgstr "politique pour les non adhérents"
 
-#: preferences/models.py:759
+#: preferences/models.py:770
 msgid "non members VLAN"
 msgstr "VLAN pour les non adhérents"
 
-#: preferences/models.py:760
+#: preferences/models.py:771
 msgid "VLAN for non members if not rejected."
 msgstr "VLAN pour les non adhérents si non rejeté."
 
-#: preferences/models.py:766
+#: preferences/models.py:777
 msgid "non members attributes"
 msgstr "attributs pour les non adhérents"
 
-#: preferences/models.py:767
+#: preferences/models.py:778
 msgid "Answer attributes for non members."
 msgstr "Attributs de réponse pour les non adhérents."
 
-#: preferences/models.py:773
+#: preferences/models.py:784
 msgid "policy for banned users"
 msgstr "politique pour les utilisateurs bannis"
 
-#: preferences/models.py:781
+#: preferences/models.py:792
 msgid "banned users VLAN"
 msgstr "VLAN pour les utilisateurs bannis"
 
-#: preferences/models.py:782
+#: preferences/models.py:793
 msgid "VLAN for banned users if not rejected."
 msgstr "VLAN pour les utilisateurs bannis si non rejeté."
 
-#: preferences/models.py:788
+#: preferences/models.py:799
 msgid "banned users attributes"
 msgstr "attributs pour les utilisateurs bannis"
 
-#: preferences/models.py:789
+#: preferences/models.py:800
 msgid "Answer attributes for banned users."
 msgstr "Attributs de réponse pour les utilisateurs bannis."
 
-#: preferences/models.py:802
+#: preferences/models.py:813
 msgid "accepted users attributes"
 msgstr "attributs pour les utilisateurs acceptés"
 
-#: preferences/models.py:803
+#: preferences/models.py:814
 msgid "Answer attributes for accepted users."
 msgstr "Attributs de réponse pour les utilisateurs acceptés."
 
-#: preferences/models.py:830
+#: preferences/models.py:841
 msgid "subscription preferences"
 msgstr "préférences de cotisation"
 
-#: preferences/models.py:834
+#: preferences/models.py:845
 msgid "template for invoices"
 msgstr "modèle pour les factures"
 
-#: preferences/models.py:841
+#: preferences/models.py:852
 msgid "template for subscription vouchers"
 msgstr "modèle pour les reçus de cotisation"
 
-#: preferences/models.py:847
+#: preferences/models.py:858
 msgid "send voucher by email when the invoice is controlled"
 msgstr "envoyer le reçu par mail quand la facture est contrôlée"
 
-#: preferences/models.py:849
+#: preferences/models.py:860
 msgid ""
 "Be careful, if no mandate is defined on the preferences page, errors will be "
 "triggered when generating vouchers."
@@ -812,19 +830,19 @@ msgstr ""
 "Faites attention, si aucun mandat n'est défini sur la page de préférences, "
 "des erreurs seront déclenchées en générant des reçus."
 
-#: preferences/models.py:861
+#: preferences/models.py:872
 msgid "template"
 msgstr "modèle"
 
-#: preferences/models.py:862
+#: preferences/models.py:873
 msgid "name"
 msgstr "nom"
 
-#: preferences/models.py:865
+#: preferences/models.py:876
 msgid "document template"
 msgstr "modèle de document"
 
-#: preferences/models.py:866
+#: preferences/models.py:877
 msgid "document templates"
 msgstr "modèles de document"
 
@@ -1111,17 +1129,13 @@ msgstr "Interface en ligne de commande par défaut pour les utilisateurs"
 msgid "Users can edit their shell"
 msgstr "Les utilisateurs peuvent modifier leur interface en ligne de commande"
 
-#: preferences/templates/preferences/display_preferences.html:148
-msgid "Users can edit their room"
-msgstr "Les utilisateurs peuvent modifier leur chambre"
-
-#: preferences/templates/preferences/display_preferences.html:144
-msgid "Users can select a room occupied by a user with a disabled connection"
-msgstr "Les utilisateurs peuvent sélectionner la chambre d'un adhérent dont la connexion est désactivée"
-
-#: preferences/templates/preferences/display_preferences.html:154
+#: preferences/templates/preferences/display_preferences.html:150
 msgid "GPG fingerprint field"
 msgstr "Champ empreinte GPG"
+
+#: preferences/templates/preferences/display_preferences.html:154
+msgid "Policy for self-user room change"
+msgstr "Autorisations pour le changement de chambre des utilisateurs"
 
 #: preferences/templates/preferences/display_preferences.html:165
 msgid "Machine preferences"
@@ -1485,3 +1499,12 @@ msgstr "Le mandat a été modifié."
 #: preferences/views.py:631
 msgid "The mandate was deleted."
 msgstr "Le mandat été supprimé."
+
+#~ msgid "Users can edit their room."
+#~ msgstr "Les utilisateurs peuvent modifier leur chambre."
+
+#~ msgid ""
+#~ "Users can select a room occupied by a user with a disabled connection"
+#~ msgstr ""
+#~ "Les utilisateurs peuvent sélectionner la chambre d'un adhérent dont la "
+#~ "connexion est désactivée"

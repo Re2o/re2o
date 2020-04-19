@@ -1110,7 +1110,7 @@ class User(
         if not (
             (
                 self.pk == user_request.pk
-                and OptionalUser.get_cached_value("self_change_room")
+                and OptionalUser.get_cached_value("self_room_policy") != OptionalUser.DISABLED
             )
             or user_request.has_perm("users.change_user")
         ):
