@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from re2o.mixins import AclMixin
-from re2o.utils import send_mail
+import re2o.utils
 
 from preferences.models import GeneralOption
 
@@ -64,7 +64,7 @@ class Ticket(AclMixin, models.Model):
             obj = "New ticket opened"
             template = loader.get_template("tickets/publication_mail_en")
 
-        send_mail(
+        re2o.utils.send_mail(
             request,
             obj,
             template.render(context),

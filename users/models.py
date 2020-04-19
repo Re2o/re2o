@@ -83,7 +83,7 @@ from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 from re2o.base import smtp_check
-from re2o.utils import send_mail
+import re2o.utils
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
@@ -763,7 +763,7 @@ class User(
             "pseudo": self.pseudo,
         }
 
-        send_mail(
+        re2o.utils.send_mail(
             request,
             "Bienvenue au %(name)s / Welcome to %(name)s"
             % {"name": AssoOption.get_cached_value("name")},
@@ -792,7 +792,7 @@ class User(
             "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs")),
         }
 
-        send_mail(
+        re2o.utils.send_mail(
             request,
             "Changement de mot de passe de %(name)s / Password change for "
             "%(name)s" % {"name": AssoOption.get_cached_value("name")},
@@ -877,7 +877,7 @@ class User(
             "confirm_before_en": self.confirm_email_before_date().strftime("%Y-%m-%d"),
         }
 
-        send_mail(
+        re2o.utils.send_mail(
             request,
             "Confirmation du mail de %(name)s / Email confirmation for "
             "%(name)s" % {"name": AssoOption.get_cached_value("name")},
@@ -933,7 +933,7 @@ class User(
             "pseudo": self.pseudo,
         }
 
-        send_mail(
+        re2o.utils.send_mail(
             None,
             "Ajout automatique d'une machine / New machine autoregistered",
             "",
@@ -953,7 +953,7 @@ class User(
             "site_name": GeneralOption.get_cached_value("site_name"),
         }
 
-        send_mail(
+        re2o.utils.send_mail(
             request,
             "Suspension automatique / Automatic suspension",
             template.render(context),
@@ -1765,7 +1765,7 @@ class Ban(RevMixin, AclMixin, models.Model):
             "asso_name": AssoOption.get_cached_value("name"),
         }
 
-        send_mail(
+        re2o.utils.send_mail(
             request,
             "Déconnexion disciplinaire / Disciplinary disconnection",
             template.render(context),
