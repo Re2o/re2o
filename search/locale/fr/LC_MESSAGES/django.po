@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-18 01:38+0200\n"
+"POT-Creation-Date: 2020-04-19 17:12+0200\n"
 "PO-Revision-Date: 2018-06-24 20:10+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -51,43 +51,55 @@ msgid "Fully archived"
 msgstr "Complètement archivés"
 
 #: search/forms.py:41
+msgid "Confirmed"
+msgstr "Confirmé"
+
+#: search/forms.py:42
+msgid "Not confirmed"
+msgstr "Non confirmé"
+
+#: search/forms.py:43
+msgid "Waiting for email confirmation"
+msgstr "En attente de confirmation du mail"
+
+#: search/forms.py:47
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: search/forms.py:42
+#: search/forms.py:48
 msgid "Machines"
 msgstr "Machines"
 
-#: search/forms.py:43
+#: search/forms.py:49
 msgid "Invoices"
 msgstr "Factures"
 
-#: search/forms.py:44
+#: search/forms.py:50
 msgid "Bans"
 msgstr "Bannissements"
 
-#: search/forms.py:45
+#: search/forms.py:51
 msgid "Whitelists"
 msgstr "Accès gracieux"
 
-#: search/forms.py:46
+#: search/forms.py:52
 msgid "Rooms"
 msgstr "Chambres"
 
-#: search/forms.py:47
+#: search/forms.py:53
 msgid "Ports"
 msgstr "Ports"
 
-#: search/forms.py:48
+#: search/forms.py:54
 msgid "Switches"
 msgstr "Commutateurs réseau"
 
-#: search/forms.py:62 search/forms.py:78 search/templates/search/search.html:29
-#: search/templates/search/search.html:48
+#: search/forms.py:68 search/forms.py:84 search/templates/search/search.html:29
+#: search/templates/search/search.html:51
 msgid "Search"
 msgstr "Rechercher"
 
-#: search/forms.py:65 search/forms.py:81
+#: search/forms.py:71 search/forms.py:87
 msgid ""
 "Use « » and «,» to specify distinct words, «\"query\"» for an exact search, "
 "«\\» to escape a character and «+» to combine keywords."
@@ -96,19 +108,23 @@ msgstr ""
 "recherche exacte, «\\» pour échapper un caractère et «+» pour combiner des "
 "mots clés."
 
-#: search/forms.py:90
+#: search/forms.py:96
 msgid "Users filter"
 msgstr "Filtre utilisateurs"
 
-#: search/forms.py:97
+#: search/forms.py:103
+msgid "Email state filter"
+msgstr "Filtre mails"
+
+#: search/forms.py:110
 msgid "Display filter"
 msgstr "Filtre affichage"
 
-#: search/forms.py:103
+#: search/forms.py:116
 msgid "Start date"
 msgstr "Date de début"
 
-#: search/forms.py:104
+#: search/forms.py:117
 msgid "End date"
 msgstr "Date de fin"
 
@@ -176,6 +192,3 @@ msgstr "Recherche avancée"
 
 #~ msgid "Unverified"
 #~ msgstr "Non-confirmé"
-
-#~ msgid "Waiting for email confirmation"
-#~ msgstr "En attente de confirmation du mail"
