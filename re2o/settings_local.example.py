@@ -111,6 +111,9 @@ OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + ()
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {
+            'user_attributes': ['surname', 'pseudo', 'name', 'email'],
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
