@@ -893,7 +893,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_port_profile", _("Can view a port profile object")),)
+        permissions = (("view_portprofile", _("Can view a port profile object")),)
         verbose_name = _("port profile")
         verbose_name_plural = _("port profiles")
         unique_together = ["on_dormitory", "profil_default"]
