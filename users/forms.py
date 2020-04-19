@@ -38,6 +38,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.password_validation import validate_password
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
 from django.utils.functional import lazy
@@ -82,13 +83,11 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
     passwd1 = forms.CharField(
         label=_("New password"),
         max_length=255,
-        validators=[MinLengthValidator(8)],
         widget=forms.PasswordInput,
     )
     passwd2 = forms.CharField(
         label=_("New password confirmation"),
         max_length=255,
-        validators=[MinLengthValidator(8)],
         widget=forms.PasswordInput,
     )
 
@@ -103,6 +102,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         password2 = self.cleaned_data.get("passwd2")
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError(_("The new passwords don't match."))
+        validate_password(password1, user=self.instance)
         return password2
 
     def clean_selfpasswd(self):
@@ -131,13 +131,11 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
     password1 = forms.CharField(
         label=_("Password"),
         widget=forms.PasswordInput,
-        validators=[MinLengthValidator(8)],
         max_length=255,
     )
     password2 = forms.CharField(
         label=_("Password confirmation"),
         widget=forms.PasswordInput,
-        validators=[MinLengthValidator(8)],
         max_length=255,
     )
     is_admin = forms.BooleanField(label=_("Is admin"))
@@ -167,6 +165,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError(_("The passwords don't match."))
+        validate_password(password1)
         return password2
 
     def save(self, commit=True):
@@ -424,14 +423,12 @@ class AdherentCreationForm(AdherentForm):
         required=False,
         label=_("Password"),
         widget=forms.PasswordInput,
-        #validators=[MinLengthValidator(8)],
         max_length=255,
     )
     password2 = forms.CharField(
         required=False,
         label=_("Password confirmation"),
         widget=forms.PasswordInput,
-        #validators=[MinLengthValidator(8)],
         max_length=255,
     )
 
@@ -481,18 +478,6 @@ class AdherentCreationForm(AdherentForm):
             self.fields.pop("password1")
             self.fields.pop("password2")
 
-    def clean_password1(self):
-        """Ignore ce champs si la case init_password_by_mail est décochée"""
-        send_email = self.cleaned_data.get("init_password_by_mail")
-        if send_email:
-            return None
-
-        password1 = self.cleaned_data.get("password1")
-        if len(password1) < 8:
-            raise forms.ValidationError(_("Password must contain at least 8 characters."))
-
-        return password1
-
     def clean_password2(self):
         """Verifie que password1 et 2 sont identiques (si nécessaire)"""
         send_email = self.cleaned_data.get("init_password_by_mail")
@@ -504,7 +489,7 @@ class AdherentCreationForm(AdherentForm):
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError(_("The passwords don't match."))
-
+        validate_password(password1)
         return password2
 
     def save(self, commit=True):
