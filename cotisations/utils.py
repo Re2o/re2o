@@ -50,7 +50,7 @@ def send_mail(mail, request):
     """Wrapper for Django's EmailMessage.send which handles errors"""
     try:
         mail.send()
-    except SMTPException as e:
+    except (SMTPException, ConnectionError) as e:
         if request:
             messages.error(
                 request,

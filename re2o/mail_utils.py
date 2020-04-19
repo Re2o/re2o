@@ -36,7 +36,7 @@ def send_mail(request, *args, **kwargs):
     try:
         kwargs["fail_silently"] = request is None
         django_send_mail(*args, **kwargs)
-    except SMTPException as e:
+    except (SMTPException, ConnectionError) as e:
         messages.error(
             request,
             _("Failed to send email: %(error)s.") % {
