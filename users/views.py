@@ -50,6 +50,7 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.translation import ugettext as _
 from django.template import loader
+from smtplib import SMTPException
 
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
@@ -124,21 +125,44 @@ def new_user(request):
     is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
 
     if user.is_valid():
-        user = user.save()
+        email_error = None
+        try:
+            # Should send welcome email
+            user = user.save()
+        except SMTPException as e:
+            email_error = e
 
         if user.password:
-            user.send_confirm_email_if_necessary(request)
+            try:
+                user.send_confirm_email_if_necessary(request)
+            except SMTPException as e:
+                email_error = e
+
             messages.success(
                 request,
                 _("The user %s was created, a confirmation email was sent.")
                 % user.pseudo,
             )
         else:
-            user.reset_passwd_mail(request)
+            try:
+                user.reset_passwd_mail(request)
+            except SMTPException as e:
+                email_error = e
+
             messages.success(
                 request,
                 _("The user %s was created, an email to set the password was sent.")
                 % user.pseudo,
+            )
+
+        if email_error:
+            # Failure to send the email isn't blocking
+            # but user should be notified
+            messages.error(
+                request,
+                _("Failed to send email: %(error)s.") % {
+                    "error": email_error,
+                },
             )
 
         return redirect(reverse("users:profil", kwargs={"userid": str(user.id)}))
@@ -166,9 +190,18 @@ def new_club(request):
     envoie un mail pour le mot de passe"""
     club = ClubForm(request.POST or None, user=request.user)
     if club.is_valid():
-        club = club.save(commit=False)
-        club.save()
-        club.reset_passwd_mail(request)
+        try:
+            club = club.save(commit=False)
+            club.save()
+            club.reset_passwd_mail(request)
+        except SMTPException as e:
+            messages.error(
+                request,
+                _("Failed to send email: %(error)s.") % {
+                    "error": e,
+                },
+            )
+
         messages.success(
             request,
             _("The club %s was created, an email to set the password was sent.")
@@ -225,8 +258,16 @@ def edit_info(request, user, userid):
             user = user_form.save()
             messages.success(request, _("The user was edited."))
 
-            if user.send_confirm_email_if_necessary(request):
-                messages.success(request, _("Sent a new confirmation email."))
+            try:
+                if user.send_confirm_email_if_necessary(request):
+                    messages.success(request, _("Sent a new confirmation email."))
+            except SMTPException as e:
+                messages.error(
+                    request,
+                    _("Failed to send email: %(error)s.") % {
+                        "error": e,
+                    },
+                )
 
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
@@ -245,8 +286,18 @@ def state(request, user, userid):
         if state_form.changed_data:
             user_instance = state_form.save()
             messages.success(request, _("The states were edited."))
-            if user_instance.trigger_email_changed_state(request):
-                messages.success(request, _("An email to confirm the address was sent."))
+
+            try:
+                if user_instance.trigger_email_changed_state(request):
+                    messages.success(request, _("An email to confirm the address was sent."))
+            except SMTPException as e:
+                messages.error(
+                    request,
+                    _("Failed to send email: %(error)s.") % {
+                        "error": e,
+                    },
+                )
+
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
         {"userform": state_form, "action_name": _("Edit")},
@@ -296,7 +347,7 @@ def password(request, user, userid):
 def del_group(request, user, listrightid, **_kwargs):
     """ View used to delete a group """
     user.groups.remove(ListRight.objects.get(id=listrightid))
-    user.save()
+    user = user.save()
     messages.success(request, _("%s was removed from the group.") % user)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
@@ -306,7 +357,7 @@ def del_group(request, user, listrightid, **_kwargs):
 def del_superuser(request, user, **_kwargs):
     """Remove the superuser right of an user."""
     user.is_superuser = False
-    user.save()
+    user = user.save()
     messages.success(request, _("%s is no longer superuser.") % user)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
@@ -317,7 +368,7 @@ def new_serviceuser(request):
     """ Vue de création d'un nouvel utilisateur service"""
     user = ServiceUserForm(request.POST or None)
     if user.is_valid():
-        user.save()
+        user = user.save()
         messages.success(request, _("The service user was created."))
         return redirect(reverse("users:index-serviceusers"))
     return form(
@@ -368,10 +419,21 @@ def add_ban(request, user, userid):
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     ban_instance = Ban(user=user)
     ban = BanForm(request.POST or None, instance=ban_instance)
+
     if ban.is_valid():
-        ban.save()
+        try:
+            ban.save()
+        except SMTPException as e:
+            messages.error(
+                request,
+                _("Failed to send email: %(error)s.") % {
+                    "error": e,
+                },
+            )
+
         messages.success(request, _("The ban was added."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
+
     if user.is_ban():
         messages.error(request, _("Warning: this user already has an active ban."))
     return form(
@@ -547,8 +609,16 @@ def edit_email_settings(request, user_instance, **_kwargs):
             email_settings.save()
             messages.success(request, _("The email settings were edited."))
 
-            if user_instance.send_confirm_email_if_necessary(request):
-                messages.success(request, _("An email to confirm your address was sent."))
+            try:
+                if user_instance.send_confirm_email_if_necessary(request):
+                    messages.success(request, _("An email to confirm your address was sent."))
+            except SMTPException as e:
+                messages.error(
+                    request,
+                    _("Failed to send email: %(error)s.") % {
+                        "error": e,
+                    },
+                )
 
         return redirect(
             reverse("users:profil", kwargs={"userid": str(user_instance.id)})
@@ -993,9 +1063,20 @@ def reset_password(request):
                 "users/user.html",
                 request,
             )
-        user.reset_passwd_mail(request)
-        messages.success(request, _("An email to reset the password was sent."))
-        redirect(reverse("index"))
+
+        try:
+            user.reset_passwd_mail(request)
+            messages.success(request, _("An email to reset the password was sent."))
+        except SMTPException as e:
+            messages.error(
+                request,
+                _("Failed to send email: %(error)s.") % {
+                    "error": e,
+                },
+            )
+
+        return redirect(reverse("index"))
+
     return form(
         {"userform": userform, "action_name": _("Reset")}, "users/user.html", request
     )
@@ -1044,8 +1125,17 @@ def process_email(request, req):
     user = req.user
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
-            user.confirm_mail()
-            user.save()
+            try:
+                user.confirm_mail()
+                user = user.save()
+            except SMTPException as e:
+                messages.error(
+                    request,
+                    _("Failed to send email: %(error)s.") % {
+                        "error": e,
+                    },
+                )
+
             reversion.set_comment("Email confirmation")
 
         # Delete all remaining requests
@@ -1073,8 +1163,17 @@ def resend_confirmation_email(request, logged_user, userid):
         messages.error(request, _("The user doesn't exist."))
 
     if request.method == "POST":
-        user.confirm_email_address_mail(request)
-        messages.success(request, _("An email to confirm your address was sent."))
+        try:
+            user.confirm_email_address_mail(request)
+            messages.success(request, _("An email to confirm your address was sent."))
+        except SMTPException as e:
+            messages.error(
+                request,
+                _("Failed to send email: %(error)s.") % {
+                    "error": e,
+                },
+            )
+
         return redirect(reverse("users:profil", kwargs={"userid": userid}))
 
     return form(

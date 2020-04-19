@@ -62,6 +62,8 @@ class Ticket(AclMixin, models.Model):
         else:
             obj = "New ticket opened"
             template = loader.get_template("tickets/publication_mail_en")
+
+        # Throws smtplib.SMTPException
         send_mail(
             obj,
             template.render(context),

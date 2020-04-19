@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 from django.core.management.base import BaseCommand, CommandError
+from smtplib import SMTPException
 
 from users.models import User
 from cotisations.models import Facture
@@ -39,5 +40,9 @@ class Command(BaseCommand):
 
         for user in users_to_disable:
             user.email_state = User.EMAIL_STATE_UNVERIFIED
-            user.notif_disable()
             user.save()
+
+            try:
+                user.notif_disable()
+            except SMTPException as e:
+                print("Failed to send email to %s." % user.pseudo)

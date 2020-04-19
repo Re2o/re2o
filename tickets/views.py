@@ -34,6 +34,7 @@ from django.utils.translation import ugettext as _
 from django.urls import reverse
 from django.forms import modelformset_factory
 from re2o.views import form
+from smtplib import SMTPException
 
 from re2o.base import re2o_paginator
 
@@ -62,7 +63,17 @@ def new_ticket(request):
             ticket = ticketform.save(commit=False)
             if request.user.is_authenticated:
                 ticket.user = request.user
-                ticket.save()
+
+                try:
+                    ticket.save()
+                except SMTPException as e:
+                    messages.error(
+                        request,
+                        _("Failed to send email: %(error)s.") % {
+                            "error": e,
+                        },
+                    )
+
                 messages.success(
                     request,
                     _(
@@ -73,7 +84,16 @@ def new_ticket(request):
                     reverse("users:profil", kwargs={"userid": str(request.user.id)})
                 )
             if not request.user.is_authenticated and email != "":
-                ticket.save()
+                try:
+                    ticket.save()
+                except SMTPException as e:
+                    messages.error(
+                        request,
+                        _("Failed to send email: %(error)s.") % {
+                            "error": e,
+                        },
+                    )
+
                 messages.success(
                     request,
                     _(

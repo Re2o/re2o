@@ -90,6 +90,8 @@ def send_mail_invoice(invoice):
         [invoice.user.get_mail],
         attachments=[("invoice.pdf", pdf, "application/pdf")],
     )
+
+    # Throws smtplib.SMTPException
     mail.send()
 
 
@@ -126,4 +128,6 @@ def send_mail_voucher(invoice):
         [invoice.user.get_mail],
         attachments=[("voucher.pdf", pdf, "application/pdf")],
     )
+
+    # Throws smtplib.SMTPException
     mail.send()

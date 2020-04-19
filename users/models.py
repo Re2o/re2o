@@ -761,6 +761,8 @@ class User(
             "welcome_mail_en": mailmessageoptions.welcome_mail_en,
             "pseudo": self.pseudo,
         }
+
+        # Throws smtplib.SMTPException
         send_mail(
             "Bienvenue au %(name)s / Welcome to %(name)s"
             % {"name": AssoOption.get_cached_value("name")},
@@ -789,6 +791,8 @@ class User(
             ),
             "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs")),
         }
+
+        # Throws smtplib.SMTPException
         send_mail(
             "Changement de mot de passe de %(name)s / Password change for "
             "%(name)s" % {"name": AssoOption.get_cached_value("name")},
@@ -873,6 +877,8 @@ class User(
             "confirm_before_fr": self.confirm_email_before_date().strftime("%d/%m/%Y"),
             "confirm_before_en": self.confirm_email_before_date().strftime("%Y-%m-%d"),
         }
+
+        # Throws smtplib.SMTPException
         send_mail(
             "Confirmation du mail de %(name)s / Email confirmation for "
             "%(name)s" % {"name": AssoOption.get_cached_value("name")},
@@ -927,6 +933,8 @@ class User(
             "asso_email": AssoOption.get_cached_value("contact"),
             "pseudo": self.pseudo,
         }
+
+        # Throws smtplib.SMTPException
         send_mail(
             "Ajout automatique d'une machine / New machine autoregistered",
             "",
@@ -945,6 +953,8 @@ class User(
             "asso_email": AssoOption.get_cached_value("contact"),
             "site_name": GeneralOption.get_cached_value("site_name"),
         }
+
+        # Throws smtplib.SMTPException
         send_mail(
             "Suspension automatique / Automatic suspension",
             template.render(context),
@@ -1752,6 +1762,8 @@ class Ban(RevMixin, AclMixin, models.Model):
             "date_end": self.date_end,
             "asso_name": AssoOption.get_cached_value("name"),
         }
+
+        # Throws smtplib.SMTPException
         send_mail(
             "Déconnexion disciplinaire / Disciplinary disconnection",
             template.render(context),

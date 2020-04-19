@@ -40,6 +40,7 @@ from django.db.models import Q
 from django.forms import modelformset_factory, formset_factory
 from django.utils import timezone
 from django.utils.translation import ugettext as _
+from smtplib import SMTPException
 
 # Import des models, forms et fonctions re2o
 from reversion import revisions as reversion
@@ -136,14 +137,25 @@ def new_facture(request, user, userid):
                         number=quantity,
                     )
                     purchases.append(new_purchase)
+
             p = find_payment_method(new_invoice_instance.paiement)
             if hasattr(p, "check_price"):
                 price_ok, msg = p.check_price(total_price, user)
                 invoice_form.add_error(None, msg)
             else:
                 price_ok = True
+
             if price_ok:
-                new_invoice_instance.save()
+                try:
+                    new_invoice_instance.save()
+                except SMTPException as e:
+                    messages.error(
+                        request,
+                        _("Failed to send email: %(error)s.") % {
+                            "error": e,
+                        },
+                    )
+
                 # Saving purchases so the invoice can find them. Invoice
                 # will modify them after being validated to put the right dates.
                 for p in purchases:
@@ -1002,13 +1014,24 @@ def credit_solde(request, user, **_kwargs):
         invoice = Facture(user=user)
         invoice.paiement = refill_form.cleaned_data["payment"]
         p = find_payment_method(invoice.paiement)
+
         if hasattr(p, "check_price"):
             price_ok, msg = p.check_price(price, user)
             refill_form.add_error(None, msg)
         else:
             price_ok = True
+
         if price_ok:
-            invoice.save()
+            try:
+                invoice.save()
+            except SMTPException as e:
+                messages.error(
+                    request,
+                    _("Failed to send email: %(error)s.") % {
+                        "error": e,
+                    },
+                )
+
             Vente.objects.create(
                 facture=invoice,
                 name="solde",
