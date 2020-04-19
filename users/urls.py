@@ -127,21 +127,4 @@ urlpatterns = [
     url(r"^$", views.index, name="index"),
     url(r"^index_clubs/$", views.index_clubs, name="index-clubs"),
     url(r"^initial_register/$", views.initial_register, name="initial-register"),
-    url(r"^rest/ml/std/$", views.ml_std_list, name="ml-std-list"),
-    url(
-        r"^rest/ml/std/member/(?P<ml_name>\w+)/$",
-        views.ml_std_members,
-        name="ml-std-members",
-    ),
-    url(r"^rest/ml/club/$", views.ml_club_list, name="ml-club-list"),
-    url(
-        r"^rest/ml/club/admin/(?P<ml_name>\w+)/$",
-        views.ml_club_admins,
-        name="ml-club-admins",
-    ),
-    url(
-        r"^rest/ml/club/member/(?P<ml_name>\w+)/$",
-        views.ml_club_members,
-        name="ml-club-members",
-    ),
 ]
