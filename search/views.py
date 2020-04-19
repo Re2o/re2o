@@ -38,6 +38,7 @@ from search.forms import (
     SearchForm,
     SearchFormPlus,
     CHOICES_USER,
+    CHOICES_EMAILS,
     CHOICES_AFF,
     initial_choices,
 )
@@ -56,6 +57,7 @@ def get_results(query, request, params):
     start = params.get("s", None)
     end = params.get("e", None)
     user_state = params.get("u", initial_choices(CHOICES_USER))
+    email_state = params.get("m", initial_choices(CHOICES_EMAILS))
     aff = params.get("a", initial_choices(CHOICES_AFF))
 
     filters = empty_filters()
@@ -63,7 +65,7 @@ def get_results(query, request, params):
     queries = create_queries(query)
     for q in queries:
         filters = search_single_query(
-            q, filters, request.user, start, end, user_state, aff
+            q, filters, request.user, start, end, user_state, email_state, aff
         )
 
     results = apply_filters(filters, request.user, aff)

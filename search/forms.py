@@ -37,6 +37,12 @@ CHOICES_USER = (
     ("4", _("Fully archived")),
 )
 
+CHOICES_EMAILS = (
+    ("0", _("Confirmed")),
+    ("1", _("Not confirmed")),
+    ("2", _("Waiting for email confirmation")),
+)
+
 CHOICES_AFF = (
     ("0", _("Users")),
     ("1", _("Machines")),
@@ -92,6 +98,13 @@ class SearchFormPlus(Form):
         widget=forms.CheckboxSelectMultiple,
         choices=CHOICES_USER,
         initial=initial_choices(CHOICES_USER),
+    )
+    m = forms.MultipleChoiceField(
+        label=_("Email state filter"),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=CHOICES_EMAILS,
+        initial=initial_choices(CHOICES_EMAILS),
     )
     a = forms.MultipleChoiceField(
         label=_("Display filter"),
