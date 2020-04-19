@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-19 17:12+0200\n"
+"POT-Creation-Date: 2020-04-19 20:16+0200\n"
 "PO-Revision-Date: 2019-11-16 00:35+0100\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -42,33 +42,33 @@ msgstr "Description du ticket."
 msgid "An email address to get back to you."
 msgstr "Une adresse mail pour vous recontacter."
 
-#: tickets/models.py:43
+#: tickets/models.py:44
 msgid "Can view a ticket object"
 msgstr "Peut voir un objet ticket"
 
-#: tickets/models.py:44
+#: tickets/models.py:45
 msgid "ticket"
 msgstr "ticket"
 
-#: tickets/models.py:45
+#: tickets/models.py:46
 msgid "tickets"
 msgstr "tickets"
 
-#: tickets/models.py:49
+#: tickets/models.py:50
 #, python-format
 msgid "Ticket from %(name)s. Date: %(date)s."
 msgstr "Ticket de %(name)s. Date : %(date)s."
 
-#: tickets/models.py:51
+#: tickets/models.py:52
 #, python-format
 msgid "Anonymous ticket. Date: %s."
 msgstr "Ticket anonyme. Date : %s."
 
-#: tickets/models.py:82
+#: tickets/models.py:85
 msgid "You don't have the right to view other tickets than yours."
 msgstr "Vous n'avez pas le droit de voir d'autres tickets que les vôtres."
 
-#: tickets/models.py:94
+#: tickets/models.py:97
 msgid "You don't have the right to view the list of tickets."
 msgstr "Vous n'avez pas le droit de voir la liste des tickets."
 
@@ -214,7 +214,7 @@ msgstr "Modifier"
 msgid "Ticket opening"
 msgstr "Ouverture de ticket"
 
-#: tickets/templates/tickets/form_ticket.html:39 tickets/views.py:88
+#: tickets/templates/tickets/form_ticket.html:39 tickets/views.py:90
 msgid ""
 "You are not authenticated. Please log in or provide an email address so we "
 "can get back to you."
@@ -280,21 +280,21 @@ msgstr "Langue du mail"
 msgid "No tickets"
 msgstr "Pas de tickets"
 
-#: tickets/views.py:69 tickets/views.py:80
+#: tickets/views.py:71 tickets/views.py:82
 msgid ""
 "Your ticket has been succesfully opened. We will take care of it as soon as "
 "possible."
 msgstr ""
 "Votre ticket a bien été ouvert. Nous nous en occuperons dès que possible."
 
-#: tickets/views.py:125 tickets/views.py:175
+#: tickets/views.py:127 tickets/views.py:177
 msgid "Never"
 msgstr "Jamais"
 
-#: tickets/views.py:152
+#: tickets/views.py:154
 msgid "The tickets preferences were edited."
 msgstr "Les préférences de tickets ont été modifiées."
 
-#: tickets/views.py:155
+#: tickets/views.py:157
 msgid "Invalid form."
 msgstr "Formulaire invalide."

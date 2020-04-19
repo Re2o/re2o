@@ -181,6 +181,9 @@ MEDIA_URL = os.path.join(BASE_DIR, "/media/")
 # Models to use for graphs
 GRAPH_MODELS = {"all_applications": True, "group_models": True}
 
+# Timeout when sending emails through Django (in seconds)
+EMAIL_TIMEOUT = 10
+
 # Activate API
 if "api" in INSTALLED_APPS:
     from api.settings import *
