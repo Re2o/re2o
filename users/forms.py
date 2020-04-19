@@ -38,7 +38,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.password_validation import validate_password, password_validators_help_text_html
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
 from django.utils.functional import lazy
@@ -84,6 +84,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         label=_("New password"),
         max_length=255,
         widget=forms.PasswordInput,
+        help_text=password_validators_help_text_html()
     )
     passwd2 = forms.CharField(
         label=_("New password confirmation"),
@@ -132,6 +133,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         label=_("Password"),
         widget=forms.PasswordInput,
         max_length=255,
+        help_text=password_validators_help_text_html()
     )
     password2 = forms.CharField(
         label=_("Password confirmation"),
@@ -424,6 +426,7 @@ class AdherentCreationForm(AdherentForm):
         label=_("Password"),
         widget=forms.PasswordInput,
         max_length=255,
+        help_text=password_validators_help_text_html()
     )
     password2 = forms.CharField(
         required=False,
