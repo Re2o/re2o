@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-19 17:12+0200\n"
+"POT-Creation-Date: 2020-04-19 20:16+0200\n"
 "PO-Revision-Date: 2018-06-27 23:35+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -56,7 +56,7 @@ msgid "The current password is incorrect."
 msgstr "Le mot de passe actuel est incorrect."
 
 #: users/forms.py:132 users/forms.py:189 users/forms.py:425
-#: users/models.py:1894
+#: users/models.py:1908
 msgid "Password"
 msgstr "Mot de passe"
 
@@ -114,7 +114,7 @@ msgstr "Prénom"
 msgid "Surname"
 msgstr "Nom"
 
-#: users/forms.py:329 users/forms.py:566 users/models.py:1894
+#: users/forms.py:329 users/forms.py:566 users/models.py:1908
 #: users/templates/users/aff_emailaddress.html:36
 #: users/templates/users/profil.html:209
 msgid "Email address"
@@ -336,7 +336,7 @@ msgstr "Non confirmé"
 msgid "Waiting for email confirmation"
 msgstr "En attente de confirmation"
 
-#: users/models.py:204 users/models.py:1550
+#: users/models.py:204 users/models.py:1561
 msgid "Must only contain letters, numerals or dashes."
 msgstr "Doit seulement contenir des lettres, chiffres ou tirets."
 
@@ -362,82 +362,82 @@ msgstr "Commentaire, promotion."
 msgid "enable shortcuts on Re2o website"
 msgstr "activer les raccourcis sur le site de Re2o"
 
-#: users/models.py:250
+#: users/models.py:251
 msgid "Can change the password of a user"
 msgstr "Peut changer le mot de passe d'un utilisateur"
 
-#: users/models.py:251
+#: users/models.py:252
 msgid "Can edit the state of a user"
 msgstr "Peut changer l'état d'un utilisateur"
 
-#: users/models.py:252
+#: users/models.py:253
 msgid "Can force the move"
 msgstr "Peut forcer le déménagement"
 
-#: users/models.py:253
+#: users/models.py:254
 msgid "Can edit the shell of a user"
 msgstr "Peut modifier l'interface en ligne de commande d'un utilisateur"
 
-#: users/models.py:256
+#: users/models.py:257
 msgid "Can edit the groups of rights of a user (critical permission)"
 msgstr ""
 "Peut modifier les groupes de droits d'un utilisateur (permission critique)"
 
-#: users/models.py:258
+#: users/models.py:259
 msgid "Can edit all users, including those with rights"
 msgstr ""
 "Peut modifier tous les utilisateurs, y compris ceux possédant des droits"
 
-#: users/models.py:259
+#: users/models.py:260
 msgid "Can view a user object"
 msgstr "Peut voir un objet utilisateur"
 
-#: users/models.py:261
+#: users/models.py:262
 msgid "user (member or club)"
 msgstr "utilisateur (adhérent ou club)"
 
-#: users/models.py:262
+#: users/models.py:263
 msgid "users (members or clubs)"
 msgstr "utilisateurs (adhérents ou clubs)"
 
-#: users/models.py:280 users/models.py:308 users/models.py:318
+#: users/models.py:281 users/models.py:309 users/models.py:319
 msgid "Unknown type."
 msgstr "Type inconnu."
 
-#: users/models.py:314 users/templates/users/aff_listright.html:75
+#: users/models.py:315 users/templates/users/aff_listright.html:75
 #: users/templates/users/aff_listright.html:180
 msgid "Member"
 msgstr "Adhérent"
 
-#: users/models.py:316
+#: users/models.py:317
 msgid "Club"
 msgstr "Club"
 
-#: users/models.py:891
+#: users/models.py:896
 msgid "Maximum number of registered machines reached."
 msgstr "Nombre maximum de machines enregistrées atteint."
 
-#: users/models.py:893
+#: users/models.py:898
 msgid "Re2o doesn't know wich machine type to assign."
 msgstr "Re2o ne sait pas quel type de machine attribuer."
 
-#: users/models.py:916 users/templates/users/user_autocapture.html:64
+#: users/models.py:921 users/templates/users/user_autocapture.html:64
 msgid "OK"
 msgstr "OK"
 
-#: users/models.py:1010
+#: users/models.py:1019
 msgid "This user is archived."
 msgstr "Cet utilisateur est archivé."
 
-#: users/models.py:1024 users/models.py:1078
+#: users/models.py:1033 users/models.py:1087
 msgid "You don't have the right to edit this club."
 msgstr "Vous n'avez pas le droit de modifier ce club."
 
-#: users/models.py:1036
+#: users/models.py:1045
 msgid "User with critical rights, can't be edited."
 msgstr "Utilisateur avec des droits critiques, ne peut être modifié."
 
-#: users/models.py:1043
+#: users/models.py:1052
 msgid ""
 "Impossible to edit the organisation's user without the \"change_all_users\" "
 "right."
@@ -445,61 +445,61 @@ msgstr ""
 "Impossible de modifier l'utilisateur de l'association sans le droit « "
 "change_all_users »."
 
-#: users/models.py:1055 users/models.py:1093
+#: users/models.py:1064 users/models.py:1102
 msgid "You don't have the right to edit another user."
 msgstr "Vous n'avez pas le droit de modifier un autre utilisateur."
 
-#: users/models.py:1119
+#: users/models.py:1128
 msgid "You don't have the right to change the room."
 msgstr "Vous n'avez pas le droit de changer la chambre."
 
-#: users/models.py:1136
+#: users/models.py:1145
 msgid "You don't have the right to change the state."
 msgstr "Vous n'avez pas le droit de changer l'état."
 
-#: users/models.py:1156
+#: users/models.py:1165
 msgid "You don't have the right to change the shell."
 msgstr "Vous n'avez pas le droit de changer l'interface en ligne de commande."
 
-#: users/models.py:1173 users/models.py:1188
+#: users/models.py:1182 users/models.py:1197
 msgid "Local email accounts must be enabled."
 msgstr "Les comptes mail locaux doivent être activés."
 
-#: users/models.py:1203
+#: users/models.py:1212
 msgid "You don't have the right to force the move."
 msgstr "Vous n'avez pas le droit de forcer le déménagement."
 
-#: users/models.py:1218
+#: users/models.py:1227
 msgid "You don't have the right to edit the user's groups of rights."
 msgstr ""
 "Vous n'avez pas le droit de modifier les groupes de droits d'un autre "
 "utilisateur."
 
-#: users/models.py:1234
+#: users/models.py:1243
 msgid "\"superuser\" right required to edit the superuser flag."
 msgstr "Droit « superuser » requis pour modifier le signalement superuser."
 
-#: users/models.py:1259
+#: users/models.py:1268
 msgid "You don't have the right to view this club."
 msgstr "Vous n'avez pas le droit de voir ce club."
 
-#: users/models.py:1268
+#: users/models.py:1277
 msgid "You don't have the right to view another user."
 msgstr "Vous n'avez pas le droit de voir un autre utilisateur."
 
-#: users/models.py:1283 users/models.py:1488
+#: users/models.py:1292 users/models.py:1497
 msgid "You don't have the right to view the list of users."
 msgstr "Vous n'avez pas le droit de voir la liste des utilisateurs."
 
-#: users/models.py:1300
+#: users/models.py:1309
 msgid "You don't have the right to delete this user."
 msgstr "Vous n'avez pas le droit de supprimer cet utilisateur."
 
-#: users/models.py:1323
+#: users/models.py:1332
 msgid "This username is already used."
 msgstr "Ce pseudo est déjà utilisé."
 
-#: users/models.py:1331
+#: users/models.py:1340
 msgid ""
 "There is neither a local email address nor an external email address for "
 "this user."
@@ -507,7 +507,7 @@ msgstr ""
 "Il n'y a pas d'adresse mail locale ni d'adresse mail externe pour cet "
 "utilisateur."
 
-#: users/models.py:1338
+#: users/models.py:1347
 msgid ""
 "You can't redirect your local emails if no external email address has been "
 "set."
@@ -515,195 +515,195 @@ msgstr ""
 "Vous ne pouvez pas rediriger vos mails locaux si aucune adresse mail externe "
 "n'a été définie."
 
-#: users/models.py:1358
+#: users/models.py:1367
 msgid "member"
 msgstr "adhérent"
 
-#: users/models.py:1359
+#: users/models.py:1368
 msgid "members"
 msgstr "adhérents"
 
-#: users/models.py:1376
+#: users/models.py:1385
 msgid "A GPG fingerprint must contain 40 hexadecimal characters."
 msgstr "Une empreinte GPG doit contenir 40 caractères hexadécimaux."
 
-#: users/models.py:1401
+#: users/models.py:1410
 msgid "Self registration is disabled."
 msgstr "L'auto inscription est désactivée."
 
-#: users/models.py:1411
+#: users/models.py:1420
 msgid "You don't have the right to create a user."
 msgstr "Vous n'avez pas le droit de créer un utilisateur."
 
-#: users/models.py:1441
+#: users/models.py:1450
 msgid "club"
 msgstr "club"
 
-#: users/models.py:1442
+#: users/models.py:1451
 msgid "clubs"
 msgstr "clubs"
 
-#: users/models.py:1453
+#: users/models.py:1462
 msgid "You must be authenticated."
 msgstr "Vous devez être authentifié."
 
-#: users/models.py:1461
+#: users/models.py:1470
 msgid "You don't have the right to create a club."
 msgstr "Vous n'avez pas le droit de créer un club."
 
-#: users/models.py:1554
+#: users/models.py:1565
 msgid "Comment."
 msgstr "Commentaire."
 
-#: users/models.py:1560
+#: users/models.py:1571
 msgid "Can view a service user object"
 msgstr "Peut voir un objet utilisateur service"
 
-#: users/models.py:1561 users/views.py:356
+#: users/models.py:1572 users/views.py:360
 msgid "service user"
 msgstr "utilisateur service"
 
-#: users/models.py:1562
+#: users/models.py:1573
 msgid "service users"
 msgstr "utilisateurs service"
 
-#: users/models.py:1566
+#: users/models.py:1577
 #, python-brace-format
 msgid "Service user <{name}>"
 msgstr "Utilisateur service <{name}>"
 
-#: users/models.py:1633
+#: users/models.py:1644
 msgid "Can view a school object"
 msgstr "Peut voir un objet établissement"
 
-#: users/models.py:1634
+#: users/models.py:1645
 msgid "school"
 msgstr "établissement"
 
-#: users/models.py:1635
+#: users/models.py:1646
 msgid "schools"
 msgstr "établissements"
 
-#: users/models.py:1654
+#: users/models.py:1665
 msgid "UNIX group names can only contain lower case letters."
 msgstr ""
 "Les noms de groupe UNIX peuvent seulement contenir des lettres minuscules."
 
-#: users/models.py:1660
+#: users/models.py:1671
 msgid "Description."
 msgstr "Description."
 
-#: users/models.py:1663
+#: users/models.py:1674
 msgid "Can view a group of rights object"
 msgstr "Peut voir un objet groupe de droits"
 
-#: users/models.py:1664
+#: users/models.py:1675
 msgid "group of rights"
 msgstr "groupe de droits"
 
-#: users/models.py:1665
+#: users/models.py:1676
 msgid "groups of rights"
 msgstr "groupes de droits"
 
-#: users/models.py:1710
+#: users/models.py:1721
 msgid "Can view a shell object"
 msgstr "Peut voir un objet interface en ligne de commande"
 
-#: users/models.py:1711 users/views.py:671
+#: users/models.py:1722 users/views.py:679
 msgid "shell"
 msgstr "interface en ligne de commande"
 
-#: users/models.py:1712
+#: users/models.py:1723
 msgid "shells"
 msgstr "interfaces en ligne de commande"
 
-#: users/models.py:1730
+#: users/models.py:1741
 msgid "HARD (no access)"
 msgstr "HARD (pas d'accès)"
 
-#: users/models.py:1731
+#: users/models.py:1742
 msgid "SOFT (local access only)"
 msgstr "SOFT (accès local uniquement)"
 
-#: users/models.py:1732
+#: users/models.py:1743
 msgid "RESTRICTED (speed limitation)"
 msgstr "RESTRICTED (limitation de vitesse)"
 
-#: users/models.py:1742
+#: users/models.py:1754
 msgid "Can view a ban object"
 msgstr "Peut voir un objet bannissement"
 
-#: users/models.py:1743 users/views.py:407
+#: users/models.py:1755 users/views.py:415
 msgid "ban"
 msgstr "bannissement"
 
-#: users/models.py:1744
+#: users/models.py:1756
 msgid "bans"
 msgstr "bannissements"
 
-#: users/models.py:1779
+#: users/models.py:1793
 msgid "You don't have the right to view other bans than yours."
 msgstr ""
 "Vous n'avez pas le droit de voir d'autres bannissements que les vôtres."
 
-#: users/models.py:1827
+#: users/models.py:1841
 msgid "Can view a whitelist object"
 msgstr "Peut voir un objet accès gracieux"
 
-#: users/models.py:1828
+#: users/models.py:1842
 msgid "whitelist (free of charge access)"
 msgstr "Accès gracieux"
 
-#: users/models.py:1829
+#: users/models.py:1843
 msgid "whitelists (free of charge access)"
 msgstr "Accès gracieux"
 
-#: users/models.py:1849
+#: users/models.py:1863
 msgid "You don't have the right to view other whitelists than yours."
 msgstr ""
 "Vous n'avez pas le droit de voir d'autres accès gracieux que les vôtres."
 
-#: users/models.py:2047
+#: users/models.py:2061
 msgid "User of the local email account."
 msgstr "Utilisateur du compte mail local."
 
-#: users/models.py:2050
+#: users/models.py:2064
 msgid "Local part of the email address."
 msgstr "Partie locale de l'adresse mail."
 
-#: users/models.py:2055
+#: users/models.py:2069
 msgid "Can view a local email account object"
 msgstr "Peut voir un objet compte mail local"
 
-#: users/models.py:2057
+#: users/models.py:2071
 msgid "local email account"
 msgstr "compte mail local"
 
-#: users/models.py:2058
+#: users/models.py:2072
 msgid "local email accounts"
 msgstr "comptes mail locaux"
 
-#: users/models.py:2086 users/models.py:2121 users/models.py:2155
-#: users/models.py:2189
+#: users/models.py:2100 users/models.py:2135 users/models.py:2169
+#: users/models.py:2203
 msgid "The local email accounts are not enabled."
 msgstr "Les comptes mail locaux ne sont pas activés."
 
-#: users/models.py:2091
+#: users/models.py:2105
 msgid "You don't have the right to add a local email account to another user."
 msgstr ""
 "Vous n'avez pas le droit d'ajouter un compte mail local à un autre "
 "utilisateur."
 
-#: users/models.py:2101
+#: users/models.py:2115
 msgid "You reached the limit of {} local email accounts."
 msgstr "Vous avez atteint la limite de {} comptes mail locaux."
 
-#: users/models.py:2127
+#: users/models.py:2141
 msgid "You don't have the right to view another user's local email account."
 msgstr ""
 "Vous n'avez pas le droit de voir le compte mail local d'un autre utilisateur."
 
-#: users/models.py:2147
+#: users/models.py:2161
 msgid ""
 "You can't delete a local email account whose local part is the same as the "
 "username."
@@ -711,13 +711,13 @@ msgstr ""
 "Vous ne pouvez pas supprimer un compte mail local dont la partie locale est "
 "la même que le pseudo."
 
-#: users/models.py:2161
+#: users/models.py:2175
 msgid "You don't have the right to delete another user's local email account."
 msgstr ""
 "Vous n'avez pas le droit de supprimer le compte mail local d'un autre "
 "utilisateur."
 
-#: users/models.py:2181
+#: users/models.py:2195
 msgid ""
 "You can't edit a local email account whose local part is the same as the "
 "username."
@@ -725,13 +725,13 @@ msgstr ""
 "Vous ne pouvez pas modifier un compte mail local dont la partie locale est "
 "la même que le pseudo."
 
-#: users/models.py:2195
+#: users/models.py:2209
 msgid "You don't have the right to edit another user's local email account."
 msgstr ""
 "Vous n'avez pas le droit de modifier le compte mail local d'un autre "
 "utilisateur."
 
-#: users/models.py:2204
+#: users/models.py:2218
 msgid "The local part must not contain @ or +."
 msgstr "La partie locale ne doit pas contenir @ ou +."
 
@@ -888,8 +888,8 @@ msgstr "pour %(name)s."
 #: users/templates/users/confirm_email.html:39
 #: users/templates/users/delete.html:36
 #: users/templates/users/mass_archive.html:36
-#: users/templates/users/resend_confirmation_email.html:35 users/views.py:628
-#: users/views.py:732
+#: users/templates/users/resend_confirmation_email.html:35 users/views.py:636
+#: users/views.py:740
 msgid "Confirm"
 msgstr "Confirmer"
 
@@ -1086,14 +1086,14 @@ msgstr "Pas de machine"
 msgid "Detailed information"
 msgstr "Informations détaillées"
 
-#: users/templates/users/profil.html:161 users/views.py:202 users/views.py:233
-#: users/views.py:252 users/views.py:269 users/views.py:341 users/views.py:395
-#: users/views.py:449 users/views.py:514 users/views.py:561 users/views.py:597
-#: users/views.py:657 users/views.py:703
+#: users/templates/users/profil.html:161 users/views.py:206 users/views.py:237
+#: users/views.py:256 users/views.py:273 users/views.py:345 users/views.py:403
+#: users/views.py:457 users/views.py:522 users/views.py:569 users/views.py:605
+#: users/views.py:665 users/views.py:711
 msgid "Edit"
 msgstr "Modifier"
 
-#: users/templates/users/profil.html:165 users/views.py:288 users/views.py:1035
+#: users/templates/users/profil.html:165 users/views.py:292 users/views.py:1043
 msgid "Change the password"
 msgstr "Changer le mot de passe"
 
@@ -1333,160 +1333,160 @@ msgstr "Connecté avec l'appareil :"
 msgid "MAC address %(mac)s"
 msgstr "Adresse MAC %(mac)s"
 
-#: users/views.py:133
+#: users/views.py:135
 #, python-format
 msgid "The user %s was created, a confirmation email was sent."
 msgstr "L'utilisateur %s a été créé, un mail de confirmation a été envoyé."
 
-#: users/views.py:140
+#: users/views.py:142
 #, python-format
 msgid "The user %s was created, an email to set the password was sent."
 msgstr ""
 "L'utilisateur %s a été créé, un mail pour initialiser le mot de passe a été "
 "envoyé."
 
-#: users/views.py:153
+#: users/views.py:155
 msgid "Commit"
 msgstr "Valider"
 
-#: users/views.py:174
+#: users/views.py:178
 #, python-format
 msgid "The club %s was created, an email to set the password was sent."
 msgstr ""
 "Le club %s a été créé, un mail pour initialiser le mot de passe a été envoyé."
 
-#: users/views.py:179
+#: users/views.py:183
 msgid "Create a club"
 msgstr "Créer un club"
 
-#: users/views.py:194
+#: users/views.py:198
 msgid "The club was edited."
 msgstr "Le club a été modifié."
 
-#: users/views.py:226
+#: users/views.py:230
 msgid "The user was edited."
 msgstr "L'utilisateur a été modifié."
 
-#: users/views.py:229
+#: users/views.py:233
 msgid "Sent a new confirmation email."
 msgstr "Un nouveau mail de confirmation a été envoyé."
 
-#: users/views.py:247
+#: users/views.py:251
 msgid "The states were edited."
 msgstr "Les états ont été modifié."
 
-#: users/views.py:249
+#: users/views.py:253
 msgid "An email to confirm the address was sent."
 msgstr "Un mail pour confirmer l'adresse a été envoyé."
 
-#: users/views.py:266
+#: users/views.py:270
 msgid "The groups were edited."
 msgstr "Les groupes ont été modifiés."
 
-#: users/views.py:285 users/views.py:1032
+#: users/views.py:289 users/views.py:1040
 msgid "The password was changed."
 msgstr "Le mot de passe a été changé."
 
-#: users/views.py:300
+#: users/views.py:304
 #, python-format
 msgid "%s was removed from the group."
 msgstr "%s a été retiré du groupe."
 
-#: users/views.py:310
+#: users/views.py:314
 #, python-format
 msgid "%s is no longer superuser."
 msgstr "%s n'est plus superutilisateur."
 
-#: users/views.py:321
+#: users/views.py:325
 msgid "The service user was created."
 msgstr "L'utilisateur service a été créé."
 
-#: users/views.py:324 users/views.py:378 users/views.py:429 users/views.py:487
-#: users/views.py:579 users/views.py:642 users/views.py:685
+#: users/views.py:328 users/views.py:384 users/views.py:437 users/views.py:495
+#: users/views.py:587 users/views.py:650 users/views.py:693
 msgid "Add"
 msgstr "Ajouter"
 
-#: users/views.py:338
+#: users/views.py:342
 msgid "The service user was edited."
 msgstr "L'utilisateur service a été modifié."
 
-#: users/views.py:353
+#: users/views.py:357
 msgid "The service user was deleted."
 msgstr "L'utilisateur service a été supprimé."
 
-#: users/views.py:373
+#: users/views.py:379
 msgid "The ban was added."
 msgstr "Le bannissement a été ajouté."
 
-#: users/views.py:376
+#: users/views.py:382
 msgid "Warning: this user already has an active ban."
 msgstr "Attention : cet utilisateur a déjà un bannissement actif."
 
-#: users/views.py:392
+#: users/views.py:400
 msgid "The ban was edited."
 msgstr "Le bannissement a été modifié."
 
-#: users/views.py:405
+#: users/views.py:413
 msgid "The ban was deleted."
 msgstr "Le bannissement a été supprimé."
 
-#: users/views.py:422
+#: users/views.py:430
 msgid "The whitelist was added."
 msgstr "L'accès gracieux a été ajouté."
 
-#: users/views.py:426
+#: users/views.py:434
 msgid "Warning: this user already has an active whitelist."
 msgstr "Attention : cet utilisateur a déjà un accès gracieux actif."
 
-#: users/views.py:446
+#: users/views.py:454
 msgid "The whitelist was edited."
 msgstr "L'accès gracieux a été ajouté."
 
-#: users/views.py:461
+#: users/views.py:469
 msgid "The whitelist was deleted."
 msgstr "L'accès gracieux a été supprimé."
 
-#: users/views.py:466
+#: users/views.py:474
 msgid "whitelist"
 msgstr "accès gracieux"
 
-#: users/views.py:481
+#: users/views.py:489
 msgid "The local email account was created."
 msgstr "Le compte mail local a été créé."
 
-#: users/views.py:504
+#: users/views.py:512
 msgid "The local email account was edited."
 msgstr "Le compte mail local a été modifié."
 
-#: users/views.py:527
+#: users/views.py:535
 msgid "The local email account was deleted."
 msgstr "Le compte mail local a été supprimé."
 
-#: users/views.py:532
+#: users/views.py:540
 msgid "email address"
 msgstr "adresse mail"
 
-#: users/views.py:548
+#: users/views.py:556
 msgid "The email settings were edited."
 msgstr "Les paramètres mail ont été modifiés."
 
-#: users/views.py:551 users/views.py:1077
+#: users/views.py:559 users/views.py:1085
 msgid "An email to confirm your address was sent."
 msgstr "Un mail pour confirmer votre adresse a été envoyé."
 
-#: users/views.py:576
+#: users/views.py:584
 msgid "The school was added."
 msgstr "L'établissement a été ajouté."
 
-#: users/views.py:594
+#: users/views.py:602
 msgid "The school was edited."
 msgstr "L'établissement a été modifié."
 
-#: users/views.py:616
+#: users/views.py:624
 msgid "The school was deleted."
 msgstr "L'établissement a été supprimé."
 
-#: users/views.py:621
+#: users/views.py:629
 #, python-format
 msgid ""
 "The school %s is assigned to at least one user, impossible to delete it."
@@ -1494,31 +1494,31 @@ msgstr ""
 "L'établissement %s est assigné à au moins un utilisateur, impossible de le "
 "supprimer."
 
-#: users/views.py:639
+#: users/views.py:647
 msgid "The shell was added."
 msgstr "L'interface en ligne de commande a été ajoutée."
 
-#: users/views.py:654
+#: users/views.py:662
 msgid "The shell was edited."
 msgstr "L'interface en ligne de commande a été modifiée."
 
-#: users/views.py:669
+#: users/views.py:677
 msgid "The shell was deleted."
 msgstr "L'interface en ligne de commande a été supprimée."
 
-#: users/views.py:682
+#: users/views.py:690
 msgid "The group of rights was added."
 msgstr "Le groupe de droits a été ajouté."
 
-#: users/views.py:700
+#: users/views.py:708
 msgid "The group of rights was edited."
 msgstr "Le groupe de droits a été modifié."
 
-#: users/views.py:720
+#: users/views.py:728
 msgid "The group of rights was deleted."
 msgstr "Le groupe de droits a été supprimé."
 
-#: users/views.py:725
+#: users/views.py:733
 #, python-format
 msgid ""
 "The group of rights %s is assigned to at least one user, impossible to "
@@ -1527,37 +1527,37 @@ msgstr ""
 "Le groupe de droits %s est assigné à au moins un utilisateur, impossible de "
 "le supprimer."
 
-#: users/views.py:761
+#: users/views.py:769
 #, python-format
 msgid "%s users were archived."
 msgstr "%s utilisateurs ont été archivés."
 
-#: users/views.py:990 users/views.py:1073
+#: users/views.py:998 users/views.py:1081
 msgid "The user doesn't exist."
 msgstr "L'utilisateur n'existe pas."
 
-#: users/views.py:992 users/views.py:1000
+#: users/views.py:1000 users/views.py:1008
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: users/views.py:997
+#: users/views.py:1005
 msgid "An email to reset the password was sent."
 msgstr "Un mail pour réinitialiser le mot de passe a été envoyé."
 
-#: users/views.py:1015
+#: users/views.py:1023
 msgid "Error: please contact an admin."
 msgstr "Erreur : veuillez contacter un admin."
 
-#: users/views.py:1053
+#: users/views.py:1061
 #, python-format
 msgid "The %s address was confirmed."
 msgstr "L'adresse mail %s a été confirmée."
 
-#: users/views.py:1100
+#: users/views.py:1108
 msgid "Incorrect URL, or already registered device."
 msgstr "URL incorrect, ou appareil déjà enregistré."
 
-#: users/views.py:1112
+#: users/views.py:1120
 msgid ""
 "Successful registration! Please disconnect and reconnect your Ethernet cable "
 "to get Internet access."
@@ -1565,7 +1565,7 @@ msgstr ""
 "Enregistrement réussi ! Veuillez débrancher et rebrancher votre câble "
 "Ethernet pour avoir accès à Internet."
 
-#: users/views.py:1152 users/views.py:1176 users/views.py:1191
+#: users/views.py:1160 users/views.py:1184 users/views.py:1199
 msgid "The mailing list doesn't exist."
 msgstr "La liste de diffusion n'existe pas."
 
