@@ -182,7 +182,7 @@ MEDIA_URL = os.path.join(BASE_DIR, "/media/")
 GRAPH_MODELS = {"all_applications": True, "group_models": True}
 
 # Email settings (in seconds)
-EMAIL_TIMEOUT = 5
+EMAIL_TIMEOUT = 10
 
 # Activate API
 if "api" in INSTALLED_APPS:
