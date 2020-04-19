@@ -36,6 +36,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% if search_form.u %}
     {% include 'buttons/multiple_checkbox_alt.html' with field=search_form.u %}
     {% endif %}
+    {% if search_form.m %}
+    {% include 'buttons/multiple_checkbox_alt.html' with field=search_form.m %}
+    {% endif %}
     {% if search_form.a %}
     {% include 'buttons/multiple_checkbox_alt.html' with field=search_form.a %}
     {% endif %}
