@@ -23,9 +23,7 @@ import os
 
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
-from django.utils.translation import ugettext_lazy as _
-from django.contrib import messages
-from smtplib import SMTPException
+from re2o.mail_utils import send_mail_object
 
 from .tex import create_pdf
 from preferences.models import AssoOption, GeneralOption, CotisationsOption, Mandate
@@ -44,20 +42,6 @@ def find_payment_method(payment):
         except method.PaymentMethod.DoesNotExist:
             pass
     return None
-
-
-def send_mail(mail, request):
-    """Wrapper for Django's EmailMessage.send which handles errors"""
-    try:
-        mail.send()
-    except (SMTPException, ConnectionError) as e:
-        if request:
-            messages.error(
-                request,
-                _("Failed to send email: %(error)s.") % {
-                    "error": e,
-                },
-            )
 
 
 def send_mail_invoice(invoice, request=None):
@@ -108,7 +92,7 @@ def send_mail_invoice(invoice, request=None):
         attachments=[("invoice.pdf", pdf, "application/pdf")],
     )
 
-    send_mail(mail, request)
+    send_mail_object(mail, request)
 
 
 def send_mail_voucher(invoice, request=None):
@@ -145,4 +129,4 @@ def send_mail_voucher(invoice, request=None):
         attachments=[("voucher.pdf", pdf, "application/pdf")],
     )
 
-    send_mail(mail, request)
+    send_mail_object(mail, request)

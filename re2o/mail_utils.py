@@ -43,3 +43,17 @@ def send_mail(request, *args, **kwargs):
                 "error": e,
             },
         )
+
+
+def send_mail_object(mail, request):
+    """Wrapper for Django's EmailMessage.send which handles errors"""
+    try:
+        mail.send()
+    except (SMTPException, ConnectionError) as e:
+        if request:
+            messages.error(
+                request,
+                _("Failed to send email: %(error)s.") % {
+                    "error": e,
+                },
+            )
