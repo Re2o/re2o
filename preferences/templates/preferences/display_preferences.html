@@ -109,6 +109,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </a>
             <p></p>
 
+            <h4 id="users">{% trans "Accounts creation and self-register" %}</h4>
             <table class="table table-striped">
                 <tr>
                     <th>{% trans "Creation of members by everyone" %}</th>
@@ -153,6 +154,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <tr>
                     <th>{% trans "Policy for self-user room change" %}</th>
                     <td>{{ useroptions.self_room_policy }}</td>
+                </tr>
+            </table>
+            <h4 id="users">{% trans "Local email accounts settings" %}</h4>
+            <table class="table table-striped">
+                <tr>
+                    <th>{% trans "Local email accounts state" %}</th>
+                    <td>{{ useroptions.local_email_accounts_enabled|tick }}</td>
+                    <th>{% trans "Local email domain" %}</th>
+                    <td>{{ useroptions.local_email_domain }}</td>
+                </tr>
+	        <tr>
+                    <th>{% trans "Maximum of local email address" %}</th>
+                    <td>{{ useroptions.max_email_address }}</td>
                 </tr>
             </table>
         </div>
