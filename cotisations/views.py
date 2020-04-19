@@ -146,15 +146,7 @@ def new_facture(request, user, userid):
                 price_ok = True
 
             if price_ok:
-                try:
-                    new_invoice_instance.save()
-                except SMTPException as e:
-                    messages.error(
-                        request,
-                        _("Failed to send email: %(error)s.") % {
-                            "error": e,
-                        },
-                    )
+                new_invoice_instance.save()
 
                 # Saving purchases so the invoice can find them. Invoice
                 # will modify them after being validated to put the right dates.
@@ -162,11 +154,21 @@ def new_facture(request, user, userid):
                     p.facture = new_invoice_instance
                     p.save()
 
-                return new_invoice_instance.paiement.end_payment(
-                    new_invoice_instance, request
-                )
+                try:
+                    return new_invoice_instance.paiement.end_payment(
+                        new_invoice_instance, request
+                    )
+                except SMTPException as e:
+                    messages.error(
+                        request,
+                        _("Failed to send email: %(error)s.") % {
+                            "error": e,
+                        },
+                    )
+                    return reverse("cotisations:new-facture", kwargs={"userid": user.pk})
         else:
             messages.error(request, _("You need to choose at least one article."))
+
     p = Paiement.objects.filter(is_balance=True)
     if len(p) and p[0].can_use_payment(request.user):
         balance = user.solde
@@ -1039,7 +1041,17 @@ def credit_solde(request, user, **_kwargs):
                 number=1,
             )
 
-            return invoice.paiement.end_payment(invoice, request)
+            try:
+                return invoice.paiement.end_payment(invoice, request)
+            except SMTPException as e:
+                messages.error(
+                    request,
+                    _("Failed to send email: %(error)s.") % {
+                        "error": e,
+                    },
+                )
+                return reverse("cotisations:credit-solde", kwargs={"userid": user.id})
+
     p = get_object_or_404(Paiement, is_balance=True)
     return form(
         {
