@@ -60,6 +60,8 @@ def new_ticket(request):
         if ticketform.is_valid():
             email = ticketform.cleaned_data.get("email")
             ticket = ticketform.save(commit=False)
+            ticket.request = request
+
             if request.user.is_authenticated:
                 ticket.user = request.user
                 ticket.save()

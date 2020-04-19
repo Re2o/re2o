@@ -330,9 +330,14 @@ class Facture(BaseInvoice):
 
     def save(self, *args, **kwargs):
         super(Facture, self).save(*args, **kwargs)
+
+        request = None
+        if "request" in kwargs:
+            request = kwargs["request"]
+
         if not self.__original_valid and self.valid:
             self.reorder_purchases()
-            send_mail_invoice(self)
+            send_mail_invoice(self, request)
         if (
             self.is_subscription()
             and not self.__original_control
@@ -340,7 +345,7 @@ class Facture(BaseInvoice):
             and CotisationsOption.get_cached_value("send_voucher_mail")
             and self.user.is_adherent()
         ):
-            send_mail_voucher(self)
+            send_mail_voucher(self, request)
 
     def __str__(self):
         return str(self.user) + " " + str(self.date)
@@ -870,7 +875,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
         # So make this invoice valid, trigger send mail
         invoice.valid = True
-        invoice.save()
+        invoice.save(request)
 
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
