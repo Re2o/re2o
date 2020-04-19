@@ -106,3 +106,6 @@ OPTIONNAL_APPS_RE2O = ()
 
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + ()
+
+#Set auth password validator
+AUTH_PASSWORD_VALIDATORS = []
