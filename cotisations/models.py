@@ -329,11 +329,12 @@ class Facture(BaseInvoice):
                 purchase.save()
 
     def save(self, *args, **kwargs):
-        super(Facture, self).save(*args, **kwargs)
+        try:
+            request = kwargs.pop("request")
+        except:
+            request = None
 
-        request = None
-        if "request" in kwargs:
-            request = kwargs["request"]
+        super(Facture, self).save(*args, **kwargs)
 
         if not self.__original_valid and self.valid:
             self.reorder_purchases()
@@ -875,7 +876,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
         # So make this invoice valid, trigger send mail
         invoice.valid = True
-        invoice.save(request)
+        invoice.save(request=request)
 
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
