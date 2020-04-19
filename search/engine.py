@@ -166,7 +166,8 @@ def contains_filter(attribute, word, case_sensitive=False):
 
 
 def search_single_word(word, filters, user, start, end,
-                       user_state, aff, case_sensitive=False):
+                       user_state, email_state, aff,
+                       case_sensitive=False):
     """ Construct the correct filters to match differents fields of some models
     with the given query according to the given filters.
     The match field are either CharField or IntegerField that will be displayed
@@ -199,6 +200,9 @@ def search_single_word(word, filters, user, start, end,
         filter_clubs &= Q(state__in=user_state)
         filter_users &= Q(state__in=user_state)
 
+        filter_clubs &= Q(email_state__in=email_state)
+        filter_users &= Q(email_state__in=email_state)
+
         filters["users"] |= filter_users
         filters["clubs"] |= filter_clubs
 
@@ -207,7 +211,8 @@ def search_single_word(word, filters, user, start, end,
         filter_machines = (
             contains_filter("name", word, case_sensitive)
             | (contains_filter("user__pseudo", word, case_sensitive)
-               & Q(user__state__in=user_state))
+               & Q(user__state__in=user_state)
+               & Q(user__email_state__in=email_state))
             | contains_filter("interface__domain__name", word, case_sensitive)
             | contains_filter("interface__domain__related_domain__name",
                               word, case_sensitive)
@@ -228,6 +233,7 @@ def search_single_word(word, filters, user, start, end,
         filter_factures = (
             contains_filter("user__pseudo", word, case_sensitive)
             & Q(user__state__in=user_state)
+            & Q(user__email_state__in=email_state)
         )
         if start is not None:
             filter_factures &= Q(date__gte=start)
@@ -240,6 +246,7 @@ def search_single_word(word, filters, user, start, end,
         filter_bans = (
             contains_filter("user__pseudo", word, case_sensitive)
             & Q(user__state__in=user_state)
+            & Q(user__email_state__in=email_state)
         ) | contains_filter("raison", word, case_sensitive)
         if start is not None:
             filter_bans &= (
@@ -260,6 +267,7 @@ def search_single_word(word, filters, user, start, end,
         filter_whitelists = (
             contains_filter("user__pseudo", word, case_sensitive)
             & Q(user__state__in=user_state)
+            & Q(user__email_state__in=email_state)
         ) | contains_filter("raison", word, case_sensitive)
         if start is not None:
             filter_whitelists &= (
@@ -397,7 +405,7 @@ def apply_filters(filters, user, aff):
     return results
 
 
-def search_single_query(query, filters, user, start, end, user_state, aff):
+def search_single_query(query, filters, user, start, end, user_state, email_state, aff):
     """ Handle different queries an construct the correct filters using
     search_single_word"""
     if query.operator == "+":
@@ -406,7 +414,8 @@ def search_single_query(query, filters, user, start, end, user_state, aff):
         for q in query.subqueries:
             # Construct an independent filter for each subquery
             subfilters = search_single_query(q, empty_filters(), user,
-                                             start, end, user_state, aff)
+                                             start, end, user_state,
+                                             email_state, aff)
 
             # Apply the subfilter
             for field in filter_fields():
@@ -420,7 +429,8 @@ def search_single_query(query, filters, user, start, end, user_state, aff):
 
     # Handle standard queries
     return search_single_word(query.text, filters, user, start, end,
-                              user_state, aff, query.case_sensitive)
+                              user_state, email_state, aff,
+                              query.case_sensitive)
 
 
 def create_queries(query):
