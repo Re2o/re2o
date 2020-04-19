@@ -60,7 +60,6 @@ from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 from django.utils.functional import cached_property
 from django.template import loader
-from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils import timezone
@@ -84,6 +83,7 @@ from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 from re2o.base import smtp_check
+from re2o.utils import send_mail
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
@@ -244,6 +244,7 @@ class User(
     REQUIRED_FIELDS = ["surname", "email"]
 
     objects = UserManager()
+    request = None
 
     class Meta:
         permissions = (
@@ -749,7 +750,7 @@ class User(
             name__in=list(queryset_users.values_list("pseudo", flat=True))
         )
 
-    def notif_inscription(self):
+    def notif_inscription(self, request=None):
         """ Prend en argument un objet user, envoie un mail de bienvenue """
         template = loader.get_template("users/email_welcome")
         mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
@@ -761,7 +762,9 @@ class User(
             "welcome_mail_en": mailmessageoptions.welcome_mail_en,
             "pseudo": self.pseudo,
         }
+
         send_mail(
+            request,
             "Bienvenue au %(name)s / Welcome to %(name)s"
             % {"name": AssoOption.get_cached_value("name")},
             "",
@@ -769,7 +772,6 @@ class User(
             [self.email],
             html_message=template.render(context),
         )
-        return
 
     def reset_passwd_mail(self, request):
         """ Prend en argument un request, envoie un mail de
@@ -789,7 +791,9 @@ class User(
             ),
             "expire_in": str(GeneralOption.get_cached_value("req_expire_hrs")),
         }
+
         send_mail(
+            request,
             "Changement de mot de passe de %(name)s / Password change for "
             "%(name)s" % {"name": AssoOption.get_cached_value("name")},
             template.render(context),
@@ -797,7 +801,6 @@ class User(
             [req.user.email],
             fail_silently=False,
         )
-        return
 
     def send_confirm_email_if_necessary(self, request):
         """Update the user's email state:
@@ -873,7 +876,9 @@ class User(
             "confirm_before_fr": self.confirm_email_before_date().strftime("%d/%m/%Y"),
             "confirm_before_en": self.confirm_email_before_date().strftime("%Y-%m-%d"),
         }
+
         send_mail(
+            request,
             "Confirmation du mail de %(name)s / Email confirmation for "
             "%(name)s" % {"name": AssoOption.get_cached_value("name")},
             template.render(context),
@@ -883,7 +888,7 @@ class User(
         )
         return
 
-    def autoregister_machine(self, mac_address, nas_type):
+    def autoregister_machine(self, mac_address, nas_type, request=None):
         """ Fonction appellée par freeradius. Enregistre la mac pour
         une machine inconnue sur le compte de l'user"""
         allowed, _message, _rights = Machine.can_create(self, self.id)
@@ -927,7 +932,9 @@ class User(
             "asso_email": AssoOption.get_cached_value("contact"),
             "pseudo": self.pseudo,
         }
+
         send_mail(
+            None,
             "Ajout automatique d'une machine / New machine autoregistered",
             "",
             GeneralOption.get_cached_value("email_from"),
@@ -936,7 +943,7 @@ class User(
         )
         return
 
-    def notif_disable(self):
+    def notif_disable(self, request=None):
         """Envoi un mail de notification informant que l'adresse mail n'a pas été confirmée"""
         template = loader.get_template("users/email_disable_notif")
         context = {
@@ -945,7 +952,9 @@ class User(
             "asso_email": AssoOption.get_cached_value("contact"),
             "site_name": GeneralOption.get_cached_value("site_name"),
         }
+
         send_mail(
+            request,
             "Suspension automatique / Automatic suspension",
             template.render(context),
             GeneralOption.get_cached_value("email_from"),
@@ -1509,8 +1518,10 @@ def user_post_save(**kwargs):
     is_created = kwargs["created"]
     user = kwargs["instance"]
     EMailAddress.objects.get_or_create(local_part=user.pseudo.lower(), user=user)
+
     if is_created:
-        user.notif_inscription()
+        user.notif_inscription(user.request)
+
     user.state_sync()
     user.ldap_sync(
         base=True, access_refresh=True, mac_refresh=False, group_refresh=True
@@ -1737,13 +1748,14 @@ class Ban(RevMixin, AclMixin, models.Model):
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField()
     state = models.IntegerField(choices=STATES, default=STATE_HARD)
+    request = None
 
     class Meta:
         permissions = (("view_ban", _("Can view a ban object")),)
         verbose_name = _("ban")
         verbose_name_plural = _("bans")
 
-    def notif_ban(self):
+    def notif_ban(self, request=None):
         """ Prend en argument un objet ban, envoie un mail de notification """
         template = loader.get_template("users/email_ban_notif")
         context = {
@@ -1752,7 +1764,9 @@ class Ban(RevMixin, AclMixin, models.Model):
             "date_end": self.date_end,
             "asso_name": AssoOption.get_cached_value("name"),
         }
+
         send_mail(
+            request,
             "Déconnexion disciplinaire / Disciplinary disconnection",
             template.render(context),
             GeneralOption.get_cached_value("email_from"),
@@ -1795,7 +1809,7 @@ def ban_post_save(**kwargs):
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
     regen("mailing")
     if is_created:
-        ban.notif_ban()
+        ban.notif_ban(ban.request)
         regen("dhcp")
         regen("mac_ip_list")
     if user.has_access():

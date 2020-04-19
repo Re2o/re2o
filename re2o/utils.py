@@ -39,6 +39,10 @@ from __future__ import unicode_literals
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.models import Permission
+from django.utils.translation import ugettext_lazy as _
+from django.core.mail import send_mail as django_send_mail
+from django.contrib import messages
+from smtplib import SMTPException
 
 from cotisations.models import Cotisation, Facture, Vente
 from machines.models import Interface, Machine
@@ -213,3 +217,17 @@ def remove_user_room(room, force=True):
     if force or not user.has_access():
         user.room = None
         user.save()
+
+
+def send_mail(request, *args, **kwargs):
+    """Wrapper for Django's send_mail which handles errors"""
+    try:
+        kwargs["fail_silently"] = request is None
+        django_send_mail(*args, **kwargs)
+    except SMTPException as e:
+        messages.error(
+            request,
+            _("Failed to send email: %(error)s.") % {
+                "error": e,
+            },
+        )

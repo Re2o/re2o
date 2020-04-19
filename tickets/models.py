@@ -1,11 +1,11 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.core.mail import send_mail
 from django.template import loader
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from re2o.mixins import AclMixin
+from re2o.utils import send_mail
 
 from preferences.models import GeneralOption
 
@@ -38,6 +38,7 @@ class Ticket(AclMixin, models.Model):
         help_text=_("An email address to get back to you."), max_length=100, null=True
     )
     solved = models.BooleanField(default=False)
+    request = None
 
     class Meta:
         permissions = (("view_tickets", _("Can view a ticket object")),)
@@ -50,7 +51,7 @@ class Ticket(AclMixin, models.Model):
         else:
             return _("Anonymous ticket. Date: %s.") % (self.date)
 
-    def publish_mail(self):
+    def publish_mail(self, request=None):
         site_url = GeneralOption.objects.first().main_site_url
         to_addr = Preferences.objects.first().publish_address
         context = {"ticket": self, "site_url": site_url}
@@ -62,7 +63,9 @@ class Ticket(AclMixin, models.Model):
         else:
             obj = "New ticket opened"
             template = loader.get_template("tickets/publication_mail_en")
+
         send_mail(
+            request,
             obj,
             template.render(context),
             GeneralOption.get_cached_value("email_from"),
@@ -108,4 +111,4 @@ def ticket_post_save(**kwargs):
     if kwargs["created"]:
         if Preferences.objects.first().publish_address:
             ticket = kwargs["instance"]
-            ticket.publish_mail()
+            ticket.publish_mail(ticket.request)

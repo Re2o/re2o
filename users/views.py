@@ -119,6 +119,8 @@ def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
     user = AdherentCreationForm(request.POST or None, user=request.user)
+    user.request = request
+
     GTU_sum_up = GeneralOption.get_cached_value("GTU_sum_up")
     GTU = GeneralOption.get_cached_value("GTU")
     is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
@@ -165,6 +167,8 @@ def new_club(request):
     """ Vue de création d'un nouveau club,
     envoie un mail pour le mot de passe"""
     club = ClubForm(request.POST or None, user=request.user)
+    club.request = request
+
     if club.is_valid():
         club = club.save(commit=False)
         club.save()
@@ -368,6 +372,8 @@ def add_ban(request, user, userid):
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     ban_instance = Ban(user=user)
     ban = BanForm(request.POST or None, instance=ban_instance)
+    ban.request = request
+
     if ban.is_valid():
         ban.save()
         messages.success(request, _("The ban was added."))
@@ -386,6 +392,8 @@ def edit_ban(request, ban_instance, **_kwargs):
     (a fortiori bureau)
     Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
     ban = BanForm(request.POST or None, instance=ban_instance)
+    ban.request = request
+
     if ban.is_valid():
         if ban.changed_data:
             ban.save()

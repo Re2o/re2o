@@ -1008,7 +1008,7 @@ def credit_solde(request, user, **_kwargs):
         else:
             price_ok = True
         if price_ok:
-            invoice.save()
+            invoice.save(request)
             Vente.objects.create(
                 facture=invoice,
                 name="solde",
