@@ -35,7 +35,7 @@ msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
 #: preferences/forms.py:65
-#: preferences/templates/preferences/display_preferences.html:148
+#: preferences/templates/preferences/display_preferences.html:149
 msgid "Telephone number required"
 msgstr "Numéro de téléphone requis"
 
@@ -52,12 +52,12 @@ msgid "All can create a member"
 msgstr "Tous peuvent créer un adhérent"
 
 #: preferences/forms.py:69
-#: preferences/templates/preferences/display_preferences.html:134
+#: preferences/templates/preferences/display_preferences.html:135
 msgid "Delay before disabling accounts without a verified email"
 msgstr "Délai avant la désactivation des comptes sans adresse mail confirmé"
 
 #: preferences/forms.py:70
-#: preferences/templates/preferences/display_preferences.html:120
+#: preferences/templates/preferences/display_preferences.html:121
 msgid "Self registration"
 msgstr "Autoinscription"
 
@@ -76,12 +76,12 @@ msgid "Possibility to set a password per machine"
 msgstr "Possibilité de mettre un mot de passe par machine"
 
 #: preferences/forms.py:89
-#: preferences/templates/preferences/display_preferences.html:180
+#: preferences/templates/preferences/display_preferences.html:194
 msgid "Maximum number of interfaces allowed for a standard user"
 msgstr "Nombre maximum d'interfaces autorisé pour un utilisateur standard"
 
 #: preferences/forms.py:92
-#: preferences/templates/preferences/display_preferences.html:184
+#: preferences/templates/preferences/display_preferences.html:198
 msgid "Maximum number of DNS aliases allowed for a standard user"
 msgstr "Nombre maximum d'alias DNS autorisé pour un utilisateur standard"
 
@@ -146,7 +146,7 @@ msgid "Organisation name"
 msgstr "Nom de l'association"
 
 #: preferences/forms.py:169
-#: preferences/templates/preferences/display_preferences.html:313
+#: preferences/templates/preferences/display_preferences.html:327
 msgid "SIRET number"
 msgstr "Numéro SIRET"
 
@@ -159,17 +159,17 @@ msgid "Address (line 2)"
 msgstr "Adresse (ligne 2)"
 
 #: preferences/forms.py:172
-#: preferences/templates/preferences/display_preferences.html:321
+#: preferences/templates/preferences/display_preferences.html:335
 msgid "Contact email address"
 msgstr "Adresse mail de contact"
 
 #: preferences/forms.py:173
-#: preferences/templates/preferences/display_preferences.html:325
+#: preferences/templates/preferences/display_preferences.html:339
 msgid "Telephone number"
 msgstr "Numéro de téléphone"
 
 #: preferences/forms.py:174
-#: preferences/templates/preferences/display_preferences.html:327
+#: preferences/templates/preferences/display_preferences.html:341
 msgid "Usual name"
 msgstr "Nom d'usage"
 
@@ -199,7 +199,7 @@ msgid "Twitter URL"
 msgstr "URL du compte Twitter"
 
 #: preferences/forms.py:211
-#: preferences/templates/preferences/display_preferences.html:488
+#: preferences/templates/preferences/display_preferences.html:502
 msgid "Twitter account name"
 msgstr "Nom du compte Twitter"
 
@@ -226,7 +226,7 @@ msgstr "Les dates renseignées se superposent avec un mandat existant."
 
 #: preferences/forms.py:321
 #: preferences/templates/preferences/aff_service.html:31
-#: preferences/templates/preferences/display_preferences.html:311
+#: preferences/templates/preferences/display_preferences.html:325
 msgid "Name"
 msgstr "Nom"
 
@@ -446,7 +446,7 @@ msgid "RADIUS key"
 msgstr "Clé RADIUS"
 
 #: preferences/models.py:385
-#: preferences/templates/preferences/display_preferences.html:207
+#: preferences/templates/preferences/display_preferences.html:221
 msgid "RADIUS keys"
 msgstr "clés RADIUS"
 
@@ -675,7 +675,7 @@ msgid "RADIUS policy"
 msgstr "politique de RADIUS"
 
 #: preferences/models.py:672
-#: preferences/templates/preferences/display_preferences.html:285
+#: preferences/templates/preferences/display_preferences.html:299
 msgid "RADIUS policies"
 msgstr "politiques de RADIUS"
 
@@ -848,7 +848,7 @@ msgid "File"
 msgstr "Fichier"
 
 #: preferences/templates/preferences/aff_mailcontact.html:31
-#: preferences/templates/preferences/display_preferences.html:317
+#: preferences/templates/preferences/display_preferences.html:331
 msgid "Address"
 msgstr "Adresse"
 
@@ -1028,12 +1028,12 @@ msgstr "Préférences générales"
 
 #: preferences/templates/preferences/display_preferences.html:46
 #: preferences/templates/preferences/display_preferences.html:108
-#: preferences/templates/preferences/display_preferences.html:173
-#: preferences/templates/preferences/display_preferences.html:226
-#: preferences/templates/preferences/display_preferences.html:288
-#: preferences/templates/preferences/display_preferences.html:306
-#: preferences/templates/preferences/display_preferences.html:403
-#: preferences/templates/preferences/display_preferences.html:481
+#: preferences/templates/preferences/display_preferences.html:187
+#: preferences/templates/preferences/display_preferences.html:240
+#: preferences/templates/preferences/display_preferences.html:302
+#: preferences/templates/preferences/display_preferences.html:320
+#: preferences/templates/preferences/display_preferences.html:417
+#: preferences/templates/preferences/display_preferences.html:495
 #: preferences/templates/preferences/edit_preferences.html:46
 #: preferences/views.py:212 preferences/views.py:261 preferences/views.py:307
 #: preferences/views.py:367 preferences/views.py:431 preferences/views.py:496
@@ -1062,6 +1062,7 @@ msgid "Local email accounts enabled"
 msgstr "Comptes mail locaux activés"
 
 #: preferences/templates/preferences/display_preferences.html:86
+#: preferences/templates/preferences/display_preferences.html:164
 msgid "Local email domain"
 msgstr "Domaine de mail local"
 
@@ -1073,269 +1074,285 @@ msgstr "Nombre maximum d'alias mail autorisé pour un utilisateur standard"
 msgid "User preferences"
 msgstr "Préférences d'utilisateur"
 
-#: preferences/templates/preferences/display_preferences.html:114
+#: preferences/templates/preferences/display_preferences.html:112
+msgid "Accounts creation and self-register"
+msgstr ""
+
+#: preferences/templates/preferences/display_preferences.html:115
 msgid "Creation of members by everyone"
 msgstr "Création d'adhérents par tous"
 
-#: preferences/templates/preferences/display_preferences.html:116
+#: preferences/templates/preferences/display_preferences.html:117
 msgid "Creation of clubs by everyone"
 msgstr "Création de clubs par tous"
 
-#: preferences/templates/preferences/display_preferences.html:122
+#: preferences/templates/preferences/display_preferences.html:123
 msgid "Delete not yet active users after"
 msgstr "Suppression des utilisateurs n'ayant jamais adhéré après"
 
-#: preferences/templates/preferences/display_preferences.html:123
+#: preferences/templates/preferences/display_preferences.html:124
 #, python-format
 msgid "%(delete_notyetactive)s days"
 msgstr "%(delete_notyetactive)s jours"
 
-#: preferences/templates/preferences/display_preferences.html:126
+#: preferences/templates/preferences/display_preferences.html:127
 msgid "All users are active by default"
 msgstr "Tous les utilisateurs sont actifs par défault"
 
-#: preferences/templates/preferences/display_preferences.html:128
+#: preferences/templates/preferences/display_preferences.html:129
 msgid "Allow archived users to log in"
 msgstr "Autoriser les utilisateurs archivés à se connecter"
 
-#: preferences/templates/preferences/display_preferences.html:132
+#: preferences/templates/preferences/display_preferences.html:133
 msgid "Allow directly entering a password during account creation"
 msgstr ""
 "Permettre le choix d'un mot de passe directement lors de la création du "
 "compte"
 
-#: preferences/templates/preferences/display_preferences.html:135
+#: preferences/templates/preferences/display_preferences.html:136
 #, fuzzy, python-format
 #| msgid "%(delete_notyetactive)s days"
 msgid "%(disable_emailnotyetconfirmed)s days"
 msgstr "%(delete_notyetactive)s jours"
 
-#: preferences/templates/preferences/display_preferences.html:139
+#: preferences/templates/preferences/display_preferences.html:140
 msgid "Users general permissions"
 msgstr "Permissions générales des utilisateurs"
 
-#: preferences/templates/preferences/display_preferences.html:142
+#: preferences/templates/preferences/display_preferences.html:143
 msgid "Default shell for users"
 msgstr "Interface en ligne de commande par défaut pour les utilisateurs"
 
-#: preferences/templates/preferences/display_preferences.html:144
+#: preferences/templates/preferences/display_preferences.html:145
 msgid "Users can edit their shell"
 msgstr "Les utilisateurs peuvent modifier leur interface en ligne de commande"
 
-#: preferences/templates/preferences/display_preferences.html:150
+#: preferences/templates/preferences/display_preferences.html:151
 msgid "GPG fingerprint field"
 msgstr "Champ empreinte GPG"
 
-#: preferences/templates/preferences/display_preferences.html:154
+#: preferences/templates/preferences/display_preferences.html:155
 msgid "Policy for self-user room change"
 msgstr "Autorisations pour le changement de chambre des utilisateurs"
 
-#: preferences/templates/preferences/display_preferences.html:165
+#: preferences/templates/preferences/display_preferences.html:159
+msgid "Local email accounts settings"
+msgstr "Réglages des comptes email locaux"
+
+#: preferences/templates/preferences/display_preferences.html:162
+msgid "Local email accounts state"
+msgstr "Etat des comptes email locaux"
+
+#: preferences/templates/preferences/display_preferences.html:168
+msgid "Maximum of local email address"
+msgstr "Maximum de mail local autorisés"
+
+#: preferences/templates/preferences/display_preferences.html:179
 msgid "Machine preferences"
 msgstr "Préférences de machine"
 
-#: preferences/templates/preferences/display_preferences.html:178
+#: preferences/templates/preferences/display_preferences.html:192
 msgid "Password per machine"
 msgstr "Mot de passe par machine"
 
-#: preferences/templates/preferences/display_preferences.html:186
+#: preferences/templates/preferences/display_preferences.html:200
 msgid "Default Time To Live (TTL) for CNAME, A and AAAA records."
 msgstr ""
 "Temps de vie (TTL) par défault pour des enregistrements CNAME, A et AAAA."
 
-#: preferences/templates/preferences/display_preferences.html:190
+#: preferences/templates/preferences/display_preferences.html:204
 msgid "IPv6 support"
 msgstr "Support de l'IPv6"
 
-#: preferences/templates/preferences/display_preferences.html:192
+#: preferences/templates/preferences/display_preferences.html:206
 msgid "Creation of machines"
 msgstr "Création de machines"
 
-#: preferences/templates/preferences/display_preferences.html:202
+#: preferences/templates/preferences/display_preferences.html:216
 msgid "Topology preferences"
 msgstr "Préférences de topologie"
 
-#: preferences/templates/preferences/display_preferences.html:209
+#: preferences/templates/preferences/display_preferences.html:223
 msgid "Add a RADIUS key"
 msgstr "Ajouter une clé RADIUS"
 
-#: preferences/templates/preferences/display_preferences.html:219
+#: preferences/templates/preferences/display_preferences.html:233
 msgid "Configuration of switches"
 msgstr "Configuration de commutateurs réseau"
 
-#: preferences/templates/preferences/display_preferences.html:232
+#: preferences/templates/preferences/display_preferences.html:246
 msgid "Web management, activated in case of automatic provision"
 msgstr "Gestion web, activée en cas de provision automatique"
 
-#: preferences/templates/preferences/display_preferences.html:234
+#: preferences/templates/preferences/display_preferences.html:248
 msgid "REST management, activated in case of automatic provision"
 msgstr "Gestion REST, activée en cas de provision automatique"
 
-#: preferences/templates/preferences/display_preferences.html:241
+#: preferences/templates/preferences/display_preferences.html:255
 msgid "Provision of configuration for switches"
 msgstr "Provision de configuration pour les commutateurs réseau"
 
-#: preferences/templates/preferences/display_preferences.html:244
+#: preferences/templates/preferences/display_preferences.html:258
 msgid "Switches with automatic provision"
 msgstr "Commutateurs réseau avec provision automatique"
 
-#: preferences/templates/preferences/display_preferences.html:245
-#: preferences/templates/preferences/display_preferences.html:249
-#: preferences/templates/preferences/display_preferences.html:253
-#: preferences/templates/preferences/display_preferences.html:261
-#: preferences/templates/preferences/display_preferences.html:265
+#: preferences/templates/preferences/display_preferences.html:259
+#: preferences/templates/preferences/display_preferences.html:263
+#: preferences/templates/preferences/display_preferences.html:267
 #: preferences/templates/preferences/display_preferences.html:275
+#: preferences/templates/preferences/display_preferences.html:279
+#: preferences/templates/preferences/display_preferences.html:289
 msgid "OK"
 msgstr "OK"
 
-#: preferences/templates/preferences/display_preferences.html:245
-#: preferences/templates/preferences/display_preferences.html:249
-#: preferences/templates/preferences/display_preferences.html:253
-#: preferences/templates/preferences/display_preferences.html:275
+#: preferences/templates/preferences/display_preferences.html:259
+#: preferences/templates/preferences/display_preferences.html:263
+#: preferences/templates/preferences/display_preferences.html:267
+#: preferences/templates/preferences/display_preferences.html:289
 msgid "Missing"
 msgstr "Manquant"
 
-#: preferences/templates/preferences/display_preferences.html:248
+#: preferences/templates/preferences/display_preferences.html:262
 msgid "IP range for the management of switches"
 msgstr "Plage d'IP pour la gestion des commutateurs réseau"
 
-#: preferences/templates/preferences/display_preferences.html:252
+#: preferences/templates/preferences/display_preferences.html:266
 msgid "Server for the configuration of switches"
 msgstr "Serveur pour la configuration des commutateurs réseau"
 
-#: preferences/templates/preferences/display_preferences.html:256
+#: preferences/templates/preferences/display_preferences.html:270
 msgid "Provision of configuration mode for switches"
 msgstr "Mode de provision de configuration pour les commutateurs réseau"
 
-#: preferences/templates/preferences/display_preferences.html:260
+#: preferences/templates/preferences/display_preferences.html:274
 msgid "TFTP mode"
 msgstr "Mode TFTP"
 
-#: preferences/templates/preferences/display_preferences.html:264
+#: preferences/templates/preferences/display_preferences.html:278
 msgid "SFTP mode"
 msgstr "Mode SFTP"
 
-#: preferences/templates/preferences/display_preferences.html:265
+#: preferences/templates/preferences/display_preferences.html:279
 msgid "Missing credentials"
 msgstr "Identifiants manquants"
 
-#: preferences/templates/preferences/display_preferences.html:269
+#: preferences/templates/preferences/display_preferences.html:283
 msgid "Switch management credentials"
 msgstr "Identifiants de gestion de commutateur réseau"
 
-#: preferences/templates/preferences/display_preferences.html:271
+#: preferences/templates/preferences/display_preferences.html:285
 msgid "Add switch management credentials"
 msgstr "Ajouter des identifiants de gestion de commutateur réseau"
 
-#: preferences/templates/preferences/display_preferences.html:282
+#: preferences/templates/preferences/display_preferences.html:296
 msgid "RADIUS preferences"
 msgstr "Préférences RADIUS"
 
-#: preferences/templates/preferences/display_preferences.html:291
+#: preferences/templates/preferences/display_preferences.html:305
 msgid "Current RADIUS attributes"
 msgstr "Attributs RADIUS actuels"
 
-#: preferences/templates/preferences/display_preferences.html:292
+#: preferences/templates/preferences/display_preferences.html:306
 msgid "Add an attribute"
 msgstr "Ajouter un attribut"
 
-#: preferences/templates/preferences/display_preferences.html:300
+#: preferences/templates/preferences/display_preferences.html:314
 msgid "Information about the organisation"
 msgstr "Informations sur l'association"
 
-#: preferences/templates/preferences/display_preferences.html:331
+#: preferences/templates/preferences/display_preferences.html:345
 msgid "User object of the organisation"
 msgstr "Objet utilisateur de l'association"
 
-#: preferences/templates/preferences/display_preferences.html:333
+#: preferences/templates/preferences/display_preferences.html:347
 msgid "Description of the organisation"
 msgstr "Description de l'association"
 
-#: preferences/templates/preferences/display_preferences.html:337
+#: preferences/templates/preferences/display_preferences.html:351
 msgid "Mandates"
 msgstr "Mandats"
 
-#: preferences/templates/preferences/display_preferences.html:340
+#: preferences/templates/preferences/display_preferences.html:354
 msgid "Add a mandate"
 msgstr "Ajouter un mandat"
 
-#: preferences/templates/preferences/display_preferences.html:349
+#: preferences/templates/preferences/display_preferences.html:363
 msgid "Document templates"
 msgstr "Modèles de document"
 
-#: preferences/templates/preferences/display_preferences.html:355
+#: preferences/templates/preferences/display_preferences.html:369
 msgid "Add a document template"
 msgstr "Ajouter un modèle de document"
 
-#: preferences/templates/preferences/display_preferences.html:359
+#: preferences/templates/preferences/display_preferences.html:373
 msgid "Delete one or several document templates"
 msgstr " Supprimer un ou plusieurs modèles de document"
 
-#: preferences/templates/preferences/display_preferences.html:368
+#: preferences/templates/preferences/display_preferences.html:382
 msgid "Subscription preferences"
 msgstr "Préférences de cotisation"
 
-#: preferences/templates/preferences/display_preferences.html:377
+#: preferences/templates/preferences/display_preferences.html:391
 msgid "Send voucher by email"
 msgstr "Envoyer le reçu par mail"
 
-#: preferences/templates/preferences/display_preferences.html:381
+#: preferences/templates/preferences/display_preferences.html:395
 msgid "Invoices' template"
 msgstr "Modèle des factures"
 
-#: preferences/templates/preferences/display_preferences.html:385
+#: preferences/templates/preferences/display_preferences.html:399
 msgid "Vouchers' template"
 msgstr "Modèle des reçus"
 
-#: preferences/templates/preferences/display_preferences.html:396
+#: preferences/templates/preferences/display_preferences.html:410
 msgid "Message for emails"
 msgstr "Message pour les mails"
 
-#: preferences/templates/preferences/display_preferences.html:409
+#: preferences/templates/preferences/display_preferences.html:423
 msgid "Welcome email (in French)"
 msgstr "Mail de bienvenue (en français)"
 
-#: preferences/templates/preferences/display_preferences.html:413
+#: preferences/templates/preferences/display_preferences.html:427
 msgid "Welcome email (in English)"
 msgstr "Mail de bienvenue (en anglais)"
 
-#: preferences/templates/preferences/display_preferences.html:423
+#: preferences/templates/preferences/display_preferences.html:437
 msgid "Preferences for the membership's end email"
 msgstr "Préférences pour le mail de fin d'adhésion"
 
-#: preferences/templates/preferences/display_preferences.html:429
+#: preferences/templates/preferences/display_preferences.html:443
 msgid "Add a reminder"
 msgstr "Ajouter un rappel"
 
-#: preferences/templates/preferences/display_preferences.html:440
+#: preferences/templates/preferences/display_preferences.html:454
 msgid "List of services and homepage preferences"
 msgstr "Liste des services et préférences de page d'accueil"
 
-#: preferences/templates/preferences/display_preferences.html:446
+#: preferences/templates/preferences/display_preferences.html:460
 msgid "Add a service"
 msgstr "Ajouter un service"
 
-#: preferences/templates/preferences/display_preferences.html:457
+#: preferences/templates/preferences/display_preferences.html:471
 msgid "List of contact email addresses"
 msgstr "Liste des adresses mail de contact"
 
-#: preferences/templates/preferences/display_preferences.html:463
+#: preferences/templates/preferences/display_preferences.html:477
 msgid "Add an address"
 msgstr "Ajouter une adresse"
 
-#: preferences/templates/preferences/display_preferences.html:465
+#: preferences/templates/preferences/display_preferences.html:479
 msgid "Delete one or several addresses"
 msgstr "Supprimer une ou plusieurs adresses"
 
-#: preferences/templates/preferences/display_preferences.html:474
+#: preferences/templates/preferences/display_preferences.html:488
 msgid "Social networks"
 msgstr "Réseaux sociaux"
 
-#: preferences/templates/preferences/display_preferences.html:486
+#: preferences/templates/preferences/display_preferences.html:500
 msgid "Twitter account URL"
 msgstr "URL du compte Twitter"
 
-#: preferences/templates/preferences/display_preferences.html:492
+#: preferences/templates/preferences/display_preferences.html:506
 msgid "Facebook account URL"
 msgstr "URL du compte Facebook"
 
