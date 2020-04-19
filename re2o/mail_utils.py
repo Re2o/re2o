@@ -29,14 +29,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail as django_send_mail
 from django.contrib import messages
 from smtplib import SMTPException
-
+from socket import herror, gaierror
 
 def send_mail(request, *args, **kwargs):
     """Wrapper for Django's send_mail which handles errors"""
     try:
         kwargs["fail_silently"] = request is None
         django_send_mail(*args, **kwargs)
-    except (SMTPException, ConnectionError) as e:
+    except (SMTPException, ConnectionError, herror, gaierror) as e:
         messages.error(
             request,
             _("Failed to send email: %(error)s.") % {
@@ -49,7 +49,7 @@ def send_mail_object(mail, request):
     """Wrapper for Django's EmailMessage.send which handles errors"""
     try:
         mail.send()
-    except (SMTPException, ConnectionError) as e:
+    except (SMTPException, ConnectionError, herror, gaierror) as e:
         if request:
             messages.error(
                 request,
