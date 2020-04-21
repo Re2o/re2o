@@ -1330,8 +1330,9 @@ class User(
             raise ValidationError(_("This username is already used."))
 
     def clean_email(self, *args, **kwargs):
-        # Allow empty emails if the user had an empty email before
-        if not self.email and (self.__original_email or not self.pk):
+        # Allow empty emails only if the user had an empty email before
+        is_created = not self.pk
+        if not self.email and (self.__original_email or is_created):
             raise forms.ValidationError(
                 _("Email field cannot be empty.")
             )
@@ -1346,9 +1347,9 @@ class User(
             )
 
     def clean(self, *args, **kwargs):
-        super(User, self).clean(*args, **kwargs)
         """Check if this pseudo is already used by any mailalias.
         Better than raising an error in post-save and catching it"""
+        super(User, self).clean(*args, **kwargs)
         self.clean_pseudo(*args, **kwargs)
         self.clean_email(*args, **kwargs)
 
