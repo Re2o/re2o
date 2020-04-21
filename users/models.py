@@ -205,8 +205,6 @@ class User(
         validators=[linux_user_validator],
     )
     email = models.EmailField(
-        blank=True,
-        null=True,
         help_text=_("External email address allowing us to contact you."),
     )
     local_email_redirect = models.BooleanField(
