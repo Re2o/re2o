@@ -1,10 +1,9 @@
+# -*- mode: python; coding: utf-8 -*-
 # Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2018 Maël Kervella
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,30 +19,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# Maël Kervella
+from . import views
 
-"""users.serializers
-Serializers for the User app
-"""
+urls_viewset = [
+    (r"cotisations/facture", views.FactureViewSet, None),
+    (r"cotisations/vente", views.VenteViewSet, None),
+    (r"cotisations/article", views.ArticleViewSet, None),
+    (r"cotisations/banque", views.BanqueViewSet, None),
+    (r"cotisations/paiement", views.PaiementViewSet, None),
+    (r"cotisations/cotisation", views.CotisationViewSet, None)
+]
 
-from rest_framework import serializers
-from users.models import Club, Adherent
+urls_view = [
+    (r"cotisations/reminder-get-users", views.ReminderView),
 
-
-class MailingSerializer(serializers.ModelSerializer):
-    """ Serializer to build Mailing objects """
-
-    name = serializers.CharField(source="pseudo")
-
-    class Meta:
-        model = Club
-        fields = ("name",)
-
-
-class MailingMemberSerializer(serializers.ModelSerializer):
-    """ Serializer fot the Adherent objects (who belong to a
-    Mailing) """
-
-    class Meta:
-        model = Adherent
-        fields = ("email",)
+    # Deprecated
+    (r"reminder/get-users", views.ReminderView),
+]
