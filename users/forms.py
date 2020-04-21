@@ -147,10 +147,15 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
+        new_email = self.cleaned_data.get("email")
+
+        if not new_email or len(new_email) == 0:
+            raise forms.ValidationError(
+                _("Email field cannot be empty.")
+            )
+
+        if not OptionalUser.objects.first().local_email_domain in new_email:
+            return new_email.lower()
         else:
             raise forms.ValidationError(
                 _("You can't use an internal address as your external address.")
@@ -481,6 +486,17 @@ class AdherentCreationForm(AdherentForm):
             self.fields.pop("password1")
             self.fields.pop("password2")
 
+    def clean_email(self):
+        """Forbid empty email"""
+        new_email = self.cleaned_data.get("email")
+
+        if not new_email or len(new_email) == 0:
+            raise forms.ValidationError(
+                _("Email field cannot be empty.")
+            )
+
+        return new_email
+
     def clean_password2(self):
         """Verifie que password1 et 2 sont identiques (si nécessaire)"""
         send_email = self.cleaned_data.get("init_password_by_mail")
@@ -520,6 +536,7 @@ class AdherentEditForm(AdherentForm):
         self.fields["gpg_fingerprint"].widget.attrs["placeholder"] = _(
             "Leave empty if you don't have any GPG key."
         )
+        self.user = kwargs["instance"]
         if "shell" in self.fields:
             self.fields["shell"].empty_label = _("Default shell")
 
@@ -538,6 +555,22 @@ class AdherentEditForm(AdherentForm):
             "gpg_fingerprint",
             "shortcuts_enabled",
         ]
+
+    def clean_email(self):
+        """Forbid empty email"""
+        original_email = self.user.email
+        new_email = self.cleaned_data.get("email")
+
+        # Allow empty emails if the user had an empty email before
+        if original_email is None or len(original_email) == 0:
+            return new_email
+
+        if new_email is None or len(new_email) == 0:
+            raise forms.ValidationError(
+                _("Email field cannot be empty.")
+            )
+
+        return new_email
 
 
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
@@ -832,6 +865,7 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.user = kwargs["instance"]
         self.fields["email"].label = _("Main email address")
         if "local_email_redirect" in self.fields:
             self.fields["local_email_redirect"].label = _("Redirect local emails")
@@ -839,10 +873,20 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields["local_email_enabled"].label = _("Use local emails")
 
     def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
+        original_email = self.user.email
+        new_email = self.cleaned_data.get("email")
+
+        # Allow empty emails if the user had an empty email before
+        if original_email is None or len(original_email) == 0:
+            return new_email
+
+        if new_email is None or len(new_email) == 0:
+            raise forms.ValidationError(
+                _("Email field cannot be empty.")
+            )
+
+        if not OptionalUser.objects.first().local_email_domain in new_email:
+            return new_email.lower()
         else:
             raise forms.ValidationError(
                 _("You can't use a {} address.").format(
