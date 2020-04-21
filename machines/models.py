@@ -542,6 +542,8 @@ class IpType(RevMixin, AclMixin, models.Model):
         - Qu'on ne crée pas plus gros qu'un /16
         - Que le range crée ne recoupe pas un range existant
         - Formate l'ipv6 donnée en /64"""
+        if not self.domaine_ip_start or not self.domaine_ip_stop:
+            raise ValidationError(_("Domaine IPv4 start and stop must be valid"))
         if IPAddress(self.domaine_ip_start) > IPAddress(self.domaine_ip_stop):
             raise ValidationError(_("Range end must be after range start..."))
         # On ne crée pas plus grand qu'un /16
