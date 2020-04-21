@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-19 20:16+0200\n"
+"POT-Creation-Date: 2020-04-21 21:38+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,11 +30,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/admin/base_site.html:65 templates/base.html:288
+#: templates/admin/base_site.html:65 templates/base.html:290
 msgid "powered by"
 msgstr "propulsé par"
 
-#: templates/admin/base_site.html:69 templates/base.html:296
+#: templates/admin/base_site.html:69 templates/base.html:298
 msgid ""
 "This software is under the terms of the <a href=\"http://www.gnu.org/"
 "licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
@@ -80,7 +80,7 @@ msgstr ""
 msgid "Unknown content"
 msgstr ""
 
-#: templates/base.html:70 templates/registration/logged_out.html:11
+#: templates/base.html:72 templates/registration/logged_out.html:11
 #: templates/registration/password_change_done.html:11
 #: templates/registration/password_change_form.html:11
 #: templates/registration/password_reset_complete.html:11
@@ -90,145 +90,145 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: templates/base.html:91
+#: templates/base.html:93
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: templates/base.html:94
+#: templates/base.html:96
 msgid "Manage the users"
 msgstr "Gérer les utilisateurs"
 
-#: templates/base.html:95
+#: templates/base.html:97
 msgid "Manage the clubs"
 msgstr "Gérer les clubs"
 
-#: templates/base.html:98
+#: templates/base.html:100
 msgid "Manage the machines"
 msgstr "Gérer les machines"
 
-#: templates/base.html:101
+#: templates/base.html:103
 msgid "Manage the subscriptions"
 msgstr "Gérer les cotisations"
 
-#: templates/base.html:114
+#: templates/base.html:116
 msgid "Topology"
 msgstr "Topologie"
 
-#: templates/base.html:116
+#: templates/base.html:118
 msgid "Switches"
 msgstr "Commutateurs réseau"
 
-#: templates/base.html:117
+#: templates/base.html:119
 msgid "Access points"
 msgstr "Points d'accès sans fil"
 
-#: templates/base.html:118
+#: templates/base.html:120
 msgid "Rooms"
 msgstr "Chambres"
 
-#: templates/base.html:128
+#: templates/base.html:130
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/base.html:133
+#: templates/base.html:135
 msgid "Administration"
 msgstr ""
 
-#: templates/base.html:140
+#: templates/base.html:142
 msgid "Information and contact"
 msgstr "Informations et contact"
 
-#: templates/base.html:142
+#: templates/base.html:144
 msgid "About"
 msgstr "À propos"
 
-#: templates/base.html:143
+#: templates/base.html:145
 msgid "Contact"
 msgstr "Contact"
 
-#: templates/base.html:157
+#: templates/base.html:159
 msgid "Sign up"
 msgstr "S'inscrire"
 
-#: templates/base.html:163 templates/registration/login.html:29
+#: templates/base.html:165 templates/registration/login.html:29
 #: templates/registration/login.html:36
 msgid "Log in"
 msgstr ""
 
-#: templates/base.html:171
+#: templates/base.html:173
 msgid "Search"
 msgstr ""
 
-#: templates/base.html:185
+#: templates/base.html:187
 msgid "My profile"
 msgstr "Mon profil"
 
-#: templates/base.html:186
+#: templates/base.html:188
 msgid "Log out"
 msgstr ""
 
-#: templates/base.html:221
+#: templates/base.html:223
 msgid "Username"
 msgstr "Pseudo"
 
-#: templates/base.html:225
+#: templates/base.html:227
 msgid "Room"
 msgstr "Chambre"
 
-#: templates/base.html:229
+#: templates/base.html:231
 msgid "Internet access"
 msgstr "Accès Internet"
 
-#: templates/base.html:232
+#: templates/base.html:234
 #, python-format
 msgid "Until %(end_access_date)s"
 msgstr "Jusqu'au %(end_access_date)s"
 
-#: templates/base.html:234
+#: templates/base.html:236
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: templates/base.html:239
+#: templates/base.html:241
 msgid "Membership"
 msgstr "Adhésion"
 
-#: templates/base.html:242
+#: templates/base.html:244
 #, python-format
 msgid "Until %(end_adhesion_date)s"
 msgstr "Jusqu'au %(end_adhesion_date)s"
 
-#: templates/base.html:244
+#: templates/base.html:246
 msgid "Non member"
 msgstr "Non adhérent"
 
-#: templates/base.html:252
+#: templates/base.html:254
 msgid "View my profile"
 msgstr "Voir mon profil"
 
-#: templates/base.html:257
+#: templates/base.html:259
 msgid "You are not logged in."
 msgstr "Vous n'êtes pas connecté."
 
-#: templates/base.html:264
+#: templates/base.html:266
 #, python-format
 msgid "%(nb)s active machine"
 msgid_plural "%(nb)s active machines"
 msgstr[0] "%(nb)s machine active"
 msgstr[1] "%(nb)s machines actives"
 
-#: templates/base.html:273
+#: templates/base.html:275
 msgid "View my machines"
 msgstr "Voir mes machines"
 
-#: templates/base.html:286
+#: templates/base.html:288
 msgid "Back to top"
 msgstr "Retour en haut"
 
-#: templates/base.html:290
+#: templates/base.html:292
 msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
 msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
 
-#: templates/base.html:293
+#: templates/base.html:295
 msgid "About this website"
 msgstr "À propos de ce site"
 
