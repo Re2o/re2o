@@ -145,16 +145,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
-
-    def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use an internal address as your external address.")
-            )
+        self.fields["email"].required = True
 
     class Meta:
         model = Adherent
@@ -352,18 +343,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         label=_("Force the move?"), initial=False, required=False
     )
 
-    def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use a {} address.").format(
-                    OptionalUser.objects.first().local_email_domain
-                )
-            )
-
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
         dans preferences"""
@@ -466,6 +445,7 @@ class AdherentCreationForm(AdherentForm):
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
         gtu_file = GeneralOption.get_cached_value("GTU")
+        self.fields["email"].required = True
         self.fields["gtu_check"].label = mark_safe(
             "%s <a href='%s' download='CGU'>%s</a>."
             % (
@@ -520,6 +500,8 @@ class AdherentEditForm(AdherentForm):
         self.fields["gpg_fingerprint"].widget.attrs["placeholder"] = _(
             "Leave empty if you don't have any GPG key."
         )
+        self.user = kwargs["instance"]
+        self.fields["email"].required = bool(self.user.email)
         if "shell" in self.fields:
             self.fields["shell"].empty_label = _("Default shell")
 
@@ -832,23 +814,13 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.user = kwargs["instance"]
         self.fields["email"].label = _("Main email address")
+        self.fields["email"].required = bool(self.user.email)
         if "local_email_redirect" in self.fields:
             self.fields["local_email_redirect"].label = _("Redirect local emails")
         if "local_email_enabled" in self.fields:
             self.fields["local_email_enabled"].label = _("Use local emails")
-
-    def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use a {} address.").format(
-                    OptionalUser.objects.first().local_email_domain
-                )
-            )
 
     class Meta:
         model = User

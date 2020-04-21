@@ -206,7 +206,7 @@ class User(
     )
     email = models.EmailField(
         blank=True,
-        null=True,
+        default="",
         help_text=_("External email address allowing us to contact you."),
     )
     local_email_redirect = models.BooleanField(
@@ -1323,31 +1323,35 @@ class User(
         self.__original_state = self.state
         self.__original_email = self.email
 
-    def clean(self, *args, **kwargs):
-        """Check if this pseudo is already used by any mailalias.
-        Better than raising an error in post-save and catching it"""
+    def clean_pseudo(self, *args, **kwargs):
         if EMailAddress.objects.filter(local_part=self.pseudo.lower()).exclude(
             user_id=self.id
         ):
             raise ValidationError(_("This username is already used."))
-        if (
-            not self.local_email_enabled
-            and not self.email
-            and not (self.state == self.STATE_FULL_ARCHIVE)
-        ):
-            raise ValidationError(
-                _(
-                    "There is neither a local email address nor an external"
-                    " email address for this user."
+
+    def clean_email(self, *args, **kwargs):
+        # Allow empty emails only if the user had an empty email before
+        is_created = not self.pk
+        if not self.email and (self.__original_email or is_created):
+            raise forms.ValidationError(
+                _("Email field cannot be empty.")
+            )
+
+        self.email = self.email.lower()
+
+        if OptionalUser.get_cached_value("local_email_domain") in self.email:
+            raise forms.ValidationError(
+                _("You can't use a {} address as an external contact address.").format(
+                    OptionalUser.get_cached_value("local_email_domain")
                 )
             )
-        if self.local_email_redirect and not self.email:
-            raise ValidationError(
-                _(
-                    "You can't redirect your local emails if no external email"
-                    " address has been set."
-                )
-            )
+
+    def clean(self, *args, **kwargs):
+        """Check if this pseudo is already used by any mailalias.
+        Better than raising an error in post-save and catching it"""
+        super(User, self).clean(*args, **kwargs)
+        self.clean_pseudo(*args, **kwargs)
+        self.clean_email(*args, **kwargs)
 
     def __str__(self):
         return self.pseudo
