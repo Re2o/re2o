@@ -150,7 +150,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
     def clean_email(self):
         new_email = self.cleaned_data.get("email")
 
-        if not new_email or len(new_email) == 0:
+        if not new_email:
             raise forms.ValidationError(
                 _("Email field cannot be empty.")
             )
@@ -492,7 +492,7 @@ class AdherentCreationForm(AdherentForm):
         """Forbid empty email"""
         new_email = self.cleaned_data.get("email")
 
-        if not new_email or len(new_email) == 0:
+        if not new_email:
             raise forms.ValidationError(
                 _("Email field cannot be empty.")
             )
@@ -539,7 +539,7 @@ class AdherentEditForm(AdherentForm):
             "Leave empty if you don't have any GPG key."
         )
         self.user = kwargs["instance"]
-        self.fields["email"].required = self.user.email and len(self.user.email)
+        self.fields["email"].required = bool(self.user.email)
         if "shell" in self.fields:
             self.fields["shell"].empty_label = _("Default shell")
 
@@ -565,10 +565,10 @@ class AdherentEditForm(AdherentForm):
         new_email = self.cleaned_data.get("email")
 
         # Allow empty emails if the user had an empty email before
-        if original_email is None or len(original_email) == 0:
+        if not original_email:
             return new_email
 
-        if new_email is None or len(new_email) == 0:
+        if not new_email:
             raise forms.ValidationError(
                 _("Email field cannot be empty.")
             )
@@ -870,7 +870,7 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.user = kwargs["instance"]
         self.fields["email"].label = _("Main email address")
-        self.fields["email"].required = self.user.email and len(self.user.email)
+        self.fields["email"].required = bool(self.user.email)
         if "local_email_redirect" in self.fields:
             self.fields["local_email_redirect"].label = _("Redirect local emails")
         if "local_email_enabled" in self.fields:
@@ -881,10 +881,10 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         new_email = self.cleaned_data.get("email")
 
         # Allow empty emails if the user had an empty email before
-        if original_email is None or len(original_email) == 0:
+        if not original_email:
             return new_email
 
-        if new_email is None or len(new_email) == 0:
+        if not new_email:
             raise forms.ValidationError(
                 _("Email field cannot be empty.")
             )
