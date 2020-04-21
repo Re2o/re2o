@@ -28,25 +28,24 @@ can be generated automatically.
 """
 
 from django.conf.urls import url, include
+from importlib import import_module
 
 from . import views
 from .routers import AllViewsRouter
-from cotisations.api.urls import urls_viewset as urls_viewset_cotisations
-from cotisations.api.urls import urls_view as urls_view_cotisations
-from machines.api.urls import urls_viewset as urls_viewset_machines
-from machines.api.urls import urls_view as urls_view_machines
-from preferences.api.urls import urls_viewset as urls_viewset_preferences
-from preferences.api.urls import urls_view as urls_view_preferences
-from topologie.api.urls import urls_viewset as urls_viewset_topologie
-from topologie.api.urls import urls_view as urls_view_topologie
-from users.api.urls import urls_viewset as urls_viewset_users
-from users.api.urls import urls_view as urls_view_users
-
-urls_viewset = urls_viewset_cotisations + urls_viewset_machines + urls_viewset_preferences + urls_viewset_topologie + urls_viewset_users
-urls_view = urls_view_cotisations + urls_view_machines + urls_view_preferences + urls_view_topologie + urls_view_users
+from django.conf import settings
 
 router = AllViewsRouter()
 
+urls_viewset = []
+urls_view = []
+
+for app in settings.INSTALLED_APPS:
+    try:
+        module = import_module(".api.urls", package=app)
+        urls_viewset += getattr(module, "urls_viewset", [])
+        urls_view += getattr(module, "urls_view", [])
+    except ImportError:
+        continue
 
 for _url, viewset, name in urls_viewset:
     if name == None:
@@ -57,8 +56,7 @@ for _url, viewset, name in urls_viewset:
 for _url, view in urls_view:
     router.register_view(_url, view)
 
-# Reminder
-router.register_view(r"reminder/get-users", views.ReminderView),
+
 # TOKEN AUTHENTICATION
 router.register_view(r"token-auth", views.ObtainExpiringAuthToken)
 

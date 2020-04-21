@@ -31,5 +31,8 @@ urls_viewset = [
 ]
 
 urls_view = [
-    # (r"reminder/get-users", views.ReminderView),
+    (r"cotisations/reminder-get-users", views.ReminderView),
+
+    # Deprecated
+    (r"reminder/get-users", views.ReminderView),
 ]

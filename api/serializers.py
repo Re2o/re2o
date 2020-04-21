@@ -64,23 +64,4 @@ class NamespacedHMSerializer(serializers.HyperlinkedModelSerializer):
 
 
 
-class ReminderUsersSerializer(UserSerializer):
-    """Serialize the data about a mailing member.
-    """
-
-    class Meta(UserSerializer.Meta):
-        fields = ("get_full_name", "get_mail")
-
-
-class ReminderSerializer(serializers.ModelSerializer):
-    """
-    Serialize the data about a reminder
-    """
-
-    users_to_remind = ReminderUsersSerializer(many=True)
-
-    class Meta:
-        model = preferences.Reminder
-        fields = ("days", "message", "users_to_remind")
-
 
