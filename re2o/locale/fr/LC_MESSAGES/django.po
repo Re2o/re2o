@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-19 20:16+0200\n"
+"POT-Creation-Date: 2020-04-21 21:38+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -74,7 +74,7 @@ msgstr "Format : {main} {more}"
 msgid "Format: {main}"
 msgstr "Format : {main}"
 
-#: re2o/mail_utils.py:42
+#: re2o/mail_utils.py:42 re2o/mail_utils.py:56
 #, python-format
 msgid "Failed to send email: %(error)s."
 msgstr "Échec de l'envoi du mail : %(error)s."

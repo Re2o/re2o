@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-19 20:16+0200\n"
+"POT-Creation-Date: 2020-04-21 21:38+0200\n"
 "PO-Revision-Date: 2018-06-24 15:54+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -1110,10 +1110,9 @@ msgstr ""
 "compte"
 
 #: preferences/templates/preferences/display_preferences.html:136
-#, fuzzy, python-format
-#| msgid "%(delete_notyetactive)s days"
+#, python-format
 msgid "%(disable_emailnotyetconfirmed)s days"
-msgstr "%(delete_notyetactive)s jours"
+msgstr "%(disable_emailnotyetconfirmed)s jours"
 
 #: preferences/templates/preferences/display_preferences.html:140
 msgid "Users general permissions"
