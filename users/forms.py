@@ -564,11 +564,8 @@ class AdherentEditForm(AdherentForm):
         original_email = self.user.email
         new_email = self.cleaned_data.get("email")
 
-        # Allow empty emails if the user had an empty email before
-        if not original_email:
-            return new_email
-
-        if not new_email:
+        # Allow empty emails only if the user had an empty email before
+        if original_email and not new_email:
             raise forms.ValidationError(
                 _("Email field cannot be empty.")
             )
@@ -880,11 +877,8 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         original_email = self.user.email
         new_email = self.cleaned_data.get("email")
 
-        # Allow empty emails if the user had an empty email before
-        if not original_email:
-            return new_email
-
-        if not new_email:
+        # Allow empty emails only if the user had an empty email before
+        if original_email and not new_email:
             raise forms.ValidationError(
                 _("Email field cannot be empty.")
             )
