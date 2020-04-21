@@ -145,6 +145,7 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields["email"].required = True
 
     def clean_email(self):
         new_email = self.cleaned_data.get("email")
@@ -471,6 +472,7 @@ class AdherentCreationForm(AdherentForm):
     def __init__(self, *args, **kwargs):
         super(AdherentCreationForm, self).__init__(*args, **kwargs)
         gtu_file = GeneralOption.get_cached_value("GTU")
+        self.fields["email"].required = True
         self.fields["gtu_check"].label = mark_safe(
             "%s <a href='%s' download='CGU'>%s</a>."
             % (
@@ -537,6 +539,7 @@ class AdherentEditForm(AdherentForm):
             "Leave empty if you don't have any GPG key."
         )
         self.user = kwargs["instance"]
+        self.fields["email"].required = self.user.email and len(self.user.email)
         if "shell" in self.fields:
             self.fields["shell"].empty_label = _("Default shell")
 
@@ -867,6 +870,7 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         super(EmailSettingsForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.user = kwargs["instance"]
         self.fields["email"].label = _("Main email address")
+        self.fields["email"].required = self.user.email and len(self.user.email)
         if "local_email_redirect" in self.fields:
             self.fields["local_email_redirect"].label = _("Redirect local emails")
         if "local_email_enabled" in self.fields:
