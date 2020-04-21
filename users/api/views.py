@@ -21,6 +21,7 @@
 
 from rest_framework import viewsets, generics, views
 from django.db.models import Q
+from django.contrib.auth.models import Group
 
 from . import serializers
 from api.pagination import PageSizedPagination

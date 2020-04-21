@@ -107,12 +107,12 @@ class SOASerializer(NamespacedHMSerializer):
 
 
 class ExtensionSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Extension` objects.
+    """Serialize machines.models.Extension objects.
     """
 
     class Meta:
-        model = machines.Domain
-        fields = ("interface_parent", "name", "extension", "cname", "api_url", "ttl")
+        model = machines.Extension
+        fields = ("name", "need_infra", "origin", "origin_v6", "soa", "api_url")
 
 
 class MxSerializer(NamespacedHMSerializer):

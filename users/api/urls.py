@@ -31,7 +31,7 @@ urls_viewset = [
     (r"users/serviceuser", views.ServiceUserViewSet, None),
     (r"users/school", views.SchoolViewSet, None),
     (r"users/listright", views.ListRightViewSet, None),
-    (r"users/shell", views.ShellViewSet, None),
+    (r"users/shell", views.ShellViewSet, "shell"),
     (r"users/ban", views.BanViewSet, None),
     (r"users/whitelist", views.WhitelistViewSet, None),
     (r"users/emailaddress", views.EMailAddressViewSet, None)
