@@ -36,12 +36,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 
-# import cotisations.models as cotisations
-import machines.models as machines
-import preferences.models as preferences
-import topologie.models as topologie
-import users.models as users
-from re2o.utils import all_active_interfaces, all_has_access
 from . import serializers
 from .pagination import PageSizedPagination
 from .permissions import ACLPermission
