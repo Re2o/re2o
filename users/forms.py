@@ -147,21 +147,6 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields["email"].required = True
 
-    def clean_email(self):
-        new_email = self.cleaned_data.get("email")
-
-        if not new_email:
-            raise forms.ValidationError(
-                _("Email field cannot be empty.")
-            )
-
-        if not OptionalUser.objects.first().local_email_domain in new_email:
-            return new_email.lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use an internal address as your external address.")
-            )
-
     class Meta:
         model = Adherent
         fields = ("pseudo", "surname", "email")
@@ -358,18 +343,6 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         label=_("Force the move?"), initial=False, required=False
     )
 
-    def clean_email(self):
-        if not OptionalUser.objects.first().local_email_domain in self.cleaned_data.get(
-            "email"
-        ):
-            return self.cleaned_data.get("email").lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use a {} address.").format(
-                    OptionalUser.objects.first().local_email_domain
-                )
-            )
-
     def clean_telephone(self):
         """Verifie que le tel est présent si 'option est validée
         dans preferences"""
@@ -488,17 +461,6 @@ class AdherentCreationForm(AdherentForm):
             self.fields.pop("password1")
             self.fields.pop("password2")
 
-    def clean_email(self):
-        """Forbid empty email"""
-        new_email = self.cleaned_data.get("email")
-
-        if not new_email:
-            raise forms.ValidationError(
-                _("Email field cannot be empty.")
-            )
-
-        return new_email
-
     def clean_password2(self):
         """Verifie que password1 et 2 sont identiques (si nécessaire)"""
         send_email = self.cleaned_data.get("init_password_by_mail")
@@ -558,19 +520,6 @@ class AdherentEditForm(AdherentForm):
             "gpg_fingerprint",
             "shortcuts_enabled",
         ]
-
-    def clean_email(self):
-        """Forbid empty email"""
-        original_email = self.user.email
-        new_email = self.cleaned_data.get("email")
-
-        # Allow empty emails only if the user had an empty email before
-        if original_email and not new_email:
-            raise forms.ValidationError(
-                _("Email field cannot be empty.")
-            )
-
-        return new_email
 
 
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
@@ -872,25 +821,6 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             self.fields["local_email_redirect"].label = _("Redirect local emails")
         if "local_email_enabled" in self.fields:
             self.fields["local_email_enabled"].label = _("Use local emails")
-
-    def clean_email(self):
-        original_email = self.user.email
-        new_email = self.cleaned_data.get("email")
-
-        # Allow empty emails only if the user had an empty email before
-        if original_email and not new_email:
-            raise forms.ValidationError(
-                _("Email field cannot be empty.")
-            )
-
-        if not OptionalUser.objects.first().local_email_domain in new_email:
-            return new_email.lower()
-        else:
-            raise forms.ValidationError(
-                _("You can't use a {} address.").format(
-                    OptionalUser.objects.first().local_email_domain
-                )
-            )
 
     class Meta:
         model = User
