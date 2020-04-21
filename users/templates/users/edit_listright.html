@@ -1,0 +1,141 @@
+{% extends 'users/sidebar.html' %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Lara Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+{% load static %}
+{% load i18n %}
+{% block title %}{% trans "Users" %}{% endblock %}
+
+{% block custom_js %}
+<!-- first import Vue -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/liquor-tree/dist/liquor-tree.umd.js"></script>
+{% endblock %}
+
+{% block content %}
+
+{% bootstrap_form_errors form %}
+
+<form class="form" method="post">
+    {% csrf_token %}
+    {% bootstrap_field form.name %}
+    {% bootstrap_field form.unix_name %}
+    {% if form.gid %}
+        {% bootstrap_field form.gid %}
+    {% endif %}
+    {% bootstrap_field form.critical %}
+    {% bootstrap_field form.details %}
+    <div id="treeapp" style="display: none;">
+        <label class="control-label">Permissions</label>
+        <tree
+            :data="treeData"
+            :options="treeOptions"
+            @node:checked="onNodeChecked"
+        />
+    </div>
+    <div id="legacy_form">
+    {% bootstrap_field form.permissions %}
+    </div>
+    {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
+</form>
+{% if load_js_file %}
+<script src="{{ load_js_file }}"></script>
+{% endif %}
+<br/>
+<br/>
+<br/>
+
+<script>
+    new Vue({
+      el: '#treeapp',
+      data: function() {
+        return {
+          treeData: this.getData(),
+          treeOptions: {
+            checkbox: true
+          }
+        }
+      },
+      mounted(){
+        document.getElementById('legacy_form').style.display='none';
+        document.getElementById('treeapp').style.display='block';
+      },
+      methods: {
+      	getData() {
+        	return [
+                {% for app,models in permissions.items %}
+                {
+                    text: '{{ app }}',
+                    state: { expanded: false },
+                    children: [
+                        {% for model,keys in models.items %}
+                        {   
+                            text:'{{model}}',
+                            children:[
+                                {% for key,permission in keys.items %}
+                                    {
+                                        text: '{{ key }} : {{ permission.name }}',
+                                        {% if permission in instance.permissions.all %}
+                                        state: { checked: true },
+                                        {% else %}
+                                        state: { checked: false },
+                                        {% endif %}
+                                        data: {
+                                            checkbox_value: '{{permission.id}}'
+                                        }
+                                    },
+                                {% endfor %}
+                            ],
+                        },
+                        {% endfor %}
+                    ],
+                },
+                {% endfor %}
+            ]
+        },
+      
+        onNodeChecked(node) {
+            if ("checkbox_value" in node.data) {
+                var selector = '#id_ListRight-permissions input[value="'.concat(node.data.checkbox_value, '"]');
+                console.log(selector);
+                document.querySelector(selector).checked=true;
+                // document.getElementById(node.data.checkbox_id).checked=true;
+            }
+        },
+        onNodeUnchecked(node) {
+            if ("checkbox_value" in node.data) {
+                var selector = '#id_ListRight-permissions input[value="'.concat(node.data.checkbox_value, '"]');
+                console.log(selector);
+                document.querySelector(selector).checked=false;
+                // document.getElementById(node.data.checkbox_id).checked=false;
+            }
+        },
+      }
+    })
+</script>
+
+{% endblock %}
+

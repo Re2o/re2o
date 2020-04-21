@@ -213,3 +213,17 @@ def remove_user_room(room, force=True):
     if force or not user.has_access():
         user.room = None
         user.save()
+
+
+def permission_tree(queryset=None):
+    r = {}
+    permissions = queryset or Permission.objects.all()
+    for p in permissions:
+        key, app, model = p.natural_key()
+        name = p.name
+        if app not in r:
+            r[app] = {}
+        if model not in r[app]:
+            r[app][model] = {}
+        r[app][model][key] = p
+    return r
