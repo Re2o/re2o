@@ -36,7 +36,6 @@ urls_viewset = [
 ]
 
 urls_view = [
-    # (r"topologie/portprofile", views.PortProfileViewSet)
     (r"topologie/switchs-ports-config", views.SwitchPortView),
     (r"topologie/switchs-role", views.RoleView),
 

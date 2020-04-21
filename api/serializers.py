@@ -24,8 +24,6 @@
 
 from rest_framework import serializers
 
-import preferences.models as preferences
-import users.models as users
 
 # The namespace used for the API. It must match the namespace used in the
 # urlpatterns to include the API URLs.
