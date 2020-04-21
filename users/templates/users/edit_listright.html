@@ -120,17 +120,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         onNodeChecked(node) {
             if ("checkbox_value" in node.data) {
                 var selector = '#id_ListRight-permissions input[value="'.concat(node.data.checkbox_value, '"]');
-                console.log(selector);
                 document.querySelector(selector).checked=true;
-                // document.getElementById(node.data.checkbox_id).checked=true;
             }
         },
         onNodeUnchecked(node) {
             if ("checkbox_value" in node.data) {
                 var selector = '#id_ListRight-permissions input[value="'.concat(node.data.checkbox_value, '"]');
-                console.log(selector);
                 document.querySelector(selector).checked=false;
-                // document.getElementById(node.data.checkbox_id).checked=false;
             }
         },
       }
