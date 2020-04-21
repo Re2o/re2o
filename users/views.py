@@ -61,7 +61,7 @@ from preferences.models import OptionalUser, GeneralOption, AssoOption
 from importlib import import_module
 from re2o.settings_local import OPTIONNAL_APPS_RE2O
 from re2o.views import form
-from re2o.utils import all_has_access
+from re2o.utils import all_has_access, permission_tree
 from re2o.base import re2o_paginator, SortTable
 from re2o.acl import (
     can_create,
@@ -123,7 +123,9 @@ def new_user(request):
 
     GTU_sum_up = GeneralOption.get_cached_value("GTU_sum_up")
     GTU = GeneralOption.get_cached_value("GTU")
-    is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
+    is_set_password_allowed = OptionalUser.get_cached_value(
+        "allow_set_password_during_user_creation"
+    )
 
     if user.is_valid():
         user = user.save()
@@ -200,11 +202,7 @@ def edit_club_admin_members(request, club_instance, **_kwargs):
             reverse("users:profil", kwargs={"userid": str(club_instance.id)})
         )
     return form(
-        {
-            "userform": club,
-            "showCGU": False,
-            "action_name": _("Edit"),
-        },
+        {"userform": club, "showCGU": False, "action_name": _("Edit"),},
         "users/user.html",
         request,
     )
@@ -234,9 +232,7 @@ def edit_info(request, user, userid):
 
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": user_form, "action_name": _("Edit")},
-        "users/user.html",
-        request,
+        {"userform": user_form, "action_name": _("Edit")}, "users/user.html", request,
     )
 
 
@@ -250,12 +246,12 @@ def state(request, user, userid):
             user_instance = state_form.save()
             messages.success(request, _("The states were edited."))
             if user_instance.trigger_email_changed_state(request):
-                messages.success(request, _("An email to confirm the address was sent."))
+                messages.success(
+                    request, _("An email to confirm the address was sent.")
+                )
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": state_form, "action_name": _("Edit")},
-        "users/user.html",
-        request,
+        {"userform": state_form, "action_name": _("Edit")}, "users/user.html", request,
     )
 
 
@@ -270,9 +266,7 @@ def groups(request, user, userid):
             messages.success(request, _("The groups were edited."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": group_form, "action_name": _("Edit")},
-        "users/user.html",
-        request,
+        {"userform": group_form, "action_name": _("Edit")}, "users/user.html", request,
     )
 
 
@@ -325,9 +319,7 @@ def new_serviceuser(request):
         messages.success(request, _("The service user was created."))
         return redirect(reverse("users:index-serviceusers"))
     return form(
-        {"userform": user, "action_name": _("Add")},
-        "users/user.html",
-        request,
+        {"userform": user, "action_name": _("Add")}, "users/user.html", request,
     )
 
 
@@ -342,9 +334,7 @@ def edit_serviceuser(request, serviceuser, **_kwargs):
         messages.success(request, _("The service user was edited."))
         return redirect(reverse("users:index-serviceusers"))
     return form(
-        {"userform": serviceuser, "action_name": _("Edit")},
-        "users/user.html",
-        request,
+        {"userform": serviceuser, "action_name": _("Edit")}, "users/user.html", request,
     )
 
 
@@ -380,9 +370,7 @@ def add_ban(request, user, userid):
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     if user.is_ban():
         messages.error(request, _("Warning: this user already has an active ban."))
-    return form(
-        {"userform": ban, "action_name": _("Add")}, "users/user.html", request
-    )
+    return form({"userform": ban, "action_name": _("Add")}, "users/user.html", request)
 
 
 @login_required
@@ -399,9 +387,7 @@ def edit_ban(request, ban_instance, **_kwargs):
             ban.save()
             messages.success(request, _("The ban was edited."))
         return redirect(reverse("users:index"))
-    return form(
-        {"userform": ban, "action_name": _("Edit")}, "users/user.html", request
-    )
+    return form({"userform": ban, "action_name": _("Edit")}, "users/user.html", request)
 
 
 @login_required
@@ -434,9 +420,7 @@ def add_whitelist(request, user, userid):
             request, _("Warning: this user already has an active whitelist.")
         )
     return form(
-        {"userform": whitelist, "action_name": _("Add")},
-        "users/user.html",
-        request,
+        {"userform": whitelist, "action_name": _("Add")}, "users/user.html", request,
     )
 
 
@@ -454,9 +438,7 @@ def edit_whitelist(request, whitelist_instance, **_kwargs):
             messages.success(request, _("The whitelist was edited."))
         return redirect(reverse("users:index"))
     return form(
-        {"userform": whitelist, "action_name": _("Edit")},
-        "users/user.html",
-        request,
+        {"userform": whitelist, "action_name": _("Edit")}, "users/user.html", request,
     )
 
 
@@ -489,11 +471,7 @@ def add_emailaddress(request, user, userid):
         messages.success(request, _("The local email account was created."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {
-            "userform": emailaddress,
-            "showCGU": False,
-            "action_name": _("Add"),
-        },
+        {"userform": emailaddress, "showCGU": False, "action_name": _("Add"),},
         "users/user.html",
         request,
     )
@@ -516,11 +494,7 @@ def edit_emailaddress(request, emailaddress_instance, **_kwargs):
             )
         )
     return form(
-        {
-            "userform": emailaddress,
-            "showCGU": False,
-            "action_name": _("Edit"),
-        },
+        {"userform": emailaddress, "showCGU": False, "action_name": _("Edit"),},
         "users/user.html",
         request,
     )
@@ -556,7 +530,9 @@ def edit_email_settings(request, user_instance, **_kwargs):
             messages.success(request, _("The email settings were edited."))
 
             if user_instance.send_confirm_email_if_necessary(request):
-                messages.success(request, _("An email to confirm your address was sent."))
+                messages.success(
+                    request, _("An email to confirm your address was sent.")
+                )
 
         return redirect(
             reverse("users:profil", kwargs={"userid": str(user_instance.id)})
@@ -584,9 +560,7 @@ def add_school(request):
         messages.success(request, _("The school was added."))
         return redirect(reverse("users:index-school"))
     return form(
-        {"userform": school, "action_name": _("Add")},
-        "users/user.html",
-        request,
+        {"userform": school, "action_name": _("Add")}, "users/user.html", request,
     )
 
 
@@ -602,9 +576,7 @@ def edit_school(request, school_instance, **_kwargs):
             messages.success(request, _("The school was edited."))
         return redirect(reverse("users:index-school"))
     return form(
-        {"userform": school, "action_name": _("Edit")},
-        "users/user.html",
-        request,
+        {"userform": school, "action_name": _("Edit")}, "users/user.html", request,
     )
 
 
@@ -662,9 +634,7 @@ def edit_shell(request, shell_instance, **_kwargs):
             messages.success(request, _("The shell was edited."))
         return redirect(reverse("users:index-shell"))
     return form(
-        {"userform": shell, "action_name": _("Edit")},
-        "users/user.html",
-        request,
+        {"userform": shell, "action_name": _("Edit")}, "users/user.html", request,
     )
 
 
@@ -676,7 +646,9 @@ def del_shell(request, shell, **_kwargs):
         shell.delete()
         messages.success(request, _("The shell was deleted."))
         return redirect(reverse("users:index-shell"))
-    return form({"objet": shell, "objet_name": _("shell")}, "users/delete.html", request)
+    return form(
+        {"objet": shell, "objet_name": _("shell")}, "users/delete.html", request
+    )
 
 
 @login_required
@@ -690,8 +662,8 @@ def add_listright(request):
         messages.success(request, _("The group of rights was added."))
         return redirect(reverse("users:index-listright"))
     return form(
-        {"userform": listright, "action_name": _("Add")},
-        "users/user.html",
+        {"form": listright, "action_name": _("Add"), "permissions": permission_tree()},
+        "users/edit_listright.html",
         request,
     )
 
@@ -701,15 +673,20 @@ def add_listright(request):
 def edit_listright(request, listright_instance, **_kwargs):
     """ Editer un groupe/droit, necessite droit bureau,
     à partir du listright id """
-    listright = ListRightForm(request.POST or None, instance=listright_instance)
-    if listright.is_valid():
-        if listright.changed_data:
-            listright.save()
+    listright_form = ListRightForm(request.POST or None, instance=listright_instance)
+    if listright_form.is_valid():
+        if listright_form.changed_data:
+            listright_form.save()
             messages.success(request, _("The group of rights was edited."))
         return redirect(reverse("users:index-listright"))
     return form(
-        {"userform": listright, "action_name": _("Edit")},
-        "users/user.html",
+        {
+            "form": listright_form,
+            "action_name": _("Edit"),
+            "permissions": permission_tree(),
+            "instance": listright_instance,
+        },
+        "users/edit_listright.html",
         request,
     )
 
@@ -1064,7 +1041,7 @@ def process_email(request, req):
     return form(
         {"email": user.email, "name": user.get_full_name()},
         "users/confirm_email.html",
-        request
+        request,
     )
 
 
@@ -1085,11 +1062,7 @@ def resend_confirmation_email(request, logged_user, userid):
         messages.success(request, _("An email to confirm your address was sent."))
         return redirect(reverse("users:profil", kwargs={"userid": userid}))
 
-    return form(
-        {"email": user.email},
-        "users/resend_confirmation_email.html",
-        request
-    )
+    return form({"email": user.email}, "users/resend_confirmation_email.html", request)
 
 
 @login_required
