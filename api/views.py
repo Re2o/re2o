@@ -48,13 +48,6 @@ from .permissions import ACLPermission
 
 
 
-class ReminderView(generics.ListAPIView):
-    """Output for users to remind an end of their subscription.
-    """
-
-    queryset = preferences.Reminder.objects.all()
-    serializer_class = serializers.ReminderSerializer
-
 class ObtainExpiringAuthToken(ObtainAuthToken):
     """Exposes a view to obtain a authentication token.
 

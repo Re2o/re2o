@@ -23,6 +23,7 @@ from rest_framework import viewsets, generics
 
 from . import serializers
 import cotisations.models as cotisations
+import preferences.models as preferences
 
 class FactureViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `cotisations.models.Facture` objects.
@@ -78,3 +79,11 @@ class CotisationViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = cotisations.Cotisation.objects.all()
     serializer_class = serializers.CotisationSerializer
+
+
+class ReminderView(generics.ListAPIView):
+    """Output for users to remind an end of their subscription.
+    """
+
+    queryset = preferences.Reminder.objects.all()
+    serializer_class = serializers.ReminderSerializer
