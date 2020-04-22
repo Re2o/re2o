@@ -24,19 +24,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load i18n %}
 
-{% block title %}{% trans "Search" %}{% endblock %}
+{% block title %}{% trans "Search machine history" %}{% endblock %}
 
 {% block content %}
 
 <form class="form">
+    <h3>{% trans "Search machine history" %}</h3>
+
     {% bootstrap_field history_form.q %}
-    {% bootstrap_form_errors history_form.t %}
-    {% if history_form.s %}
+    {% bootstrap_field history_form.t %}
     {% bootstrap_field history_form.s %}
-    {% endif %}
-    {% if history_form.e %}
     {% bootstrap_field history_form.e %}
-    {% endif %}
     {% trans "Search" as tr_search %}
     {% bootstrap_button tr_search button_type="submit" icon="search" %}
 </form>
