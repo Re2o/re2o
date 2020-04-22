@@ -20,3 +20,4 @@ graphviz
 git
 gettext
 python3-django-ldapdb
+yarnpkg

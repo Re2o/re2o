@@ -361,6 +361,11 @@ update_django() {
     python3 manage.py migrate
     echo "Applying Django migrations: Done"
 
+    echo "Packing JavaScript together..."
+    yarnpkg install
+    yarnpkg build
+    echo "Packing JavaScript together: Done"
+
     echo "Collecting web frontend statics ..."
     python3 manage.py collectstatic --noinput
     echo "Collecting web frontend statics: Done"
