@@ -489,16 +489,19 @@ def stats_search_machine_history(request):
     history_form = MachineHistoryForm(request.GET or None)
     if history_form.is_valid():
         history = MachineHistory()
+        events = history.get(
+            history_form.cleaned_data.get("q", ""),
+            history_form.cleaned_data
+        )
+        max_result = GeneralOption.get_cached_value("search_display_page")
+        re2o_paginator(request,
+                       events,
+                       max_result)
+
         return render(
             request,
             "logs/machine_history.html",
-            {
-                "events":
-                history.get(
-                    history_form.cleaned_data.get("q", ""),
-                    history_form.cleaned_data
-                )
-            },
+            { "events": events },
         )
     return render(request, "logs/search_machine_history.html", {"history_form": history_form})
 
