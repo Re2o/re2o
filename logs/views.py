@@ -101,6 +101,9 @@ from re2o.utils import (
 from re2o.base import re2o_paginator, SortTable
 from re2o.acl import can_view_all, can_view_app, can_edit_history
 
+from .models import MachineHistory
+from .forms import MachineHistoryForm
+
 
 @login_required
 @can_view_app("logs")
@@ -476,6 +479,28 @@ def stats_actions(request):
         }
     }
     return render(request, "logs/stats_users.html", {"stats_list": stats})
+
+
+@login_required
+@can_view_app("users")
+def search_machine_history(request):
+    """Vue qui permet de rechercher l'historique des machines ayant utilisé
+    une IP ou une adresse MAC"""
+    history_form = MachineHistoryForm(request.GET or None)
+    if history_form.is_valid():
+        history = MachineHistory()
+        return render(
+            request,
+            "logs/machine_history.html",
+            {
+                "events":
+                history.get(
+                    history_form.cleaned_data.get("q", ""),
+                    history_form.cleaned_data
+                )
+            },
+        )
+    return render(request, "logs/search_machine_history.html", {"history_form": history_form})
 
 
 def history(request, application, object_name, object_id):
