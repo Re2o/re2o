@@ -40,6 +40,9 @@ class HistoryEvent:
         self.comment = interface.revision.get_comment() or None
 
     def is_similar(self, elt2):
+        """
+        Checks whether two events are similar enough to be merged
+        """
         return (
             elt2 is not None
             and self.user.id == elt2.user.id
@@ -78,10 +81,13 @@ class MachineHistory:
         return None
 
     def __add_revision(self, user: User, machine: Version, interface: Version):
+        """
+        Add a new revision to the chronological order
+        """
         evt = HistoryEvent(user, machine, interface)
         evt.start_date = interface.revision.date_created
 
-        # Try not to recreate events if unnecessary
+        # Try not to recreate events if it's unnecessary
         if evt.is_similar(self.__last_evt):
             return
 
@@ -107,8 +113,12 @@ class MachineHistory:
         Returns an iterable object with the Version objects
         of Interfaces with the given IP
         """
-        # TODO: Deleted IpList
-        ip_id = IpList.objects.get(ipv4=ip).id
+        # TODO: What if ip list was deleted?
+        try:
+            ip_id = IpList.objects.get(ipv4=ip).id
+        except IpList.DoesNotExist:
+            return []
+
         return filter(
             lambda x: x.field_dict["ipv4_id"] == ip_id,
             Version.objects.get_for_model(Interface).order_by("revision__date_created")
@@ -119,7 +129,6 @@ class MachineHistory:
         Returns an iterable object with the Version objects
         of Interfaces with the given MAC
         """
-        # TODO: What if IpList was deleted?
         return filter(
             lambda x: str(x.field_dict["mac_address"]) == mac,
             Version.objects.get_for_model(Interface).order_by("revision__date_created")
