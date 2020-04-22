@@ -27,20 +27,27 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+node_modules
 
-# Spyder project settings
+# Editor directories and files
+.ropeproject
 .spyderproject
 .spyproject
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Rope project settings
-.ropeproject
-
-# PyCharm project settings
-.idea/
+# Do not pin versions
+yarn.lock
 
 # Django statics
 static_files/
 static/logo/
+static/bundles/
 
 # re2o specific
 settings_local.py
