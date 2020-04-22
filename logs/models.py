@@ -22,6 +22,8 @@
 The models definitions for the Machines app
 """
 from reversion.models import Version
+from datetime import datetime
+
 from machines.models import IpList
 from machines.models import Interface
 from machines.models import Machine
@@ -71,6 +73,21 @@ class MachineHistory:
         self.start = params.get("s", None)
         self.end = params.get("e", None)
         search_type = params.get("t", 0)
+
+        # Convert dates to datetime objects
+        if self.start:
+            self.start = datetime.datetime(
+                self.start.year,
+                self.start.month,
+                self.start.day
+            )
+
+        if self.end:
+            self.end = datetime.datetime(
+                self.end.year,
+                self.end.month,
+                self.end.day
+            )
 
         self.events = []
         if search_type == "ip":
