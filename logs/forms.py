@@ -27,7 +27,7 @@ from re2o.base import get_input_formats_help_text
 
 CHOICES_TYPE = (
     ("ip", _("IPv4")),
-    ("mac", _("MAC")),
+    ("mac", _("MAC address")),
 )
 
 
