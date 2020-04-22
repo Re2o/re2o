@@ -31,6 +31,8 @@ from .preferences.views import edit_options
 urlpatterns = [
     url(r"^$", views.aff_tickets, name="aff-tickets"),
     url(r"^(?P<ticketid>[0-9]+)$", views.aff_ticket, name="aff-ticket"),
+    url(r"^change_ticket_status/(?P<ticketid>[0-9]+)$", views.change_ticket_status, name="change-ticket-status"),
+    url(r"^edit_ticket/(?P<ticketid>[0-9]+)$", views.edit_ticket, name="edit-ticket"),
     url(
         r"^edit_options/(?P<section>TicketOption)$",
         edit_options,

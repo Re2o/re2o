@@ -42,70 +42,71 @@ from preferences.models import GeneralOption
 
 from .models import Ticket
 
-from .forms import NewTicketForm, ChangeStatusTicketForm
+from .forms import NewTicketForm, EditTicketForm
 
 
 def new_ticket(request):
     """ Ticket creation view"""
-    ticketform = NewTicketForm(request.POST or None)
-
-    if request.method == "POST":
-        ticketform = NewTicketForm(request.POST)
-
-        if ticketform.is_valid():
-            email = ticketform.cleaned_data.get("email")
-            ticket = ticketform.save(commit=False)
-            ticket.request = request
-
-            if request.user.is_authenticated:
-                ticket.user = request.user
-                ticket.save()
-                messages.success(
-                    request,
-                    _(
-                        "Your ticket has been succesfully opened. We will take care of it as soon as possible."
-                    ),
-                )
-                return redirect(
-                    reverse("users:profil", kwargs={"userid": str(request.user.id)})
-                )
-            if not request.user.is_authenticated and email != "":
-                ticket.save()
-                messages.success(
-                    request,
-                    _(
-                        "Your ticket has been succesfully opened. We will take care of it as soon as possible."
-                    ),
-                )
-                return redirect(reverse("index"))
-            else:
-                messages.error(
-                    request,
-                    _(
-                        "You are not authenticated. Please log in or provide an email address so we can get back to you."
-                    ),
-                )
-                return form(
-                    {"ticketform": ticketform}, "tickets/form_ticket.html", request
-                )
-
-    else:
-        ticketform = NewTicketForm
-    return form({"ticketform": ticketform}, "tickets/form_ticket.html", request)
+    ticketform = NewTicketForm(request.POST or None, request=request)
+    if ticketform.is_valid():
+        ticketform.save()
+        messages.success(
+            request,
+            _(
+                "Your ticket has been succesfully opened. We will take care of it as soon as possible."
+            ),
+        )
+        if not request.user.is_authenticated:
+            return redirect(reverse("index"))
+        else:
+            return redirect(
+                 reverse("users:profil", kwargs={"userid": str(request.user.id)})
+            )
+    return form(
+        {"ticketform": ticketform, 'action_name': ("Create a ticket")}, "tickets/edit.html", request
+    )
 
 
 @login_required
 @can_view(Ticket)
 def aff_ticket(request, ticket, ticketid):
     """View to display only one ticket"""
-    changestatusform = ChangeStatusTicketForm(request.POST)
-    if request.method == "POST":
-        ticket.solved = not ticket.solved
-        ticket.save()
     return render(
         request,
         "tickets/aff_ticket.html",
-        {"ticket": ticket, "changestatusform": changestatusform},
+        {"ticket": ticket},
+    )
+
+
+@login_required
+@can_edit(Ticket)
+def change_ticket_status(request, ticket, ticketid):
+    """View to edit ticket state"""
+    ticket.solved = not ticket.solved
+    ticket.save()
+    return redirect(
+        reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+    )
+
+
+@login_required
+@can_edit(Ticket)
+def edit_ticket(request, ticket, ticketid):
+    """ Ticket creation view"""
+    ticketform = EditTicketForm(request.POST or None, instance=ticket)
+    if ticketform.is_valid():
+        ticketform.save()
+        messages.success(
+            request,
+            _(
+                "Ticket has been updated successfully"
+            ),
+        )
+        return redirect(
+            reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+        )
+    return form(
+        {"ticketform": ticketform, 'action_name': ("Edit this ticket")}, "tickets/edit.html", request
     )
 
 

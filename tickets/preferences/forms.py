@@ -42,4 +42,3 @@ class EditTicketOptionForm(FormRevMixin, ModelForm):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(EditTicketOptionForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields["publish_address"].label = _("Publish address")
-        self.fields["mail_language"].label = _("Mail language")

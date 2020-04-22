@@ -31,7 +31,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from re2o.mixins import AclMixin
-from re2o.mail_utils import send_mail
+from django.core.mail import EmailMessage
 
 from preferences.models import GeneralOption
 
@@ -55,7 +55,6 @@ class Ticket(AclMixin, models.Model):
     )
     description = models.TextField(
         max_length=3000,
-        help_text=_("Description of the ticket."),
         blank=False,
         null=False,
     )
@@ -77,27 +76,28 @@ class Ticket(AclMixin, models.Model):
         else:
             return _("Anonymous ticket. Date: %s.") % (self.date)
 
-    def publish_mail(self, request=None):
+    def publish_mail(self):
         site_url = GeneralOption.get_cached_value("main_site_url")
         to_addr = TicketOption.get_cached_value("publish_address")
         context = {"ticket": self, "site_url": site_url}
 
-        lang = TicketOption.get_cached_value("mail_language")
-        if lang == 0:
+        language = getattr(self.request, "LANGUAGE_CODE", "en")
+        if language == "fr":
             obj = "Nouveau ticket ouvert"
             template = loader.get_template("tickets/publication_mail_fr")
         else:
             obj = "New ticket opened"
             template = loader.get_template("tickets/publication_mail_en")
 
-        send_mail(
-            request,
+        mail_to_send = EmailMessage(
             obj,
             template.render(context),
             GeneralOption.get_cached_value("email_from"),
             [to_addr],
-            fail_silently=False,
+            reply_to=[self.email],
         )
+        mail_to_send.send(fail_silently=False)
+
 
     def can_view(self, user_request, *_args, **_kwargs):
         """ Check that the user has the right to view the ticket
@@ -137,4 +137,4 @@ def ticket_post_save(**kwargs):
     if kwargs["created"]:
         if TicketOption.get_cached_value("publish_address"):
             ticket = kwargs["instance"]
-            ticket.publish_mail(ticket.request)
+            ticket.publish_mail()

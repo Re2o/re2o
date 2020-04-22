@@ -33,27 +33,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 <h2>{% trans "Ticket opening" %}</h2>
 
+{% bootstrap_form_errors ticketform %}
+
 <form class="form" method="post">
     {% csrf_token %}
-    {% if not user.is_authenticated %}
-    <p>{% trans "You are not authenticated. Please log in or provide an email address so we can get back to you." %}</p>
-        {% bootstrap_field ticketform.email %}
-    {% endif %}
-        {% bootstrap_field ticketform.title %}
-        <br>
-        <p>{% trans "Description of your problem. Please give as much information as possible to help us searching for a solution. Here is some information we might need:" %}</p>
-        <ul class="list">
-            <li>
-                <p> {% trans "The type of your problem (membership, connection, payment etc.)." %}</p>
-            </li>
-            <li>
-                <p> {% trans "The conditions in which you encounter the problem (Wi-Fi/wired connection, on every machines or only one, on a new machine etc.)." %}</p>
-            </li>
-            <li>
-                <p> {% trans "The locations where you encounter the problem (in your room, in a common space, in a specific building etc.)." %}</p>
-        </ul>
-        {% bootstrap_field ticketform.description %}
-    {% trans "Open the ticket" as tr_open %}
-    {% bootstrap_button tr_open button_type="submit" icon='ok' button_class='btn-success' %}
+    {% bootstrap_form ticketform  %}
+    {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
 </form>
+
+
 {% endblock %}

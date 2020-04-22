@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-22 19:00+0200\n"
+"POT-Creation-Date: 2020-04-22 22:06+0200\n"
 "PO-Revision-Date: 2019-11-16 00:35+0100\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -34,32 +34,28 @@ msgstr ""
 msgid "Title of the ticket."
 msgstr "Titre du ticket."
 
-#: tickets/models.py:58
-msgid "Description of the ticket."
-msgstr "Description du ticket."
-
-#: tickets/models.py:64
+#: tickets/models.py:63
 msgid "An email address to get back to you."
 msgstr "Une adresse mail pour vous recontacter."
 
-#: tickets/models.py:70
+#: tickets/models.py:69
 msgid "Can view a ticket object"
 msgstr "Peut voir un objet ticket"
 
-#: tickets/models.py:71
+#: tickets/models.py:70
 msgid "ticket"
 msgstr "ticket"
 
-#: tickets/models.py:72
+#: tickets/models.py:71
 msgid "tickets"
 msgstr "tickets"
 
-#: tickets/models.py:76
+#: tickets/models.py:75
 #, python-format
 msgid "Ticket from %(name)s. Date: %(date)s."
 msgstr "Ticket de %(name)s. Date : %(date)s."
 
-#: tickets/models.py:78
+#: tickets/models.py:77
 #, python-format
 msgid "Anonymous ticket. Date: %s."
 msgstr "Ticket anonyme. Date : %s."
@@ -76,34 +72,22 @@ msgstr "Vous n'avez pas le droit de voir la liste des tickets."
 msgid "Publish address"
 msgstr "Adresse mail de publication"
 
-#: tickets/preferences/forms.py:45
-msgid "Mail language"
-msgstr "Langue du mail"
-
-#: tickets/preferences/models.py:38
+#: tickets/preferences/models.py:39
 msgid ""
 "Email address to publish the new tickets (leave empty for no publication)."
 msgstr ""
 "Adresse mail où publier les nouveaux tickets (laissez vide pour ne pas "
 "publier)."
 
-#: tickets/preferences/models.py:45
-msgid "French"
-msgstr "Français"
-
-#: tickets/preferences/models.py:45
-msgid "English"
-msgstr "Anglais"
-
-#: tickets/preferences/models.py:49
+#: tickets/preferences/models.py:46
 msgid "tickets options"
 msgstr "Options des tickets"
 
-#: tickets/preferences/models.py:50
+#: tickets/preferences/models.py:47
 msgid "Can view tickets options"
 msgstr "Peut voir les options des tickets"
 
-#: tickets/templates/tickets/aff_ticket.html:30
+#: tickets/templates/tickets/aff_ticket.html:31
 #: tickets/templates/tickets/contact.html:4
 #: tickets/templates/tickets/index.html:29
 #: tickets/templates/tickets/preferences.html:6
@@ -111,59 +95,62 @@ msgstr "Peut voir les options des tickets"
 msgid "Tickets"
 msgstr "Tickets"
 
-#: tickets/templates/tickets/aff_ticket.html:34
+#: tickets/templates/tickets/aff_ticket.html:35
 #, python-format
 msgid "Ticket #%(id)s"
 msgstr "Ticket #%(id)s"
 
-#: tickets/templates/tickets/aff_ticket.html:36
+#: tickets/templates/tickets/aff_ticket.html:37
 #: tickets/templates/tickets/aff_tickets.html:58
 msgid "Solved"
 msgstr "Résolu"
 
-#: tickets/templates/tickets/aff_ticket.html:38
+#: tickets/templates/tickets/aff_ticket.html:39
 msgid "Not solved"
 msgstr "Non résolu"
 
-#: tickets/templates/tickets/aff_ticket.html:44
+#: tickets/templates/tickets/aff_ticket.html:45
 msgid "Opened by"
 msgstr "Ouvert par"
 
-#: tickets/templates/tickets/aff_ticket.html:50
+#: tickets/templates/tickets/aff_ticket.html:51
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tickets/templates/tickets/aff_ticket.html:54
+#: tickets/templates/tickets/aff_ticket.html:55
 msgid "Response address: "
 msgstr "Adresse de réponse : "
 
-#: tickets/templates/tickets/aff_ticket.html:54
+#: tickets/templates/tickets/aff_ticket.html:55
 msgid "Response to your ticket"
 msgstr "Réponse à votre ticket"
 
-#: tickets/templates/tickets/aff_ticket.html:59
+#: tickets/templates/tickets/aff_ticket.html:60
 msgid "Title:"
 msgstr "Titre :"
 
-#: tickets/templates/tickets/aff_ticket.html:60
+#: tickets/templates/tickets/aff_ticket.html:61
 msgid "Description:"
 msgstr "Description :"
 
-#: tickets/templates/tickets/aff_ticket.html:68
+#: tickets/templates/tickets/aff_ticket.html:65
+msgid "Edit this ticket"
+msgstr "Modifier le ticket."
+
+#: tickets/templates/tickets/aff_ticket.html:67
 msgid "Mark as solved"
 msgstr "Marquer comme résolu"
 
-#: tickets/templates/tickets/aff_ticket.html:71
-msgid "Mark as not solved"
+#: tickets/templates/tickets/aff_ticket.html:69
+msgid "Mark as unsolved"
 msgstr "Marquer comme non résolu"
 
-#: tickets/templates/tickets/aff_ticket.html:81
+#: tickets/templates/tickets/aff_ticket.html:78
 msgid "All tickets"
 msgstr "Tous les tickets"
 
 #: tickets/templates/tickets/aff_tickets.html:35
-#: tickets/templates/tickets/form_preferences.html:30
-#: tickets/templates/tickets/form_ticket.html:31
+#: tickets/templates/tickets/edit.html:31
 msgid "Ticket"
 msgid_plural "Tickets"
 msgstr[0] "Ticket"
@@ -213,28 +200,11 @@ msgstr ""
 msgid "Open a ticket"
 msgstr "Ouvrir un ticket"
 
-#: tickets/templates/tickets/form_preferences.html:33
-msgid "Editing of tickets preferences"
-msgstr "Modification des préférences de tickets"
-
-#: tickets/templates/tickets/form_preferences.html:46
-#: tickets/templates/tickets/preferences.html:14
-msgid "Edit"
-msgstr "Modifier"
-
-#: tickets/templates/tickets/form_ticket.html:34
+#: tickets/templates/tickets/edit.html:34
 msgid "Ticket opening"
 msgstr "Ouverture de ticket"
 
-#: tickets/templates/tickets/form_ticket.html:39 tickets/views.py:85
-msgid ""
-"You are not authenticated. Please log in or provide an email address so we "
-"can get back to you."
-msgstr ""
-"Vous n'êtes pas authentifié. Veuillez vous connecter ou fournir une adresse "
-"mail pour que nous puissions vous recontacter."
-
-#: tickets/templates/tickets/form_ticket.html:44
+#: tickets/templates/tickets/help_text.html:3
 msgid ""
 "Description of your problem. Please give as much information as possible to "
 "help us searching for a solution. Here is some information we might need:"
@@ -243,11 +213,11 @@ msgstr ""
 "possible pour nous aider à chercher une solution. Voici quelques "
 "informations dont nous pourrions avoir besoin :"
 
-#: tickets/templates/tickets/form_ticket.html:47
+#: tickets/templates/tickets/help_text.html:6
 msgid "The type of your problem (membership, connection, payment etc.)."
 msgstr "Le type de votre problème (adhésion, connexion, paiement etc.)."
 
-#: tickets/templates/tickets/form_ticket.html:50
+#: tickets/templates/tickets/help_text.html:9
 msgid ""
 "The conditions in which you encounter the problem (Wi-Fi/wired connection, "
 "on every machines or only one, on a new machine etc.)."
@@ -256,17 +226,13 @@ msgstr ""
 "filaire, sur toutes les machines ou une seule, sur une nouvelle machine "
 "etc.)."
 
-#: tickets/templates/tickets/form_ticket.html:53
+#: tickets/templates/tickets/help_text.html:12
 msgid ""
 "The locations where you encounter the problem (in your room, in a common "
 "space, in a specific building etc.)."
 msgstr ""
 "Les lieux où vous rencontrez le problème (dans votre chambre, dans un espace "
 "commun, dans un bâtiment en particulier etc.)."
-
-#: tickets/templates/tickets/form_ticket.html:56
-msgid "Open the ticket"
-msgstr "Ouvrir le ticket"
 
 #: tickets/templates/tickets/index.html:32
 msgid "List of tickets"
@@ -276,6 +242,10 @@ msgstr "Liste des tickets"
 msgid "Manage the tickets"
 msgstr "Gérer les tickets"
 
+#: tickets/templates/tickets/preferences.html:14
+msgid "Edit"
+msgstr "Modifier"
+
 #: tickets/templates/tickets/preferences.html:21
 msgid "Publication email address"
 msgstr "Adresse mail de publication"
@@ -284,24 +254,55 @@ msgstr "Adresse mail de publication"
 msgid "No email address, the tickets will not be published."
 msgstr "Pas d'adresse mail, les tickets ne seront pas publiés."
 
-#: tickets/templates/tickets/preferences.html:29
-msgid "Email language"
-msgstr "Langue du mail"
-
 #: tickets/templates/tickets/profil.html:19
 msgid "No tickets"
 msgstr "Pas de tickets"
 
-#: tickets/views.py:66 tickets/views.py:77
+#: tickets/views.py:56
 msgid ""
 "Your ticket has been succesfully opened. We will take care of it as soon as "
 "possible."
 msgstr ""
 "Votre ticket a bien été ouvert. Nous nous en occuperons dès que possible."
 
-#: tickets/views.py:122 tickets/views.py:147
+#: tickets/views.py:102
+msgid "Ticket has been updated successfully"
+msgstr "Le ticket a été mis à jour"
+
+#: tickets/views.py:123 tickets/views.py:148
 msgid "Never"
 msgstr "Jamais"
+
+#~ msgid "Description of the ticket."
+#~ msgstr "Description du ticket."
+
+#~ msgid "Mail language"
+#~ msgstr "Langue du mail"
+
+#~ msgid "French"
+#~ msgstr "Français"
+
+#~ msgid "English"
+#~ msgstr "Anglais"
+
+#~ msgid "Mark as not solved"
+#~ msgstr "Marquer comme non résolu"
+
+#~ msgid "Editing of tickets preferences"
+#~ msgstr "Modification des préférences de tickets"
+
+#~ msgid ""
+#~ "You are not authenticated. Please log in or provide an email address so "
+#~ "we can get back to you."
+#~ msgstr ""
+#~ "Vous n'êtes pas authentifié. Veuillez vous connecter ou fournir une "
+#~ "adresse mail pour que nous puissions vous recontacter."
+
+#~ msgid "Open the ticket"
+#~ msgstr "Ouvrir le ticket"
+
+#~ msgid "Email language"
+#~ msgstr "Langue du mail"
 
 #~ msgid "The tickets preferences were edited."
 #~ msgstr "Les préférences de tickets ont été modifiées."
