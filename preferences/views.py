@@ -121,9 +121,9 @@ def display_options(request):
 
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
     optionnal_templates_list = [
-        app.views.preferences(request)
+        app.preferences.views.aff_preferences(request)
         for app in optionnal_apps
-        if hasattr(app.views, "preferences")
+        if hasattr(app.preferences.views, "aff_preferences")
     ]
 
     return form(
