@@ -37,34 +37,12 @@ from django.utils.translation import ugettext_lazy as _
 
 import machines.models
 
+from .utils.models import PreferencesModel
+
 from re2o.mixins import AclMixin, RevMixin
 from re2o.aes_field import AESEncryptedField
 
 from datetime import timedelta
-
-
-class PreferencesModel(models.Model):
-    """ Base object for the Preferences objects
-    Defines methods to handle the cache of the settings (they should
-    not change a lot) """
-
-    @classmethod
-    def set_in_cache(cls):
-        """ Save the preferences in a server-side cache """
-        instance, _created = cls.objects.get_or_create()
-        cache.set(cls().__class__.__name__.lower(), instance, None)
-        return instance
-
-    @classmethod
-    def get_cached_value(cls, key):
-        """ Get the preferences from the server-side cache """
-        instance = cache.get(cls().__class__.__name__.lower())
-        if instance is None:
-            instance = cls.set_in_cache()
-        return getattr(instance, key)
-
-    class Meta:
-        abstract = True
 
 
 class OptionalUser(AclMixin, PreferencesModel):
