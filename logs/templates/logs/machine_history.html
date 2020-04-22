@@ -1,0 +1,59 @@
+{% extends 'log/sidebar.html' %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2020  Jean-Romain Garnier
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block title %}{% trans "Search results" %}{% endblock %}
+
+{% block content %}
+    {% if events %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>IPv4</th>
+                    <th>MAC</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.user.pseudo }}</td>
+                <td>{{ event.ipv4 }}</td>
+                <td>{{ event.mac }}</td>
+                <td>{{ event.start_date }}</td>
+                <td>{{ event.end_date }}</td>
+                <td>{{ event.comment }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h3>{% trans "No result" %}</h3>
+    {% endif %}
+    <br />
+    <br />
+    <br />
+{% endblock %}
