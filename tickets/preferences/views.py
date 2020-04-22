@@ -38,10 +38,11 @@ from re2o.base import re2o_paginator
 
 from re2o.acl import can_view, can_view_all, can_edit, can_create
 
-from preferences.utils.views import edit_options_template_function
+from preferences.views import edit_options_template_function
 
 from . import forms
 from . import models
+
 
 def aff_preferences(request):
     """ View to display the settings of the tickets in the preferences page"""
@@ -54,7 +55,7 @@ def aff_preferences(request):
         "tickets/preferences.html", context=context, request=request, using=None
     )
 
+
 @login_required
 def edit_options(request, section):
     return edit_options_template_function(request, section, forms, models)
-

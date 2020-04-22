@@ -28,7 +28,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from re2o.mixins import AclMixin, RevMixin
-from preferences.utils.models import PreferencesModel
+from preferences.models import PreferencesModel
+
 
 class TicketOption(AclMixin, PreferencesModel):
     """ Definition of the ticket's settings"""
