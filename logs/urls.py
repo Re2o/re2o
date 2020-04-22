@@ -46,4 +46,5 @@ urlpatterns = [
         views.history,
         name="history",
     ),
+    url(r"^stats_search_machine/$", views.stats_search_machine_history, name="stats-search-machine"),
 ]

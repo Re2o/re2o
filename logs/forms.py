@@ -40,9 +40,7 @@ class MachineHistoryForm(Form):
     )
     t = forms.CharField(
         label=_("Search type"),
-        widget=forms.Select,
-        choices=CHOICES_TYPE,
-        initial=0,
+        widget=forms.Select(choices=CHOICES_TYPE)
     )
     s = forms.DateField(required=False, label=_("Start date"))
     e = forms.DateField(required=False, label=_("End date"))
