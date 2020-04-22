@@ -22,7 +22,6 @@
 The models definitions for the Machines app
 """
 from reversion.models import Version
-from datetime import datetime
 
 from machines.models import IpList
 from machines.models import Interface
@@ -74,21 +73,6 @@ class MachineHistory:
         self.end = params.get("e", None)
         search_type = params.get("t", 0)
 
-        # Convert dates to datetime objects
-        if self.start:
-            self.start = datetime.datetime(
-                self.start.year,
-                self.start.month,
-                self.start.day
-            )
-
-        if self.end:
-            self.end = datetime.datetime(
-                self.end.year,
-                self.end.month,
-                self.end.day
-            )
-
         self.events = []
         if search_type == "ip":
             return self.__get_by_ip(search)
@@ -113,12 +97,12 @@ class MachineHistory:
             self.__last_evt.end_date = evt.start_date
 
             # If the event ends before the given date, remove it
-            if self.start and evt.start_date < self.start:
+            if self.start and evt.start_date.date() < self.start:
                 self.__last_evt = None
                 self.events.pop()
 
         # Make sure the new event starts before the given end date
-        if self.end and evt.start_date > self.end:
+        if self.end and evt.start_date.date() > self.end:
             return
 
         # Save the new element
