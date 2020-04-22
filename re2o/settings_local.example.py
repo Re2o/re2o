@@ -76,6 +76,8 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 X_FRAME_OPTIONS = "DENY"
+
+# The validity duration of session cookies, in seconds
 SESSION_COOKIE_AGE = 60 * 60 * 3
 
 # The path where your organization logo is stored
