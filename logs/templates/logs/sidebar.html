@@ -52,6 +52,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <i class="fa fa-users"></i>
         {% trans "Users" %}
     </a>
+    <a class="list-group-item list-group-item-info" href="{% url 'logs:stats-search-machine' %}">
+        <i class="fa fa-desktop"></i>
+        {% trans "Machine history" %}
+    </a>
     {% acl_end %}
 {% endblock %}
 
