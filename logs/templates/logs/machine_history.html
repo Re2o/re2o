@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <thead>
                 <tr>
                     <th>{% trans "User" %}</th>
-                    <th>{% trans "User" %}</th>
+                    <th>{% trans "IPv4" %}</th>
                     <th>{% trans "MAC address" %}</th>
                     <th>{% trans "Start date" %}</th>
                     <th>{% trans "End date" %}</th>
@@ -43,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <tr>
                 <td>
                     <a href="{% url 'users:profil' userid=event.user.id %}" title=tr_view_the_profile>
-                        <i class="fa fa-user"></i> {{ event.user }}
+                        {{ event.user }}
                     </a>
                 </td>
                 <td>{{ event.ipv4 }}</td>
