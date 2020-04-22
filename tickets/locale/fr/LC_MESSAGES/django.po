@@ -30,66 +30,78 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: tickets/models.py:28
+#: tickets/models.py:54
 msgid "Title of the ticket."
 msgstr "Titre du ticket."
 
-#: tickets/models.py:32
+#: tickets/models.py:58
 msgid "Description of the ticket."
 msgstr "Description du ticket."
 
-#: tickets/models.py:38
+#: tickets/models.py:64
 msgid "An email address to get back to you."
 msgstr "Une adresse mail pour vous recontacter."
 
-#: tickets/models.py:44
+#: tickets/models.py:70
 msgid "Can view a ticket object"
 msgstr "Peut voir un objet ticket"
 
-#: tickets/models.py:45
+#: tickets/models.py:71
 msgid "ticket"
 msgstr "ticket"
 
-#: tickets/models.py:46
+#: tickets/models.py:72
 msgid "tickets"
 msgstr "tickets"
 
-#: tickets/models.py:50
+#: tickets/models.py:76
 #, python-format
 msgid "Ticket from %(name)s. Date: %(date)s."
 msgstr "Ticket de %(name)s. Date : %(date)s."
 
-#: tickets/models.py:52
+#: tickets/models.py:78
 #, python-format
 msgid "Anonymous ticket. Date: %s."
 msgstr "Ticket anonyme. Date : %s."
 
-#: tickets/models.py:85
+#: tickets/models.py:111
 msgid "You don't have the right to view other tickets than yours."
 msgstr "Vous n'avez pas le droit de voir d'autres tickets que les vôtres."
 
-#: tickets/models.py:97
+#: tickets/models.py:123
 msgid "You don't have the right to view the list of tickets."
 msgstr "Vous n'avez pas le droit de voir la liste des tickets."
 
-#: tickets/preferences/models.py:10
+#: tickets/preferences/forms.py:44
+msgid "Publish address"
+msgstr "Adresse mail de publication"
+
+#: tickets/preferences/forms.py:45
+msgid "Mail language"
+msgstr "Langue du mail"
+
+#: tickets/preferences/models.py:38
 msgid ""
 "Email address to publish the new tickets (leave empty for no publication)."
 msgstr ""
 "Adresse mail où publier les nouveaux tickets (laissez vide pour ne pas "
 "publier)."
 
-#: tickets/preferences/models.py:17
+#: tickets/preferences/models.py:45
 msgid "French"
 msgstr "Français"
 
-#: tickets/preferences/models.py:17
+#: tickets/preferences/models.py:45
 msgid "English"
 msgstr "Anglais"
 
-#: tickets/preferences/models.py:21
-msgid "tickets preferences"
-msgstr "préférences de tickets"
+#: tickets/preferences/models.py:49
+msgid "tickets options"
+msgstr "Options des tickets"
+
+#: tickets/preferences/models.py:50
+msgid "Can view tickets options"
+msgstr "Peut voir les options des tickets"
 
 #: tickets/templates/tickets/aff_ticket.html:30
 #: tickets/templates/tickets/contact.html:4
@@ -214,7 +226,7 @@ msgstr "Modifier"
 msgid "Ticket opening"
 msgstr "Ouverture de ticket"
 
-#: tickets/templates/tickets/form_ticket.html:39 tickets/views.py:90
+#: tickets/templates/tickets/form_ticket.html:39 tickets/views.py:85
 msgid ""
 "You are not authenticated. Please log in or provide an email address so we "
 "can get back to you."
@@ -280,21 +292,22 @@ msgstr "Langue du mail"
 msgid "No tickets"
 msgstr "Pas de tickets"
 
-#: tickets/views.py:71 tickets/views.py:82
+#: tickets/views.py:66 tickets/views.py:77
 msgid ""
 "Your ticket has been succesfully opened. We will take care of it as soon as "
 "possible."
 msgstr ""
 "Votre ticket a bien été ouvert. Nous nous en occuperons dès que possible."
 
-#: tickets/views.py:127 tickets/views.py:177
+#: tickets/views.py:122 tickets/views.py:147
 msgid "Never"
 msgstr "Jamais"
 
-#: tickets/views.py:154
-msgid "The tickets preferences were edited."
-msgstr "Les préférences de tickets ont été modifiées."
+#~ msgid "The tickets preferences were edited."
+#~ msgstr "Les préférences de tickets ont été modifiées."
 
-#: tickets/views.py:157
-msgid "Invalid form."
-msgstr "Formulaire invalide."
+#~ msgid "Invalid form."
+#~ msgstr "Formulaire invalide."
+
+#~ msgid "tickets preferences"
+#~ msgstr "préférences de tickets"
