@@ -5,6 +5,7 @@
   "license": "GPL-3.0+",
   "scripts": {
     "build": "vue-cli-service build --inline-vue --target wc-async 'static/components/*.vue'",
+    "watch": "vue-cli-service build --mode development --watch --inline-vue --target wc-async 'static/components/*.vue'",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

@@ -5,6 +5,8 @@
  * chunks in static/bundles.
  * Then you can use for exemple <re2o-hello-world></re2o-hello-world> to call
  * the HelloWorld component.
+ * 
+ * You can develop new components using `yarnpkg watch`.
  */
 
 module.exports = {
