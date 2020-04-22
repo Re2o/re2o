@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""machines.models
-The models definitions for the Machines app
+"""logs.models
+The models definitions for the logs app
 """
 from reversion.models import Version
 
@@ -30,7 +30,14 @@ from users.models import User
 
 
 class HistoryEvent:
-    def __init__(self, user: User, machine: Version, interface: Version, start=None, end=None):
+    def __init__(self, user, machine, interface, start=None, end=None):
+        """
+        :param user: User, The user owning the maching at the time of the event
+        :param machine: Version, the machine version related to the interface
+        :param interface: Version, the interface targeted by this event
+        :param start: datetime, the date at which this version was created
+        :param end: datetime, the date at which this version was replace by a new one
+        """
         self.user = user
         self.machine = machine
         self.interface = interface
@@ -43,6 +50,7 @@ class HistoryEvent:
     def is_similar(self, elt2):
         """
         Checks whether two events are similar enough to be merged
+        :return: bool
         """
         return (
             elt2 is not None
@@ -69,6 +77,11 @@ class MachineHistory:
         self.__last_evt = None
 
     def get(self, search, params):
+        """
+        :param search: ip or mac to lookup
+        :param params: dict built by the search view
+        :return: list or None, a list of HistoryEvent
+        """
         self.start = params.get("s", None)
         self.end = params.get("e", None)
         search_type = params.get("t", 0)
@@ -81,9 +94,12 @@ class MachineHistory:
 
         return None
 
-    def __add_revision(self, user: User, machine: Version, interface: Version):
+    def __add_revision(self, user, machine, interface):
         """
         Add a new revision to the chronological order
+        :param user: User, The user owning the maching at the time of the event
+        :param machine: Version, the machine version related to the interface
+        :param interface: Version, the interface targeted by this event
         """
         evt = HistoryEvent(user, machine, interface)
         evt.start_date = interface.revision.date_created
@@ -109,10 +125,11 @@ class MachineHistory:
         self.events.append(evt)
         self.__last_evt = evt
 
-    def __get_interfaces_for_ip(self, ip: str):
+    def __get_interfaces_for_ip(self, ip):
         """
-        Returns an iterable object with the Version objects
-        of Interfaces with the given IP
+        :param ip: str
+        :return: An iterable object with the Version objects
+                 of Interfaces with the given IP
         """
         # TODO: What if ip list was deleted?
         try:
@@ -125,20 +142,22 @@ class MachineHistory:
             Version.objects.get_for_model(Interface).order_by("revision__date_created")
         )
 
-    def __get_interfaces_for_mac(self, mac: str):
+    def __get_interfaces_for_mac(self, mac):
         """
-        Returns an iterable object with the Version objects
-        of Interfaces with the given MAC
+        :param mac: str
+        :return: An iterable object with the Version objects
+                 of Interfaces with the given MAC address
         """
         return filter(
             lambda x: str(x.field_dict["mac_address"]) == mac,
             Version.objects.get_for_model(Interface).order_by("revision__date_created")
         )
 
-    def __get_machines_for_interface(self, interface: Version):
+    def __get_machines_for_interface(self, interface):
         """
-        Returns an iterable object with the Verison objects
-        of Machines to which the given interface was attributed
+        :param interface: Version, the interface for which to find the machines
+        :return: An iterable object with the Version objects of Machine to
+                 which the given interface was attributed
         """
         machine_id = interface.field_dict["machine_id"]
         return filter(
@@ -146,15 +165,20 @@ class MachineHistory:
             Version.objects.get_for_model(Machine).order_by("revision__date_created")
         )
 
-    def __get_user_for_machine(self, machine: Version):
+    def __get_user_for_machine(self, machine):
         """
-        Returns the user to which the given machine belongs
+        :param machine: Version, the machine of which the owner must be found
+        :return: The user to which the given machine belongs
         """
         # TODO: What if user was deleted?
         user_id = machine.field_dict["user_id"]
         return User.objects.get(id=user_id)
 
-    def __get_by_ip(self, ip: str):
+    def __get_by_ip(self, ip):
+        """
+        :param ip: str, The IP to lookup
+        :returns: list, a list of HistoryEvent
+        """
         interfaces = self.__get_interfaces_for_ip(ip)
 
         for interface in interfaces:
@@ -166,7 +190,11 @@ class MachineHistory:
 
         return self.events
 
-    def __get_by_mac(self, mac: str):
+    def __get_by_mac(self, mac):
+        """
+        :param mac: str, The MAC address to lookup
+        :returns: list, a list of HistoryEvent
+        """
         interfaces = self.__get_interfaces_for_mac(mac)
 
         for interface in interfaces:
