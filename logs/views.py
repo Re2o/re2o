@@ -484,8 +484,8 @@ def stats_actions(request):
 @login_required
 @can_view_app("users")
 def stats_search_machine_history(request):
-    """Vue qui permet de rechercher l'historique des machines ayant utilisé
-    une IP ou une adresse MAC"""
+    """View which displays the history of machines with the given
+    une IP or MAC adresse"""
     history_form = MachineHistoryForm(request.GET or None)
     if history_form.is_valid():
         history = MachineHistory()
