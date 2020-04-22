@@ -86,6 +86,7 @@ from .models import (
 from . import models
 from . import forms
 
+from .utils.views import edit_options_template_function
 
 @login_required
 @can_view_all(
@@ -153,32 +154,7 @@ def display_options(request):
 
 @login_required
 def edit_options(request, section):
-    """ Edition des préférences générales"""
-    model = getattr(models, section, None)
-    form_instance = getattr(forms, "Edit" + section + "Form", None)
-    if not (model or form_instance):
-        messages.error(request, _("Unknown object."))
-        return redirect(reverse("preferences:display-options"))
-
-    options_instance, _created = model.objects.get_or_create()
-    can, msg, permissions = options_instance.can_edit(request.user)
-    if not can:
-        messages.error(request, acl_error_message(msg, permissions))
-        return redirect(reverse("index"))
-    options = form_instance(
-        request.POST or None, request.FILES or None, instance=options_instance
-    )
-    if options.is_valid():
-        with transaction.atomic(), reversion.create_revision():
-            options.save()
-            reversion.set_user(request.user)
-            reversion.set_comment(
-                "Field(s) edited: %s"
-                % ", ".join(field for field in options.changed_data)
-            )
-            messages.success(request, _("The preferences were edited."))
-        return redirect(reverse("preferences:display-options"))
-    return form({"options": options}, "preferences/edit_preferences.html", request)
+    return edit_options_template_function(request, section, forms, models)
 
 
 @login_required
