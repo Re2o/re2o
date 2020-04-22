@@ -7,6 +7,6 @@ An anonymous user (not authenticated) opened a ticket
 Answer to the address:{{ticket.email}}.
 {% endif %}
 
-Title: {{ticket.title}}
+Title: {{ ticket.title | safe }}
 
-Description: {{ticket.description}}
+Description: {{ ticket.description | safe }}

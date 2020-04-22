@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load bootstrap3 %}
 {% load i18n %}
 {% load humanize %}
+{% load acl %}
 
 {% block title %}{% trans "Tickets" %}{% endblock %}
 
@@ -57,21 +58,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <div class="panel-body">
 
     <p><b>{% trans "Title:" %}</b> {{ticket.title}}</p>
-    <p><b>{% trans "Description:" %}</b> {{ ticket.description }}</p>
-    
+    <p><b>{% trans "Description:" %}</b> {{ ticket.description | linebreaks }}</p>
+ 
 <div class="text-right">
-<form class="form" method="post">
-    {% csrf_token %}
-    {% bootstrap_form changestatusform %}
-
+    {% can_edit ticket %}
+    <a type="button" href="{% url 'tickets:edit-ticket' ticket.id %}" class="btn btn-info"><p>{% trans "Edit this ticket" %}</p></a>
     {% if not ticket.solved %}
-        {% trans "Mark as solved" as tr_mark_solved %}
-        {% bootstrap_button tr_mark_solved button_type="submit" button_class='btn-info' %}
+        <a type="button" href="{% url 'tickets:change-ticket-status' ticket.id %}" class="btn btn-success"><p>{% trans "Mark as solved" %}</p></a>
     {% else %}
-        {% trans "Mark as not solved" as tr_mark_not_solved %}
-        {% bootstrap_button tr_mark_not_solved button_type="submit" button_class='btn-warning' %}
+        <a type="button" href="{% url 'tickets:change-ticket-status' ticket.id %}" class="btn btn-warning"><p>{% trans "Mark as unsolved" %}</p></a>
     {% endif %}
-</form>
+    {% acl_end %}
 </div>
 </div>
 </div>

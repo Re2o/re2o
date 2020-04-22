@@ -49,7 +49,6 @@ def aff_preferences(request):
     pref, created = models.TicketOption.objects.get_or_create()
     context = {
         "preferences": pref,
-        "language": str(pref.LANGUES[pref.mail_language][1]),
     }
     return render_to_string(
         "tickets/preferences.html", context=context, request=request, using=None

@@ -7,6 +7,6 @@ Un utilisateur anonyme (non connecté) a ouvert un ticket.
 Répondre à l'adresse : {{ticket.email}}.
 {% endif %}
 
-Titre : {{ticket.title}}
+Titre : {{ ticket.title | safe }}
 
-Description : {{ticket.description}}
+Description : {{ ticket.description | safe }} 

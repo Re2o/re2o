@@ -41,10 +41,6 @@ class TicketOption(AclMixin, PreferencesModel):
         max_length=1000,
         null=True,
     )
-    LANG_FR = 0
-    LANG_EN = 1
-    LANGUES = ((0, _("French")), (1, _("English")))
-    mail_language = models.IntegerField(choices=LANGUES, default=LANG_FR)
 
     class Meta:
         verbose_name = _("tickets options")
