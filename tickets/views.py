@@ -3,9 +3,8 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2019  Arthur Grisel-Davy
+# Copyright © 2020  Gabriel Détraz
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,11 +42,7 @@ from preferences.models import GeneralOption
 
 from .models import Ticket
 
-from .preferences.models import Preferences
-
 from .forms import NewTicketForm, ChangeStatusTicketForm
-
-from .preferences.forms import EditPreferencesForm
 
 
 def new_ticket(request):
@@ -140,31 +135,6 @@ def aff_tickets(request):
     return render(request, "tickets/index.html", context=context)
 
 
-def edit_preferences(request):
-    """ View to edit the settings of the tickets """
-
-    preferences_instance, created = Preferences.objects.get_or_create(id=1)
-    preferencesform = EditPreferencesForm(
-        request.POST or None, instance=preferences_instance
-    )
-
-    if preferencesform.is_valid():
-        if preferencesform.changed_data:
-            preferencesform.save()
-            messages.success(request, _("The tickets preferences were edited."))
-            return redirect(reverse("preferences:display-options"))
-        else:
-            messages.error(request, _("Invalid form."))
-            return form(
-                {"preferencesform": preferencesform},
-                "tickets/form_preferences.html",
-                request,
-            )
-    return form(
-        {"preferencesform": preferencesform}, "tickets/form_preferences.html", request
-    )
-
-
 # views cannoniques des apps optionnels
 def profil(request, user):
     """ View to display the ticket's module on the profil"""
@@ -188,18 +158,6 @@ def profil(request, user):
     }
     return render_to_string(
         "tickets/profil.html", context=context, request=request, using=None
-    )
-
-
-def preferences(request):
-    """ View to display the settings of the tickets in the preferences page"""
-    pref, created = Preferences.objects.get_or_create(id=1)
-    context = {
-        "preferences": pref,
-        "language": str(pref.LANGUES[pref.mail_language][1]),
-    }
-    return render_to_string(
-        "tickets/preferences.html", context=context, request=request, using=None
     )
 
 

@@ -1,3 +1,29 @@
+# -*- mode: python; coding: utf-8 -*-
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2019  Arthur Grisel-Davy
+# Copyright © 2020  Gabriel Détraz
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+Ticket model
+"""
+
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.template import loader
@@ -11,7 +37,7 @@ from preferences.models import GeneralOption
 
 import users.models
 
-from .preferences.models import Preferences
+from .preferences.models import TicketOption
 
 
 class Ticket(AclMixin, models.Model):
@@ -52,11 +78,11 @@ class Ticket(AclMixin, models.Model):
             return _("Anonymous ticket. Date: %s.") % (self.date)
 
     def publish_mail(self, request=None):
-        site_url = GeneralOption.objects.first().main_site_url
-        to_addr = Preferences.objects.first().publish_address
+        site_url = GeneralOption.get_cached_value("main_site_url")
+        to_addr = TicketOption.get_cached_value("publish_address")
         context = {"ticket": self, "site_url": site_url}
 
-        lang = Preferences.objects.first().mail_language
+        lang = TicketOption.get_cached_value("mail_language")
         if lang == 0:
             obj = "Nouveau ticket ouvert"
             template = loader.get_template("tickets/publication_mail_fr")
@@ -109,6 +135,6 @@ class Ticket(AclMixin, models.Model):
 def ticket_post_save(**kwargs):
     """ Send the mail to publish the new ticket """
     if kwargs["created"]:
-        if Preferences.objects.first().publish_address:
+        if TicketOption.get_cached_value("publish_address"):
             ticket = kwargs["instance"]
             ticket.publish_mail(ticket.request)
