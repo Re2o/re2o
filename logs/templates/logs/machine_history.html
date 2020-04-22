@@ -48,8 +48,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </td>
                 <td>{{ event.ipv4 }}</td>
                 <td>{{ event.mac }}</td>
-                <td>{{ event.start_date }}</td>
-                <td>{{ event.end_date }}</td>
+                <td>
+                    {% if event.start_date %}
+                        {{ event.start_date }}
+                    {% else %}
+                        {% trans "Unknown" %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if event.start_date %}
+                        {{ event.end_date }}
+                    {% else %}
+                        {% trans "Now" %}
+                    {% endif %}
+                </td>
                 <td>{{ event.comment }}</td>
             </tr>
             {% endfor %}
