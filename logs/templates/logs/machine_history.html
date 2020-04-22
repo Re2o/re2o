@@ -66,6 +66,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </tr>
             {% endfor %}
         </table>
+        {% include 'pagination.html' with list=events %}
     {% else %}
         <h3>{% trans "No result" %}</h3>
     {% endif %}
