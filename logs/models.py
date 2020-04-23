@@ -227,13 +227,12 @@ class RelatedHistory:
 
     def __eq__(self, other):
         return (
-            self.name == other.name
-            and self.model_name == other.model_name
+            self.model_name == other.model_name
             and self.object_id == other.object_id
         )
 
     def __hash__(self):
-        return hash((self.name, self.model_name, self.object_id))
+        return hash((self.model_name, self.object_id))
 
 
 class HistoryEvent:
@@ -455,7 +454,7 @@ class UserHistory(History):
         # that were once owned by this user
         self.related = filter(
             lambda x: x.field_dict["user_id"] == user_id,
-            Version.objects.get_for_model(Machine).order_by("revision__date_created")
+            Version.objects.get_for_model(Machine).order_by("-revision__date_created")
         )
         self.related = [RelatedHistory(
             m.field_dict["name"] or _("None"),
@@ -542,7 +541,7 @@ class MachineHistory(History):
         # that were once assigned to this machine
         self.related = list(filter(
             lambda x: x.field_dict["machine_id"] == machine_id,
-            Version.objects.get_for_model(Interface).order_by("revision__date_created")
+            Version.objects.get_for_model(Interface).order_by("-revision__date_created")
         ))
 
         # Create RelatedHistory objects and remove duplicates
