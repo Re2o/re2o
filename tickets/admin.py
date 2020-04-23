@@ -25,13 +25,15 @@ Ticket preferences model
 
 
 from django.contrib import admin
-from .models import Ticket
+from .models import Ticket, CommentTicket
 
 from reversion.admin import VersionAdmin
 
 class TicketAdmin(VersionAdmin):
-    """Gestion des ticket"""
+    pass
 
+class CommentTicketAdmin(VersionAdmin):
     pass
 
 admin.site.register(Ticket, TicketAdmin)
+admin.site.register(CommentTicket, CommentTicketAdmin)

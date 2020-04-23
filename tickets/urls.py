@@ -39,4 +39,7 @@ urlpatterns = [
         name="edit-options",
     ),
     url(r"^new_ticket/$", views.new_ticket, name="new-ticket"),
+    url(r"^add_comment/(?P<ticketid>[0-9]+)$", views.add_comment, name="add-comment"),
+    url(r"^edit_comment/(?P<commentticketid>[0-9]+)$", views.edit_comment, name="edit-comment"),
+    url(r"^del_comment/(?P<commentticketid>[0-9]+)$", views.del_comment, name="del-comment"),
 ]

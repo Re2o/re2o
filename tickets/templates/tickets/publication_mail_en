@@ -1,12 +1,12 @@
 {% if ticket.user %} {{ ticket.user.get_full_name }} opened a ticket.
 Profile: {{site_url}}{% url 'users:profil' ticket.user.id%}
-Answer to the address: {{ticket.user.get_mail}}.
 
 {% else %}  
 An anonymous user (not authenticated) opened a ticket 
-Answer to the address:{{ticket.email}}.
 {% endif %}
+Answer to the address: {{{ticket.get_mail}}.
 
 Title: {{ ticket.title | safe }}
 
 Description: {{ ticket.description | safe }}
+

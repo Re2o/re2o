@@ -36,13 +36,19 @@ from re2o.views import form
 
 from re2o.base import re2o_paginator
 
-from re2o.acl import can_view, can_view_all, can_edit, can_create
+from re2o.acl import (
+    can_view,
+    can_view_all, 
+    can_edit, 
+    can_create, 
+    can_delete
+)
 
 from preferences.models import GeneralOption
 
-from .models import Ticket
+from .models import Ticket, CommentTicket
 
-from .forms import NewTicketForm, EditTicketForm
+from .forms import NewTicketForm, EditTicketForm, CommentTicketForm
 
 
 def new_ticket(request):
@@ -71,10 +77,11 @@ def new_ticket(request):
 @can_view(Ticket)
 def aff_ticket(request, ticket, ticketid):
     """View to display only one ticket"""
+    comments = CommentTicket.objects.filter(parent_ticket=ticket)
     return render(
         request,
         "tickets/aff_ticket.html",
-        {"ticket": ticket},
+        {"ticket": ticket, "comments": comments},
     )
 
 
@@ -107,6 +114,59 @@ def edit_ticket(request, ticket, ticketid):
         )
     return form(
         {"ticketform": ticketform, 'action_name': ("Edit this ticket")}, "tickets/edit.html", request
+    )
+
+
+@login_required
+@can_view(Ticket)
+def add_comment(request, ticket, ticketid):
+    """ Add a comment to a ticket"""
+    commentticket = CommentTicketForm(request.POST or None)
+    if commentticket.is_valid():
+        commentticket = commentticket.save(commit=False)
+        commentticket.parent_ticket = ticket
+        commentticket.created_by = request.user
+        commentticket.save()
+        messages.success(request, _("This comment was added."))
+        return redirect(
+            reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+        )
+    return form(
+        {"ticketform": commentticket, "action_name": _("Add a comment")}, "tickets/edit.html", request
+    )
+
+
+@login_required
+@can_edit(CommentTicket)
+def edit_comment(request, commentticket_instance, **_kwargs):
+    """ Edit a comment of a ticket"""
+    commentticket = CommentTicketForm(request.POST or None, instance=commentticket_instance)
+    if commentticket.is_valid():
+        ticketid = commentticket_instance.parent_ticket.id
+        if commentticket.changed_data:
+            commentticket.save()
+            messages.success(request, _("This comment was edited."))
+        return redirect(
+            reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+        )
+    return form(
+        {"ticketform": commentticket, "action_name": _("Edit")}, "tickets/edit.html", request,
+    )
+
+
+@login_required
+@can_delete(CommentTicket)
+def del_comment(request, commentticket, **_kwargs):
+    """Delete a comment of a ticket"""
+    if request.method == "POST":
+        ticketid = commentticket.parent_ticket.id
+        commentticket.delete()
+        messages.success(request, _("The comment was deleted."))
+        return redirect(
+            reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+        )
+    return form(
+        {"objet": commentticket, "objet_name": _("Ticket Comment")}, "tickets/delete.html", request
     )
 
 
