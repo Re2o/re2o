@@ -603,7 +603,7 @@ def history(request, application, object_name, object_id):
     except LookupError:
         raise Http404(_("No model found."))
 
-    can_view, instance = get_history_object(get_history_object, model, object_name, object_id)
+    can_view, instance = get_history_object(request, model, object_name, object_id)
     if not can_view:
         return instance
 

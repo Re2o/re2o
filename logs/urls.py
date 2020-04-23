@@ -38,6 +38,11 @@ urlpatterns = [
         name="revert-action",
     ),
     url(
+        r"(?P<application>\w+)/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$",
+        views.history,
+        name="history",
+    ),
+    url(
         r"(?P<object_name>\w+)/(?P<object_id>[0-9]+)$",
         views.detailed_history,
         name="detailed-history",
@@ -46,10 +51,5 @@ urlpatterns = [
     url(r"^stats_models/$", views.stats_models, name="stats-models"),
     url(r"^stats_users/$", views.stats_users, name="stats-users"),
     url(r"^stats_actions/$", views.stats_actions, name="stats-actions"),
-    url(
-        r"(?P<application>\w+)/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$",
-        views.history,
-        name="history",
-    ),
     url(r"^stats_search_machine/$", views.stats_search_machine_history, name="stats-search-machine"),
 ]
