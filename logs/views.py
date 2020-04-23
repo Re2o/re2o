@@ -101,7 +101,12 @@ from re2o.utils import (
 from re2o.base import re2o_paginator, SortTable
 from re2o.acl import can_view_all, can_view_app, can_edit_history, can_view
 
-from .models import MachineHistorySearch, UserHistory
+from .models import (
+    MachineHistorySearch,
+    UserHistory,
+    InterfaceHistory
+)
+
 from .forms import MachineHistorySearchForm
 
 
@@ -508,32 +513,77 @@ def stats_search_machine_history(request):
     return render(request, "logs/search_machine_history.html", {"history_form": history_form})
 
 
-@login_required
-@can_view(User)
-def user_history(request, users, **_kwargs):
-    history = UserHistory()
-    events = history.get(users)
+def get_history_object(request, model, object_name, object_id):
+    """Get the objet of type model with the given object_id
+    Handles permissions and DoesNotExist errors
+    """
+    try:
+        object_name_id = object_name + "id"
+        kwargs = {object_name_id: object_id}
+        instance = model.get_instance(**kwargs)
+    except model.DoesNotExist:
+        messages.error(request, _("Nonexistent entry."))
+        return False, redirect(
+            reverse("users:profil", kwargs={"userid": str(request.user.id)})
+        )
 
+    can, msg, _permissions = instance.can_view(request.user)
+    if not can:
+        messages.error(
+            request, msg or _("You don't have the right to access this menu.")
+        )
+        return False, redirect(
+            reverse("users:profil", kwargs={"userid": str(request.user.id)})
+        )
+
+    return True, instance
+
+
+@login_required
+def detailed_history(request, object_name, object_id):
+    """Render a detailed history for a model.
+    Permissions are handled by get_history_object.
+    """
+    # Only handle objects for which a detailed view exists
+    if object_name == "user":
+        model = User
+        history = UserHistory()
+    elif object_name == "machine":
+        model = Machine
+    elif object_name == "interface":
+        model = Interface
+        history = InterfaceHistory()
+    else:
+        raise Http404(_("No model found."))
+
+    # Get instance and check permissions
+    can_view, instance = get_history_object(model, object_name, object_id)
+    if not can_view:
+        return instance
+
+    # Generate the pagination with the objects
     max_result = GeneralOption.get_cached_value("pagination_number")
     events = re2o_paginator(
         request,
-        events,
+        history.get(instance),
         max_result
     )
 
     return render(
         request,
-        "logs/user_history.html",
-        { "user": users, "events": events },
+        "logs/detailed_history.html",
+        {"object": instance, "events": events},
     )
 
 
+@login_required
 def history(request, application, object_name, object_id):
     """Render history for a model.
 
     The model is determined using the `HISTORY_BIND` dictionnary if none is
     found, raises a Http404. The view checks if the user is allowed to see the
     history using the `can_view` method of the model.
+    Permissions are handled by get_history_object.
 
     Args:
         request: The request sent by the user.
@@ -552,23 +602,11 @@ def history(request, application, object_name, object_id):
         model = apps.get_model(application, object_name)
     except LookupError:
         raise Http404(_("No model found."))
-    object_name_id = object_name + "id"
-    kwargs = {object_name_id: object_id}
-    try:
-        instance = model.get_instance(**kwargs)
-    except model.DoesNotExist:
-        messages.error(request, _("Nonexistent entry."))
-        return redirect(
-            reverse("users:profil", kwargs={"userid": str(request.user.id)})
-        )
-    can, msg, _permissions = instance.can_view(request.user)
-    if not can:
-        messages.error(
-            request, msg or _("You don't have the right to access this menu.")
-        )
-        return redirect(
-            reverse("users:profil", kwargs={"userid": str(request.user.id)})
-        )
+
+    can_view, instance = get_history_object(model, object_name, object_id)
+    if not can_view:
+        return instance
+
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     reversions = Version.objects.get_for_object(instance)
     if hasattr(instance, "linked_objects"):

@@ -37,6 +37,11 @@ urlpatterns = [
         views.revert_action,
         name="revert-action",
     ),
+    url(
+        r"(?P<object_name>\w+)/(?P<object_id>[0-9]+)$",
+        views.detailed_history,
+        name="detailed-history",
+    ),
     url(r"^stats_general/$", views.stats_general, name="stats-general"),
     url(r"^stats_models/$", views.stats_models, name="stats-models"),
     url(r"^stats_users/$", views.stats_users, name="stats-users"),
@@ -47,5 +52,4 @@ urlpatterns = [
         name="history",
     ),
     url(r"^stats_search_machine/$", views.stats_search_machine_history, name="stats-search-machine"),
-    url(r"^user/(?P<userid>[0-9]+)$", views.user_history, name="user-history"),
 ]
