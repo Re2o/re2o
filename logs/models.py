@@ -281,7 +281,7 @@ class UserHistoryEvent:
                     users.append(User.objects.get(id=uid).pseudo)
                 except User.DoesNotExist:
                     # TODO: Find the user's name in the versions?
-                    groups.append("{} ({})".format(_("Deleted"), uid))
+                    users.append("{} ({})".format(_("Deleted"), uid))
 
             return ", ".join(users)
 
