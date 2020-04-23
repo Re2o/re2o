@@ -104,6 +104,7 @@ from re2o.acl import can_view_all, can_view_app, can_edit_history, can_view
 from .models import (
     MachineHistorySearch,
     UserHistory,
+    MachineHistory,
     InterfaceHistory
 )
 
@@ -550,6 +551,7 @@ def detailed_history(request, object_name, object_id):
         history = UserHistory()
     elif object_name == "machine":
         model = Machine
+        history = MachineHistory()
     elif object_name == "interface":
         model = Interface
         history = InterfaceHistory()
