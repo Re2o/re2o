@@ -67,7 +67,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% trans "Create an interface" as tr_create_an_interface %}
                     {% include 'buttons/add.html' with href='machines:new-interface' id=machine.id desc=tr_create_an_interface %}
                     {% acl_end %}
-                    {% history_button machine %}
+                    {% history_button machine detailed=True %}
                     {% can_delete machine %}
                     {% include 'buttons/suppr.html' with href='machines:del-machine' id=machine.id %}
                     {% acl_end %}
@@ -161,7 +161,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     {% acl_end %}
                                 </ul>
                             </div>
-                            {% history_button interface %}
+                            {% history_button interface detailed=True %}
                             {% can_delete interface %}
                             {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
                             {% acl_end %}
