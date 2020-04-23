@@ -28,10 +28,12 @@ from django.contrib.auth.models import Group
 from machines.models import IpList
 from machines.models import Interface
 from machines.models import Machine
+from machines.models import MachineType
 from users.models import User
 from users.models import Adherent
 from users.models import Club
 from topologie.models import Room
+from topologie.models import Port
 
 
 class MachineHistorySearchEvent:
@@ -350,10 +352,7 @@ class UserHistoryEvent(HistoryEvent):
 
             return ", ".join(users)
 
-        if value is None:
-            return _("None")
-
-        return value
+        return super(UserHistoryEvent, self)._repr(name, value)
 
     def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
         """
@@ -476,6 +475,41 @@ class InterfaceHistory(History):
             self._add_revision(version)
 
         return self.events[::-1]
+
+    def _repr(self, name, value):
+        """
+        Returns the best representation of the given field
+        :param name: the name of the field
+        :param value: the value of the field
+        :return: object
+        """
+        if name == "ipv4_id" and value is not None:
+            try:
+                return IpList.objects.get(id=value)
+            except IpList.DoesNotExist:
+                return "{} ({})".format(_("Deleted"), value)
+        elif name == "machine_type_id":
+            try:
+                return MachineType.objects.get(id=value).name
+            except MachineType.DoesNotExist:
+                return "{} ({})".format(_("Deleted"), value)
+        elif name == "machine_id":
+            try:
+                return Machine.objects.get(id=value).get_name() or _("No name")
+            except Machine.DoesNotExist:
+                return "{} ({})".format(_("Deleted"), value)
+        elif name == "port_lists":
+            if len(value) == 0:
+                return _("None")
+
+            ports = []
+            for pid in value:
+                try:
+                    ports.append(Port.objects.get(id=pid).pretty_name())
+                except Group.DoesNotExist:
+                    ports.append("{} ({})".format(_("Deleted"), pid))
+
+        return super(UserHistoryEvent, self)._repr(name, value)
 
     def _add_revision(self, version):
         """
