@@ -22,6 +22,8 @@
 The models definitions for the logs app
 """
 from reversion.models import Version
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Group
 
 from machines.models import IpList
 from machines.models import Interface
@@ -223,6 +225,39 @@ class UserHistoryEvent:
         self.performed_by = version.revision.user
         self.comment = version.revision.get_comment() or None
 
+    def __repr(self, name, value):
+        """
+        Returns the best representation of the given field
+        :param name: the name of the field
+        :param value: the value of the field
+        :return: object
+        """
+        if name == "groups" and value is not None:
+            # value is a list of ints
+            groups = []
+            for gid in value:
+                # Try to get the group name, if it's not deleted
+                try:
+                    groups.append(Group.objects.get(id=gid))
+                except Group.DoesNotExist:
+                    # TODO: Find the group name in the versions?
+                    groups.append(_("Deleted"))
+        elif name == "state":
+            if value is not None:
+                return User.STATES[value]
+            else:
+                return _("Unknown")
+        elif name == "email_state":
+            if value is not None:
+                return User.EMAIL_STATES[value]
+            else:
+                return _("Unknown")
+
+        if value is None:
+            return _("None")
+
+        return value
+
     def edits(self, hide=["password", "pwd_ntlm"]):
         """
         Build a list of the changes performed during this event
@@ -238,8 +273,8 @@ class UserHistoryEvent:
             else:
                 edits.append((
                     field,
-                    self.previous_version.field_dict[field],
-                    self.version.field_dict[field]
+                    self.__repr(field, self.previous_version.field_dict[field]),
+                    self.__repr(field, self.version.field_dict[field])
                 ))
 
         return edits
@@ -276,7 +311,7 @@ class UserHistory:
 
         return self.events[::-1]
 
-    def __compute_diff(self, v1, v2, ignoring=["last_login", "comment", "pwd_ntlm", "email_change_date"]):
+    def __compute_diff(self, v1, v2, ignoring=["last_login", "pwd_ntlm", "email_change_date"]):
         """
         Find the edited field between two versions
         :param v1: Version
