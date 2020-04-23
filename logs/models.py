@@ -28,13 +28,15 @@ from django.contrib.auth.models import Group
 from machines.models import IpList
 from machines.models import Interface
 from machines.models import Machine
+from machines.models import MachineType
 from users.models import User
 from users.models import Adherent
 from users.models import Club
 from topologie.models import Room
+from topologie.models import Port
 
 
-class MachineHistoryEvent:
+class MachineHistorySearchEvent:
     def __init__(self, user, machine, interface, start=None, end=None):
         """
         :param user: User, The user owning the maching at the time of the event
@@ -76,16 +78,16 @@ class MachineHistoryEvent:
         )
 
 
-class MachineHistory:
+class MachineHistorySearch:
     def __init__(self):
         self.events = []
-        self.__last_evt = None
+        self._last_evt = None
 
     def get(self, search, params):
         """
         :param search: ip or mac to lookup
         :param params: dict built by the search view
-        :return: list or None, a list of MachineHistoryEvent
+        :return: list or None, a list of MachineHistorySearchEvent in reverse chronological order
         """
         self.start = params.get("s", None)
         self.end = params.get("e", None)
@@ -93,33 +95,33 @@ class MachineHistory:
 
         self.events = []
         if search_type == "ip":
-            return self.__get_by_ip(search)
+            return self._get_by_ip(search)[::-1]
         elif search_type == "mac":
-            return self.__get_by_mac(search)
+            return self._get_by_mac(search)[::-1]
 
         return None
 
-    def __add_revision(self, user, machine, interface):
+    def _add_revision(self, user, machine, interface):
         """
         Add a new revision to the chronological order
         :param user: User, The user owning the maching at the time of the event
         :param machine: Version, the machine version related to the interface
         :param interface: Version, the interface targeted by this event
         """
-        evt = MachineHistoryEvent(user, machine, interface)
+        evt = MachineHistorySearchEvent(user, machine, interface)
         evt.start_date = interface.revision.date_created
 
         # Try not to recreate events if it's unnecessary
-        if evt.is_similar(self.__last_evt):
+        if evt.is_similar(self._last_evt):
             return
 
         # Mark the end of validity of the last element
-        if self.__last_evt and not self.__last_evt.end_date:
-            self.__last_evt.end_date = evt.start_date
+        if self._last_evt and not self._last_evt.end_date:
+            self._last_evt.end_date = evt.start_date
 
             # If the event ends before the given date, remove it
             if self.start and evt.start_date.date() < self.start:
-                self.__last_evt = None
+                self._last_evt = None
                 self.events.pop()
 
         # Make sure the new event starts before the given end date
@@ -128,9 +130,9 @@ class MachineHistory:
 
         # Save the new element
         self.events.append(evt)
-        self.__last_evt = evt
+        self._last_evt = evt
 
-    def __get_interfaces_for_ip(self, ip):
+    def _get_interfaces_for_ip(self, ip):
         """
         :param ip: str
         :return: An iterable object with the Version objects
@@ -147,7 +149,7 @@ class MachineHistory:
             Version.objects.get_for_model(Interface).order_by("revision__date_created")
         )
 
-    def __get_interfaces_for_mac(self, mac):
+    def _get_interfaces_for_mac(self, mac):
         """
         :param mac: str
         :return: An iterable object with the Version objects
@@ -158,7 +160,7 @@ class MachineHistory:
             Version.objects.get_for_model(Interface).order_by("revision__date_created")
         )
 
-    def __get_machines_for_interface(self, interface):
+    def _get_machines_for_interface(self, interface):
         """
         :param interface: Version, the interface for which to find the machines
         :return: An iterable object with the Version objects of Machine to
@@ -170,7 +172,7 @@ class MachineHistory:
             Version.objects.get_for_model(Machine).order_by("revision__date_created")
         )
 
-    def __get_user_for_machine(self, machine):
+    def _get_user_for_machine(self, machine):
         """
         :param machine: Version, the machine of which the owner must be found
         :return: The user to which the given machine belongs
@@ -179,48 +181,67 @@ class MachineHistory:
         user_id = machine.field_dict["user_id"]
         return User.objects.get(id=user_id)
 
-    def __get_by_ip(self, ip):
+    def _get_by_ip(self, ip):
         """
         :param ip: str, The IP to lookup
-        :returns: list, a list of MachineHistoryEvent
+        :returns: list, a list of MachineHistorySearchEvent
         """
-        interfaces = self.__get_interfaces_for_ip(ip)
+        interfaces = self._get_interfaces_for_ip(ip)
 
         for interface in interfaces:
-            machines = self.__get_machines_for_interface(interface)
+            machines = self._get_machines_for_interface(interface)
 
             for machine in machines:
-                user = self.__get_user_for_machine(machine)
-                self.__add_revision(user, machine, interface)
+                user = self._get_user_for_machine(machine)
+                self._add_revision(user, machine, interface)
 
         return self.events
 
-    def __get_by_mac(self, mac):
+    def _get_by_mac(self, mac):
         """
         :param mac: str, The MAC address to lookup
-        :returns: list, a list of MachineHistoryEvent
+        :returns: list, a list of MachineHistorySearchEvent
         """
-        interfaces = self.__get_interfaces_for_mac(mac)
+        interfaces = self._get_interfaces_for_mac(mac)
 
         for interface in interfaces:
-            machines = self.__get_machines_for_interface(interface)
+            machines = self._get_machines_for_interface(interface)
 
             for machine in machines:
-                user = self.__get_user_for_machine(machine)
-                self.__add_revision(user, machine, interface)
+                user = self._get_user_for_machine(machine)
+                self._add_revision(user, machine, interface)
 
         return self.events
 
 
-class UserHistoryEvent:
-    def __init__(self, user, version, previous_version=None, edited_fields=None):
+class RelatedHistory:
+    def __init__(self, name, model_name, object_id):
         """
-        :param user: User, The user who's history is being built
-        :param version: Version, the version of the user for this event
-        :param previous_version: Version, the version of the user before this event
+        :param name: Name of this instance
+        :param model_name: Name of the related model (e.g. "user")
+        :param object_id: ID of the related object
+        """
+        self.name = "{} (id = {})".format(name, object_id)
+        self.model_name = model_name
+        self.object_id = object_id
+
+    def __eq__(self, other):
+        return (
+            self.model_name == other.model_name
+            and self.object_id == other.object_id
+        )
+
+    def __hash__(self):
+        return hash((self.model_name, self.object_id))
+
+
+class HistoryEvent:
+    def __init__(self, version, previous_version=None, edited_fields=None):
+        """
+        :param version: Version, the version of the object for this event
+        :param previous_version: Version, the version of the object before this event
         :param edited_fields: list, The list of modified fields by this event
         """
-        self.user = user
         self.version = version
         self.previous_version = previous_version
         self.edited_fields = edited_fields
@@ -228,7 +249,109 @@ class UserHistoryEvent:
         self.performed_by = version.revision.user
         self.comment = version.revision.get_comment() or None
 
-    def __repr(self, name, value):
+    def _repr(self, name, value):
+        """
+        Returns the best representation of the given field
+        :param name: the name of the field
+        :param value: the value of the field
+        :return: object
+        """
+        if value is None:
+            return _("None")
+
+        return value
+
+    def edits(self, hide=[]):
+        """
+        Build a list of the changes performed during this event
+        :param hide: list, the list of fields for which not to show details
+        :return: str
+        """
+        edits = []
+
+        for field in self.edited_fields:
+            if field in hide:
+                # Don't show sensitive information
+                edits.append((field, None, None))
+            else:
+                edits.append((
+                    field,
+                    self._repr(field, self.previous_version.field_dict[field]),
+                    self._repr(field, self.version.field_dict[field])
+                ))
+
+        return edits
+
+
+class History:
+    def __init__(self):
+        self.name = None
+        self.events = []
+        self.related = []  # For example, a machine has a list of its interfaces
+        self._last_version = None
+        self.event_type = HistoryEvent
+
+    def get(self, instance_id, model):
+        """
+        :param instance_id: int, The id of the instance to lookup
+        :param model: class, The type of object to lookup
+        :return: list or None, a list of HistoryEvent, in reverse chronological order
+        """
+        self.events = []
+
+        # Get all the versions for this instance, with the oldest first
+        self._last_version = None
+        interface_versions = filter(
+            lambda x: x.field_dict["id"] == instance_id,
+            Version.objects.get_for_model(model).order_by("revision__date_created")
+        )
+
+        for version in interface_versions:
+            self._add_revision(version)
+
+        # Return None if interface_versions was empty
+        if self._last_version is None:
+            return None
+
+        return self.events[::-1]
+
+    def _compute_diff(self, v1, v2, ignoring=[]):
+        """
+        Find the edited field between two versions
+        :param v1: Version
+        :param v2: Version
+        :param ignoring: List, a list of fields to ignore
+        :return: List of field names
+        """
+        fields = []
+
+        for key in v1.field_dict.keys():
+            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
+                fields.append(key)
+
+        return fields
+
+    def _add_revision(self, version):
+        """
+        Add a new revision to the chronological order
+        :param version: Version, The version of the interface for this event
+        """
+        diff = None
+        if self._last_version is not None:
+            diff = self._compute_diff(version, self._last_version)
+
+        # Ignore "empty" events
+        if not diff:
+            self._last_version = version
+            return
+
+        evt = self.event_type(version, self._last_version, diff)
+        self.events.append(evt)
+        self._last_version = version
+
+
+class UserHistoryEvent(HistoryEvent):
+    def _repr(self, name, value):
         """
         Returns the best representation of the given field
         :param name: the name of the field
@@ -285,10 +408,7 @@ class UserHistoryEvent:
 
             return ", ".join(users)
 
-        if value is None:
-            return _("None")
-
-        return value
+        return super(UserHistoryEvent, self)._repr(name, value)
 
     def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
         """
@@ -296,79 +416,94 @@ class UserHistoryEvent:
         :param hide: list, the list of fields for which not to show details
         :return: str
         """
-        edits = []
-
-        for field in self.edited_fields:
-            if field in hide:
-                # Don't show sensitive information
-                edits.append((field, None, None))
-            else:
-                edits.append((
-                    field,
-                    self.__repr(field, self.previous_version.field_dict[field]),
-                    self.__repr(field, self.version.field_dict[field])
-                ))
-
-        return edits
+        return super(UserHistoryEvent, self).edits(hide)
 
     def __eq__(self, other):
         return (
-            self.user.id == other.user.id
-            and self.edited_fields == other.edited_fields
+            self.edited_fields == other.edited_fields
             and self.date == other.date
             and self.performed_by == other.performed_by
             and self.comment == other.comment
         )
 
     def __hash__(self):
-        return hash((self.user.id, frozenset(self.edited_fields), self.date, self.performed_by, self.comment))
+        return hash((frozenset(self.edited_fields), self.date, self.performed_by, self.comment))
 
     def __repr__(self):
-        return "{} edited fields {} of {} ({})".format(
+        return "{} edited fields {} ({})".format(
             self.performed_by,
             self.edited_fields or "nothing",
-            self.user,
             self.comment or "No comment"
         )
 
 
-class UserHistory:
+class UserHistory(History):
     def __init__(self):
-        self.events = []
-        self.__last_version = None
+        super(UserHistory, self).__init__()
+        self.event_type = UserHistoryEvent
 
-    def get(self, user):
+    def get(self, user_id):
         """
-        :param user: User, the user to lookup
+        :param user_id: int, the id of the user to lookup
         :return: list or None, a list of UserHistoryEvent, in reverse chronological order
         """
         self.events = []
 
-        # Find whether this is a Club or an Adherent
-        try:
-            obj = Adherent.objects.get(user_ptr_id=user.id)
-        except Adherent.DoesNotExist:
-            obj = Club.objects.get(user_ptr_id=user.id)
+        # Try to find an Adherent object
+        adherents = filter(
+            lambda x: x.field_dict["user_ptr_id"] == user_id,
+            Version.objects.get_for_model(Adherent)
+        )
+        obj = next(adherents, None)
+        model = Adherent
+
+        # Fallback on a Club
+        if obj is None:
+            clubs = filter(
+                lambda x: x.field_dict["user_ptr_id"] == user_id,
+                Version.objects.get_for_model(Club)
+            )
+            obj = next(clubs, None)
+            model = Club
+
+        # If nothing was found, abort
+        if obj is None:
+            return None
+
+        # Add in "related" elements the list of Machine objects
+        # that were once owned by this user
+        self.related = filter(
+            lambda x: x.field_dict["user_id"] == user_id,
+            Version.objects.get_for_model(Machine).order_by("-revision__date_created")
+        )
+        self.related = [RelatedHistory(
+            m.field_dict["name"] or _("None"),
+            "machine",
+            m.field_dict["id"]) for m in self.related]
+        self.related = list(dict.fromkeys(self.related))
 
         # Get all the versions for this user, with the oldest first
-        self.__last_version = None
+        self._last_version = None
         user_versions = filter(
-            lambda x: x.field_dict["id"] == user.id,
+            lambda x: x.field_dict["id"] == user_id,
             Version.objects.get_for_model(User).order_by("revision__date_created")
         )
 
         for version in user_versions:
-            self.__add_revision(user, version)
+            self._add_revision(version)
+
+        # Update name
+        self.name = self._last_version.field_dict["pseudo"]
 
         # Do the same thing for the Adherent of Club
-        self.__last_version = None
+        self._last_version = None
         obj_versions = filter(
-            lambda x: x.field_dict["id"] == obj.id,
-            Version.objects.get_for_model(type(obj)).order_by("revision__date_created")
+            lambda x: x.field_dict["id"] == user_id,
+            Version.objects.get_for_model(model).order_by("revision__date_created")
         )
 
         for version in obj_versions:
-            self.__add_revision(user, version)
+            self._add_revision(version)
 
         # Remove duplicates and sort
         self.events = list(dict.fromkeys(self.events))
@@ -378,37 +513,121 @@ class UserHistory:
             reverse=True
         )
 
-    def __compute_diff(self, v1, v2, ignoring=["last_login", "pwd_ntlm", "email_change_date"]):
-        """
-        Find the edited field between two versions
-        :param v1: Version
-        :param v2: Version
-        :param ignoring: List, a list of fields to ignore
-        :return: List of field names
-        """
-        fields = []
-
-        for key in v1.field_dict.keys():
-            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
-                fields.append(key)
-
-        return fields
-
-    def __add_revision(self, user, version):
+    def _add_revision(self, version):
         """
         Add a new revision to the chronological order
         :param user: User, The user displayed in this history
         :param version: Version, The version of the user for this event
         """
         diff = None
-        if self.__last_version is not None:
-            diff = self.__compute_diff(version, self.__last_version)
+        if self._last_version is not None:
+            diff = self._compute_diff(
+                version,
+                self._last_version,
+                ignoring=["last_login", "pwd_ntlm", "email_change_date"]
+            )
 
         # Ignore "empty" events like login
         if not diff:
-            self.__last_version = version
+            self._last_version = version
             return
 
-        evt = UserHistoryEvent(user, version, self.__last_version, diff)
+        evt = UserHistoryEvent(version, self._last_version, diff)
         self.events.append(evt)
-        self.__last_version = version
+        self._last_version = version
+
+
+class MachineHistoryEvent(HistoryEvent):
+    def _repr(self, name, value):
+        """
+        Returns the best representation of the given field
+        :param name: the name of the field
+        :param value: the value of the field
+        :return: object
+        """
+        if name == "user_id":
+            try:
+                return User.objects.get(id=value).pseudo
+            except User.DoesNotExist:
+                return "{} ({})".format(_("Deleted"), value)
+
+        return super(MachineHistoryEvent, self)._repr(name, value)
+
+
+class MachineHistory(History):
+    def __init__(self):
+        super(MachineHistory, self).__init__()
+        self.event_type = MachineHistoryEvent
+
+    def get(self, machine_id):
+        # Add as "related" histories the list of Interface objects
+        # that were once assigned to this machine
+        self.related = list(filter(
+            lambda x: x.field_dict["machine_id"] == machine_id,
+            Version.objects.get_for_model(Interface).order_by("-revision__date_created")
+        ))
+
+        # Create RelatedHistory objects and remove duplicates
+        self.related = [RelatedHistory(
+            i.field_dict["mac_address"] or _("None"),
+            "interface",
+            i.field_dict["id"]) for i in self.related]
+        self.related = list(dict.fromkeys(self.related))
+
+        events = super(MachineHistory, self).get(machine_id, Machine)
+
+        # Update name
+        self.name = self._last_version.field_dict["name"]
+
+        return events
+
+
+class InterfaceHistoryEvent(HistoryEvent):
+    def _repr(self, name, value):
+        """
+        Returns the best representation of the given field
+        :param name: the name of the field
+        :param value: the value of the field
+        :return: object
+        """
+        if name == "ipv4_id" and value is not None:
+            try:
+                return IpList.objects.get(id=value)
+            except IpList.DoesNotExist:
+                return "{} ({})".format(_("Deleted"), value)
+        elif name == "machine_type_id":
+            try:
+                return MachineType.objects.get(id=value).name
+            except MachineType.DoesNotExist:
+                return "{} ({})".format(_("Deleted"), value)
+        elif name == "machine_id":
+            try:
+                return Machine.objects.get(id=value).get_name() or _("No name")
+            except Machine.DoesNotExist:
+                return "{} ({})".format(_("Deleted"), value)
+        elif name == "port_lists":
+            if len(value) == 0:
+                return _("None")
+
+            ports = []
+            for pid in value:
+                try:
+                    ports.append(Port.objects.get(id=pid).pretty_name())
+                except Group.DoesNotExist:
+                    ports.append("{} ({})".format(_("Deleted"), pid))
+
+        return super(InterfaceHistoryEvent, self)._repr(name, value)
+
+
+class InterfaceHistory(History):
+    def __init__(self):
+        super(InterfaceHistory, self).__init__()
+        self.event_type = InterfaceHistoryEvent
+
+    def get(self, interface_id):
+        events = super(InterfaceHistory, self).get(interface_id, Interface)
+
+        # Update name
+        self.name = self._last_version.field_dict["mac_address"]
+
+        return events
