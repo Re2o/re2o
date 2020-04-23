@@ -42,7 +42,7 @@ def is_facture(baseinvoice):
 
 
 @register.inclusion_tag("buttons/history.html")
-def history_button(instance, text=False, html_class=True):
+def history_button(instance, text=False, detailed=False, html_class=True):
     """Creates the correct history button for an instance.
 
     Args:
@@ -57,5 +57,6 @@ def history_button(instance, text=False, html_class=True):
         "name": instance._meta.model_name,
         "id": instance.id,
         "text": text,
+        "detailed": detailed,
         "class": html_class,
     }
