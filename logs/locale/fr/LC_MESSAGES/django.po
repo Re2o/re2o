@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-23 14:44+0200\n"
+"POT-Creation-Date: 2020-04-23 20:09+0200\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -58,19 +58,25 @@ msgstr "Date de début"
 msgid "End date"
 msgstr "Date de fin"
 
-#: logs/models.py:238 logs/models.py:263
+#: logs/models.py:260 logs/models.py:368 logs/models.py:401 logs/models.py:471
+#: logs/models.py:560 logs/models.py:593
 msgid "None"
 msgstr "Aucun(e)"
 
-#: logs/models.py:248
+#: logs/models.py:378 logs/models.py:397 logs/models.py:411 logs/models.py:540
+#: logs/models.py:580 logs/models.py:585 logs/models.py:590 logs/models.py:600
 msgid "Deleted"
 msgstr "Supprimé(e)"
 
-#: logs/models.py:255 logs/models.py:260
+#: logs/models.py:385 logs/models.py:390
+#: logs/templates/logs/detailed_history.html:52
 #: logs/templates/logs/machine_history.html:55
-#: logs/templates/logs/user_history.html:51
 msgid "Unknown"
 msgstr "Inconnu(e)"
+
+#: logs/models.py:588
+msgid "No name"
+msgstr "Sans nom"
 
 #: logs/templates/logs/aff_stats_logs.html:36
 msgid "Edited object"
@@ -90,8 +96,8 @@ msgid "Date of editing"
 msgstr "Date de modification"
 
 #: logs/templates/logs/aff_stats_logs.html:42
+#: logs/templates/logs/detailed_history.html:40
 #: logs/templates/logs/machine_history.html:39
-#: logs/templates/logs/user_history.html:39
 msgid "Comment"
 msgstr "Commentaire"
 
@@ -128,7 +134,7 @@ msgid "Rank"
 msgstr "Rang"
 
 #: logs/templates/logs/aff_summary.html:37
-#: logs/templates/logs/user_history.html:36
+#: logs/templates/logs/detailed_history.html:37
 msgid "Date"
 msgstr "Date"
 
@@ -192,6 +198,31 @@ msgstr ""
 msgid "Confirm"
 msgstr "Confirmer"
 
+#: logs/templates/logs/detailed_history.html:28
+#: logs/templates/logs/detailed_history.html:85
+msgid "History"
+msgstr "Historique"
+
+#: logs/templates/logs/detailed_history.html:31
+msgid "History of %(object)s"
+msgstr "Historique de %(object)s"
+
+#: logs/templates/logs/detailed_history.html:38
+msgid "Performed by"
+msgstr "Effectué(e) par"
+
+#: logs/templates/logs/detailed_history.html:39
+msgid "Edited"
+msgstr "Modifié"
+
+#: logs/templates/logs/detailed_history.html:75
+msgid "No event"
+msgstr "Aucun évènement"
+
+#: logs/templates/logs/detailed_history.html:80
+msgid "Related elements"
+msgstr "Élements liés"
+
 #: logs/templates/logs/index.html:29 logs/templates/logs/stats_general.html:29
 #: logs/templates/logs/stats_logs.html:29
 #: logs/templates/logs/stats_models.html:29
@@ -200,7 +231,7 @@ msgid "Statistics"
 msgstr "Statistiques"
 
 #: logs/templates/logs/index.html:32 logs/templates/logs/stats_logs.html:32
-#: logs/views.py:421
+#: logs/views.py:427
 msgid "Actions performed"
 msgstr "Actions effectuées"
 
@@ -265,159 +296,138 @@ msgstr "Statistiques sur la base de données"
 msgid "Statistics about users"
 msgstr "Statistiques sur les utilisateurs"
 
-#: logs/templates/logs/user_history.html:27
-msgid "History"
-msgstr "Historique"
-
-#: logs/templates/logs/user_history.html:30
-#, python-format
-msgid "History of %(user)s"
-msgstr "Historique de %(user)s"
-
-#: logs/templates/logs/user_history.html:37
-msgid "Performed by"
-msgstr "Effectué(e) par"
-
-#: logs/templates/logs/user_history.html:38
-msgid "Edited"
-msgstr "Modifié"
-
-#: logs/templates/logs/user_history.html:74
-msgid "No event"
-msgstr "Aucun évènement"
-
-#: logs/views.py:178
+#: logs/views.py:184
 msgid "Nonexistent revision."
 msgstr "Révision inexistante."
 
-#: logs/views.py:181
+#: logs/views.py:187
 msgid "The action was deleted."
 msgstr "L'action a été supprimée."
 
-#: logs/views.py:222
+#: logs/views.py:228
 msgid "Category"
 msgstr "Catégorie"
 
-#: logs/views.py:223
+#: logs/views.py:229
 msgid "Number of users (members and clubs)"
 msgstr "Nombre d'utilisateurs (adhérents et clubs)"
 
-#: logs/views.py:224
+#: logs/views.py:230
 msgid "Number of members"
 msgstr "Nombre d'adhérents"
 
-#: logs/views.py:225
+#: logs/views.py:231
 msgid "Number of clubs"
 msgstr "Nombre de clubs"
 
-#: logs/views.py:229
+#: logs/views.py:235
 msgid "Activated users"
 msgstr "Utilisateurs activés"
 
-#: logs/views.py:235
+#: logs/views.py:241
 msgid "Disabled users"
 msgstr "Utilisateurs désactivés"
 
-#: logs/views.py:241
+#: logs/views.py:247
 msgid "Archived users"
 msgstr "Utilisateurs archivés"
 
-#: logs/views.py:247
+#: logs/views.py:253
 msgid "Fully archived users"
 msgstr "Utilisateurs complètement archivés"
 
-#: logs/views.py:257
+#: logs/views.py:263
 msgid "Not yet active users"
 msgstr "Utilisateurs pas encore actifs"
 
-#: logs/views.py:267
+#: logs/views.py:273
 msgid "Contributing members"
 msgstr "Adhérents cotisants"
 
-#: logs/views.py:273
+#: logs/views.py:279
 msgid "Users benefiting from a connection"
 msgstr "Utilisateurs bénéficiant d'une connexion"
 
-#: logs/views.py:279
+#: logs/views.py:285
 msgid "Banned users"
 msgstr "Utilisateurs bannis"
 
-#: logs/views.py:285
+#: logs/views.py:291
 msgid "Users benefiting from a free connection"
 msgstr "Utilisateurs bénéficiant d'une connexion gratuite"
 
-#: logs/views.py:291
+#: logs/views.py:297
 msgid "Users with a confirmed email"
 msgstr "Utilisateurs ayant un mail confirmé"
 
-#: logs/views.py:297
+#: logs/views.py:303
 msgid "Users with an unconfirmed email"
 msgstr "Utilisateurs ayant un mail non confirmé"
 
-#: logs/views.py:303
+#: logs/views.py:309
 msgid "Users pending email confirmation"
 msgstr "Utilisateurs en attente de confirmation du mail"
 
-#: logs/views.py:309
+#: logs/views.py:315
 msgid "Active interfaces (with access to the network)"
 msgstr "Interfaces actives (ayant accès au réseau)"
 
-#: logs/views.py:323
+#: logs/views.py:329
 msgid "Active interfaces assigned IPv4"
 msgstr "Interfaces actives assignées IPv4"
 
-#: logs/views.py:340
+#: logs/views.py:346
 msgid "IP range"
 msgstr "Plage d'IP"
 
-#: logs/views.py:341
+#: logs/views.py:347
 msgid "VLAN"
 msgstr "VLAN"
 
-#: logs/views.py:342
+#: logs/views.py:348
 msgid "Total number of IP addresses"
 msgstr "Nombre total d'adresses IP"
 
-#: logs/views.py:343
+#: logs/views.py:349
 msgid "Number of assigned IP addresses"
 msgstr "Nombre d'adresses IP assignées"
 
-#: logs/views.py:344
+#: logs/views.py:350
 msgid "Number of IP address assigned to an activated machine"
 msgstr "Nombre d'adresses IP assignées à une machine activée"
 
-#: logs/views.py:345
+#: logs/views.py:351
 msgid "Number of unassigned IP addresses"
 msgstr "Nombre d'adresses IP non assignées"
 
-#: logs/views.py:360
+#: logs/views.py:366
 msgid "Users (members and clubs)"
 msgstr "Utilisateurs (adhérents et clubs)"
 
-#: logs/views.py:406
+#: logs/views.py:412
 msgid "Topology"
 msgstr "Topologie"
 
-#: logs/views.py:422
+#: logs/views.py:428
 msgid "Number of actions"
 msgstr "Nombre d'actions"
 
-#: logs/views.py:447
+#: logs/views.py:453
 msgid "rights"
 msgstr "droits"
 
-#: logs/views.py:476
+#: logs/views.py:482
 msgid "actions"
 msgstr "actions"
 
-#: logs/views.py:554
-msgid "No model found."
-msgstr "Aucun modèle trouvé."
-
-#: logs/views.py:560
+#: logs/views.py:526
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: logs/views.py:567
+#: logs/views.py:534
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
+
+#: logs/views.py:559 logs/views.py:606
+msgid "No model found."
+msgstr "Aucun modèle trouvé."
