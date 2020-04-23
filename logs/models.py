@@ -285,6 +285,7 @@ class HistoryEvent:
 
 class History:
     def __init__(self):
+        self.name = None
         self.events = []
         self.related = []  # For example, a machine has a list of its interfaces
         self._last_version = None
@@ -491,6 +492,9 @@ class UserHistory(History):
         for version in user_versions:
             self._add_revision(version)
 
+        # Update name
+        self.name = self._last_version.field_dict["pseudo"]
+
         # Do the same thing for the Adherent of Club
         self._last_version = None
         obj_versions = filter(
@@ -570,7 +574,12 @@ class MachineHistory(History):
             i.field_dict["id"]) for i in self.related]
         self.related = list(dict.fromkeys(self.related))
 
-        return super(MachineHistory, self).get(machine_id, Machine)
+        events = super(MachineHistory, self).get(machine_id, Machine)
+
+        # Update name
+        self.name = self._last_version.field_dict["name"]
+
+        return events
 
 
 class InterfaceHistoryEvent(HistoryEvent):
@@ -616,4 +625,9 @@ class InterfaceHistory(History):
         self.event_type = InterfaceHistoryEvent
 
     def get(self, interface_id):
-        return super(InterfaceHistory, self).get(interface_id, Interface)
+        events = super(InterfaceHistory, self).get(interface_id, Interface)
+
+        # Update name
+        self.name = self._last_version.field_dict["mac_address"]
+
+        return events

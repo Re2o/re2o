@@ -588,10 +588,13 @@ def detailed_history(request, object_name, object_id):
     # Add the paginator in case there are many results
     events = re2o_paginator(request, events, max_result)
 
+    # Add a title in case the object was deleted
+    title = instance or "{} ({})".format(history.name, _("Deleted"))
+
     return render(
         request,
         "logs/detailed_history.html",
-        {"object": instance, "events": events, "related_history": history.related},
+        {"title": title, "events": events, "related_history": history.related},
     )
 
 
