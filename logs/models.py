@@ -212,7 +212,77 @@ class MachineHistorySearch:
         return self.events
 
 
-class UserHistoryEvent:
+class HistoryEvent:
+    def __init__(self, version, previous_version=None, edited_fields=None):
+        """
+        :param version: Version, the version of the object for this event
+        :param previous_version: Version, the version of the object before this event
+        :param edited_fields: list, The list of modified fields by this event
+        """
+        self.version = version
+        self.previous_version = previous_version
+        self.edited_fields = edited_fields
+        self.date = version.revision.date_created
+        self.performed_by = version.revision.user
+        self.comment = version.revision.get_comment() or None
+
+    def __repr(self, name, value):
+        """
+        Returns the best representation of the given field
+        :param name: the name of the field
+        :param value: the value of the field
+        :return: object
+        """
+        if value is None:
+            return _("None")
+
+        return value
+
+    def edits(self, hide=[]):
+        """
+        Build a list of the changes performed during this event
+        :param hide: list, the list of fields for which not to show details
+        :return: str
+        """
+        edits = []
+
+        for field in self.edited_fields:
+            if field in hide:
+                # Don't show sensitive information
+                edits.append((field, None, None))
+            else:
+                edits.append((
+                    field,
+                    self.__repr(field, self.previous_version.field_dict[field]),
+                    self.__repr(field, self.version.field_dict[field])
+                ))
+
+        return edits
+
+
+class History:
+    def __init__(self):
+        self.events = []
+        self.__last_version = None
+
+    def __compute_diff(self, v1, v2, ignoring=[]):
+        """
+        Find the edited field between two versions
+        :param v1: Version
+        :param v2: Version
+        :param ignoring: List, a list of fields to ignore
+        :return: List of field names
+        """
+        fields = []
+
+        for key in v1.field_dict.keys():
+            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
+                fields.append(key)
+
+        return fields
+
+
+class UserHistoryEvent(HistoryEvent):
     def __init__(self, user, version, previous_version=None, edited_fields=None):
         """
         :param user: User, The user who's history is being built
@@ -220,13 +290,8 @@ class UserHistoryEvent:
         :param previous_version: Version, the version of the user before this event
         :param edited_fields: list, The list of modified fields by this event
         """
+        super(UserHistoryEvent, self).init(version, previous_version, edited_fields)
         self.user = user
-        self.version = version
-        self.previous_version = previous_version
-        self.edited_fields = edited_fields
-        self.date = version.revision.date_created
-        self.performed_by = version.revision.user
-        self.comment = version.revision.get_comment() or None
 
     def __repr(self, name, value):
         """
@@ -296,20 +361,7 @@ class UserHistoryEvent:
         :param hide: list, the list of fields for which not to show details
         :return: str
         """
-        edits = []
-
-        for field in self.edited_fields:
-            if field in hide:
-                # Don't show sensitive information
-                edits.append((field, None, None))
-            else:
-                edits.append((
-                    field,
-                    self.__repr(field, self.previous_version.field_dict[field]),
-                    self.__repr(field, self.version.field_dict[field])
-                ))
-
-        return edits
+        return super(UserHistoryEvent, self).edits(hide)
 
     def __eq__(self, other):
         return (
@@ -332,10 +384,9 @@ class UserHistoryEvent:
         )
 
 
-class UserHistory:
+class UserHistory(History):
     def __init__(self):
-        self.events = []
-        self.__last_version = None
+        super(UserHistory, self).init()
 
     def get(self, user):
         """
@@ -378,22 +429,6 @@ class UserHistory:
             reverse=True
         )
 
-    def __compute_diff(self, v1, v2, ignoring=["last_login", "pwd_ntlm", "email_change_date"]):
-        """
-        Find the edited field between two versions
-        :param v1: Version
-        :param v2: Version
-        :param ignoring: List, a list of fields to ignore
-        :return: List of field names
-        """
-        fields = []
-
-        for key in v1.field_dict.keys():
-            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
-                fields.append(key)
-
-        return fields
-
     def __add_revision(self, user, version):
         """
         Add a new revision to the chronological order
@@ -402,7 +437,11 @@ class UserHistory:
         """
         diff = None
         if self.__last_version is not None:
-            diff = self.__compute_diff(version, self.__last_version)
+            diff = self.__compute_diff(
+                version,
+                self.__last_version,
+                ignoring=["last_login", "pwd_ntlm", "email_change_date"]
+            )
 
         # Ignore "empty" events like login
         if not diff:
@@ -410,5 +449,48 @@ class UserHistory:
             return
 
         evt = UserHistoryEvent(user, version, self.__last_version, diff)
+        self.events.append(evt)
+        self.__last_version = version
+
+
+class InterfaceHistoryEvent(HistoryEvent):
+    pass
+
+
+class InterfaceHistory:
+    def get(self, interface_id):
+        """
+        :param interface_id: Interface, the interface to lookup
+        :return: list or None, a list of InterfaceHistoryEvent, in reverse chronological order
+        """
+        self.events = []
+
+        # Get all the versions for this interface, with the oldest first
+        self.__last_version = None
+        user_versions = filter(
+            lambda x: x.field_dict["id"] == interface_id,
+            Version.objects.get_for_model(Interface).order_by("revision__date_created")
+        )
+
+        for version in user_versions:
+            self.__add_revision(version)
+
+        return self.events[::-1]
+
+    def __add_revision(self, version):
+        """
+        Add a new revision to the chronological order
+        :param version: Version, The version of the interface for this event
+        """
+        diff = None
+        if self.__last_version is not None:
+            diff = self.__compute_diff(version, self.__last_version)
+
+        # Ignore "empty" events
+        if not diff:
+            self.__last_version = version
+            return
+
+        evt = InterfaceHistoryEvent(version, self.__last_version, diff)
         self.events.append(evt)
         self.__last_version = version
