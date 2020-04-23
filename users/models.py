@@ -252,6 +252,7 @@ class User(
             ("change_user_state", _("Can edit the state of a user")),
             ("change_user_force", _("Can force the move")),
             ("change_user_shell", _("Can edit the shell of a user")),
+            ("change_user_pseudo", _("Can edit the pseudo of a user")),
             (
                 "change_user_groups",
                 _("Can edit the groups of rights of a user (critical permission)"),
@@ -1180,12 +1181,12 @@ class User(
                 self.pk == user_request.pk
                 and OptionalUser.get_cached_value("self_change_pseudo")
             )
-            or user_request.has_perm("users.change_user_shell")
+            or user_request.has_perm("users.change_user_pseudo")
         ):
             return (
                 False,
-                _("You don't have the right to change the shell."),
-                ("users.change_user_shell",),
+                _("You don't have the right to change the pseudo."),
+                ("users.change_user_pseudo",),
             )
         else:
             return True, None, None
