@@ -105,7 +105,7 @@ def linux_user_validator(login):
     pas les contraintes unix (maj, min, chiffres ou tiret)"""
     if not linux_user_check(login):
         raise forms.ValidationError(
-            _("The username \"%(label)s\" contains forbidden characters."),
+            _('The username "%(label)s" contains forbidden characters.'),
             params={"label": login},
         )
 
@@ -405,7 +405,10 @@ class User(
     @cached_property
     def get_shadow_expire(self):
         """Return the shadow_expire value for the user"""
-        if self.state == self.STATE_DISABLED or self.email_state == self.EMAIL_STATE_UNVERIFIED:
+        if (
+            self.state == self.STATE_DISABLED
+            or self.email_state == self.EMAIL_STATE_UNVERIFIED
+        ):
             return str(0)
         else:
             return None
@@ -670,7 +673,12 @@ class User(
             self.full_archive()
 
     def ldap_sync(
-        self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False
+        self,
+        base=True,
+        access_refresh=True,
+        mac_refresh=True,
+        group_refresh=False,
+        sshkeys_refresh=False,
     ):
         """ Synchronisation du ldap. Synchronise dans le ldap les attributs de
         self
@@ -734,6 +742,10 @@ class User(
                 for group in Group.objects.all():
                     if hasattr(group, "listright"):
                         group.listright.ldap_sync()
+            if sshkeys_refresh:
+                user_ldap.sshkeys = [
+                    str(key.key) for key in SSHKey.objects.filter(user=self)
+                ]
             user_ldap.save()
 
     def ldap_del(self):
@@ -1051,7 +1063,7 @@ class User(
                         False,
                         _(
                             "Impossible to edit the organisation's"
-                            " user without the \"change_all_users\" right."
+                            ' user without the "change_all_users" right.'
                         ),
                         ("users.change_all_users",),
                     )
@@ -1120,7 +1132,8 @@ class User(
         if not (
             (
                 self.pk == user_request.pk
-                and OptionalUser.get_cached_value("self_room_policy") != OptionalUser.DISABLED
+                and OptionalUser.get_cached_value("self_room_policy")
+                != OptionalUser.DISABLED
             )
             or user_request.has_perm("users.change_user")
         ):
@@ -1263,7 +1276,7 @@ class User(
         can = user_request.is_superuser
         return (
             can,
-            _("\"superuser\" right required to edit the superuser flag.")
+            _('"superuser" right required to edit the superuser flag.')
             if not can
             else None,
             [],
@@ -1357,9 +1370,7 @@ class User(
         # Allow empty emails only if the user had an empty email before
         is_created = not self.pk
         if not self.email and (self.__original_email or is_created):
-            raise forms.ValidationError(
-                _("Email field cannot be empty.")
-            )
+            raise forms.ValidationError(_("Email field cannot be empty."))
 
         self.email = self.email.lower()
 
@@ -1432,14 +1443,12 @@ class Adherent(User):
             a user or if the `options.all_can_create` is set.
         """
         if not user_request.is_authenticated:
-            if not OptionalUser.get_cached_value(
-                "self_adhesion"
-            ):
+            if not OptionalUser.get_cached_value("self_adhesion"):
                 return False, _("Self registration is disabled."), None
             else:
                 return True, None, None
         else:
-            if OptionalUser.get_cached_value("all_can_create_adherent"): 
+            if OptionalUser.get_cached_value("all_can_create_adherent"):
                 return True, None, None
             else:
                 can = user_request.has_perm("users.add_user")
@@ -2000,6 +2009,9 @@ class LdapUser(ldapdb.models.Model):
     shadowexpire = ldapdb.models.fields.CharField(
         db_column="shadowExpire", blank=True, null=True
     )
+    sshkeys = ldapdb.models.fields.ListField(
+        db_column="sshkeys", max_length=200, blank=True, null=True
+    )
 
     def __str__(self):
         return self.name
@@ -2248,3 +2260,53 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if result:
             raise ValidationError(reason)
         super(EMailAddress, self).clean(*args, **kwargs)
+
+
+class SSHKey(RevMixin, AclMixin, models.Model):
+    """Represents an SSH public key belonging to a user."""
+
+    key = models.TextField(blank=True, verbose_name=_("Public ssh key"))
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        permissions = (("view_sshkey", _("Can view an SSHKey object")),)
+        verbose_name = _("SSH key")
+        verbose_name_plural = _("SSH keys")
+
+    def can_edit(self, user_request, *_args, **_kwargs):
+        """Check if a user can edit the SSH key
+
+        Args:
+            user_request: The user who wants to edit the object.
+
+        Returns:
+            a message and a boolean which is True if the user can edit
+            the local email account.
+        """
+        if self.user == user_request or user_request.has_perm("users.edit_sshkey"):
+            return True, None, None
+        return (
+            False,
+            _("You don't have the right to edit another user's SSHKey."),
+            ("users.edit_sshkey",),
+        )
+
+
+@receiver(post_save, sender=SSHKey)
+def sshkey_post_save(**kwargs):
+    """Sync LDAP record for user when SSHKey is saved."""
+    key = kwargs["instance"]
+    is_created = kwargs["created"]
+    user = key.user
+    user.ldap_sync(
+        base=False, access_refresh=False, mac_refresh=False, sshkeys_refresh=True
+    )
+
+
+@receiver(post_delete, sender=SSHKey)
+def sshkey_post_delete(**kwargs):
+    """Sync LDAP record for user when SSHKey is deleted"""
+    user = kwargs["instance"].user
+    user.ldap_sync(
+        base=False, access_refresh=False, mac_refresh=False, sshkeys_refresh=True
+    )

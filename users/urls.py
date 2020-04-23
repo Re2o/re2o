@@ -44,7 +44,11 @@ urlpatterns = [
     url(r"^state/(?P<userid>[0-9]+)$", views.state, name="state"),
     url(r"^groups/(?P<userid>[0-9]+)$", views.groups, name="groups"),
     url(r"^password/(?P<userid>[0-9]+)$", views.password, name="password"),
-    url(r"^confirm_email/(?P<userid>[0-9]+)$", views.resend_confirmation_email, name="resend-confirmation-email"),
+    url(
+        r"^confirm_email/(?P<userid>[0-9]+)$",
+        views.resend_confirmation_email,
+        name="resend-confirmation-email",
+    ),
     url(
         r"^del_group/(?P<userid>[0-9]+)/(?P<listrightid>[0-9]+)$",
         views.del_group,
@@ -127,4 +131,7 @@ urlpatterns = [
     url(r"^$", views.index, name="index"),
     url(r"^index_clubs/$", views.index_clubs, name="index-clubs"),
     url(r"^initial_register/$", views.initial_register, name="initial-register"),
+    url(r"^add_sshkey/(?P<userid>[0-9]+)$", views.add_sshkey, name="add-sshkey",),
+    url(r"^edit_sshkey/(?P<sshkeyid>[0-9]+)$", views.edit_sshkey, name="edit-sshkey",),
+    url(r"^del_sshkey/(?P<sshkeyid>[0-9]+)$", views.del_sshkey, name="del-sshkey",),
 ]

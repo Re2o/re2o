@@ -24,6 +24,7 @@ from rest_framework import serializers
 import users.models as users
 from api.serializers import NamespacedHRField, NamespacedHIField, NamespacedHMSerializer
 
+
 class UserSerializer(NamespacedHMSerializer):
     """Serialize `users.models.User` objects.
     """
@@ -210,7 +211,7 @@ class EMailAddressSerializer(NamespacedHMSerializer):
     class Meta:
         model = users.EMailAddress
         fields = ("user", "local_part", "complete_email_address", "api_url")
-    
+
 
 class LocalEmailUsersSerializer(NamespacedHMSerializer):
     email_address = EMailAddressSerializer(read_only=True, many=True)
@@ -242,3 +243,11 @@ class MailingSerializer(ClubSerializer):
 
     class Meta(ClubSerializer.Meta):
         fields = ("name", "members", "admins")
+
+
+class SSHKeySerializer(NamespacedHMSerializer):
+    """Serialize an SSHKey."""
+
+    class Meta:
+        model = users.SSHKey
+        fields = "__all__"

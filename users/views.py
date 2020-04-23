@@ -86,6 +86,7 @@ from .models import (
     Club,
     ListShell,
     EMailAddress,
+    SSHKey,
 )
 from .forms import (
     BanForm,
@@ -110,6 +111,7 @@ from .forms import (
     ClubAdminandMembersForm,
     GroupForm,
     InitialRegisterForm,
+    SSHKeyForm,
 )
 
 
@@ -932,6 +934,7 @@ def profil(request, users, **_kwargs):
         request.GET.get("order"),
         SortTable.USERS_INDEX_WHITE,
     )
+    sshkeys = users.sshkey_set.all()
     try:
         balance = find_payment_method(Paiement.objects.get(is_balance=True))
     except Paiement.DoesNotExist:
@@ -956,6 +959,7 @@ def profil(request, users, **_kwargs):
             "local_email_accounts_enabled": (
                 OptionalUser.objects.first().local_email_accounts_enabled
             ),
+            "sshkeys": sshkeys,
         },
     )
 
@@ -1101,3 +1105,51 @@ def initial_register(request):
         request,
     )
 
+
+@login_required
+@can_create(SSHKey)
+@can_edit(User)
+def add_sshkey(request, user, userid):
+    """Create an SSHKey for the given user."""
+    sshkey_instance = SSHKey(user=user)
+    sshkey = SSHKeyForm(request.POST or None, instance=sshkey_instance)
+
+    if sshkey.is_valid():
+        sshkey.save()
+        messages.success(request, _("The SSH key was added."))
+        return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
+
+    return form(
+        {"userform": sshkey, "action_name": _("Add")}, "users/user.html", request
+    )
+
+
+@login_required
+@can_edit(SSHKey)
+def edit_sshkey(request, sshkey_instance, **_kwargs):
+    """Edit an SSHKey for the given user."""
+    sshkey = SSHKeyForm(request.POST or None, instance=sshkey_instance)
+    sshkey.request = request
+
+    if sshkey.is_valid():
+        if sshkey.changed_data:
+            sshkey.save()
+            messages.success(request, _("The SSH Key was edited."))
+        return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
+
+    return form(
+        {"userform": sshkey, "action_name": _("Edit")}, "users/user.html", request
+    )
+
+
+@login_required
+@can_delete(SSHKey)
+def del_sshkey(request, sshkey, **_kwargs):
+    """Delete SSH key."""
+    if request.method == "POST":
+        sshkey.delete()
+        messages.success(request, _("The SSH key was deleted."))
+        return redirect(reverse("users:profil", kwargs={"userid": str(sshkey.user.id)}))
+    return form(
+        {"objet": sshkey, "objet_name": _("SSH key")}, "users/delete.html", request
+    )

@@ -38,7 +38,10 @@ from __future__ import unicode_literals
 from django import forms
 from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.contrib.auth.password_validation import validate_password, password_validators_help_text_html
+from django.contrib.auth.password_validation import (
+    validate_password,
+    password_validators_help_text_html,
+)
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
 from django.utils.functional import lazy
@@ -69,6 +72,7 @@ from .models import (
     Ban,
     Adherent,
     Club,
+    SSHKey,
 )
 
 
@@ -84,7 +88,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         label=_("New password"),
         max_length=255,
         widget=forms.PasswordInput,
-        help_text=password_validators_help_text_html()
+        help_text=password_validators_help_text_html(),
     )
     passwd2 = forms.CharField(
         label=_("New password confirmation"),
@@ -133,12 +137,10 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         label=_("Password"),
         widget=forms.PasswordInput,
         max_length=255,
-        help_text=password_validators_help_text_html()
+        help_text=password_validators_help_text_html(),
     )
     password2 = forms.CharField(
-        label=_("Password confirmation"),
-        widget=forms.PasswordInput,
-        max_length=255,
+        label=_("Password confirmation"), widget=forms.PasswordInput, max_length=255,
     )
     is_admin = forms.BooleanField(label=_("Is admin"))
 
@@ -287,9 +289,7 @@ class MassArchiveForm(forms.Form):
 
     date = forms.DateTimeField(help_text="%d/%m/%y")
     full_archive = forms.BooleanField(
-        label=_(
-            "Fully archive users? WARNING: CRITICAL OPERATION IF TRUE"
-        ),
+        label=_("Fully archive users? WARNING: CRITICAL OPERATION IF TRUE"),
         initial=False,
         required=False,
     )
@@ -380,6 +380,7 @@ class AdherentCreationForm(AdherentForm):
     AdherentForm auquel on ajoute une checkbox afin d'éviter les
     doublons d'utilisateurs et, optionnellement,
     un champ mot de passe"""
+
     # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
     init_password_by_mail_info = _(
         "If this options is set, you will receive a link to set"
@@ -392,9 +393,7 @@ class AdherentCreationForm(AdherentForm):
     )
 
     init_password_by_mail = forms.BooleanField(
-        help_text=init_password_by_mail_info,
-        required=False,
-        initial=True
+        help_text=init_password_by_mail_info, required=False, initial=True
     )
     init_password_by_mail.label = _("Send password reset link by email.")
 
@@ -405,7 +404,7 @@ class AdherentCreationForm(AdherentForm):
         label=_("Password"),
         widget=forms.PasswordInput,
         max_length=255,
-        help_text=password_validators_help_text_html()
+        help_text=password_validators_help_text_html(),
     )
     password2 = forms.CharField(
         required=False,
@@ -482,8 +481,12 @@ class AdherentCreationForm(AdherentForm):
         # Save the provided password in hashed format
         user = super(AdherentForm, self).save(commit=False)
 
-        is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
-        set_passwd = is_set_password_allowed and not self.cleaned_data.get("init_password_by_mail")
+        is_set_password_allowed = OptionalUser.get_cached_value(
+            "allow_set_password_during_user_creation"
+        )
+        set_passwd = is_set_password_allowed and not self.cleaned_data.get(
+            "init_password_by_mail"
+        )
         if set_passwd:
             user.set_password(self.cleaned_data["password1"])
 
@@ -886,3 +889,15 @@ class InitialRegisterForm(forms.Form):
         if self.cleaned_data["register_machine"]:
             if self.mac_address and self.nas_type:
                 self.user.autoregister_machine(self.mac_address, self.nas_type)
+
+
+class SSHKeyForm(FormRevMixin, ModelForm):
+    """Create or edit an SSHKey"""
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop("prefix", self.Meta.model.__name__)
+        super(SSHKeyForm, self).__init__(*args, prefix=prefix, **kwargs)
+
+    class Meta:
+        model = SSHKey
+        exclude = ["user"]

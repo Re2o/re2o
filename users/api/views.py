@@ -169,7 +169,7 @@ class StandardMailingView(views.APIView):
         adherents_data = serializers.MailingMemberSerializer(
             all_has_access(), many=True
         ).data
-        
+
         data = [{"name": "adherents", "members": adherents_data}]
         groups = Group.objects.all()
         for group in groups:
@@ -190,3 +190,11 @@ class ClubMailingView(generics.ListAPIView):
 
     queryset = users.Club.objects.all()
     serializer_class = serializers.MailingSerializer
+
+
+class SSHKeyViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `users.models.SSHKey` objects.
+    """
+
+    queryset = users.SSHKey.objects.all()
+    serializer_class = serializers.SSHKeySerializer

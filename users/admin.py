@@ -48,6 +48,7 @@ from .models import (
     LdapServiceUser,
     LdapServiceUserGroup,
     LdapUserGroup,
+    SSHKey,
 )
 from .forms import (
     UserChangeForm,
@@ -126,6 +127,12 @@ class EMailAddressAdmin(VersionAdmin):
 
 class WhitelistAdmin(VersionAdmin):
     """Gestion des whitelist"""
+
+    pass
+
+
+class SSHKeyAdmin(VersionAdmin):
+    """SSHKey model for admin."""
 
     pass
 
@@ -224,6 +231,7 @@ admin.site.register(Ban, BanAdmin)
 admin.site.register(EMailAddress, EMailAddressAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
+admin.site.register(SSHKey, SSHKeyAdmin)
 # Now register the new UserAdmin...
 admin.site.unregister(User)
 admin.site.unregister(ServiceUser)
