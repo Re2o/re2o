@@ -33,28 +33,32 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>{% trans "Performed by" %}</th>
                 <th>{% trans "Date" %}</th>
-                <th>{% trans "Diff" %}</th>
+                <th>{% trans "Performed by" %}</th>
+                <th>{% trans "Edited" %}</th>
                 <th>{% trans "Comment" %}</th>
             </tr>
         </thead>
         {% for event in events %}
         <tr>
-            <td>
-                <a href="{% url 'users:profil' userid=event.performed_by.id %}" title=tr_view_the_profile>
-                    {{ event.performed_by }}
-                </a>
-            </td>
             <td>{{ event.date }}</td>
             <td>
+                {% if event.performed_by %}
+                    <a href="{% url 'users:profil' userid=event.performed_by.id %}" title=tr_view_the_profile>
+                        {{ event.performed_by }}
+                    </a>
+                {% else %}
+                    {% trans "Unknown" %}
+                {% endif %}
+            </td>
+            <td>
                 {% for edit in event.edits %}
-                    {% if edit[1] and edit[2] %}
-                        <p>{{ edit[0] }}: {{ edit[1] }} ➔ {{ edit[2] }}</p>
-                    {% elif edit[2] %}
-                        <p>{{ edit[0] }}: {{ edit[2] }}</p>
+                    {% if edit.1 and edit.2 %}
+                        {{ edit.0 }}: {{ edit.1 }} ➔ {{ edit.2 }}<br/>
+                    {% elif edit.2 %}
+                        {{ edit.0 }}: {{ edit.2 }}<br/>
                     {% else %}
-                        <p>{{ edit[0] }}</p>
+                        {{ edit.0 }}<br/>
                     {% endif %}
                 {% endfor %}
             </td>
@@ -69,3 +73,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <br />
 <br />
 <br />
+
+{% endblock %}

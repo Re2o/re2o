@@ -256,28 +256,23 @@ class UserHistoryEvent:
 class UserHistory:
     def __init__(self):
         self.events = []
-        self.user = None
         self.__last_version = None
 
-    def get(self, user_id):
+    def get(self, user):
         """
-        :param user_id: id of the user to lookup
+        :param user: User, the user to lookup
         :return: list or None, a list of UserHistoryEvent, in reverse chronological order
         """
         self.events = []
-        try:
-            self.user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return None
 
         # Get all the versions for this user, with the oldest first
         user_versions = filter(
-            lambda x: x.field_dict["id"] == user_id,
+            lambda x: x.field_dict["id"] == user.id,
             Version.objects.get_for_model(User).order_by("revision__date_created")
         )
 
         for version in user_versions:
-            self.__add_revision(self.user, version)
+            self.__add_revision(user, version)
 
         return self.events[::-1]
 

@@ -47,5 +47,5 @@ urlpatterns = [
         name="history",
     ),
     url(r"^stats_search_machine/$", views.stats_search_machine_history, name="stats-search-machine"),
-    url(r"^user/(?P<user_id>[0-9]+)$", views.user_history, name="stats-user-history"),
+    url(r"^user/(?P<userid>[0-9]+)$", views.user_history, name="user-history"),
 ]
