@@ -101,7 +101,7 @@ from re2o.utils import (
 from re2o.base import re2o_paginator, SortTable
 from re2o.acl import can_view_all, can_view_app, can_edit_history
 
-from .models import MachineHistory
+from .models import MachineHistory, UserHistory
 from .forms import MachineHistoryForm
 
 
@@ -506,6 +506,26 @@ def stats_search_machine_history(request):
             { "events": events },
         )
     return render(request, "logs/search_machine_history.html", {"history_form": history_form})
+
+
+@login_required
+@can_view_app("users")
+def user_history(request, user_id):
+    history = UserHistory()
+    events = history.get(user_id)
+
+    max_result = GeneralOption.get_cached_value("pagination_number")
+    events = re2o_paginator(
+        request,
+        events,
+        max_result
+    )
+
+    return render(
+        request,
+        "logs/user_history.html",
+        { "user": history.user, "events": events },
+    )
 
 
 def history(request, application, object_name, object_id):
