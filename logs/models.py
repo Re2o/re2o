@@ -215,25 +215,25 @@ class MachineHistorySearch:
 
 
 class RelatedHistory:
-    def __init__(self, name, instance, detailed=True):
+    def __init__(self, name, model_name, object_id):
         """
+        :param name: Name of this instance
         :param model_name: Name of the related model (e.g. "user")
         :param object_id: ID of the related object
-        :param detailed: Whether the related history should be shown in an detailed view
         """
-        self.name = name
-        self.instance = instance
-        self.detailed = detailed
+        self.name = "{} (id = {})".format(name, object_id)
+        self.model_name = model_name
+        self.object_id = object_id
 
     def __eq__(self, other):
         return (
             self.name == other.name
-            and self.instance.id == other.instance.id
-            and self.detailed == other.detailed
+            and self.model_name == other.model_name
+            and self.object_id == other.object_id
         )
 
     def __hash__(self):
-        return hash((self.name, self.instance.id, self.detailed))
+        return hash((self.name, self.model_name, self.object_id))
 
 
 class HistoryEvent:
@@ -468,7 +468,10 @@ class UserHistory(History):
             lambda x: x.field_dict["user_id"] == user.id,
             Version.objects.get_for_model(Machine).order_by("revision__date_created")
         )
-        self.related = [RelatedHistory(m.field_dict["name"] or _("None"), m) for m in self.related]
+        self.related = [RelatedHistory(
+            m.field_dict["name"] or _("None"),
+            "machine",
+            m.field_dict["id"]) for m in self.related]
         self.related = list(dict.fromkeys(self.related))
 
         # Get all the versions for this user, with the oldest first
@@ -554,7 +557,10 @@ class MachineHistory(History):
         ))
 
         # Create RelatedHistory objects and remove duplicates
-        self.related = [RelatedHistory(i.field_dict["mac_address"], i) for i in self.related]
+        self.related = [RelatedHistory(
+            i.field_dict["mac_address"] or _("None"),
+            "interface",
+            i.field_dict["id"]) for i in self.related]
         self.related = list(dict.fromkeys(self.related))
 
         return super(MachineHistory, self).get(machine)
