@@ -308,6 +308,10 @@ class History:
         for version in interface_versions:
             self._add_revision(version)
 
+        # Return None if interface_versions was empty
+        if self._last_version is None:
+            return None
+
         return self.events[::-1]
 
     def _compute_diff(self, v1, v2, ignoring=[]):
@@ -444,13 +448,26 @@ class UserHistory(History):
         """
         self.events = []
 
-        # Find whether this is a Club or an Adherent
-        try:
-            obj = Adherent.objects.get(user_ptr_id=user_id)
-        except Adherent.DoesNotExist:
-            obj = Club.objects.get(user_ptr_id=user_id)
+        # Try to find an Adherent object
+        adherents = filter(
+            lambda x: x.field_dict["user_ptr_id"] == user_id,
+            Version.objects.get_for_model(Adherent)
+        )
+        obj = next(adherents, None)
 
-        # Add as "related" histories the list of Machine objects
+        # Fallback on a Club
+        if obj is None:
+            clubs = filter(
+                lambda x: x.field_dict["user_ptr_id"] == user_id,
+                Version.objects.get_for_model(Club)
+            )
+            obj = next(clubs, None)
+
+        # If nothing was found, abort
+        if obj is None:
+            return None
+
+        # Add in "related" elements the list of Machine objects
         # that were once owned by this user
         self.related = filter(
             lambda x: x.field_dict["user_id"] == user_id,

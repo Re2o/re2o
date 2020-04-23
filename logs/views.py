@@ -518,7 +518,6 @@ def get_history_object(request, model, object_name, object_id, allow_deleted=Fal
     """Get the objet of type model with the given object_id
     Handles permissions and DoesNotExist errors
     """
-    instance = None
     is_deleted = False
 
     try:
@@ -526,20 +525,9 @@ def get_history_object(request, model, object_name, object_id, allow_deleted=Fal
         kwargs = {object_name_id: object_id}
         instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
-        pass
-
-    if instance is None and allow_deleted:
-        # Try to find an instance among the Version objects
         is_deleted = True
-        versions = filter(
-            lambda x: x.field_dict["id"] == object_id,
-            Version.objects.get_for_model(model)
-        )
-        versions = list(versions)
-        if len(versions):
-            instance = versions[0]
 
-    if instance is None:
+    if is_deleted and not allow_deleted:
         messages.error(request, _("Nonexistent entry."))
         return False, redirect(
             reverse("users:profil", kwargs={"userid": str(request.user.id)})
@@ -592,6 +580,13 @@ def detailed_history(request, object_name, object_id):
         history.get(object_id),
         max_result
     )
+
+    # Events is None if object wasn't found
+    if events is None:
+        messages.error(request, _("Nonexistent entry."))
+        return redirect(
+            reverse("users:profil", kwargs={"userid": str(request.user.id)})
+        )
 
     return render(
         request,
