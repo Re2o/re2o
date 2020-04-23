@@ -214,6 +214,18 @@ class MachineHistorySearch:
         return self.events
 
 
+class RelatedHistory:
+    def __init__(self, model_name, object_id, detailed=True):
+        """
+        :param model_name: Name of the related model (e.g. "user")
+        :param object_id: ID of the related object
+        :param detailed: Whether the related history should be shown in an detailed view
+        """
+        self.model_name = model_name
+        self.object_id = object_id
+        self.detailed = detailed
+
+
 class HistoryEvent:
     def __init__(self, version, previous_version=None, edited_fields=None):
         """
@@ -265,7 +277,28 @@ class HistoryEvent:
 class History:
     def __init__(self):
         self.events = []
+        self.related = []  # For example, a machine has a list of its interfaces
         self._last_version = None
+        self.event_type = HistoryEvent
+
+    def get(self, instance):
+        """
+        :param interface: The instance to lookup
+        :return: list or None, a list of HistoryEvent, in reverse chronological order
+        """
+        self.events = []
+
+        # Get all the versions for this interface, with the oldest first
+        self._last_version = None
+        interface_versions = filter(
+            lambda x: x.field_dict["id"] == instance.id,
+            Version.objects.get_for_model(type(instance)).order_by("revision__date_created")
+        )
+
+        for version in interface_versions:
+            self._add_revision(version)
+
+        return self.events[::-1]
 
     def _compute_diff(self, v1, v2, ignoring=[]):
         """
@@ -282,6 +315,24 @@ class History:
                 fields.append(key)
 
         return fields
+
+    def _add_revision(self, version):
+        """
+        Add a new revision to the chronological order
+        :param version: Version, The version of the interface for this event
+        """
+        diff = None
+        if self._last_version is not None:
+            diff = self._compute_diff(version, self._last_version)
+
+        # Ignore "empty" events
+        if not diff:
+            self._last_version = version
+            return
+
+        evt = self.event_type(version, self._last_version, diff)
+        self.events.append(evt)
+        self._last_version = version
 
 
 class UserHistoryEvent(HistoryEvent):
@@ -386,6 +437,7 @@ class UserHistoryEvent(HistoryEvent):
 class UserHistory(History):
     def __init__(self):
         super(UserHistory, self).__init__()
+        self.event_type = UserHistoryEvent
 
     def get(self, user):
         """
@@ -399,6 +451,17 @@ class UserHistory(History):
             obj = Adherent.objects.get(user_ptr_id=user.id)
         except Adherent.DoesNotExist:
             obj = Club.objects.get(user_ptr_id=user.id)
+
+        # Add as "related" histories the list of Machine objects
+        # that were once owned by this user
+        self.related = list(filter(
+            lambda x: x.field_dict["user_id"] == user.id,
+            Version.objects.get_for_model(Machine).order_by("revision__date_created")
+        ))
+        self.related = sorted(
+            list(dict.fromkeys(self.related)),
+            key=lambda r: r.model_name
+        )
 
         # Get all the versions for this user, with the oldest first
         self._last_version = None
@@ -452,6 +515,45 @@ class UserHistory(History):
         self._last_version = version
 
 
+class MachineHistoryEvent(HistoryEvent):
+    def _repr(self, name, value):
+        """
+        Returns the best representation of the given field
+        :param name: the name of the field
+        :param value: the value of the field
+        :return: object
+        """
+        if name == "user_id":
+            try:
+                return User.objects.get(id=value).pseudo
+            except User.DoesNotExist:
+                return "{} ({})".format(_("Deleted"), value)
+
+        return super(MachineHistoryEvent, self)._repr(name, value)
+
+
+class MachineHistory(History):
+    def __init__(self):
+        super(MachineHistory, self).__init__()
+        self.event_type = MachineHistoryEvent
+
+    def get(self, machine):
+        super(MachineHistory, self).get(machine)
+
+        # Add as "related" histories the list of Interface objects
+        # that were once assigned to this machine
+        self.related = list(filter(
+            lambda x: x.field_dict["machine_id"] == machine.id,
+            Version.objects.get_for_model(Interface).order_by("revision__date_created")
+        ))
+
+        # Remove duplicates and sort
+        self.related = sorted(
+            list(dict.fromkeys(self.related)),
+            key=lambda r: r.model_name
+        )
+
+
 class InterfaceHistoryEvent(HistoryEvent):
     def _repr(self, name, value):
         """
@@ -490,39 +592,6 @@ class InterfaceHistoryEvent(HistoryEvent):
 
 
 class InterfaceHistory(History):
-    def get(self, interface):
-        """
-        :param interface: Interface, the interface to lookup
-        :return: list or None, a list of InterfaceHistoryEvent, in reverse chronological order
-        """
-        self.events = []
-
-        # Get all the versions for this interface, with the oldest first
-        self._last_version = None
-        interface_versions = filter(
-            lambda x: x.field_dict["id"] == interface.id,
-            Version.objects.get_for_model(Interface).order_by("revision__date_created")
-        )
-
-        for version in interface_versions:
-            self._add_revision(version)
-
-        return self.events[::-1]
-
-    def _add_revision(self, version):
-        """
-        Add a new revision to the chronological order
-        :param version: Version, The version of the interface for this event
-        """
-        diff = None
-        if self._last_version is not None:
-            diff = self._compute_diff(version, self._last_version)
-
-        # Ignore "empty" events
-        if not diff:
-            self._last_version = version
-            return
-
-        evt = InterfaceHistoryEvent(version, self._last_version, diff)
-        self.events.append(evt)
-        self._last_version = version
+    def __init__(self):
+        super(InterfaceHistory, self).__init__()
+        self.event_type = InterfaceHistoryEvent
