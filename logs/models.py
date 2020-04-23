@@ -29,7 +29,7 @@ from machines.models import Machine
 from users.models import User
 
 
-class HistoryEvent:
+class MachineHistoryEvent:
     def __init__(self, user, machine, interface, start=None, end=None):
         """
         :param user: User, The user owning the maching at the time of the event
@@ -80,7 +80,7 @@ class MachineHistory:
         """
         :param search: ip or mac to lookup
         :param params: dict built by the search view
-        :return: list or None, a list of HistoryEvent
+        :return: list or None, a list of MachineHistoryEvent
         """
         self.start = params.get("s", None)
         self.end = params.get("e", None)
@@ -101,7 +101,7 @@ class MachineHistory:
         :param machine: Version, the machine version related to the interface
         :param interface: Version, the interface targeted by this event
         """
-        evt = HistoryEvent(user, machine, interface)
+        evt = MachineHistoryEvent(user, machine, interface)
         evt.start_date = interface.revision.date_created
 
         # Try not to recreate events if it's unnecessary
@@ -177,7 +177,7 @@ class MachineHistory:
     def __get_by_ip(self, ip):
         """
         :param ip: str, The IP to lookup
-        :returns: list, a list of HistoryEvent
+        :returns: list, a list of MachineHistoryEvent
         """
         interfaces = self.__get_interfaces_for_ip(ip)
 
@@ -193,7 +193,7 @@ class MachineHistory:
     def __get_by_mac(self, mac):
         """
         :param mac: str, The MAC address to lookup
-        :returns: list, a list of HistoryEvent
+        :returns: list, a list of MachineHistoryEvent
         """
         interfaces = self.__get_interfaces_for_mac(mac)
 
@@ -205,3 +205,113 @@ class MachineHistory:
                 self.__add_revision(user, machine, interface)
 
         return self.events
+
+
+class UserHistoryEvent:
+    def __init__(self, user, version, previous_version=None, edited_fields=None):
+        """
+        :param user: User, The user who's history is being built
+        :param version: Version, the version of the user for this event
+        :param previous_version: Version, the version of the user before this event
+        :param edited_fields: list, The list of modified fields by this event
+        """
+        self.user = user
+        self.version = version
+        self.previous_version = previous_version
+        self.edited_fields = edited_fields
+        self.date = version.revision.date_created
+        self.performed_by = version.revision.user
+        self.comment = version.revision.get_comment() or None
+
+    def edits(self, hide=["password", "pwd_ntlm"]):
+        """
+        Build a list of the changes performed during this event
+        :param hide: list, the list of fields for which not to show details
+        :return: str
+        """
+        edits = []
+
+        for field in self.edited_fields:
+            if field in hide:
+                # Don't show sensitive information
+                edits.append((field, None, None))
+            else:
+                edits.append((
+                    field,
+                    self.previous_version.field_dict[field],
+                    self.version.field_dict[field]
+                ))
+
+        return edits
+
+    def __repr__(self):
+        return "{} edited fields {} of {} ({})".format(
+            self.performed_by,
+            self.edited_fields or "nothing",
+            self.user,
+            self.comment or "No comment"
+        )
+
+
+class UserHistory:
+    def __init__(self):
+        self.events = []
+        self.user = None
+        self.__last_version = None
+
+    def get(self, user_id):
+        """
+        :param user_id: id of the user to lookup
+        :return: list or None, a list of UserHistoryEvent, in reverse chronological order
+        """
+        self.events = []
+        try:
+            self.user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return None
+
+        # Get all the versions for this user, with the oldest first
+        user_versions = filter(
+            lambda x: x.field_dict["id"] == user_id,
+            Version.objects.get_for_model(User).order_by("revision__date_created")
+        )
+
+        for version in user_versions:
+            self.__add_revision(self.user, version)
+
+        return self.events[::-1]
+
+    def __compute_diff(self, v1, v2, ignoring=["last_login", "comment", "pwd_ntlm", "email_change_date"]):
+        """
+        Find the edited field between two versions
+        :param v1: Version
+        :param v2: Version
+        :param ignoring: List, a list of fields to ignore
+        :return: List of field names
+        """
+        fields = []
+
+        for key in v1.field_dict.keys():
+            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
+                fields.append(key)
+
+        return fields
+
+    def __add_revision(self, user, version):
+        """
+        Add a new revision to the chronological order
+        :param user: User, The user displayed in this history
+        :param version: Version, The version of the user for this event
+        """
+        diff = None
+        if self.__last_version is not None:
+            diff = self.__compute_diff(version, self.__last_version)
+
+        # Ignore "empty" events like login
+        if not diff:
+            self.__last_version = version
+            return
+
+        evt = UserHistoryEvent(user, version, self.__last_version, diff)
+        self.events.append(evt)
+        self.__last_version = version

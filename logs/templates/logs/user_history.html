@@ -1,0 +1,71 @@
+{% extends 'logs/sidebar.html' %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2020  Jean-Romain Garnier
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block title %}{% trans "History" %}{% endblock %}
+
+{% block content %}
+<h2>{% blocktrans %}History of {{ user }}{% endblocktrans %}</h2>
+
+{% if events %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{% trans "Performed by" %}</th>
+                <th>{% trans "Date" %}</th>
+                <th>{% trans "Diff" %}</th>
+                <th>{% trans "Comment" %}</th>
+            </tr>
+        </thead>
+        {% for event in events %}
+        <tr>
+            <td>
+                <a href="{% url 'users:profil' userid=event.performed_by.id %}" title=tr_view_the_profile>
+                    {{ event.performed_by }}
+                </a>
+            </td>
+            <td>{{ event.date }}</td>
+            <td>
+                {% for edit in event.edits %}
+                    {% if edit[1] and edit[2] %}
+                        <p>{{ edit[0] }}: {{ edit[1] }} ➔ {{ edit[2] }}</p>
+                    {% elif edit[2] %}
+                        <p>{{ edit[0] }}: {{ edit[2] }}</p>
+                    {% else %}
+                        <p>{{ edit[0] }}</p>
+                    {% endif %}
+                {% endfor %}
+            </td>
+            <td>{{ event.comment }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% include 'pagination.html' with list=events %}
+{% else %}
+    <h3>{% trans "No event" %}</h3>
+{% endif %}
+<br />
+<br />
+<br />
