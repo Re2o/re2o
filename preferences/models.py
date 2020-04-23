@@ -76,7 +76,12 @@ class OptionalUser(AclMixin, PreferencesModel):
     ALL_ROOM = "ALL_ROOM"
     ROOM_POLICY = (
         (DISABLED, _("Users can't select their room")),
-        (ONLY_INACTIVE, _("Users can only select a room occupied by a user with a disabled connection.")),
+        (
+            ONLY_INACTIVE,
+            _(
+                "Users can only select a room occupied by a user with a disabled connection."
+            ),
+        ),
         (ALL_ROOM, _("Users can select all rooms")),
     )
 
@@ -98,7 +103,7 @@ class OptionalUser(AclMixin, PreferencesModel):
         max_length=32,
         choices=ROOM_POLICY,
         default="DISABLED",
-        help_text=_("Policy on self users room edition")
+        help_text=_("Policy on self users room edition"),
     )
     local_email_accounts_enabled = models.BooleanField(
         default=False, help_text=_("Enable local email accounts for users.")
@@ -114,9 +119,7 @@ class OptionalUser(AclMixin, PreferencesModel):
     )
     delete_notyetactive = models.IntegerField(
         default=15,
-        help_text=_(
-            "Not yet active users will be deleted after this number of days."
-        ),
+        help_text=_("Not yet active users will be deleted after this number of days."),
     )
     disable_emailnotyetconfirmed = models.IntegerField(
         default=2,
@@ -217,7 +220,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
     DEFINED = "DEFINED"
     CHOICE_RADIUS = (
         (MACHINE, _("On the IP range's VLAN of the machine")),
-        (DEFINED, _("Preset in \"VLAN for machines accepted by RADIUS\"")),
+        (DEFINED, _('Preset in "VLAN for machines accepted by RADIUS"')),
     )
     CHOICE_PROVISION = (("sftp", "SFTP"), ("tftp", "TFTP"))
 
@@ -357,7 +360,9 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         )
 
     class Meta:
-        permissions = (("view_optionaltopologie", _("Can view the topology preferences")),)
+        permissions = (
+            ("view_optionaltopologie", _("Can view the topology preferences")),
+        )
         verbose_name = _("topology preferences")
 
 
@@ -568,7 +573,9 @@ class Mandate(RevMixin, AclMixin, models.Model):
         )
         if not mandate:
             raise cls.DoesNotExist(
-                _("No mandates have been created. Please go to the preferences page to create one.")
+                _(
+                    "No mandates have been created. Please go to the preferences page to create one."
+                )
             )
         return mandate
 
@@ -675,7 +682,7 @@ class RadiusOption(AclMixin, PreferencesModel):
     DEFINED = "DEFINED"
     CHOICE_RADIUS = (
         (MACHINE, _("On the IP range's VLAN of the machine")),
-        (DEFINED, _("Preset in \"VLAN for machines accepted by RADIUS\"")),
+        (DEFINED, _('Preset in "VLAN for machines accepted by RADIUS"')),
     )
     REJECT = "REJECT"
     SET_VLAN = "SET_VLAN"

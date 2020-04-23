@@ -1,17 +1,47 @@
+# -*- mode: python; coding: utf-8 -*-
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2019  Arthur Grisel-Davy
+# Copyright © 2020  Gabriel Détraz
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+Ticket model
+"""
+
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.template import loader
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.functional import cached_property
+
+from reversion.models import Version
 
 from re2o.mixins import AclMixin
-from re2o.mail_utils import send_mail
+from re2o.mail_utils import send_mail_object
+from django.core.mail import EmailMessage
 
 from preferences.models import GeneralOption
 
 import users.models
 
-from .preferences.models import Preferences
+from .preferences.models import TicketOption
 
 
 class Ticket(AclMixin, models.Model):
@@ -29,7 +59,6 @@ class Ticket(AclMixin, models.Model):
     )
     description = models.TextField(
         max_length=3000,
-        help_text=_("Description of the ticket."),
         blank=False,
         null=False,
     )
@@ -38,10 +67,13 @@ class Ticket(AclMixin, models.Model):
         help_text=_("An email address to get back to you."), max_length=100, null=True
     )
     solved = models.BooleanField(default=False)
+    language = models.CharField(
+        max_length=16, help_text=_("Language of the ticket."), default="en" 
+    )
     request = None
 
     class Meta:
-        permissions = (("view_tickets", _("Can view a ticket object")),)
+        permissions = (("view_ticket", _("Can view a ticket object")),)
         verbose_name = _("ticket")
         verbose_name_plural = _("tickets")
 
@@ -51,39 +83,52 @@ class Ticket(AclMixin, models.Model):
         else:
             return _("Anonymous ticket. Date: %s.") % (self.date)
 
-    def publish_mail(self, request=None):
-        site_url = GeneralOption.objects.first().main_site_url
-        to_addr = Preferences.objects.first().publish_address
+    @cached_property
+    def opened_by(self):
+        """Return full name of this ticket opener"""
+        if self.user:
+            return self.user.get_full_name()
+        else:
+            return _("Anonymous user") 
+
+    @cached_property
+    def get_mail(self):
+        """Return the mail of the owner of this ticket"""
+        return self.email or self.user.get_mail 
+
+    def publish_mail(self):
+        site_url = GeneralOption.get_cached_value("main_site_url")
+        to_addr = TicketOption.get_cached_value("publish_address")
         context = {"ticket": self, "site_url": site_url}
 
-        lang = Preferences.objects.first().mail_language
-        if lang == 0:
+        if self.language == "fr":
             obj = "Nouveau ticket ouvert"
             template = loader.get_template("tickets/publication_mail_fr")
         else:
             obj = "New ticket opened"
             template = loader.get_template("tickets/publication_mail_en")
 
-        send_mail(
-            request,
+        mail_to_send = EmailMessage(
             obj,
             template.render(context),
             GeneralOption.get_cached_value("email_from"),
             [to_addr],
-            fail_silently=False,
+            reply_to=[self.get_mail],
         )
+        send_mail_object(mail_to_send, self.request)
+
 
     def can_view(self, user_request, *_args, **_kwargs):
         """ Check that the user has the right to view the ticket
         or that it is the author"""
         if (
-            not user_request.has_perm("tickets.view_tickets")
+            not user_request.has_perm("tickets.view_ticket")
             and self.user != user_request
         ):
             return (
                 False,
                 _("You don't have the right to view other tickets than yours."),
-                ("tickets.view_tickets",),
+                ("tickets.view_ticket",),
             )
         else:
             return True, None, None
@@ -91,13 +136,13 @@ class Ticket(AclMixin, models.Model):
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
         """ Check that the user has access to the list of all tickets"""
-        can = user_request.has_perm("tickets.view_tickets")
+        can = user_request.has_perm("tickets.view_ticket")
         return (
             can,
             _("You don't have the right to view the list of tickets.")
             if not can
             else None,
-            ("tickets.view_tickets",),
+            ("tickets.view_ticket",),
         )
 
     def can_create(user_request, *_args, **_kwargs):
@@ -105,10 +150,112 @@ class Ticket(AclMixin, models.Model):
         return True, None, None
 
 
+class CommentTicket(AclMixin, models.Model):
+    """A comment of a ticket"""
+    date = models.DateTimeField(auto_now_add=True)
+    comment = models.TextField(
+        max_length=4095,
+        blank=False,
+        null=False,
+    )
+    parent_ticket = models.ForeignKey(
+        "Ticket", on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="ticket_comment",
+    )
+    request = None
+
+    class Meta:
+        permissions = (("view_commentticket", _("Can view a ticket object")),)
+        verbose_name = _("ticket")
+        verbose_name_plural = _("tickets")
+
+    @cached_property
+    def comment_id(self):
+        return CommentTicket.objects.filter(parent_ticket=self.parent_ticket, pk__lt=self.pk).count() + 1
+
+    def can_view(self, user_request, *_args, **_kwargs):
+        """ Check that the user has the right to view the ticket comment
+        or that it is the author"""
+        if (
+            not user_request.has_perm("tickets.view_commentticket")
+            and self.parent_ticket.user != user_request
+        ):
+            return (
+                False,
+                _("You don't have the right to view other tickets comments than yours."),
+                ("tickets.view_commentticket",),
+            )
+        else:
+            return True, None, None
+
+    def can_edit(self, user_request, *_args, **_kwargs):
+        """ Check that the user has the right to edit the ticket comment
+        or that it is the author"""
+        if (
+            not user_request.has_perm("tickets.edit_commentticket")
+            and (self.parent_ticket.user != user_request or self.parent_ticket.user != self.created_by)
+        ):
+            return (
+                False,
+                _("You don't have the right to edit other tickets comments than yours."),
+                ("tickets.edit_commentticket",),
+            )
+        else:
+            return True, None, None
+
+    @staticmethod
+    def can_view_all(user_request, *_args, **_kwargs):
+        """ Check that the user has access to the list of all tickets comments"""
+        can = user_request.has_perm("tickets.view_commentticket")
+        return (
+            can,
+            _("You don't have the right to view the list of tickets.")
+            if not can
+            else None,
+            ("tickets.view_commentticket",),
+        )
+
+    def __str__(self):
+        return "Comment " + str(self.comment_id) + " on " + str(self.parent_ticket)
+
+    def publish_mail(self):
+        """Send mail to user and admin after new comment"""
+        site_url = GeneralOption.get_cached_value("main_site_url")
+        to_addr = TicketOption.get_cached_value("publish_address")
+        context = {"comment": self, "site_url": site_url}
+
+        if self.parent_ticket.language == "fr":
+            template = loader.get_template("tickets/update_mail_fr")
+        else:
+            template = loader.get_template("tickets/update_mail_en")
+        obj = _("Update of your ticket")
+        mail_to_send = EmailMessage(
+            obj,
+            template.render(context),
+            GeneralOption.get_cached_value("email_from"),
+            [to_addr, self.parent_ticket.get_mail],
+        )
+        send_mail_object(mail_to_send, self.request)
+
+
 @receiver(post_save, sender=Ticket)
 def ticket_post_save(**kwargs):
     """ Send the mail to publish the new ticket """
     if kwargs["created"]:
-        if Preferences.objects.first().publish_address:
+        if TicketOption.get_cached_value("publish_address"):
             ticket = kwargs["instance"]
-            ticket.publish_mail(ticket.request)
+            ticket.publish_mail()
+
+
+@receiver(post_save, sender=CommentTicket)
+def comment_post_save(**kwargs):
+    """ Send the mail to publish the new comment """
+    if kwargs["created"]:
+        if TicketOption.get_cached_value("publish_address"):
+            comment = kwargs["instance"]
+            comment.publish_mail()

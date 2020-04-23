@@ -3,9 +3,8 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2019  Arthur Grisel-Davy
+# Copyright © 2020  Gabriel Détraz
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,80 +36,137 @@ from re2o.views import form
 
 from re2o.base import re2o_paginator
 
-from re2o.acl import can_view, can_view_all, can_edit, can_create
+from re2o.acl import (
+    can_view,
+    can_view_all, 
+    can_edit, 
+    can_create, 
+    can_delete
+)
 
 from preferences.models import GeneralOption
 
-from .models import Ticket
+from .models import Ticket, CommentTicket
 
-from .preferences.models import Preferences
-
-from .forms import NewTicketForm, ChangeStatusTicketForm
-
-from .preferences.forms import EditPreferencesForm
+from .forms import NewTicketForm, EditTicketForm, CommentTicketForm
 
 
 def new_ticket(request):
     """ Ticket creation view"""
-    ticketform = NewTicketForm(request.POST or None)
-
-    if request.method == "POST":
-        ticketform = NewTicketForm(request.POST)
-
-        if ticketform.is_valid():
-            email = ticketform.cleaned_data.get("email")
-            ticket = ticketform.save(commit=False)
-            ticket.request = request
-
-            if request.user.is_authenticated:
-                ticket.user = request.user
-                ticket.save()
-                messages.success(
-                    request,
-                    _(
-                        "Your ticket has been succesfully opened. We will take care of it as soon as possible."
-                    ),
-                )
-                return redirect(
-                    reverse("users:profil", kwargs={"userid": str(request.user.id)})
-                )
-            if not request.user.is_authenticated and email != "":
-                ticket.save()
-                messages.success(
-                    request,
-                    _(
-                        "Your ticket has been succesfully opened. We will take care of it as soon as possible."
-                    ),
-                )
-                return redirect(reverse("index"))
-            else:
-                messages.error(
-                    request,
-                    _(
-                        "You are not authenticated. Please log in or provide an email address so we can get back to you."
-                    ),
-                )
-                return form(
-                    {"ticketform": ticketform}, "tickets/form_ticket.html", request
-                )
-
-    else:
-        ticketform = NewTicketForm
-    return form({"ticketform": ticketform}, "tickets/form_ticket.html", request)
+    ticketform = NewTicketForm(request.POST or None, request=request)
+    if ticketform.is_valid():
+        ticketform.save()
+        messages.success(
+            request,
+            _(
+                "Your ticket has been succesfully opened. We will take care of it as soon as possible."
+            ),
+        )
+        if not request.user.is_authenticated:
+            return redirect(reverse("index"))
+        else:
+            return redirect(
+                 reverse("users:profil", kwargs={"userid": str(request.user.id)})
+            )
+    return form(
+        {"ticketform": ticketform, 'action_name': ("Create a ticket")}, "tickets/edit.html", request
+    )
 
 
 @login_required
 @can_view(Ticket)
 def aff_ticket(request, ticket, ticketid):
     """View to display only one ticket"""
-    changestatusform = ChangeStatusTicketForm(request.POST)
-    if request.method == "POST":
-        ticket.solved = not ticket.solved
-        ticket.save()
+    comments = CommentTicket.objects.filter(parent_ticket=ticket)
     return render(
         request,
         "tickets/aff_ticket.html",
-        {"ticket": ticket, "changestatusform": changestatusform},
+        {"ticket": ticket, "comments": comments},
+    )
+
+
+@login_required
+@can_edit(Ticket)
+def change_ticket_status(request, ticket, ticketid):
+    """View to edit ticket state"""
+    ticket.solved = not ticket.solved
+    ticket.save()
+    return redirect(
+        reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+    )
+
+
+@login_required
+@can_edit(Ticket)
+def edit_ticket(request, ticket, ticketid):
+    """ Ticket creation view"""
+    ticketform = EditTicketForm(request.POST or None, instance=ticket)
+    if ticketform.is_valid():
+        ticketform.save()
+        messages.success(
+            request,
+            _(
+                "Ticket has been updated successfully"
+            ),
+        )
+        return redirect(
+            reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+        )
+    return form(
+        {"ticketform": ticketform, 'action_name': ("Edit this ticket")}, "tickets/edit.html", request
+    )
+
+
+@login_required
+@can_view(Ticket)
+def add_comment(request, ticket, ticketid):
+    """ Add a comment to a ticket"""
+    commentticket = CommentTicketForm(request.POST or None, request=request)
+    if commentticket.is_valid():
+        commentticket = commentticket.save(commit=False)
+        commentticket.parent_ticket = ticket
+        commentticket.created_by = request.user
+        commentticket.save()
+        messages.success(request, _("This comment was added."))
+        return redirect(
+            reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+        )
+    return form(
+        {"ticketform": commentticket, "action_name": _("Add a comment")}, "tickets/edit.html", request
+    )
+
+
+@login_required
+@can_edit(CommentTicket)
+def edit_comment(request, commentticket_instance, **_kwargs):
+    """ Edit a comment of a ticket"""
+    commentticket = CommentTicketForm(request.POST or None, instance=commentticket_instance)
+    if commentticket.is_valid():
+        ticketid = commentticket_instance.parent_ticket.id
+        if commentticket.changed_data:
+            commentticket.save()
+            messages.success(request, _("This comment was edited."))
+        return redirect(
+            reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+        )
+    return form(
+        {"ticketform": commentticket, "action_name": _("Edit")}, "tickets/edit.html", request,
+    )
+
+
+@login_required
+@can_delete(CommentTicket)
+def del_comment(request, commentticket, **_kwargs):
+    """Delete a comment of a ticket"""
+    if request.method == "POST":
+        ticketid = commentticket.parent_ticket.id
+        commentticket.delete()
+        messages.success(request, _("The comment was deleted."))
+        return redirect(
+            reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
+        )
+    return form(
+        {"objet": commentticket, "objet_name": _("Ticket Comment")}, "tickets/delete.html", request
     )
 
 
@@ -140,31 +196,6 @@ def aff_tickets(request):
     return render(request, "tickets/index.html", context=context)
 
 
-def edit_preferences(request):
-    """ View to edit the settings of the tickets """
-
-    preferences_instance, created = Preferences.objects.get_or_create(id=1)
-    preferencesform = EditPreferencesForm(
-        request.POST or None, instance=preferences_instance
-    )
-
-    if preferencesform.is_valid():
-        if preferencesform.changed_data:
-            preferencesform.save()
-            messages.success(request, _("The tickets preferences were edited."))
-            return redirect(reverse("preferences:display-options"))
-        else:
-            messages.error(request, _("Invalid form."))
-            return form(
-                {"preferencesform": preferencesform},
-                "tickets/form_preferences.html",
-                request,
-            )
-    return form(
-        {"preferencesform": preferencesform}, "tickets/form_preferences.html", request
-    )
-
-
 # views cannoniques des apps optionnels
 def profil(request, user):
     """ View to display the ticket's module on the profil"""
@@ -188,18 +219,6 @@ def profil(request, user):
     }
     return render_to_string(
         "tickets/profil.html", context=context, request=request, using=None
-    )
-
-
-def preferences(request):
-    """ View to display the settings of the tickets in the preferences page"""
-    pref, created = Preferences.objects.get_or_create(id=1)
-    context = {
-        "preferences": pref,
-        "language": str(pref.LANGUES[pref.mail_language][1]),
-    }
-    return render_to_string(
-        "tickets/preferences.html", context=context, request=request, using=None
     )
 
 
