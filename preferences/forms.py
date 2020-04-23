@@ -66,10 +66,19 @@ class EditOptionalUserForm(ModelForm):
         self.fields["gpg_fingerprint"].label = _("GPG fingerprint")
         self.fields["all_can_create_club"].label = _("All can create a club")
         self.fields["all_can_create_adherent"].label = _("All can create a member")
-        self.fields["disable_emailnotyetconfirmed"].label = _("Delay before disabling accounts without a verified email")
-        self.fields["self_adhesion"].label = _("Self registration")
         self.fields["shell_default"].label = _("Default shell")
-        self.fields["allow_set_password_during_user_creation"].label = _("Allow directly setting a password during account creation")
+        self.fields["self_change_shell"].label = _("Self change shell")
+        self.fields["self_change_pseudo"].label = _("Self change pseudo")
+        self.fields["self_room_policy"].label = _("Self room policy")
+        self.fields["local_email_accounts_enabled"].label = _("Local email accounts enabled")
+        self.fields["local_email_domain"].label = _("Local email domain")
+        self.fields["max_email_address"].label = _("Max local email address")
+        self.fields["delete_notyetactive"].label = _("Delete not yet active users")
+        self.fields["disable_emailnotyetconfirmed"].label = _("Disabled email not yet confirmed")
+        self.fields["self_adhesion"].label = _("Self registration")
+        self.fields["all_users_active"].label = _("All users are state active by default")
+        self.fields["allow_set_password_during_user_creation"].label = _("Allow set password during user creation")
+        self.fields["allow_archived_connexion"].label = _("Allow archived connexion")
 
 
 class EditOptionalMachineForm(ModelForm):

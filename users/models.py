@@ -1168,6 +1168,28 @@ class User(
         else:
             return True, None, None
 
+    def can_change_pseudo(self, user_request, *_args, **_kwargs):
+        """ Check if a user can change a pseudo
+
+        :param user_request: The user who request
+        :returns: a message and a boolean which is True if the user has
+        the right to change a shell
+        """
+        if not (
+            (
+                self.pk == user_request.pk
+                and OptionalUser.get_cached_value("self_change_pseudo")
+            )
+            or user_request.has_perm("users.change_user_shell")
+        ):
+            return (
+                False,
+                _("You don't have the right to change the shell."),
+                ("users.change_user_shell",),
+            )
+        else:
+            return True, None, None
+
     @staticmethod
     def can_change_local_email_redirect(user_request, *_args, **_kwargs):
         """ Check if a user can change local_email_redirect.
@@ -1314,6 +1336,7 @@ class User(
         super(User, self).__init__(*args, **kwargs)
         self.field_permissions = {
             "shell": self.can_change_shell,
+            "pseudo": self.can_change_pseudo,
             "force": self.can_change_force,
             "selfpasswd": self.check_selfpasswd,
             "local_email_redirect": self.can_change_local_email_redirect,
