@@ -457,22 +457,22 @@ class InterfaceHistoryEvent(HistoryEvent):
     pass
 
 
-class InterfaceHistory:
-    def get(self, interface_id):
+class InterfaceHistory(History):
+    def get(self, interface):
         """
-        :param interface_id: Interface, the interface to lookup
+        :param interface: Interface, the interface to lookup
         :return: list or None, a list of InterfaceHistoryEvent, in reverse chronological order
         """
         self.events = []
 
         # Get all the versions for this interface, with the oldest first
         self._last_version = None
-        user_versions = filter(
-            lambda x: x.field_dict["id"] == interface_id,
+        interface_versions = filter(
+            lambda x: x.field_dict["id"] == interface.id,
             Version.objects.get_for_model(Interface).order_by("revision__date_created")
         )
 
-        for version in user_versions:
+        for version in interface_versions:
             self._add_revision(version)
 
         return self.events[::-1]
