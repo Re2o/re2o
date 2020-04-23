@@ -6,7 +6,8 @@
  * Then you can use for exemple <re2o-hello-world></re2o-hello-world> to call
  * the HelloWorld component.
  * 
- * You can develop new components using `yarnpkg watch`.
+ * You can develop components using `yarnpkg watch` (auto rebuild in dev mode)
+ * and `watch python3 manage.py collectstatic --noinput` (auto collect statics).
  */
 
 module.exports = {
