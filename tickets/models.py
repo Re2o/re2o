@@ -34,6 +34,7 @@ from django.utils.functional import cached_property
 from reversion.models import Version
 
 from re2o.mixins import AclMixin
+from re2o.mail_utils import send_mail_object
 from django.core.mail import EmailMessage
 
 from preferences.models import GeneralOption
@@ -69,6 +70,7 @@ class Ticket(AclMixin, models.Model):
     language = models.CharField(
         max_length=16, help_text=_("Language of the ticket."), default="en" 
     )
+    request = None
 
     class Meta:
         permissions = (("view_ticket", _("Can view a ticket object")),)
@@ -113,7 +115,7 @@ class Ticket(AclMixin, models.Model):
             [to_addr],
             reply_to=[self.get_mail],
         )
-        mail_to_send.send(fail_silently=False)
+        send_mail_object(mail_to_send, self.request)
 
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -165,6 +167,7 @@ class CommentTicket(AclMixin, models.Model):
         on_delete=models.CASCADE,
         related_name="ticket_comment",
     )
+    request = None
 
     class Meta:
         permissions = (("view_commentticket", _("Can view a ticket object")),)
@@ -221,6 +224,7 @@ class CommentTicket(AclMixin, models.Model):
         return "Comment " + str(self.comment_id) + " on " + str(self.parent_ticket)
 
     def publish_mail(self):
+        """Send mail to user and admin after new comment"""
         site_url = GeneralOption.get_cached_value("main_site_url")
         to_addr = TicketOption.get_cached_value("publish_address")
         context = {"comment": self, "site_url": site_url}
@@ -236,7 +240,7 @@ class CommentTicket(AclMixin, models.Model):
             GeneralOption.get_cached_value("email_from"),
             [to_addr, self.parent_ticket.get_mail],
         )
-        mail_to_send.send(fail_silently=False)
+        send_mail_object(mail_to_send, self.request)
 
 
 @receiver(post_save, sender=Ticket)

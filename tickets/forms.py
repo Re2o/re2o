@@ -42,13 +42,14 @@ class NewTicketForm(FormRevMixin, ModelForm):
         fields = ["title", "description", "email"]
 
     def __init__(self, *args, **kwargs):
-        request = kwargs.pop("request")
+        request = kwargs.pop("request", None)
         super(NewTicketForm, self).__init__(*args, **kwargs)
         if request.user.is_authenticated:
             self.fields.pop('email')
             self.instance.user = request.user
         self.fields['description'].help_text = render_to_string('tickets/help_text.html')
         self.instance.language = getattr(request, "LANGUAGE_CODE", "en") 
+        self.instance.request = request
 
 
 class EditTicketForm(FormRevMixin, ModelForm):
@@ -71,7 +72,9 @@ class CommentTicketForm(FormRevMixin, ModelForm):
         fields = ["comment"]
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request", None)
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(CommentTicketForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields["comment"].label = _("comment")
+        self.instance.request = request
 

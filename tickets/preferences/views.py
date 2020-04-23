@@ -28,11 +28,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.views.decorators.cache import cache_page
 from django.utils.translation import ugettext as _
 from django.urls import reverse
-from django.forms import modelformset_factory
-from re2o.views import form
 
 from re2o.base import re2o_paginator
 

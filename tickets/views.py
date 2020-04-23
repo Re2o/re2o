@@ -121,7 +121,7 @@ def edit_ticket(request, ticket, ticketid):
 @can_view(Ticket)
 def add_comment(request, ticket, ticketid):
     """ Add a comment to a ticket"""
-    commentticket = CommentTicketForm(request.POST or None)
+    commentticket = CommentTicketForm(request.POST or None, request=request)
     if commentticket.is_valid():
         commentticket = commentticket.save(commit=False)
         commentticket.parent_ticket = ticket

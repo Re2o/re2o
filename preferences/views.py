@@ -96,8 +96,8 @@ def edit_options_template_function(request, section, forms, models):
         return redirect(reverse("preferences:display-options"))
 
     options_instance, _created = model.objects.get_or_create()
-    can, msg, permissions = options_instance.can_edit(request.user)
-    if not can:
+    _is_allowed_to_edit, msg, permissions = options_instance.can_edit(request.user)
+    if not _is_allowed_to_edit:
         messages.error(request, acl_error_message(msg, permissions))
         return redirect(reverse("index"))
     options = form_instance(
