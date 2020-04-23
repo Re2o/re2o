@@ -34,7 +34,7 @@ from users.models import Club
 from topologie.models import Room
 
 
-class MachineHistoryEvent:
+class MachineHistorySearchEvent:
     def __init__(self, user, machine, interface, start=None, end=None):
         """
         :param user: User, The user owning the maching at the time of the event
@@ -76,7 +76,7 @@ class MachineHistoryEvent:
         )
 
 
-class MachineHistory:
+class MachineHistorySearch:
     def __init__(self):
         self.events = []
         self.__last_evt = None
@@ -85,7 +85,7 @@ class MachineHistory:
         """
         :param search: ip or mac to lookup
         :param params: dict built by the search view
-        :return: list or None, a list of MachineHistoryEvent
+        :return: list or None, a list of MachineHistorySearchEvent in reverse chronological order
         """
         self.start = params.get("s", None)
         self.end = params.get("e", None)
@@ -93,9 +93,9 @@ class MachineHistory:
 
         self.events = []
         if search_type == "ip":
-            return self.__get_by_ip(search)
+            return self.__get_by_ip(search)[::-1]
         elif search_type == "mac":
-            return self.__get_by_mac(search)
+            return self.__get_by_mac(search)[::-1]
 
         return None
 
@@ -106,7 +106,7 @@ class MachineHistory:
         :param machine: Version, the machine version related to the interface
         :param interface: Version, the interface targeted by this event
         """
-        evt = MachineHistoryEvent(user, machine, interface)
+        evt = MachineHistorySearchEvent(user, machine, interface)
         evt.start_date = interface.revision.date_created
 
         # Try not to recreate events if it's unnecessary
@@ -182,7 +182,7 @@ class MachineHistory:
     def __get_by_ip(self, ip):
         """
         :param ip: str, The IP to lookup
-        :returns: list, a list of MachineHistoryEvent
+        :returns: list, a list of MachineHistorySearchEvent
         """
         interfaces = self.__get_interfaces_for_ip(ip)
 
@@ -198,7 +198,7 @@ class MachineHistory:
     def __get_by_mac(self, mac):
         """
         :param mac: str, The MAC address to lookup
-        :returns: list, a list of MachineHistoryEvent
+        :returns: list, a list of MachineHistorySearchEvent
         """
         interfaces = self.__get_interfaces_for_mac(mac)
 

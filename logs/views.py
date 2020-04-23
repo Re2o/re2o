@@ -101,8 +101,8 @@ from re2o.utils import (
 from re2o.base import re2o_paginator, SortTable
 from re2o.acl import can_view_all, can_view_app, can_edit_history, can_view
 
-from .models import MachineHistory, UserHistory
-from .forms import MachineHistoryForm
+from .models import MachineHistorySearch, UserHistory
+from .forms import MachineHistorySearchForm
 
 
 @login_required
@@ -486,9 +486,9 @@ def stats_actions(request):
 def stats_search_machine_history(request):
     """View which displays the history of machines with the given
     une IP or MAC adresse"""
-    history_form = MachineHistoryForm(request.GET or None)
+    history_form = MachineHistorySearchForm(request.GET or None)
     if history_form.is_valid():
-        history = MachineHistory()
+        history = MachineHistorySearch()
         events = history.get(
             history_form.cleaned_data.get("q", ""),
             history_form.cleaned_data
