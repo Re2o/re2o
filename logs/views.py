@@ -574,7 +574,7 @@ def detailed_history(request, object_name, object_id):
     return render(
         request,
         "logs/detailed_history.html",
-        {"object": instance, "events": events},
+        {"object": instance, "events": events, "related_history": history.related},
     )
 
 
