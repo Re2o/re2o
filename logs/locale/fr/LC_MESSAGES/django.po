@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-22 19:00+0200\n"
+"POT-Creation-Date: 2020-04-23 14:44+0200\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -58,6 +58,20 @@ msgstr "Date de début"
 msgid "End date"
 msgstr "Date de fin"
 
+#: logs/models.py:238 logs/models.py:263
+msgid "None"
+msgstr "Aucun(e)"
+
+#: logs/models.py:248
+msgid "Deleted"
+msgstr "Supprimé(e)"
+
+#: logs/models.py:255 logs/models.py:260
+#: logs/templates/logs/machine_history.html:55
+#: logs/templates/logs/user_history.html:51
+msgid "Unknown"
+msgstr "Inconnu(e)"
+
 #: logs/templates/logs/aff_stats_logs.html:36
 msgid "Edited object"
 msgstr "Objet modifié"
@@ -77,6 +91,7 @@ msgstr "Date de modification"
 
 #: logs/templates/logs/aff_stats_logs.html:42
 #: logs/templates/logs/machine_history.html:39
+#: logs/templates/logs/user_history.html:39
 msgid "Comment"
 msgstr "Commentaire"
 
@@ -113,6 +128,7 @@ msgid "Rank"
 msgstr "Rang"
 
 #: logs/templates/logs/aff_summary.html:37
+#: logs/templates/logs/user_history.html:36
 msgid "Date"
 msgstr "Date"
 
@@ -196,15 +212,11 @@ msgstr "Résultats de la recherche"
 msgid "User"
 msgstr "Utilisateur"
 
-#: logs/templates/logs/machine_history.html:55
-msgid "Unknown"
-msgstr "Inconnu(e)"
-
 #: logs/templates/logs/machine_history.html:62
 msgid "Now"
 msgstr "Maintenant"
 
-#: logs/templates/logs/machine_history.html:70
+#: logs/templates/logs/machine_history.html:71
 msgid "No result"
 msgstr "Aucun résultat"
 
@@ -252,6 +264,27 @@ msgstr "Statistiques sur la base de données"
 #: logs/templates/logs/stats_users.html:32
 msgid "Statistics about users"
 msgstr "Statistiques sur les utilisateurs"
+
+#: logs/templates/logs/user_history.html:27
+msgid "History"
+msgstr "Historique"
+
+#: logs/templates/logs/user_history.html:30
+#, python-format
+msgid "History of %(user)s"
+msgstr "Historique de %(user)s"
+
+#: logs/templates/logs/user_history.html:37
+msgid "Performed by"
+msgstr "Effectué(e) par"
+
+#: logs/templates/logs/user_history.html:38
+msgid "Edited"
+msgstr "Modifié"
+
+#: logs/templates/logs/user_history.html:74
+msgid "No event"
+msgstr "Aucun évènement"
 
 #: logs/views.py:178
 msgid "Nonexistent revision."
@@ -377,14 +410,14 @@ msgstr "droits"
 msgid "actions"
 msgstr "actions"
 
-#: logs/views.py:529
+#: logs/views.py:554
 msgid "No model found."
 msgstr "Aucun modèle trouvé."
 
-#: logs/views.py:535
+#: logs/views.py:560
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: logs/views.py:542
+#: logs/views.py:567
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
