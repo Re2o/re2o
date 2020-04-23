@@ -154,6 +154,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <tr>
                     <th>{% trans "Policy for self-user room change" %}</th>
                     <td>{{ useroptions.self_room_policy }}</td>
+                    <th>{% trans "Users can edit their pseudo" %}</th>
+                    <td>{{ useroptions.self_change_pseudo|tick }}</td>
                 </tr>
             </table>
             <h4 id="users">{% trans "Local email accounts settings" %}</h4>

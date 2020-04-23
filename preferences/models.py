@@ -99,6 +99,9 @@ class OptionalUser(AclMixin, PreferencesModel):
     self_change_shell = models.BooleanField(
         default=False, help_text=_("Users can edit their shell.")
     )
+    self_change_pseudo = models.BooleanField(
+        default=True, help_text=_("Users can edit their pseudo.")
+    )
     self_room_policy = models.CharField(
         max_length=32,
         choices=ROOM_POLICY,
