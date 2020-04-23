@@ -290,18 +290,19 @@ class History:
         self._last_version = None
         self.event_type = HistoryEvent
 
-    def get(self, instance):
+    def get(self, instance_id, model):
         """
-        :param interface: The instance to lookup
+        :param instance_id: int, The id of the instance to lookup
+        :param model: class, The type of object to lookup
         :return: list or None, a list of HistoryEvent, in reverse chronological order
         """
         self.events = []
 
-        # Get all the versions for this interface, with the oldest first
+        # Get all the versions for this instance, with the oldest first
         self._last_version = None
         interface_versions = filter(
-            lambda x: x.field_dict["id"] == instance.id,
-            Version.objects.get_for_model(type(instance)).order_by("revision__date_created")
+            lambda x: x.field_dict["id"] == instance_id,
+            Version.objects.get_for_model(model).order_by("revision__date_created")
         )
 
         for version in interface_versions:
@@ -345,16 +346,6 @@ class History:
 
 
 class UserHistoryEvent(HistoryEvent):
-    def __init__(self, user, version, previous_version=None, edited_fields=None):
-        """
-        :param user: User, The user who's history is being built
-        :param version: Version, the version of the user for this event
-        :param previous_version: Version, the version of the user before this event
-        :param edited_fields: list, The list of modified fields by this event
-        """
-        super(UserHistoryEvent, self).__init__(version, previous_version, edited_fields)
-        self.user = user
-
     def _repr(self, name, value):
         """
         Returns the best representation of the given field
@@ -424,7 +415,6 @@ class UserHistoryEvent(HistoryEvent):
 
     def __eq__(self, other):
         return (
-            self.user.id == other.user.id
             and self.edited_fields == other.edited_fields
             and self.date == other.date
             and self.performed_by == other.performed_by
@@ -432,13 +422,12 @@ class UserHistoryEvent(HistoryEvent):
         )
 
     def __hash__(self):
-        return hash((self.user.id, frozenset(self.edited_fields), self.date, self.performed_by, self.comment))
+        return hash((frozenset(self.edited_fields), self.date, self.performed_by, self.comment))
 
     def __repr__(self):
-        return "{} edited fields {} of {} ({})".format(
+        return "{} edited fields {} ({})".format(
             self.performed_by,
             self.edited_fields or "nothing",
-            self.user,
             self.comment or "No comment"
         )
 
@@ -448,24 +437,24 @@ class UserHistory(History):
         super(UserHistory, self).__init__()
         self.event_type = UserHistoryEvent
 
-    def get(self, user):
+    def get(self, user_id):
         """
-        :param user: User, the user to lookup
+        :param user_id: int, the id of the user to lookup
         :return: list or None, a list of UserHistoryEvent, in reverse chronological order
         """
         self.events = []
 
         # Find whether this is a Club or an Adherent
         try:
-            obj = Adherent.objects.get(user_ptr_id=user.id)
+            obj = Adherent.objects.get(user_ptr_id=user_id)
         except Adherent.DoesNotExist:
-            obj = Club.objects.get(user_ptr_id=user.id)
+            obj = Club.objects.get(user_ptr_id=user_id)
 
         # Add as "related" histories the list of Machine objects
         # that were once owned by this user
         self.related = filter(
-            lambda x: x.field_dict["user_id"] == user.id,
-            Version.objects.get_for_model(Machine).order_by("-revision__date_created")
+            lambda x: x.field_dict["user_id"] == user_id,
+            Version.objects.get_for_model(Machine).order_by("revision__date_created")
         )
         self.related = [RelatedHistory(
             m.field_dict["name"] or _("None"),
@@ -476,7 +465,7 @@ class UserHistory(History):
         # Get all the versions for this user, with the oldest first
         self._last_version = None
         user_versions = filter(
-            lambda x: x.field_dict["id"] == user.id,
+            lambda x: x.field_dict["id"] == user_id,
             Version.objects.get_for_model(User).order_by("revision__date_created")
         )
 
@@ -547,12 +536,12 @@ class MachineHistory(History):
         super(MachineHistory, self).__init__()
         self.event_type = MachineHistoryEvent
 
-    def get(self, machine):
+    def get(self, machine_id):
         # Add as "related" histories the list of Interface objects
         # that were once assigned to this machine
         self.related = list(filter(
-            lambda x: x.field_dict["machine_id"] == machine.id,
-            Version.objects.get_for_model(Interface).order_by("-revision__date_created")
+            lambda x: x.field_dict["machine_id"] == machine_id,
+            Version.objects.get_for_model(Interface).order_by("revision__date_created")
         ))
 
         # Create RelatedHistory objects and remove duplicates
@@ -562,7 +551,7 @@ class MachineHistory(History):
             i.field_dict["id"]) for i in self.related]
         self.related = list(dict.fromkeys(self.related))
 
-        return super(MachineHistory, self).get(machine)
+        return super(MachineHistory, self).get(machine_id, Machine)
 
 
 class InterfaceHistoryEvent(HistoryEvent):
@@ -606,3 +595,6 @@ class InterfaceHistory(History):
     def __init__(self):
         super(InterfaceHistory, self).__init__()
         self.event_type = InterfaceHistoryEvent
+
+    def get(self, interface_id):
+        return super(InterfaceHistory, self).get(machine_id, Interface)
