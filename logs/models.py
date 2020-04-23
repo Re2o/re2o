@@ -415,7 +415,7 @@ class UserHistoryEvent(HistoryEvent):
 
     def __eq__(self, other):
         return (
-            and self.edited_fields == other.edited_fields
+            self.edited_fields == other.edited_fields
             and self.date == other.date
             and self.performed_by == other.performed_by
             and self.comment == other.comment
@@ -470,7 +470,7 @@ class UserHistory(History):
         )
 
         for version in user_versions:
-            self._add_revision(user, version)
+            self._add_revision(version)
 
         # Do the same thing for the Adherent of Club
         self._last_version = None
@@ -480,7 +480,7 @@ class UserHistory(History):
         )
 
         for version in obj_versions:
-            self._add_revision(user, version)
+            self._add_revision(version)
 
         # Remove duplicates and sort
         self.events = list(dict.fromkeys(self.events))
@@ -490,7 +490,7 @@ class UserHistory(History):
             reverse=True
         )
 
-    def _add_revision(self, user, version):
+    def _add_revision(self, version):
         """
         Add a new revision to the chronological order
         :param user: User, The user displayed in this history
@@ -509,7 +509,7 @@ class UserHistory(History):
             self._last_version = version
             return
 
-        evt = UserHistoryEvent(user, version, self._last_version, diff)
+        evt = UserHistoryEvent(version, self._last_version, diff)
         self.events.append(evt)
         self._last_version = version
 
@@ -597,4 +597,4 @@ class InterfaceHistory(History):
         self.event_type = InterfaceHistoryEvent
 
     def get(self, interface_id):
-        return super(InterfaceHistory, self).get(machine_id, Interface)
+        return super(InterfaceHistory, self).get(interface_id, Interface)
