@@ -18,7 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""The forms used by the search app"""
+"""The forms used by the machine search view"""
 
 from django import forms
 from django.forms import Form
@@ -31,7 +31,7 @@ CHOICES_TYPE = (
 )
 
 
-class MachineHistoryForm(Form):
+class MachineHistorySearchForm(Form):
     """The form for a simple search"""
 
     q = forms.CharField(
@@ -46,7 +46,7 @@ class MachineHistoryForm(Form):
     e = forms.DateField(required=False, label=_("End date"))
 
     def __init__(self, *args, **kwargs):
-        super(MachineHistoryForm, self).__init__(*args, **kwargs)
+        super(MachineHistorySearchForm, self).__init__(*args, **kwargs)
         self.fields["s"].help_text = get_input_formats_help_text(
             self.fields["s"].input_formats
         )
