@@ -29,6 +29,9 @@ from machines.models import IpList
 from machines.models import Interface
 from machines.models import Machine
 from users.models import User
+from users.models import Adherent
+from users.models import Club
+from topologie.models import Room
 
 
 class MachineHistoryEvent:
@@ -245,7 +248,7 @@ class UserHistoryEvent:
                     groups.append(Group.objects.get(id=gid).name)
                 except Group.DoesNotExist:
                     # TODO: Find the group name in the versions?
-                    groups.append(_("Deleted"))
+                    groups.append("{} ({})".format(_("Deleted"), gid))
 
             return ", ".join(groups)
         elif name == "state":
@@ -258,13 +261,36 @@ class UserHistoryEvent:
                 return User.EMAIL_STATES[value][1]
             else:
                 return _("Unknown")
+        elif name == "room_id" and value is not None:
+            # Try to get the room name, if it's not deleted
+            try:
+                return Room.objects.get(id=value)
+            except Room.DoesNotExist:
+                # TODO: Find the room name in the versions?
+                return "{} ({})".format(_("Deleted"), value)
+        elif name == "members" or name == "administrators":
+            if len(value) == 0:
+                # Removed all the club's members
+                return _("None")
+
+            # value is a list of ints
+            users = []
+            for uid in value:
+                # Try to get the user's name, if theyr're not deleted
+                try:
+                    users.append(User.objects.get(id=uid).pseudo)
+                except User.DoesNotExist:
+                    # TODO: Find the user's name in the versions?
+                    groups.append("{} ({})".format(_("Deleted"), uid))
+
+            return ", ".join(users)
 
         if value is None:
             return _("None")
 
         return value
 
-    def edits(self, hide=["password", "pwd_ntlm"]):
+    def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
         """
         Build a list of the changes performed during this event
         :param hide: list, the list of fields for which not to show details
@@ -284,6 +310,18 @@ class UserHistoryEvent:
                 ))
 
         return edits
+
+    def __eq__(self, other):
+        return (
+            self.user.id == other.user.id
+            and self.edited_fields == other.edited_fields
+            and self.date == other.date
+            and self.performed_by == other.performed_by
+            and self.comment == other.comment
+        )
+
+    def __hash__(self):
+        return hash((self.user.id, frozenset(self.edited_fields), self.date, self.performed_by, self.comment))
 
     def __repr__(self):
         return "{} edited fields {} of {} ({})".format(
@@ -306,7 +344,14 @@ class UserHistory:
         """
         self.events = []
 
+        # Find whether this is a Club or an Adherent
+        try:
+            obj = Adherent.objects.get(user_ptr_id=user.id)
+        except Adherent.DoesNotExist:
+            obj = Club.objects.get(user_ptr_id=user.id)
+
         # Get all the versions for this user, with the oldest first
+        self.__last_version = None
         user_versions = filter(
             lambda x: x.field_dict["id"] == user.id,
             Version.objects.get_for_model(User).order_by("revision__date_created")
@@ -315,7 +360,23 @@ class UserHistory:
         for version in user_versions:
             self.__add_revision(user, version)
 
-        return self.events[::-1]
+        # Do the same thing for the Adherent of Club
+        self.__last_version = None
+        obj_versions = filter(
+            lambda x: x.field_dict["id"] == obj.id,
+            Version.objects.get_for_model(type(obj)).order_by("revision__date_created")
+        )
+
+        for version in obj_versions:
+            self.__add_revision(user, version)
+
+        # Remove duplicates and sort
+        self.events = list(dict.fromkeys(self.events))
+        return sorted(
+            self.events,
+            key=lambda e: e.date,
+            reverse=True
+        )
 
     def __compute_diff(self, v1, v2, ignoring=["last_login", "pwd_ntlm", "email_change_date"]):
         """
