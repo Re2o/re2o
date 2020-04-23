@@ -514,22 +514,44 @@ def stats_search_machine_history(request):
     return render(request, "logs/search_machine_history.html", {"history_form": history_form})
 
 
-def get_history_object(request, model, object_name, object_id):
+def get_history_object(request, model, object_name, object_id, allow_deleted=False):
     """Get the objet of type model with the given object_id
     Handles permissions and DoesNotExist errors
     """
+    instance = None
+    is_deleted = False
+
     try:
         object_name_id = object_name + "id"
         kwargs = {object_name_id: object_id}
         instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
+        pass
+
+    if instance is None and allow_deleted:
+        # Try to find an instance among the Version objects
+        is_deleted = True
+        versions = filter(
+            lambda x: x.field_dict["id"] == object_id,
+            Version.objects.get_for_model(model)
+        )
+        versions = list(versions)
+        if len(versions):
+            instance = versions[0]
+
+    if instance is None:
         messages.error(request, _("Nonexistent entry."))
         return False, redirect(
             reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )
 
-    can, msg, _permissions = instance.can_view(request.user)
-    if not can:
+    if is_deleted:
+        can_view = can_view_app("logs")
+        msg = None
+    else:
+        can_view, msg, _permissions = instance.can_view(request.user)
+
+    if not can_view:
         messages.error(
             request, msg or _("You don't have the right to access this menu.")
         )
@@ -559,7 +581,7 @@ def detailed_history(request, object_name, object_id):
         raise Http404(_("No model found."))
 
     # Get instance and check permissions
-    can_view, instance = get_history_object(request, model, object_name, object_id)
+    can_view, instance = get_history_object(request, model, object_name, object_id, allow_deleted=True)
     if not can_view:
         return instance
 
@@ -567,7 +589,7 @@ def detailed_history(request, object_name, object_id):
     max_result = GeneralOption.get_cached_value("pagination_number")
     events = re2o_paginator(
         request,
-        history.get(instance),
+        history.get(object_id),
         max_result
     )
 
