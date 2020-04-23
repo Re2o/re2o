@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-23 03:10+0200\n"
+"POT-Creation-Date: 2020-04-23 14:44+0200\n"
 "PO-Revision-Date: 2019-11-16 00:35+0100\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,65 +30,65 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: tickets/forms.py:76
+#: tickets/forms.py:78
 msgid "comment"
 msgstr "commentaire"
 
-#: tickets/models.py:57
+#: tickets/models.py:58
 msgid "Title of the ticket."
 msgstr "Titre du ticket."
 
-#: tickets/models.py:66
+#: tickets/models.py:67
 msgid "An email address to get back to you."
 msgstr "Une adresse mail pour vous recontacter."
 
-#: tickets/models.py:70
+#: tickets/models.py:71
 msgid "Language of the ticket."
 msgstr "Langue des tickets"
 
-#: tickets/models.py:74 tickets/models.py:170
+#: tickets/models.py:76 tickets/models.py:173
 msgid "Can view a ticket object"
 msgstr "Peut voir un objet ticket"
 
-#: tickets/models.py:75 tickets/models.py:171
+#: tickets/models.py:77 tickets/models.py:174
 msgid "ticket"
 msgstr "ticket"
 
-#: tickets/models.py:76 tickets/models.py:172
+#: tickets/models.py:78 tickets/models.py:175
 msgid "tickets"
 msgstr "tickets"
 
-#: tickets/models.py:80
+#: tickets/models.py:82
 #, python-format
 msgid "Ticket from %(name)s. Date: %(date)s."
 msgstr "Ticket de %(name)s. Date : %(date)s."
 
-#: tickets/models.py:82
+#: tickets/models.py:84
 #, python-format
 msgid "Anonymous ticket. Date: %s."
 msgstr "Ticket anonyme. Date : %s."
 
-#: tickets/models.py:90 tickets/templates/tickets/aff_ticket.html:52
+#: tickets/models.py:92 tickets/templates/tickets/aff_ticket.html:52
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tickets/models.py:128
+#: tickets/models.py:130
 msgid "You don't have the right to view other tickets than yours."
 msgstr "Vous n'avez pas le droit de voir d'autres tickets que les vôtres."
 
-#: tickets/models.py:140 tickets/models.py:214
+#: tickets/models.py:142 tickets/models.py:217
 msgid "You don't have the right to view the list of tickets."
 msgstr "Vous n'avez pas le droit de voir la liste des tickets."
 
-#: tickets/models.py:187
+#: tickets/models.py:190
 msgid "You don't have the right to view other tickets comments than yours."
 msgstr "Vous n'avez pas le droit de voir d'autres tickets que les vôtres."
 
-#: tickets/models.py:202
+#: tickets/models.py:205
 msgid "You don't have the right to edit other tickets comments than yours."
 msgstr "Vous n'avez pas le droit d'éditer d'autres tickets que les vôtres."
 
-#: tickets/models.py:232
+#: tickets/models.py:236
 msgid "Update of your ticket"
 msgstr "Mise à jour de votre ticket"
 

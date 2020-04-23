@@ -99,9 +99,9 @@ from re2o.utils import (
     all_active_interfaces_count,
 )
 from re2o.base import re2o_paginator, SortTable
-from re2o.acl import can_view_all, can_view_app, can_edit_history
+from re2o.acl import can_view_all, can_view_app, can_edit_history, can_view
 
-from .models import MachineHistory
+from .models import MachineHistory, UserHistory
 from .forms import MachineHistoryForm
 
 
@@ -506,6 +506,26 @@ def stats_search_machine_history(request):
             { "events": events },
         )
     return render(request, "logs/search_machine_history.html", {"history_form": history_form})
+
+
+@login_required
+@can_view(User)
+def user_history(request, users, **_kwargs):
+    history = UserHistory()
+    events = history.get(users)
+
+    max_result = GeneralOption.get_cached_value("pagination_number")
+    events = re2o_paginator(
+        request,
+        events,
+        max_result
+    )
+
+    return render(
+        request,
+        "logs/user_history.html",
+        { "user": users, "events": events },
+    )
 
 
 def history(request, application, object_name, object_id):

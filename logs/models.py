@@ -22,14 +22,19 @@
 The models definitions for the logs app
 """
 from reversion.models import Version
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import Group
 
 from machines.models import IpList
 from machines.models import Interface
 from machines.models import Machine
 from users.models import User
+from users.models import Adherent
+from users.models import Club
+from topologie.models import Room
 
 
-class HistoryEvent:
+class MachineHistoryEvent:
     def __init__(self, user, machine, interface, start=None, end=None):
         """
         :param user: User, The user owning the maching at the time of the event
@@ -80,7 +85,7 @@ class MachineHistory:
         """
         :param search: ip or mac to lookup
         :param params: dict built by the search view
-        :return: list or None, a list of HistoryEvent
+        :return: list or None, a list of MachineHistoryEvent
         """
         self.start = params.get("s", None)
         self.end = params.get("e", None)
@@ -101,7 +106,7 @@ class MachineHistory:
         :param machine: Version, the machine version related to the interface
         :param interface: Version, the interface targeted by this event
         """
-        evt = HistoryEvent(user, machine, interface)
+        evt = MachineHistoryEvent(user, machine, interface)
         evt.start_date = interface.revision.date_created
 
         # Try not to recreate events if it's unnecessary
@@ -177,7 +182,7 @@ class MachineHistory:
     def __get_by_ip(self, ip):
         """
         :param ip: str, The IP to lookup
-        :returns: list, a list of HistoryEvent
+        :returns: list, a list of MachineHistoryEvent
         """
         interfaces = self.__get_interfaces_for_ip(ip)
 
@@ -193,7 +198,7 @@ class MachineHistory:
     def __get_by_mac(self, mac):
         """
         :param mac: str, The MAC address to lookup
-        :returns: list, a list of HistoryEvent
+        :returns: list, a list of MachineHistoryEvent
         """
         interfaces = self.__get_interfaces_for_mac(mac)
 
@@ -205,3 +210,205 @@ class MachineHistory:
                 self.__add_revision(user, machine, interface)
 
         return self.events
+
+
+class UserHistoryEvent:
+    def __init__(self, user, version, previous_version=None, edited_fields=None):
+        """
+        :param user: User, The user who's history is being built
+        :param version: Version, the version of the user for this event
+        :param previous_version: Version, the version of the user before this event
+        :param edited_fields: list, The list of modified fields by this event
+        """
+        self.user = user
+        self.version = version
+        self.previous_version = previous_version
+        self.edited_fields = edited_fields
+        self.date = version.revision.date_created
+        self.performed_by = version.revision.user
+        self.comment = version.revision.get_comment() or None
+
+    def __repr(self, name, value):
+        """
+        Returns the best representation of the given field
+        :param name: the name of the field
+        :param value: the value of the field
+        :return: object
+        """
+        if name == "groups":
+            if len(value) == 0:
+                # Removed all the user's groups
+                return _("None")
+
+            # value is a list of ints
+            groups = []
+            for gid in value:
+                # Try to get the group name, if it's not deleted
+                try:
+                    groups.append(Group.objects.get(id=gid).name)
+                except Group.DoesNotExist:
+                    # TODO: Find the group name in the versions?
+                    groups.append("{} ({})".format(_("Deleted"), gid))
+
+            return ", ".join(groups)
+        elif name == "state":
+            if value is not None:
+                return User.STATES[value][1]
+            else:
+                return _("Unknown")
+        elif name == "email_state":
+            if value is not None:
+                return User.EMAIL_STATES[value][1]
+            else:
+                return _("Unknown")
+        elif name == "room_id" and value is not None:
+            # Try to get the room name, if it's not deleted
+            try:
+                return Room.objects.get(id=value)
+            except Room.DoesNotExist:
+                # TODO: Find the room name in the versions?
+                return "{} ({})".format(_("Deleted"), value)
+        elif name == "members" or name == "administrators":
+            if len(value) == 0:
+                # Removed all the club's members
+                return _("None")
+
+            # value is a list of ints
+            users = []
+            for uid in value:
+                # Try to get the user's name, if theyr're not deleted
+                try:
+                    users.append(User.objects.get(id=uid).pseudo)
+                except User.DoesNotExist:
+                    # TODO: Find the user's name in the versions?
+                    users.append("{} ({})".format(_("Deleted"), uid))
+
+            return ", ".join(users)
+
+        if value is None:
+            return _("None")
+
+        return value
+
+    def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
+        """
+        Build a list of the changes performed during this event
+        :param hide: list, the list of fields for which not to show details
+        :return: str
+        """
+        edits = []
+
+        for field in self.edited_fields:
+            if field in hide:
+                # Don't show sensitive information
+                edits.append((field, None, None))
+            else:
+                edits.append((
+                    field,
+                    self.__repr(field, self.previous_version.field_dict[field]),
+                    self.__repr(field, self.version.field_dict[field])
+                ))
+
+        return edits
+
+    def __eq__(self, other):
+        return (
+            self.user.id == other.user.id
+            and self.edited_fields == other.edited_fields
+            and self.date == other.date
+            and self.performed_by == other.performed_by
+            and self.comment == other.comment
+        )
+
+    def __hash__(self):
+        return hash((self.user.id, frozenset(self.edited_fields), self.date, self.performed_by, self.comment))
+
+    def __repr__(self):
+        return "{} edited fields {} of {} ({})".format(
+            self.performed_by,
+            self.edited_fields or "nothing",
+            self.user,
+            self.comment or "No comment"
+        )
+
+
+class UserHistory:
+    def __init__(self):
+        self.events = []
+        self.__last_version = None
+
+    def get(self, user):
+        """
+        :param user: User, the user to lookup
+        :return: list or None, a list of UserHistoryEvent, in reverse chronological order
+        """
+        self.events = []
+
+        # Find whether this is a Club or an Adherent
+        try:
+            obj = Adherent.objects.get(user_ptr_id=user.id)
+        except Adherent.DoesNotExist:
+            obj = Club.objects.get(user_ptr_id=user.id)
+
+        # Get all the versions for this user, with the oldest first
+        self.__last_version = None
+        user_versions = filter(
+            lambda x: x.field_dict["id"] == user.id,
+            Version.objects.get_for_model(User).order_by("revision__date_created")
+        )
+
+        for version in user_versions:
+            self.__add_revision(user, version)
+
+        # Do the same thing for the Adherent of Club
+        self.__last_version = None
+        obj_versions = filter(
+            lambda x: x.field_dict["id"] == obj.id,
+            Version.objects.get_for_model(type(obj)).order_by("revision__date_created")
+        )
+
+        for version in obj_versions:
+            self.__add_revision(user, version)
+
+        # Remove duplicates and sort
+        self.events = list(dict.fromkeys(self.events))
+        return sorted(
+            self.events,
+            key=lambda e: e.date,
+            reverse=True
+        )
+
+    def __compute_diff(self, v1, v2, ignoring=["last_login", "pwd_ntlm", "email_change_date"]):
+        """
+        Find the edited field between two versions
+        :param v1: Version
+        :param v2: Version
+        :param ignoring: List, a list of fields to ignore
+        :return: List of field names
+        """
+        fields = []
+
+        for key in v1.field_dict.keys():
+            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
+                fields.append(key)
+
+        return fields
+
+    def __add_revision(self, user, version):
+        """
+        Add a new revision to the chronological order
+        :param user: User, The user displayed in this history
+        :param version: Version, The version of the user for this event
+        """
+        diff = None
+        if self.__last_version is not None:
+            diff = self.__compute_diff(version, self.__last_version)
+
+        # Ignore "empty" events like login
+        if not diff:
+            self.__last_version = version
+            return
+
+        evt = UserHistoryEvent(user, version, self.__last_version, diff)
+        self.events.append(evt)
+        self.__last_version = version
