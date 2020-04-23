@@ -1,3 +1,4 @@
+{% extends 'logs/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -22,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load i18n %}
+{% load logs_extra %}
 
 {% block title %}{% trans "History" %}{% endblock %}
 
@@ -73,20 +75,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h3>{% trans "No event" %}</h3>
 {% endif %}
 
-<h2>{% trans Related history %}</h2>
+<h2>{% trans "Related history" %}</h2>
 
 {% if related_history %}
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>{% trans "ID" %}</th>
                 <th>{% trans "Actions" %}</th>
+                <th>{% trans "ID" %}</th>
             </tr>
         </thead>
         {% for related in related_history %}
         <tr>
+            <td>{% history_button related.instance detailed=related.detailed %}</td>
             <td>{{ related.name }}</td>
-            <td>{% history_button related.instance text=True detailed=related.detailed %}</td>
         </tr>
         {% endfor %}
     </table>
