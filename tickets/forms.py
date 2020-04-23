@@ -31,7 +31,7 @@ from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Ticket
+from .models import Ticket, CommentTicket
 
 
 class NewTicketForm(FormRevMixin, ModelForm):
@@ -48,7 +48,7 @@ class NewTicketForm(FormRevMixin, ModelForm):
             self.fields.pop('email')
             self.instance.user = request.user
         self.fields['description'].help_text = render_to_string('tickets/help_text.html')
-        self.instance.request = request
+        self.instance.language = getattr(request, "LANGUAGE_CODE", "en") 
 
 
 class EditTicketForm(FormRevMixin, ModelForm):
@@ -61,4 +61,17 @@ class EditTicketForm(FormRevMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditTicketForm, self).__init__(*args, **kwargs)
         self.fields['email'].required = False
+
+
+class CommentTicketForm(FormRevMixin, ModelForm):
+    """Edit and create comment to a ticket"""
+
+    class Meta:
+        model = CommentTicket
+        fields = ["comment"]
+
+    def __init__(self, *args, **kwargs):
+        prefix = kwargs.pop("prefix", self.Meta.model.__name__)
+        super(CommentTicketForm, self).__init__(*args, prefix=prefix, **kwargs)
+        self.fields["comment"].label = _("comment")
 
