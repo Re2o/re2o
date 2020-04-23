@@ -78,21 +78,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <h2>{% trans "Related history" %}</h2>
 
 {% if related_history %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% trans "Actions" %}</th>
-                <th>{% trans "ID" %}</th>
-            </tr>
-        </thead>
+    <ul>
         {% for related in related_history %}
-        <tr>
-            <td>{% history_button related.instance detailed=related.detailed %}</td>
-            <td>{{ related.name }}</td>
-        </tr>
+        <li>
+            <a title="{% trans "History" %}" href="{% url 'logs:detailed-history' related.model_name related.object_id %}">{{ related.name }}</a>
+        </li>
         {% endfor %}
-    </table>
-    {% include 'pagination.html' with list=events %}
+    </ul>
 {% else %}
     <h3>{% trans "No related history" %}</h3>
 {% endif %}
