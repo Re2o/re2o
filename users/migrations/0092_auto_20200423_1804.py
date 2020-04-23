@@ -46,9 +46,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name="ldapuser",
-            name="ssh_keys",
+            name="sshkeys",
             field=ldapdb.models.fields.ListField(
-                blank=True, db_column="sshkeys", null=True
+                blank=True, db_column="sshkeys", max_length=200, null=True
             ),
         ),
     ]
