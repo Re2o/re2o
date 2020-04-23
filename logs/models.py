@@ -215,15 +215,25 @@ class MachineHistorySearch:
 
 
 class RelatedHistory:
-    def __init__(self, model_name, object_id, detailed=True):
+    def __init__(self, name, instance, detailed=True):
         """
         :param model_name: Name of the related model (e.g. "user")
         :param object_id: ID of the related object
         :param detailed: Whether the related history should be shown in an detailed view
         """
-        self.model_name = model_name
-        self.object_id = object_id
+        self.name = name
+        self.instance = instance
         self.detailed = detailed
+
+    def __eq__(self, other):
+        return (
+            self.name == other.name
+            and self.instance.id == other.instance.id
+            and self.detailed == other.detailed
+        )
+
+    def __hash__(self):
+        return hash((self.name, self.instance.id, self.detailed))
 
 
 class HistoryEvent:
@@ -454,14 +464,12 @@ class UserHistory(History):
 
         # Add as "related" histories the list of Machine objects
         # that were once owned by this user
-        self.related = list(filter(
+        self.related = filter(
             lambda x: x.field_dict["user_id"] == user.id,
             Version.objects.get_for_model(Machine).order_by("revision__date_created")
-        ))
-        self.related = sorted(
-            list(dict.fromkeys(self.related)),
-            key=lambda r: r.model_name
         )
+        self.related = [RelatedHistory(m.get_name(), m) for m in self.related]
+        self.related = list(dict.fromkeys(self.related))
 
         # Get all the versions for this user, with the oldest first
         self._last_version = None
@@ -538,8 +546,6 @@ class MachineHistory(History):
         self.event_type = MachineHistoryEvent
 
     def get(self, machine):
-        super(MachineHistory, self).get(machine)
-
         # Add as "related" histories the list of Interface objects
         # that were once assigned to this machine
         self.related = list(filter(
@@ -547,11 +553,11 @@ class MachineHistory(History):
             Version.objects.get_for_model(Interface).order_by("revision__date_created")
         ))
 
-        # Remove duplicates and sort
-        self.related = sorted(
-            list(dict.fromkeys(self.related)),
-            key=lambda r: r.model_name
-        )
+        # Create RelatedHistory objects and remove duplicates
+        self.related = [RelatedHistory(i.mac_address, i) for i in self.related]
+        self.related = list(dict.fromkeys(self.related))
+
+        return super(MachineHistory, self).get(machine)
 
 
 class InterfaceHistoryEvent(HistoryEvent):
