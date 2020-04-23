@@ -468,7 +468,7 @@ class UserHistory(History):
             lambda x: x.field_dict["user_id"] == user.id,
             Version.objects.get_for_model(Machine).order_by("revision__date_created")
         )
-        self.related = [RelatedHistory(m.get_name(), m) for m in self.related]
+        self.related = [RelatedHistory(m.field_dict["name"] or _("None"), m) for m in self.related]
         self.related = list(dict.fromkeys(self.related))
 
         # Get all the versions for this user, with the oldest first
@@ -554,7 +554,7 @@ class MachineHistory(History):
         ))
 
         # Create RelatedHistory objects and remove duplicates
-        self.related = [RelatedHistory(i.mac_address, i) for i in self.related]
+        self.related = [RelatedHistory(i.field_dict["mac_address"], i) for i in self.related]
         self.related = list(dict.fromkeys(self.related))
 
         return super(MachineHistory, self).get(machine)
