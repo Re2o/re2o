@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-23 20:09+0200\n"
+"POT-Creation-Date: 2020-04-23 21:25+0200\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -58,23 +58,24 @@ msgstr "Date de début"
 msgid "End date"
 msgstr "Date de fin"
 
-#: logs/models.py:260 logs/models.py:368 logs/models.py:401 logs/models.py:471
-#: logs/models.py:560 logs/models.py:593
+#: logs/models.py:260 logs/models.py:364 logs/models.py:397 logs/models.py:480
+#: logs/models.py:572 logs/models.py:610
 msgid "None"
 msgstr "Aucun(e)"
 
-#: logs/models.py:378 logs/models.py:397 logs/models.py:411 logs/models.py:540
-#: logs/models.py:580 logs/models.py:585 logs/models.py:590 logs/models.py:600
+#: logs/models.py:374 logs/models.py:393 logs/models.py:407 logs/models.py:552
+#: logs/models.py:597 logs/models.py:602 logs/models.py:607 logs/models.py:617
+#: logs/views.py:592
 msgid "Deleted"
 msgstr "Supprimé(e)"
 
-#: logs/models.py:385 logs/models.py:390
+#: logs/models.py:381 logs/models.py:386
 #: logs/templates/logs/detailed_history.html:52
 #: logs/templates/logs/machine_history.html:55
 msgid "Unknown"
 msgstr "Inconnu(e)"
 
-#: logs/models.py:588
+#: logs/models.py:605
 msgid "No name"
 msgstr "Sans nom"
 
@@ -204,8 +205,8 @@ msgid "History"
 msgstr "Historique"
 
 #: logs/templates/logs/detailed_history.html:31
-msgid "History of %(object)s"
-msgstr "Historique de %(object)s"
+msgid "History of %(title)s"
+msgstr "Historique de %(title)s"
 
 #: logs/templates/logs/detailed_history.html:38
 msgid "Performed by"
@@ -420,14 +421,14 @@ msgstr "droits"
 msgid "actions"
 msgstr "actions"
 
-#: logs/views.py:526
+#: logs/views.py:532 logs/views.py:583
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: logs/views.py:534
+#: logs/views.py:545
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
 
-#: logs/views.py:559 logs/views.py:606
+#: logs/views.py:570 logs/views.py:626
 msgid "No model found."
 msgstr "Aucun modèle trouvé."
