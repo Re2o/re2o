@@ -232,24 +232,30 @@ class UserHistoryEvent:
         :param value: the value of the field
         :return: object
         """
-        if name == "groups" and value is not None:
+        if name == "groups":
+            if len(value) == 0:
+                # Removed all the user's groups
+                return _("None")
+
             # value is a list of ints
             groups = []
             for gid in value:
                 # Try to get the group name, if it's not deleted
                 try:
-                    groups.append(Group.objects.get(id=gid))
+                    groups.append(Group.objects.get(id=gid).name)
                 except Group.DoesNotExist:
                     # TODO: Find the group name in the versions?
                     groups.append(_("Deleted"))
+
+            return ", ".join(groups)
         elif name == "state":
             if value is not None:
-                return User.STATES[value]
+                return User.STATES[value][1]
             else:
                 return _("Unknown")
         elif name == "email_state":
             if value is not None:
-                return User.EMAIL_STATES[value]
+                return User.EMAIL_STATES[value][1]
             else:
                 return _("Unknown")
 

@@ -53,12 +53,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             </td>
             <td>
                 {% for edit in event.edits %}
-                    {% if edit.1 and edit.2 %}
-                        {{ edit.0 }}: {{ edit.1 }} ➔ {{ edit.2 }}<br/>
-                    {% elif edit.2 %}
-                        {{ edit.0 }}: {{ edit.2 }}<br/>
+                    {% if edit.1 is None and edit.2 is None %}
+                        <strong>{{ edit.0 }}</strong><br/>
+                    {% elif edit.1 is None %}
+                        <strong>{{ edit.0 }}:</strong>
+                        <i class="text-success"> {{ edit.2 }}</i><br/>
                     {% else %}
-                        {{ edit.0 }}<br/>
+                        <strong>{{ edit.0 }}:</strong>
+                        <i class="text-danger"> {{ edit.1 }} </i>
+                        ➔ <i class="text-success">{{ edit.2 }}</i><br/>
                     {% endif %}
                 {% endfor %}
             </td>
