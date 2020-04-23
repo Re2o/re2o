@@ -526,6 +526,7 @@ def get_history_object(request, model, object_name, object_id, allow_deleted=Fal
         instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
         is_deleted = True
+        instance = None
 
     if is_deleted and not allow_deleted:
         messages.error(request, _("Nonexistent entry."))
@@ -575,11 +576,7 @@ def detailed_history(request, object_name, object_id):
 
     # Generate the pagination with the objects
     max_result = GeneralOption.get_cached_value("pagination_number")
-    events = re2o_paginator(
-        request,
-        history.get(object_id),
-        max_result
-    )
+    events = history.get(int(object_id))
 
     # Events is None if object wasn't found
     if events is None:
@@ -587,6 +584,9 @@ def detailed_history(request, object_name, object_id):
         return redirect(
             reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )
+
+    # Add the paginator in case there are many results
+    events = re2o_paginator(request, events, max_result)
 
     return render(
         request,

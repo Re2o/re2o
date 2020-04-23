@@ -454,6 +454,7 @@ class UserHistory(History):
             Version.objects.get_for_model(Adherent)
         )
         obj = next(adherents, None)
+        model = Adherent
 
         # Fallback on a Club
         if obj is None:
@@ -462,6 +463,7 @@ class UserHistory(History):
                 Version.objects.get_for_model(Club)
             )
             obj = next(clubs, None)
+            model = Club
 
         # If nothing was found, abort
         if obj is None:
@@ -492,8 +494,8 @@ class UserHistory(History):
         # Do the same thing for the Adherent of Club
         self._last_version = None
         obj_versions = filter(
-            lambda x: x.field_dict["id"] == obj.id,
-            Version.objects.get_for_model(type(obj)).order_by("revision__date_created")
+            lambda x: x.field_dict["id"] == user_id,
+            Version.objects.get_for_model(model).order_by("revision__date_created")
         )
 
         for version in obj_versions:
