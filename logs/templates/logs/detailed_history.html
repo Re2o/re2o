@@ -75,18 +75,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h3>{% trans "No event" %}</h3>
 {% endif %}
 
-<h2>{% trans "Related history" %}</h2>
-
 {% if related_history %}
+
+    <h2>{% blocktrans %}Related elements{% endblocktrans %}</h2>
+
     <ul>
         {% for related in related_history %}
         <li>
-            <a title="{% trans "History" %}" href="{% url 'logs:detailed-history' related.model_name related.object_id %}">{{ related.name }}</a>
+            <a title="{% trans "History" %}" href="{% url 'logs:detailed-history' related.model_name related.object_id %}">{{ related.model_name }} - {{ related.name }}</a>
         </li>
         {% endfor %}
     </ul>
-{% else %}
-    <h3>{% trans "No related history" %}</h3>
 {% endif %}
 <br />
 <br />
