@@ -453,29 +453,6 @@ class UserHistory(History):
 
 
 class InterfaceHistoryEvent(HistoryEvent):
-    pass
-
-
-class InterfaceHistory(History):
-    def get(self, interface):
-        """
-        :param interface: Interface, the interface to lookup
-        :return: list or None, a list of InterfaceHistoryEvent, in reverse chronological order
-        """
-        self.events = []
-
-        # Get all the versions for this interface, with the oldest first
-        self._last_version = None
-        interface_versions = filter(
-            lambda x: x.field_dict["id"] == interface.id,
-            Version.objects.get_for_model(Interface).order_by("revision__date_created")
-        )
-
-        for version in interface_versions:
-            self._add_revision(version)
-
-        return self.events[::-1]
-
     def _repr(self, name, value):
         """
         Returns the best representation of the given field
@@ -509,7 +486,28 @@ class InterfaceHistory(History):
                 except Group.DoesNotExist:
                     ports.append("{} ({})".format(_("Deleted"), pid))
 
-        return super(UserHistoryEvent, self)._repr(name, value)
+        return super(InterfaceHistoryEvent, self)._repr(name, value)
+
+
+class InterfaceHistory(History):
+    def get(self, interface):
+        """
+        :param interface: Interface, the interface to lookup
+        :return: list or None, a list of InterfaceHistoryEvent, in reverse chronological order
+        """
+        self.events = []
+
+        # Get all the versions for this interface, with the oldest first
+        self._last_version = None
+        interface_versions = filter(
+            lambda x: x.field_dict["id"] == interface.id,
+            Version.objects.get_for_model(Interface).order_by("revision__date_created")
+        )
+
+        for version in interface_versions:
+            self._add_revision(version)
+
+        return self.events[::-1]
 
     def _add_revision(self, version):
         """
