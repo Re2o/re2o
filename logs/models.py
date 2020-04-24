@@ -40,43 +40,6 @@ from topologie.models import Port
 from .forms import classes_for_action_type
 
 
-class VersionAction:
-    def __init__(self, version):
-        self.version = version
-
-    def name(self):
-        return self.version.object_repr
-
-    def application(self):
-        return self.version.content_type.app_label
-
-    def model_name(self):
-        return self.version.content_type.model
-
-    def object_id(self):
-        return self.version.object_id
-
-    def object_type(self):
-        return apps.get_model(self.application(), self.model_name())
-
-
-class RevisionAction:
-    """A Revision may group multiple Version objects together"""
-    def __init__(self, revision):
-        self.performed_by = revision.user
-        self.revision = revision
-        self.versions = [VersionAction(v) for v in revision.version_set.all()]
-
-    def id(self):
-        return self.revision.id
-
-    def date_created(self):
-        return self.revision.date_created
-
-    def comment(self):
-        return self.revision.get_comment()
-
-
 class ActionsSearch:
     def get(self, params):
         """
@@ -439,6 +402,78 @@ class History:
         evt = self.event_type(version, self._last_version, diff)
         self.events.append(evt)
         self._last_version = version
+
+
+class VersionAction(HistoryEvent):
+    def __init__(self, version):
+        self.version = version
+
+    def is_useful(self):
+        # Some versions are duplicates, and don't have a reference
+        # to any object, so ignore them
+        return self.version.object_id is not None
+
+    def name(self):
+        return "{} {}".format(self.model_name().title(), self.version.object_repr)
+
+    def application(self):
+        return self.version.content_type.app_label
+
+    def model_name(self):
+        return self.version.content_type.model
+
+    def object_id(self):
+        return self.version.object_id
+
+    def object_type(self):
+        return apps.get_model(self.application(), self.model_name())
+
+    def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
+        self.previous_version = self._previous_version()
+        self.edited_fields = self._compute_diff(self.version, self.previous_version)
+        return super(VersionAction, self).edits(hide)
+
+    def _previous_version(self):
+        model = self.object_type()
+        return next(
+            filter(
+                lambda x: x.field_dict["id"] == self.object_id() and x.revision.date_created < self.version.revision.date_created,
+                Version.objects.get_for_model(model).order_by("-revision__date_created")
+            )
+        )
+
+    def _compute_diff(self, v1, v2):
+        """
+        Find the edited field between two versions
+        :param v1: Version
+        :param v2: Version
+        :param ignoring: List, a list of fields to ignore
+        :return: List of field names
+        """
+        fields = []
+
+        for key in v1.field_dict.keys():
+            if v1.field_dict[key] != v2.field_dict[key]:
+                fields.append(key)
+
+        return fields
+
+
+class RevisionAction:
+    """A Revision may group multiple Version objects together"""
+    def __init__(self, revision):
+        self.performed_by = revision.user
+        self.revision = revision
+        self.versions = [VersionAction(v) for v in revision.version_set.all() if v.is_useful()]
+
+    def id(self):
+        return self.revision.id
+
+    def date_created(self):
+        return self.revision.date_created
+
+    def comment(self):
+        return self.revision.get_comment()
 
 
 class UserHistoryEvent(HistoryEvent):
