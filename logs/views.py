@@ -103,6 +103,7 @@ from re2o.acl import can_view_all, can_view_app, can_edit_history, can_view
 
 from .models import (
     ActionsSearch,
+    RevisionAction,
     MachineHistorySearch,
     UserHistory,
     MachineHistory,
@@ -176,6 +177,7 @@ def stats_logs(request):
 
         pagination_number = GeneralOption.get_cached_value("pagination_number")
         revisions = re2o_paginator(request, revisions, pagination_number)
+        revisions = map(RevisionAction, revisions)
         return render(request, "logs/stats_logs.html", {"revisions_list": revisions})
 
     return render(request, "logs/search_stats_logs.html", {"actions_form": actions_form})
