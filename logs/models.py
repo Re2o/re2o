@@ -26,6 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.apps import apps
+from netaddr import EUI
 
 from machines.models import IpList
 from machines.models import Interface
@@ -149,9 +150,16 @@ class MachineHistorySearch:
 
         self.events = []
         if search_type == "ip":
-            return self._get_by_ip(search)[::-1]
+            try:
+                return self._get_by_ip(search)[::-1]
+            except:
+                pass
         elif search_type == "mac":
-            return self._get_by_mac(search)[::-1]
+            try:
+                search = EUI(search)
+                return self._get_by_mac(search)[::-1]
+            except:
+                pass
 
         return None
 
