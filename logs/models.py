@@ -87,7 +87,7 @@ class ActionsSearch:
             if c is None:
                 return None
 
-            classes += c.lower()
+            classes += list(map(str.lower, c))
 
         return classes
 
