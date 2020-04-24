@@ -177,7 +177,10 @@ def stats_logs(request):
 
         pagination_number = GeneralOption.get_cached_value("pagination_number")
         revisions = re2o_paginator(request, revisions, pagination_number)
-        revisions = map(RevisionAction, revisions)
+
+        # Only do this now so it's not applied to objects which aren't displayed
+        # It can take a bit of time because it has to compute the diff of each version
+        revisions.object_list = [RevisionAction(r) for r in revisions.object_list]
         return render(request, "logs/stats_logs.html", {"revisions_list": revisions})
 
     return render(request, "logs/search_stats_logs.html", {"actions_form": actions_form})

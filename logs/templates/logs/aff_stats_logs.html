@@ -71,11 +71,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <strong>{{ edit.0 }}</strong><br/>
                         {% elif edit.1 is None %}
                             <strong>{{ edit.0 }}:</strong>
-                            <i class="text-success"> {{ edit.2 }}</i><br/>
+                            <i class="text-success"> {{ edit.2|truncatechars:50 }}</i><br/>
                         {% else %}
                             <strong>{{ edit.0 }}:</strong>
-                            <i class="text-danger"> {{ edit.1 }} </i>
-                            ➔ <i class="text-success">{{ edit.2 }}</i><br/>
+                            <i class="text-danger"> {{ edit.1|truncatechars:50 }} </i>
+                            ➔ <i class="text-success">{{ edit.2|truncatechars:50 }}</i><br/>
                         {% endif %}
                     {% endfor %}
                 </td>
