@@ -422,7 +422,7 @@ class VersionAction(HistoryEvent):
         self.version = version
 
     def name(self):
-        return "{} {}".format(self.model_name().title(), self.version.object_repr)
+        return self.version._object_cache or self.version.object_repr
 
     def application(self):
         return self.version.content_type.app_label
