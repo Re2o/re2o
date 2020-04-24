@@ -198,9 +198,10 @@ class MachineHistorySearch:
         except IpList.DoesNotExist:
             return []
 
-        return filter(
-            lambda x: x.field_dict["ipv4_id"] == ip_id,
-            Version.objects.get_for_model(Interface).order_by("revision__date_created")
+        return (
+            Version.objects.get_for_model(Interface)
+            .filter(serialized_data__icontains='"ipv4": {}'.format(ip_id))
+            .order_by("revision__date_created")
         )
 
     def _get_interfaces_for_mac(self, mac):
@@ -209,9 +210,10 @@ class MachineHistorySearch:
         :return: An iterable object with the Version objects
                  of Interfaces with the given MAC address
         """
-        return filter(
-            lambda x: str(x.field_dict["mac_address"]) == mac,
-            Version.objects.get_for_model(Interface).order_by("revision__date_created")
+        return (
+            Version.objects.get_for_model(Interface)
+            .filter(serialized_data__icontains='"mac_address": "{}"'.format(mac))
+            .order_by("revision__date_created")
         )
 
     def _get_machines_for_interface(self, interface):
@@ -221,9 +223,10 @@ class MachineHistorySearch:
                  which the given interface was attributed
         """
         machine_id = interface.field_dict["machine_id"]
-        return filter(
-            lambda x: x.field_dict["id"] == machine_id,
-            Version.objects.get_for_model(Machine).order_by("revision__date_created")
+        return (
+            Version.objects.get_for_model(Machine)
+            .filter(serialized_data__icontains='"pk": {}'.format(machine_id))
+            .order_by("revision__date_created")
         )
 
     def _get_user_for_machine(self, machine):
@@ -355,9 +358,10 @@ class History:
 
         # Get all the versions for this instance, with the oldest first
         self._last_version = None
-        interface_versions = filter(
-            lambda x: x.field_dict["id"] == instance_id,
-            Version.objects.get_for_model(model).order_by("revision__date_created")
+        interface_versions = (
+            Version.objects.get_for_model(model)
+            .filter(serialized_data__icontains='"pk": {}'.format(instance_id))
+            .order_by("revision__date_created")
         )
 
         for version in interface_versions:
@@ -440,11 +444,18 @@ class VersionAction(HistoryEvent):
     def _previous_version(self):
         model = self.object_type()
         try:
-            return next(
-                filter(
-                    lambda x: x.field_dict["id"] == self.object_id() and x.revision.date_created < self.version.revision.date_created,
-                    Version.objects.get_for_model(model).order_by("-revision__date_created")
+            query = (
+                Q(
+                    serialized_data__icontains='"pk": {}'.format(self.object_id())
                 )
+                & Q(
+                    revision__date_created_lt=self.version.revision.date_created
+                )
+            )
+            return next(
+                    Version.objects.get_for_model(model)
+                    .filter(query)
+                    .order_by("-revision__date_created")
             )
         except StopIteration:
             return None
@@ -584,21 +595,29 @@ class UserHistory(History):
         self.events = []
 
         # Try to find an Adherent object
-        adherents = filter(
-            lambda x: x.field_dict["user_ptr_id"] == user_id,
+        # If it exists, its id will be the same as the user's
+        adherents = (
             Version.objects.get_for_model(Adherent)
+            .filter(serialized_data__icontains='"pk": {}'.format(user_id))
         )
-        obj = next(adherents, None)
-        model = Adherent
+        try:
+            obj = adherents[0]
+            model = Adherent
+        except IndexError:
+            obj = None
 
         # Fallback on a Club
         if obj is None:
-            clubs = filter(
-                lambda x: x.field_dict["user_ptr_id"] == user_id,
+            clubs = (
                 Version.objects.get_for_model(Club)
+                .filter(serialized_data__icontains='"pk": {}'.format(user_id))
             )
-            obj = next(clubs, None)
-            model = Club
+
+            try:
+                obj = clubs[0]
+                model = Club
+            except IndexError:
+                obj = None
 
         # If nothing was found, abort
         if obj is None:
@@ -606,9 +625,10 @@ class UserHistory(History):
 
         # Add in "related" elements the list of Machine objects
         # that were once owned by this user
-        self.related = filter(
-            lambda x: x.field_dict["user_id"] == user_id,
-            Version.objects.get_for_model(Machine).order_by("revision__date_created")
+        self.related = (
+            Version.objects.get_for_model(Machine)
+            .filter(serialized_data__icontains='"user": {}'.format(user_id))
+            .order_by("-revision__date_created")
         )
         self.related = [RelatedHistory(
             m.field_dict["name"] or _("None"),
@@ -618,9 +638,10 @@ class UserHistory(History):
 
         # Get all the versions for this user, with the oldest first
         self._last_version = None
-        user_versions = filter(
-            lambda x: x.field_dict["id"] == user_id,
-            Version.objects.get_for_model(User).order_by("revision__date_created")
+        user_versions = (
+            Version.objects.get_for_model(User)
+            .filter(serialized_data__icontains='"pk": {}'.format(user_id))
+            .order_by("revision__date_created")
         )
 
         for version in user_versions:
@@ -631,9 +652,10 @@ class UserHistory(History):
 
         # Do the same thing for the Adherent of Club
         self._last_version = None
-        obj_versions = filter(
-            lambda x: x.field_dict["id"] == user_id,
-            Version.objects.get_for_model(model).order_by("revision__date_created")
+        obj_versions = (
+            Version.objects.get_for_model(model)
+            .filter(serialized_data__icontains='"pk": {}'.format(user_id))
+            .order_by("revision__date_created")
         )
 
         for version in obj_versions:
@@ -696,10 +718,11 @@ class MachineHistory(History):
     def get(self, machine_id):
         # Add as "related" histories the list of Interface objects
         # that were once assigned to this machine
-        self.related = list(filter(
-            lambda x: x.field_dict["machine_id"] == machine_id,
-            Version.objects.get_for_model(Interface).order_by("revision__date_created")
-        ))
+        self.related = list(
+            Version.objects.get_for_model(Interface)
+            .filter(serialized_data__icontains='"machine": {}'.format(machine_id))
+            .order_by("-revision__date_created")
+        )
 
         # Create RelatedHistory objects and remove duplicates
         self.related = [RelatedHistory(
