@@ -36,6 +36,7 @@ from users.models import Club
 from topologie.models import Room
 from topologie.models import Port
 
+from .forms import classes_for_action_type
 
 class ActionsSearch:
     def get(self, params):
@@ -46,7 +47,7 @@ class ActionsSearch:
         user = params.get("u", None)
         start = params.get("s", None)
         end = params.get("e", None)
-        actions_type = params.get("t", None)
+        action_types = params.get("t", None)
 
         query = Q()
 
@@ -59,8 +60,9 @@ class ActionsSearch:
         if end:
             query &= Q(date_created__leq=end)
 
-        if actions_type:
-            query &= Q(version__content_type__in=actions_type)
+        action_classes = self.classes_for_action_types(action_types)
+        if action_classes:
+            query &= Q(object__classname=action_classes)
 
         return (
             Revision.objects.all()
@@ -68,6 +70,22 @@ class ActionsSearch:
             .select_related("user")
             .prefetch_related("version_set__object")
         )
+
+    def classes_for_action_types(self, action_types):
+        if action_types is None:
+            return None
+
+        classes = []
+        for action_type in action_types:
+            c = classes_for_action_type(action_type)
+
+            # Selecting "all" removes the filter
+            if c is None:
+                return None
+
+            classes += c
+
+        return classes
 
 
 class MachineHistorySearchEvent:
