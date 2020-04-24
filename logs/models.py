@@ -421,11 +421,6 @@ class VersionAction(HistoryEvent):
     def __init__(self, version):
         self.version = version
 
-    def is_useful(self):
-        # Some versions are duplicates, and don't have a reference
-        # to any object, so ignore them
-        return self.version.object_id is not None
-
     def name(self):
         return "{} {}".format(self.model_name().title(), self.version.object_repr)
 
@@ -490,7 +485,6 @@ class RevisionAction:
         self.performed_by = revision.user
         self.revision = revision
         self.versions = [VersionAction(v) for v in revision.version_set.all()]
-        self.versions = filter(lambda v: v.is_useful(), self.versions)
 
     def id(self):
         return self.revision.id
