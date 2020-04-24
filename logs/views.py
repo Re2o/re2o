@@ -102,13 +102,18 @@ from re2o.base import re2o_paginator, SortTable
 from re2o.acl import can_view_all, can_view_app, can_edit_history, can_view
 
 from .models import (
+    ActionsSearch,
+    RevisionAction,
     MachineHistorySearch,
     UserHistory,
     MachineHistory,
     InterfaceHistory
 )
 
-from .forms import MachineHistorySearchForm
+from .forms import (
+    ActionsSearchForm,
+    MachineHistorySearchForm
+)
 
 
 @login_required
@@ -158,20 +163,27 @@ def index(request):
 def stats_logs(request):
     """Affiche l'ensemble des logs et des modifications sur les objets,
     classés par date croissante, en vrac"""
-    pagination_number = GeneralOption.get_cached_value("pagination_number")
-    revisions = (
-        Revision.objects.all()
-        .select_related("user")
-        .prefetch_related("version_set__object")
-    )
-    revisions = SortTable.sort(
-        revisions,
-        request.GET.get("col"),
-        request.GET.get("order"),
-        SortTable.LOGS_STATS_LOGS,
-    )
-    revisions = re2o_paginator(request, revisions, pagination_number)
-    return render(request, "logs/stats_logs.html", {"revisions_list": revisions})
+    actions_form = ActionsSearchForm(request.GET or None)
+
+    if actions_form.is_valid():
+        actions = ActionsSearch()
+        revisions = actions.get(actions_form.cleaned_data)
+        revisions = SortTable.sort(
+            revisions,
+            request.GET.get("col"),
+            request.GET.get("order"),
+            SortTable.LOGS_STATS_LOGS,
+        )
+
+        pagination_number = GeneralOption.get_cached_value("pagination_number")
+        revisions = re2o_paginator(request, revisions, pagination_number)
+
+        # Only do this now so it's not applied to objects which aren't displayed
+        # It can take a bit of time because it has to compute the diff of each version
+        revisions.object_list = [RevisionAction(r) for r in revisions.object_list]
+        return render(request, "logs/stats_logs.html", {"revisions_list": revisions})
+
+    return render(request, "logs/search_stats_logs.html", {"actions_form": actions_form})
 
 
 @login_required

@@ -21,9 +21,13 @@
 """logs.models
 The models definitions for the logs app
 """
-from reversion.models import Version
+from reversion.models import Version, Revision
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
+from django.db.models import Q
+from django.apps import apps
+from netaddr import EUI
+from macaddress.fields import default_dialect
 
 from machines.models import IpList
 from machines.models import Interface
@@ -34,6 +38,58 @@ from users.models import Adherent
 from users.models import Club
 from topologie.models import Room
 from topologie.models import Port
+
+from .forms import classes_for_action_type
+
+
+class ActionsSearch:
+    def get(self, params):
+        """
+        :param params: dict built by the search view
+        :return: QuerySet of Revision objects
+        """
+        user = params.get("u", None)
+        start = params.get("s", None)
+        end = params.get("e", None)
+        action_types = params.get("t", None)
+
+        query = Q()
+
+        if user:
+            query &= Q(user__pseudo=user)
+
+        if start:
+            query &= Q(date_created__gte=start)
+
+        if end:
+            query &= Q(date_created__lte=end)
+
+        action_models = self.models_for_action_types(action_types)
+        if action_models:
+            query &= Q(version__content_type__model__in=action_models)
+
+        return (
+            Revision.objects.all()
+            .filter(query)
+            .select_related("user")
+            .prefetch_related("version_set__object")
+        )
+
+    def models_for_action_types(self, action_types):
+        if action_types is None:
+            return None
+
+        classes = []
+        for action_type in action_types:
+            c = classes_for_action_type(action_type)
+
+            # Selecting "all" removes the filter
+            if c is None:
+                return None
+
+            classes += list(map(str.lower, c))
+
+        return classes
 
 
 class MachineHistorySearchEvent:
@@ -95,11 +151,18 @@ class MachineHistorySearch:
 
         self.events = []
         if search_type == "ip":
-            return self._get_by_ip(search)[::-1]
+            try:
+                return self._get_by_ip(search)[::-1]
+            except:
+                pass
         elif search_type == "mac":
-            return self._get_by_mac(search)[::-1]
+            try:
+                search = EUI(search, dialect=default_dialect())
+                return self._get_by_mac(search)[::-1]
+            except:
+                pass
 
-        return None
+        return []
 
     def _add_revision(self, user, machine, interface):
         """
@@ -144,9 +207,10 @@ class MachineHistorySearch:
         except IpList.DoesNotExist:
             return []
 
-        return filter(
-            lambda x: x.field_dict["ipv4_id"] == ip_id,
-            Version.objects.get_for_model(Interface).order_by("revision__date_created")
+        return (
+            Version.objects.get_for_model(Interface)
+            .filter(serialized_data__contains='"ipv4": {}'.format(ip_id))
+            .order_by("revision__date_created")
         )
 
     def _get_interfaces_for_mac(self, mac):
@@ -155,9 +219,10 @@ class MachineHistorySearch:
         :return: An iterable object with the Version objects
                  of Interfaces with the given MAC address
         """
-        return filter(
-            lambda x: str(x.field_dict["mac_address"]) == mac,
-            Version.objects.get_for_model(Interface).order_by("revision__date_created")
+        return (
+            Version.objects.get_for_model(Interface)
+            .filter(serialized_data__contains='"mac_address": "{}"'.format(mac))
+            .order_by("revision__date_created")
         )
 
     def _get_machines_for_interface(self, interface):
@@ -167,9 +232,10 @@ class MachineHistorySearch:
                  which the given interface was attributed
         """
         machine_id = interface.field_dict["machine_id"]
-        return filter(
-            lambda x: x.field_dict["id"] == machine_id,
-            Version.objects.get_for_model(Machine).order_by("revision__date_created")
+        return (
+            Version.objects.get_for_model(Machine)
+            .filter(serialized_data__contains='"pk": {}'.format(machine_id))
+            .order_by("revision__date_created")
         )
 
     def _get_user_for_machine(self, machine):
@@ -301,9 +367,10 @@ class History:
 
         # Get all the versions for this instance, with the oldest first
         self._last_version = None
-        interface_versions = filter(
-            lambda x: x.field_dict["id"] == instance_id,
-            Version.objects.get_for_model(model).order_by("revision__date_created")
+        interface_versions = (
+            Version.objects.get_for_model(model)
+            .filter(serialized_data__contains='"pk": {}'.format(instance_id))
+            .order_by("revision__date_created")
         )
 
         for version in interface_versions:
@@ -348,6 +415,85 @@ class History:
         evt = self.event_type(version, self._last_version, diff)
         self.events.append(evt)
         self._last_version = version
+
+
+class VersionAction(HistoryEvent):
+    def __init__(self, version):
+        self.version = version
+
+    def name(self):
+        return self.version._object_cache or self.version.object_repr
+
+    def application(self):
+        return self.version.content_type.app_label
+
+    def model_name(self):
+        return self.version.content_type.model
+
+    def object_id(self):
+        return self.version.object_id
+
+    def object_type(self):
+        return apps.get_model(self.application(), self.model_name())
+
+    def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
+        self.previous_version = self._previous_version()
+
+        if self.previous_version is None:
+            return None, None, None
+
+        self.edited_fields = self._compute_diff(self.version, self.previous_version)
+        return super(VersionAction, self).edits(hide)
+
+    def _previous_version(self):
+        model = self.object_type()
+        try:
+            query = (
+                Q(
+                    serialized_data__contains='"pk": {}'.format(self.object_id())
+                )
+                & Q(
+                    revision__date_created__lt=self.version.revision.date_created
+                )
+            )
+            return (Version.objects.get_for_model(model)
+                    .filter(query)
+                    .order_by("-revision__date_created")[0])
+        except Exception as e:
+            return None
+
+    def _compute_diff(self, v1, v2, ignoring=["pwd_ntlm"]):
+        """
+        Find the edited field between two versions
+        :param v1: Version
+        :param v2: Version
+        :param ignoring: List, a list of fields to ignore
+        :return: List of field names
+        """
+        fields = []
+
+        for key in v1.field_dict.keys():
+            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
+                fields.append(key)
+
+        return fields
+
+
+class RevisionAction:
+    """A Revision may group multiple Version objects together"""
+    def __init__(self, revision):
+        self.performed_by = revision.user
+        self.revision = revision
+        self.versions = [VersionAction(v) for v in revision.version_set.all()]
+
+    def id(self):
+        return self.revision.id
+
+    def date_created(self):
+        return self.revision.date_created
+
+    def comment(self):
+        return self.revision.get_comment()
 
 
 class UserHistoryEvent(HistoryEvent):
@@ -450,21 +596,29 @@ class UserHistory(History):
         self.events = []
 
         # Try to find an Adherent object
-        adherents = filter(
-            lambda x: x.field_dict["user_ptr_id"] == user_id,
+        # If it exists, its id will be the same as the user's
+        adherents = (
             Version.objects.get_for_model(Adherent)
+            .filter(serialized_data__contains='"pk": {}'.format(user_id))
         )
-        obj = next(adherents, None)
-        model = Adherent
+        try:
+            obj = adherents[0]
+            model = Adherent
+        except IndexError:
+            obj = None
 
         # Fallback on a Club
         if obj is None:
-            clubs = filter(
-                lambda x: x.field_dict["user_ptr_id"] == user_id,
+            clubs = (
                 Version.objects.get_for_model(Club)
+                .filter(serialized_data__contains='"pk": {}'.format(user_id))
             )
-            obj = next(clubs, None)
-            model = Club
+
+            try:
+                obj = clubs[0]
+                model = Club
+            except IndexError:
+                obj = None
 
         # If nothing was found, abort
         if obj is None:
@@ -472,9 +626,10 @@ class UserHistory(History):
 
         # Add in "related" elements the list of Machine objects
         # that were once owned by this user
-        self.related = filter(
-            lambda x: x.field_dict["user_id"] == user_id,
-            Version.objects.get_for_model(Machine).order_by("-revision__date_created")
+        self.related = (
+            Version.objects.get_for_model(Machine)
+            .filter(serialized_data__contains='"user": {}'.format(user_id))
+            .order_by("-revision__date_created")
         )
         self.related = [RelatedHistory(
             m.field_dict["name"] or _("None"),
@@ -484,9 +639,10 @@ class UserHistory(History):
 
         # Get all the versions for this user, with the oldest first
         self._last_version = None
-        user_versions = filter(
-            lambda x: x.field_dict["id"] == user_id,
-            Version.objects.get_for_model(User).order_by("revision__date_created")
+        user_versions = (
+            Version.objects.get_for_model(User)
+            .filter(serialized_data__contains='"pk": {}'.format(user_id))
+            .order_by("revision__date_created")
         )
 
         for version in user_versions:
@@ -497,9 +653,10 @@ class UserHistory(History):
 
         # Do the same thing for the Adherent of Club
         self._last_version = None
-        obj_versions = filter(
-            lambda x: x.field_dict["id"] == user_id,
-            Version.objects.get_for_model(model).order_by("revision__date_created")
+        obj_versions = (
+            Version.objects.get_for_model(model)
+            .filter(serialized_data__contains='"pk": {}'.format(user_id))
+            .order_by("revision__date_created")
         )
 
         for version in obj_versions:
@@ -562,10 +719,11 @@ class MachineHistory(History):
     def get(self, machine_id):
         # Add as "related" histories the list of Interface objects
         # that were once assigned to this machine
-        self.related = list(filter(
-            lambda x: x.field_dict["machine_id"] == machine_id,
-            Version.objects.get_for_model(Interface).order_by("-revision__date_created")
-        ))
+        self.related = list(
+            Version.objects.get_for_model(Interface)
+            .filter(serialized_data__contains='"machine": {}'.format(machine_id))
+            .order_by("-revision__date_created")
+        )
 
         # Create RelatedHistory objects and remove duplicates
         self.related = [RelatedHistory(
