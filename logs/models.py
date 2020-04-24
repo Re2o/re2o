@@ -200,7 +200,7 @@ class MachineHistorySearch:
 
         return (
             Version.objects.get_for_model(Interface)
-            .filter(serialized_data__icontains='"ipv4": {}'.format(ip_id))
+            .filter(serialized_data__contains='"ipv4": {}'.format(ip_id))
             .order_by("revision__date_created")
         )
 
@@ -212,7 +212,7 @@ class MachineHistorySearch:
         """
         return (
             Version.objects.get_for_model(Interface)
-            .filter(serialized_data__icontains='"mac_address": "{}"'.format(mac))
+            .filter(serialized_data__contains='"mac_address": "{}"'.format(mac))
             .order_by("revision__date_created")
         )
 
@@ -225,7 +225,7 @@ class MachineHistorySearch:
         machine_id = interface.field_dict["machine_id"]
         return (
             Version.objects.get_for_model(Machine)
-            .filter(serialized_data__icontains='"pk": {}'.format(machine_id))
+            .filter(serialized_data__contains='"pk": {}'.format(machine_id))
             .order_by("revision__date_created")
         )
 
@@ -360,7 +360,7 @@ class History:
         self._last_version = None
         interface_versions = (
             Version.objects.get_for_model(model)
-            .filter(serialized_data__icontains='"pk": {}'.format(instance_id))
+            .filter(serialized_data__contains='"pk": {}'.format(instance_id))
             .order_by("revision__date_created")
         )
 
@@ -446,7 +446,7 @@ class VersionAction(HistoryEvent):
         try:
             query = (
                 Q(
-                    serialized_data__icontains='"pk": {}'.format(self.object_id())
+                    serialized_data__contains='"pk": {}'.format(self.object_id())
                 )
                 & Q(
                     revision__date_created__lt=self.version.revision.date_created
@@ -596,7 +596,7 @@ class UserHistory(History):
         # If it exists, its id will be the same as the user's
         adherents = (
             Version.objects.get_for_model(Adherent)
-            .filter(serialized_data__icontains='"pk": {}'.format(user_id))
+            .filter(serialized_data__contains='"pk": {}'.format(user_id))
         )
         try:
             obj = adherents[0]
@@ -608,7 +608,7 @@ class UserHistory(History):
         if obj is None:
             clubs = (
                 Version.objects.get_for_model(Club)
-                .filter(serialized_data__icontains='"pk": {}'.format(user_id))
+                .filter(serialized_data__contains='"pk": {}'.format(user_id))
             )
 
             try:
@@ -625,7 +625,7 @@ class UserHistory(History):
         # that were once owned by this user
         self.related = (
             Version.objects.get_for_model(Machine)
-            .filter(serialized_data__icontains='"user": {}'.format(user_id))
+            .filter(serialized_data__contains='"user": {}'.format(user_id))
             .order_by("-revision__date_created")
         )
         self.related = [RelatedHistory(
@@ -638,7 +638,7 @@ class UserHistory(History):
         self._last_version = None
         user_versions = (
             Version.objects.get_for_model(User)
-            .filter(serialized_data__icontains='"pk": {}'.format(user_id))
+            .filter(serialized_data__contains='"pk": {}'.format(user_id))
             .order_by("revision__date_created")
         )
 
@@ -652,7 +652,7 @@ class UserHistory(History):
         self._last_version = None
         obj_versions = (
             Version.objects.get_for_model(model)
-            .filter(serialized_data__icontains='"pk": {}'.format(user_id))
+            .filter(serialized_data__contains='"pk": {}'.format(user_id))
             .order_by("revision__date_created")
         )
 
@@ -718,7 +718,7 @@ class MachineHistory(History):
         # that were once assigned to this machine
         self.related = list(
             Version.objects.get_for_model(Interface)
-            .filter(serialized_data__icontains='"machine": {}'.format(machine_id))
+            .filter(serialized_data__contains='"machine": {}'.format(machine_id))
             .order_by("-revision__date_created")
         )
 
