@@ -53,7 +53,7 @@ class ActionsSearch:
         query = Q()
 
         if user:
-            query &= Q(user=user)
+            query &= Q(user__pseudo=user)
 
         if start:
             query &= Q(date_created__gte=start)
