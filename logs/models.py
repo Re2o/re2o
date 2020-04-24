@@ -60,9 +60,9 @@ class ActionsSearch:
         if end:
             query &= Q(date_created__leq=end)
 
-        action_classes = self.classes_for_action_types(action_types)
-        if action_classes:
-            query &= Q(object__classname=action_classes)
+        action_models = self.models_for_action_types(action_types)
+        if action_models:
+            query &= Q(version__content_type__model__in=action_models)
 
         return (
             Revision.objects.all()
@@ -71,7 +71,7 @@ class ActionsSearch:
             .prefetch_related("version_set__object")
         )
 
-    def classes_for_action_types(self, action_types):
+    def models_for_action_types(self, action_types):
         if action_types is None:
             return None
 
