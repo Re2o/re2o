@@ -430,17 +430,24 @@ class VersionAction(HistoryEvent):
 
     def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
         self.previous_version = self._previous_version()
+
+        if self.previous_version is None:
+            return None, None, None
+
         self.edited_fields = self._compute_diff(self.version, self.previous_version)
         return super(VersionAction, self).edits(hide)
 
     def _previous_version(self):
         model = self.object_type()
-        return next(
-            filter(
-                lambda x: x.field_dict["id"] == self.object_id() and x.revision.date_created < self.version.revision.date_created,
-                Version.objects.get_for_model(model).order_by("-revision__date_created")
+        try:
+            return next(
+                filter(
+                    lambda x: x.field_dict["id"] == self.object_id() and x.revision.date_created < self.version.revision.date_created,
+                    Version.objects.get_for_model(model).order_by("-revision__date_created")
+                )
             )
-        )
+        except StopIteration:
+            return None
 
     def _compute_diff(self, v1, v2):
         """
