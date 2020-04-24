@@ -34,7 +34,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             <th>{% trans "Edited object" %}</th>
-            <th>{% trans "Object type" %}</th>
             {% trans "Edited by" as tr_edited_by %}
             <th>{% include 'buttons/sort.html' with prefix='logs' col='author' text=tr_edited_by %}</th>
             {% trans "Date of editing" as tr_date_of_editing %}
@@ -44,11 +43,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </tr>
     </thead>
     {% for revision in revisions_list %}
-        {% for reversion in revision.version_set.all %}
+        {% for version in revision.versions %}
             <tr>
-                <td>{{ reversion.object|truncatechars:20 }}</td>
-                <td>{{ reversion.content_type.model|truncatechars:20 }}</td>
-                <td>{{ revision.user }}</td>
+                <td>
+                    <a href="{% url 'logs:history' revision.application revision.model_name revision.object_id %}" title="{% trans "History" %}">
+                        {{ version.name }}
+                    </a>
+                </td>
+                <td>
+                    <a href="{% url 'users:profil' userid=revision.user.id %}" title=tr_view_the_profile>
+                        {{ revision.user }}
+                    </a>
+                </td>
                 <td>{{ revision.date_created }}</td>
                 <td>{{ revision.comment }}</td>
                 {% can_edit_history %}
