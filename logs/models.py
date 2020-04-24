@@ -87,7 +87,7 @@ class ActionsSearch:
             if c is None:
                 return None
 
-            classes += c
+            classes += c.lower()
 
         return classes
 
