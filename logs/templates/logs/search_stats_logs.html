@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
+{% load massive_bootstrap_form %}
 {% load i18n %}
 
 {% block title %}{% trans "Search events" %}{% endblock %}
@@ -31,10 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form">
     <h3>{% trans "Search events" %}</h3>
 
-    {% bootstrap_field actions_form.u %}
-    {% include 'buttons/multiple_checkbox_alt.html' with field=actions_form.t %}
-    {% bootstrap_field actions_form.s %}
-    {% bootstrap_field actions_form.e %}
+    {% massive_bootstrap_form actions_form 'u' %}
     {% trans "Search" as tr_search %}
     {% bootstrap_button tr_search button_type="submit" icon="search" %}
 </form>

@@ -97,9 +97,9 @@ def classes_for_action_type(action_type):
 
 class ActionsSearchForm(Form):
     """The form for a simple search"""
-    u = forms.CharField(
+    u = forms.ModelChoiceField(
         label=_("Performed by"),
-        max_length=100,
+        queryset=users.models.User.objects.all(),
         required=False,
     )
     t = forms.MultipleChoiceField(
