@@ -38,6 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <th>{% include 'buttons/sort.html' with prefix='logs' col='author' text=tr_edited_by %}</th>
             {% trans "Date of editing" as tr_date_of_editing %}
             <th>{% include 'buttons/sort.html' with prefix='logs' col='date' text=tr_date_of_editing %}</th>
+            <th>{% trans "Edited" %}</th>
             <th>{% trans "Comment" %}</th>
             <th></th>
         </tr>
@@ -64,6 +65,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% endif %}
                 </td>
                 <td>{{ revision.date_created }}</td>
+                <td>
+                    {% for edit in version.edits %}
+                        {% if edit.1 is None and edit.2 is None %}
+                            <strong>{{ edit.0 }}</strong><br/>
+                        {% elif edit.1 is None %}
+                            <strong>{{ edit.0 }}:</strong>
+                            <i class="text-success"> {{ edit.2 }}</i><br/>
+                        {% else %}
+                            <strong>{{ edit.0 }}:</strong>
+                            <i class="text-danger"> {{ edit.1 }} </i>
+                            ➔ <i class="text-success">{{ edit.2 }}</i><br/>
+                        {% endif %}
+                    {% endfor %}
+                </td>
                 <td>{{ revision.comment }}</td>
                 {% can_edit_history %}
                 <td>
