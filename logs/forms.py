@@ -85,7 +85,7 @@ def classes_for_action_type(action_type):
     if action_type == "whitelists":
         return [users.models.Whitelist.__name__]
 
-    if action_type == "ban":
+    if action_type == "bans":
         return [users.models.Ban.__name__]
 
     if action_type == "topology":
