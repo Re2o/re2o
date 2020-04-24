@@ -60,7 +60,7 @@ class ActionsSearch:
             query &= Q(date_created__leq=end)
 
         if actions_type:
-            query &= Q(version_set__object__in=actions_type)
+            query &= Q(version__content_type__in=actions_type)
 
         return (
             Revision.objects.all()
