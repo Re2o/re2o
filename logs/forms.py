@@ -40,16 +40,18 @@ def get_classes(module):
 
     for name, obj in inspect.getmembers(module):
         if inspect.isclass(obj):
-            classes.append((obj, name))
+            classes.append(name)
 
     return classes
 
 
 # Get the list of all imported classes
 modules = [machines.models, preferences.models, tickets.models, topologie.models, users.models]
-classes = sum([get_classes(m) for m in modules])
+classes = sum([get_classes(m) for m in modules], [])
 
-CHOICES_ACTION_TYPE = classes
+CHOICES_ACTION_TYPE = [
+    (str(i), classes[i]) for i in range(len(classes))
+]
 
 CHOICES_TYPE = (
     ("ip", _("IPv4")),
@@ -63,7 +65,6 @@ class ActionsSearchForm(Form):
         label=_("Performed by"),
         max_length=100,
         required=False,
-        queryset=users.models.User.objects.all()
     )
     t = forms.MultipleChoiceField(
         label=_("Action type"),
@@ -76,7 +77,7 @@ class ActionsSearchForm(Form):
     e = forms.DateField(required=False, label=_("End date"))
 
     def __init__(self, *args, **kwargs):
-        super(MachineHistorySearchForm, self).__init__(*args, **kwargs)
+        super(ActionsSearchForm, self).__init__(*args, **kwargs)
         self.fields["s"].help_text = get_input_formats_help_text(
             self.fields["s"].input_formats
         )

@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h3>{% trans "Search events" %}</h3>
 
     {% bootstrap_field actions_form.u %}
-    {% bootstrap_field actions_form.t %}
+    {% include 'buttons/multiple_checkbox_alt.html' with field=actions_form.t %}
     {% bootstrap_field actions_form.s %}
     {% bootstrap_field actions_form.e %}
     {% trans "Search" as tr_search %}
