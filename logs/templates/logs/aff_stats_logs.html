@@ -46,14 +46,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for version in revision.versions %}
             <tr>
                 <td>
+                    {% if version.object_id %}
                     <a href="{% url 'logs:history' version.application version.model_name version.object_id %}" title="{% trans "History" %}">
                         {{ version.name }}
                     </a>
+                    {% else %}
+                        {{ version.name }}
+                    {% endif %}
                 </td>
                 <td>
+                    {% if revision.performed_by %}
                     <a href="{% url 'users:profil' userid=revision.performed_by.id %}" title=tr_view_the_profile>
                         {{ revision.performed_by }}
                     </a>
+                    {% else %}
+                        {{ revision.performed_by }}
+                    {% endif %}
                 </td>
                 <td>{{ revision.date_created }}</td>
                 <td>{{ revision.comment }}</td>
