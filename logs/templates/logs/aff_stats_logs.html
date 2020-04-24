@@ -46,13 +46,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for version in revision.versions %}
             <tr>
                 <td>
-                    <a href="{% url 'logs:history' revision.application revision.model_name revision.object_id %}" title="{% trans "History" %}">
+                    <a href="{% url 'logs:history' version.application version.model_name version.object_id %}" title="{% trans "History" %}">
                         {{ version.name }}
                     </a>
                 </td>
                 <td>
-                    <a href="{% url 'users:profil' userid=revision.user.id %}" title=tr_view_the_profile>
-                        {{ revision.user }}
+                    <a href="{% url 'users:profil' userid=revision.performed_by.id %}" title=tr_view_the_profile>
+                        {{ revision.performed_by }}
                     </a>
                 </td>
                 <td>{{ revision.date_created }}</td>

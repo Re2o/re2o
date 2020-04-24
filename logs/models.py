@@ -67,6 +67,15 @@ class RevisionAction:
         self.revision = revision
         self.versions = [VersionAction(v) for v in revision.version_set.all()]
 
+    def id(self):
+        return self.revision.id
+
+    def date_created(self):
+        return self.revision.date_created
+
+    def comment(self):
+        return self.revision.get_comment()
+
 
 class ActionsSearch:
     def get(self, params):
@@ -94,8 +103,7 @@ class ActionsSearch:
         if action_models:
             query &= Q(version__content_type__model__in=action_models)
 
-        return map(
-            RevisionAction,
+        return (
             Revision.objects.all()
             .filter(query)
             .select_related("user")
