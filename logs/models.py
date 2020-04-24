@@ -38,6 +38,7 @@ from topologie.models import Port
 
 from .forms import classes_for_action_type
 
+
 class ActionsSearch:
     def get(self, params):
         """
@@ -55,10 +56,10 @@ class ActionsSearch:
             query &= Q(user=user)
 
         if start:
-            query &= Q(date_created__geq=start)
+            query &= Q(date_created__gte=start)
 
         if end:
-            query &= Q(date_created__leq=end)
+            query &= Q(date_created__lte=end)
 
         action_models = self.models_for_action_types(action_types)
         if action_models:
