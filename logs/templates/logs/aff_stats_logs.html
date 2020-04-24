@@ -47,7 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for reversion in revision.version_set.all %}
             <tr>
                 <td>{{ reversion.object|truncatechars:20 }}</td>
-                <td>{{ reversion.object|classname }}</td>
+                <td>{{ reversion.content_type.model|truncatechars:20 }}</td>
                 <td>{{ revision.user }}</td>
                 <td>{{ revision.date_created }}</td>
                 <td>{{ revision.comment }}</td>
