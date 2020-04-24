@@ -27,7 +27,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.apps import apps
 from netaddr import EUI
-macaddress.fields import default_dialect
+from macaddress.fields import default_dialect
 
 from machines.models import IpList
 from machines.models import Interface
