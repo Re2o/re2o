@@ -21,9 +21,10 @@
 """logs.models
 The models definitions for the logs app
 """
-from reversion.models import Version
+from reversion.models import Version, Revision
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
+from django.db.models import Q
 
 from machines.models import IpList
 from machines.models import Interface
@@ -34,6 +35,39 @@ from users.models import Adherent
 from users.models import Club
 from topologie.models import Room
 from topologie.models import Port
+
+
+class ActionsSearch:
+    def get(self, params):
+        """
+        :param params: dict built by the search view
+        :return: QuerySet of Revision objects
+        """
+        user = params.get("u", None)
+        start = params.get("s", None)
+        end = params.get("e", None)
+        actions_type = params.get("t", None)
+
+        query = Q()
+
+        if user:
+            query &= Q(user=user)
+
+        if start:
+            query &= Q(date_created__geq=start)
+
+        if end:
+            query &= Q(date_created__leq=end)
+
+        if actions_type:
+            query &= Q(version_set__object__in=actions_type)
+
+        return (
+            Revision.objects.all()
+            .filter(query)
+            .select_related("user")
+            .prefetch_related("version_set__object")
+        )
 
 
 class MachineHistorySearchEvent:
