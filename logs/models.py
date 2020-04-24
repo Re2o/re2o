@@ -27,6 +27,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.apps import apps
 from netaddr import EUI
+macaddress.fields import default_dialect
 
 from machines.models import IpList
 from machines.models import Interface
@@ -156,12 +157,12 @@ class MachineHistorySearch:
                 pass
         elif search_type == "mac":
             try:
-                search = EUI(search)
+                search = EUI(search, dialect=default_dialect())
                 return self._get_by_mac(search)[::-1]
             except:
                 pass
 
-        return None
+        return []
 
     def _add_revision(self, user, machine, interface):
         """
