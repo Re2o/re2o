@@ -449,15 +449,13 @@ class VersionAction(HistoryEvent):
                     serialized_data__icontains='"pk": {}'.format(self.object_id())
                 )
                 & Q(
-                    revision__date_created_lt=self.version.revision.date_created
+                    revision__date_created__lt=self.version.revision.date_created
                 )
             )
-            return next(
-                    Version.objects.get_for_model(model)
+            return (Version.objects.get_for_model(model)
                     .filter(query)
-                    .order_by("-revision__date_created")
-            )
-        except StopIteration:
+                    .order_by("-revision__date_created")[0])
+        except Exception as e:
             return None
 
     def _compute_diff(self, v1, v2, ignoring=["pwd_ntlm"]):
