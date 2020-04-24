@@ -25,6 +25,7 @@ from reversion.models import Version, Revision
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import Group
 from django.db.models import Q
+from django.apps import apps
 
 from machines.models import IpList
 from machines.models import Interface
@@ -37,6 +38,34 @@ from topologie.models import Room
 from topologie.models import Port
 
 from .forms import classes_for_action_type
+
+
+class VersionAction:
+    def __init__(self, version):
+        self.version = version
+
+    def name(self):
+        return self.version.object_repr
+
+    def application(self):
+        return self.version.content_type.app_label
+
+    def model_name(self):
+        return self.version.content_type.model
+
+    def object_id(self):
+        return self.version.object_id
+
+    def object_type(self):
+        return apps.get_model(self.application(), self.model_name())
+
+
+class RevisionAction:
+    """A Revision may group multiple Version objects together"""
+    def __init__(self, revision):
+        self.performed_by = revision.user
+        self.revision = revision
+        self.versions = [VersionAction(v) for v in revision.version_set.all()]
 
 
 class ActionsSearch:
@@ -65,7 +94,8 @@ class ActionsSearch:
         if action_models:
             query &= Q(version__content_type__model__in=action_models)
 
-        return (
+        return map(
+            RevisionAction,
             Revision.objects.all()
             .filter(query)
             .select_related("user")
