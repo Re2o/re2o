@@ -449,7 +449,7 @@ class VersionAction(HistoryEvent):
         except StopIteration:
             return None
 
-    def _compute_diff(self, v1, v2):
+    def _compute_diff(self, v1, v2, ignoring=["pwd_ntlm"]):
         """
         Find the edited field between two versions
         :param v1: Version
@@ -460,7 +460,7 @@ class VersionAction(HistoryEvent):
         fields = []
 
         for key in v1.field_dict.keys():
-            if v1.field_dict[key] != v2.field_dict[key]:
+            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
                 fields.append(key)
 
         return fields
@@ -471,7 +471,8 @@ class RevisionAction:
     def __init__(self, revision):
         self.performed_by = revision.user
         self.revision = revision
-        self.versions = [VersionAction(v) for v in revision.version_set.all() if v.is_useful()]
+        self.versions = [VersionAction(v) for v in revision.version_set.all()]
+        self.versions = filter(lambda v: v.is_useful(), self.versions)
 
     def id(self):
         return self.revision.id
