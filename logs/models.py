@@ -301,6 +301,9 @@ class RelatedHistory:
         self.object_id = version.object_id
         self.name = version.object_repr
 
+        if self.model_name:
+            self.name = "{}: {}".format(self.model_name.title(), self.name)
+
     def __eq__(self, other):
         return (
             self.model_name == other.model_name
@@ -643,11 +646,14 @@ class UserHistory(History):
         if obj is None:
             return None
 
-        # Add in "related" elements the list of Machine objects
+        # Add in "related" elements the list of objects
         # that were once owned by this user
+        query = Q(serialized_data__contains='"user": {}'.format(user_id))
+        query &= ~Q(serialized_data__contains='"model": "users.user"')
         self.related = (
-            Version.objects.get_for_model(Machine)
-            .filter(serialized_data__contains='"user": {}'.format(user_id))
+            Version.objects.all()
+            .filter(query)
+            .order_by("content_type__model")
         )
         self.related = [RelatedHistory(v) for v in self.related]
         self.related = list(dict.fromkeys(self.related))
@@ -732,12 +738,13 @@ class MachineHistory(History):
         self.event_type = MachineHistoryEvent
 
     def get(self, machine_id, model):
-        # Add as "related" histories the list of Interface objects
-        # that were once assigned to this machine
-        self.related = list(
+        query = Q(serialized_data__contains='"machine": {}'.format(machine_id))
+        query &= ~Q(serialized_data__contains='"model": "machines.machine"')
+
+        self.related = (
             Version.objects.get_for_model(Interface)
-            .filter(serialized_data__contains='"machine": {}'.format(machine_id))
-            .order_by("-revision__date_created")
+            .filter(query)
+            .order_by("content_type__model")
         )
 
         # Create RelatedHistory objects and remove duplicates
