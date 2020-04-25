@@ -31,7 +31,6 @@ import inspect
 import cotisations.models
 import machines.models
 import preferences.models
-import tickets.models
 import topologie.models
 import users.models
 
