@@ -650,8 +650,8 @@ class UserHistory(History):
         )
         self.related = [RelatedHistory(
             m.field_dict["name"] or _("None"),
-            "machines"
-            "Machine",
+            "machines",
+            "machine",
             m.field_dict["id"]) for m in self.related]
         self.related = list(dict.fromkeys(self.related))
 
@@ -747,7 +747,7 @@ class MachineHistory(History):
         self.related = [RelatedHistory(
             i.field_dict["mac_address"] or _("None"),
             "machines",
-            "Interface",
+            "interface",
             i.field_dict["id"]) for i in self.related]
         self.related = list(dict.fromkeys(self.related))
 
