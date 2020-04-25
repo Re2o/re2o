@@ -299,7 +299,7 @@ class RelatedHistory:
         self.app_name = version.content_type.app_label
         self.model_name = version.content_type.model
         self.object_id = version.object_id
-        self.name = version._object_cache or version.object_repr
+        self.name = version.object_repr
 
     def __eq__(self, other):
         return (
@@ -390,6 +390,7 @@ class History:
         if self._last_version is None:
             return None
 
+        self.name = self._last_version.object_repr
         return self.events[::-1]
 
     def _compute_diff(self, v1, v2, ignoring=[]):
@@ -743,12 +744,7 @@ class MachineHistory(History):
         self.related = [RelatedHistory(v) for v in self.related]
         self.related = list(dict.fromkeys(self.related))
 
-        events = super(MachineHistory, self).get(machine_id, Machine)
-
-        # Update name
-        self.name = self._last_version.field_dict["name"]
-
-        return events
+        return super(MachineHistory, self).get(machine_id, Machine)
 
 
 class InterfaceHistoryEvent(HistoryEvent):
@@ -794,12 +790,7 @@ class InterfaceHistory(History):
         self.event_type = InterfaceHistoryEvent
 
     def get(self, interface_id, model):
-        events = super(InterfaceHistory, self).get(interface_id, Interface)
-
-        # Update name
-        self.name = self._last_version.field_dict["mac_address"]
-
-        return events
+        return super(InterfaceHistory, self).get(interface_id, Interface)
 
 
 ############################
