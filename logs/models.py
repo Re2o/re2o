@@ -42,56 +42,6 @@ from topologie.models import Port
 from .forms import classes_for_action_type
 
 
-class ActionsSearch:
-    def get(self, params):
-        """
-        :param params: dict built by the search view
-        :return: QuerySet of Revision objects
-        """
-        user = params.get("u", None)
-        start = params.get("s", None)
-        end = params.get("e", None)
-        action_types = params.get("t", None)
-
-        query = Q()
-
-        if user:
-            query &= Q(user__pseudo=user)
-
-        if start:
-            query &= Q(date_created__gte=start)
-
-        if end:
-            query &= Q(date_created__lte=end)
-
-        action_models = self.models_for_action_types(action_types)
-        if action_models:
-            query &= Q(version__content_type__model__in=action_models)
-
-        return (
-            Revision.objects.all()
-            .filter(query)
-            .select_related("user")
-            .prefetch_related("version_set__object")
-        )
-
-    def models_for_action_types(self, action_types):
-        if action_types is None:
-            return None
-
-        classes = []
-        for action_type in action_types:
-            c = classes_for_action_type(action_type)
-
-            # Selecting "all" removes the filter
-            if c is None:
-                return None
-
-            classes += list(map(str.lower, c))
-
-        return classes
-
-
 ############################
 #  Machine history search  #
 ############################
@@ -323,7 +273,7 @@ class HistoryEvent:
         """
         self.version = version
         self.previous_version = previous_version
-        self.edited_fields = edited_fields
+        self.edited_fields = edited_fields or []
         self.date = version.revision.date_created
         self.performed_by = version.revision.user
         self.comment = version.revision.get_comment() or None
@@ -422,7 +372,8 @@ class History:
             diff = self._compute_diff(version, self._last_version)
 
         # Ignore "empty" events
-        if not diff:
+        # but always keep the first event
+        if not diff and self._last_version:
             self._last_version = version
             return
 
@@ -512,6 +463,56 @@ class RevisionAction:
 
     def comment(self):
         return self.revision.get_comment()
+
+
+class ActionsSearch:
+    def get(self, params):
+        """
+        :param params: dict built by the search view
+        :return: QuerySet of Revision objects
+        """
+        user = params.get("u", None)
+        start = params.get("s", None)
+        end = params.get("e", None)
+        action_types = params.get("t", None)
+
+        query = Q()
+
+        if user:
+            query &= Q(user__pseudo=user)
+
+        if start:
+            query &= Q(date_created__gte=start)
+
+        if end:
+            query &= Q(date_created__lte=end)
+
+        action_models = self.models_for_action_types(action_types)
+        if action_models:
+            query &= Q(version__content_type__model__in=action_models)
+
+        return (
+            Revision.objects.all()
+            .filter(query)
+            .select_related("user")
+            .prefetch_related("version_set__object")
+        )
+
+    def models_for_action_types(self, action_types):
+        if action_types is None:
+            return None
+
+        classes = []
+        for action_type in action_types:
+            c = classes_for_action_type(action_type)
+
+            # Selecting "all" removes the filter
+            if c is None:
+                return None
+
+            classes += list(map(str.lower, c))
+
+        return classes
 
 
 ############################
@@ -704,7 +705,8 @@ class UserHistory(History):
             )
 
         # Ignore "empty" events like login
-        if not diff:
+        # but always keep the first event
+        if not diff and self._last_version:
             self._last_version = version
             return
 
