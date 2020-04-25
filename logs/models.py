@@ -92,6 +92,10 @@ class ActionsSearch:
         return classes
 
 
+############################
+#  Machine history search  #
+############################
+
 class MachineHistorySearchEvent:
     def __init__(self, user, machine, interface, start=None, end=None):
         """
@@ -280,16 +284,25 @@ class MachineHistorySearch:
         return self.events
 
 
+############################
+#  Generic history classes #
+############################
+
 class RelatedHistory:
-    def __init__(self, name, model_name, object_id):
+    def __init__(self, version):
         """
         :param name: Name of this instance
         :param model_name: Name of the related model (e.g. "user")
         :param object_id: ID of the related object
         """
-        self.name = "{} (id = {})".format(name, object_id)
-        self.model_name = model_name
-        self.object_id = object_id
+        self.version = version
+        self.app_name = version.content_type.app_label
+        self.model_name = version.content_type.model
+        self.object_id = version.object_id
+        self.name = version.object_repr
+
+        if self.model_name:
+            self.name = "{}: {}".format(self.model_name.title(), self.name)
 
     def __eq__(self, other):
         return (
@@ -380,6 +393,7 @@ class History:
         if self._last_version is None:
             return None
 
+        self.name = self._last_version.object_repr
         return self.events[::-1]
 
     def _compute_diff(self, v1, v2, ignoring=[]):
@@ -416,6 +430,10 @@ class History:
         self.events.append(evt)
         self._last_version = version
 
+
+############################
+#     Revision history     #
+############################
 
 class VersionAction(HistoryEvent):
     def __init__(self, version):
@@ -495,6 +513,10 @@ class RevisionAction:
     def comment(self):
         return self.revision.get_comment()
 
+
+############################
+#  Class-specific history  #
+############################
 
 class UserHistoryEvent(HistoryEvent):
     def _repr(self, name, value):
@@ -588,7 +610,7 @@ class UserHistory(History):
         super(UserHistory, self).__init__()
         self.event_type = UserHistoryEvent
 
-    def get(self, user_id):
+    def get(self, user_id, model):
         """
         :param user_id: int, the id of the user to lookup
         :return: list or None, a list of UserHistoryEvent, in reverse chronological order
@@ -624,17 +646,14 @@ class UserHistory(History):
         if obj is None:
             return None
 
-        # Add in "related" elements the list of Machine objects
+        # Add in "related" elements the list of objects
         # that were once owned by this user
         self.related = (
-            Version.objects.get_for_model(Machine)
+            Version.objects.all()
             .filter(serialized_data__contains='"user": {}'.format(user_id))
-            .order_by("-revision__date_created")
+            .order_by("content_type__model")
         )
-        self.related = [RelatedHistory(
-            m.field_dict["name"] or _("None"),
-            "machine",
-            m.field_dict["id"]) for m in self.related]
+        self.related = [RelatedHistory(v) for v in self.related]
         self.related = list(dict.fromkeys(self.related))
 
         # Get all the versions for this user, with the oldest first
@@ -716,28 +735,18 @@ class MachineHistory(History):
         super(MachineHistory, self).__init__()
         self.event_type = MachineHistoryEvent
 
-    def get(self, machine_id):
-        # Add as "related" histories the list of Interface objects
-        # that were once assigned to this machine
-        self.related = list(
+    def get(self, machine_id, model):
+        self.related = (
             Version.objects.get_for_model(Interface)
             .filter(serialized_data__contains='"machine": {}'.format(machine_id))
-            .order_by("-revision__date_created")
+            .order_by("content_type__model")
         )
 
         # Create RelatedHistory objects and remove duplicates
-        self.related = [RelatedHistory(
-            i.field_dict["mac_address"] or _("None"),
-            "interface",
-            i.field_dict["id"]) for i in self.related]
+        self.related = [RelatedHistory(v) for v in self.related]
         self.related = list(dict.fromkeys(self.related))
 
-        events = super(MachineHistory, self).get(machine_id, Machine)
-
-        # Update name
-        self.name = self._last_version.field_dict["name"]
-
-        return events
+        return super(MachineHistory, self).get(machine_id, Machine)
 
 
 class InterfaceHistoryEvent(HistoryEvent):
@@ -782,10 +791,29 @@ class InterfaceHistory(History):
         super(InterfaceHistory, self).__init__()
         self.event_type = InterfaceHistoryEvent
 
-    def get(self, interface_id):
-        events = super(InterfaceHistory, self).get(interface_id, Interface)
+    def get(self, interface_id, model):
+        return super(InterfaceHistory, self).get(interface_id, Interface)
 
-        # Update name
-        self.name = self._last_version.field_dict["mac_address"]
 
-        return events
+############################
+#    History auto-detect   #
+############################
+
+HISTORY_CLASS_MAPPING = {
+    User: UserHistory,
+    Machine: MachineHistory,
+    Interface: InterfaceHistory,
+    "default": History
+}
+
+
+def get_history_class(model):
+    """
+    Find the mos appropriate History subclass to represent
+    the given model's history
+    :model: class
+    """
+    try:
+        return HISTORY_CLASS_MAPPING[model]()
+    except KeyError:
+        return HISTORY_CLASS_MAPPING["default"]()
