@@ -601,6 +601,6 @@ def history(request, application, object_name, object_id):
 
     return render(
         request,
-        "logs/detailed_history.html",
+        "re2o/history.html",
         {"title": title, "events": events, "related_history": history.related},
     )
