@@ -79,7 +79,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for related in related_history %}
         <li>
             {% if related.object_id %}
-                <a href="{% url 'logs:history' related.application related.model_name related.object_id %}" title="{% trans "History" %}">
+                <a href="{% url 'logs:history' related.app_name related.model_name related.object_id %}" title="{% trans "History" %}">
                     {{ related.name }}
                 </a>
             {% else %}
