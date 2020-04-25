@@ -648,11 +648,9 @@ class UserHistory(History):
 
         # Add in "related" elements the list of objects
         # that were once owned by this user
-        query = Q(serialized_data__contains='"user": {}'.format(user_id))
-        query &= ~Q(serialized_data__contains='"model": "users.user"')
         self.related = (
             Version.objects.all()
-            .filter(query)
+            .filter(serialized_data__contains='"user": {}'.format(user_id))
             .order_by("content_type__model")
         )
         self.related = [RelatedHistory(v) for v in self.related]
@@ -738,12 +736,9 @@ class MachineHistory(History):
         self.event_type = MachineHistoryEvent
 
     def get(self, machine_id, model):
-        query = Q(serialized_data__contains='"machine": {}'.format(machine_id))
-        query &= ~Q(serialized_data__contains='"model": "machines.machine"')
-
         self.related = (
             Version.objects.get_for_model(Interface)
-            .filter(query)
+            .filter(serialized_data__contains='"machine": {}'.format(machine_id))
             .order_by("content_type__model")
         )
 
