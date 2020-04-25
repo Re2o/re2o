@@ -21,8 +21,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Fonctions de la page d'accueil et diverses fonctions utiles pour tous
-les views
+Welcom main page view, and several template widely used in re2o views
 """
 
 from __future__ import unicode_literals
@@ -50,14 +49,29 @@ from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def form(ctx, template, request):
-    """Form générique, raccourci importé par les fonctions views du site"""
+    """Global template function, used in all re2o views, for building a render with context,
+    template and request. Adding csrf.
+ 
+    Parameters:
+        ctx (dict): Dict of values to transfer to template
+        template (django template): The django template of this view
+        request (django request)
+
+    Returns:
+        Django render: Django render complete view with template, context and request
+    """
     context = ctx
     context.update(csrf(request))
     return render(request, template, context)
 
 
 def index(request):
-    """Affiche la liste des services sur la page d'accueil de re2o"""
+    """Display all services provided on main page
+
+        Returns: a form with all services linked and description, and social media
+        link if provided.
+
+    """
     services = [[], [], []]
     for indice, serv in enumerate(Service.objects.all()):
         services[indice % 3].append(serv)

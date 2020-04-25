@@ -85,7 +85,13 @@ class FieldPermissionModelMixin:
 
 class FieldPermissionFormMixin:
     """
-    Construit le formulaire et retire les champs interdits
+    Build a form, and remove all forbiden fields
+
+        Parameters:
+        user:Build-in with a Django Form instance, and parameter user in kwargs,
+        representing calling user for this form. Then test if a field is forbiden
+        or not with has_field_paremeter model function
+
     """
 
     def __init__(self, *args, **kwargs):

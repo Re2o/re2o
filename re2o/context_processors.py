@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""Fonction de context, variables renvoyées à toutes les vues"""
+"""Context functions, runs and results sends globaly to all templates"""
 
 from __future__ import unicode_literals
 
@@ -34,8 +34,12 @@ from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def context_user(request):
-    """Fonction de context lorsqu'un user est logué (ou non),
-    renvoie les infos sur l'user, la liste de ses droits, ses machines"""
+    """Global Context function
+
+        Returns:
+        dict:Containing user's interfaces and himself if logged, else None
+
+    """
     user = request.user
     if get_language() == "fr":
         global_message = GeneralOption.get_cached_value("general_message_fr")
@@ -61,8 +65,13 @@ def context_user(request):
 
 
 def context_optionnal_apps(request):
-    """Fonction de context pour générer la navbar en fonction des
-    apps optionnels"""
+    """Context functions. Called to add optionnal apps buttons in navbari
+
+        Returns:
+        dict:Containing optionnal template list of functions for navbar found
+        in optional apps
+
+    """
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
     optionnal_templates_navbar_user_list = [
         app.views.navbar_user()

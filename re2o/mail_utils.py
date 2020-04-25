@@ -22,7 +22,7 @@
 # -*- coding: utf-8 -*-
 # Jean-Romain Garnier
 """
-Regroupe les fonctions en lien avec les mails
+All functions linked with emails here. Non model or app dependant
 """
 
 from django.utils.translation import ugettext_lazy as _
