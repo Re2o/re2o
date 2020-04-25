@@ -289,16 +289,17 @@ class MachineHistorySearch:
 ############################
 
 class RelatedHistory:
-    def __init__(self, name, app_name, model_name, object_id):
+    def __init__(self, version):
         """
         :param name: Name of this instance
         :param model_name: Name of the related model (e.g. "user")
         :param object_id: ID of the related object
         """
-        self.name = "{} (id = {})".format(name, object_id)
-        self.app_name = app_name
-        self.model_name = model_name
-        self.object_id = object_id
+        self.version = version
+        self.app_name = version.content_type.app_label
+        self.model_name = version.content_type.model
+        self.object_id = version.object_id
+        self.name = version._object_cache or version.object_repr
 
     def __eq__(self, other):
         return (
@@ -646,13 +647,8 @@ class UserHistory(History):
         self.related = (
             Version.objects.get_for_model(Machine)
             .filter(serialized_data__contains='"user": {}'.format(user_id))
-            .order_by("-revision__date_created")
         )
-        self.related = [RelatedHistory(
-            m.field_dict["name"] or _("None"),
-            "machines",
-            "machine",
-            m.field_dict["id"]) for m in self.related]
+        self.related = [RelatedHistory(v) for v in self.related]
         self.related = list(dict.fromkeys(self.related))
 
         # Get all the versions for this user, with the oldest first
@@ -744,11 +740,7 @@ class MachineHistory(History):
         )
 
         # Create RelatedHistory objects and remove duplicates
-        self.related = [RelatedHistory(
-            i.field_dict["mac_address"] or _("None"),
-            "machines",
-            "interface",
-            i.field_dict["id"]) for i in self.related]
+        self.related = [RelatedHistory(v) for v in self.related]
         self.related = list(dict.fromkeys(self.related))
 
         events = super(MachineHistory, self).get(machine_id, Machine)

@@ -78,7 +78,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <ul>
         {% for related in related_history %}
         <li>
-            <a title="{% trans "History" %}" href="{% url 'logs:history' related.app_name related.model_name related.object_id %}">{{ related.model_name }} - {{ related.name }}</a>
+            {% if related.object_id %}
+                <a href="{% url 'logs:history' related.application related.model_name related.object_id %}" title="{% trans "History" %}">
+                    {{ related.name }}
+                </a>
+            {% else %}
+                {{ related.name }}
+            {% endif %}
         </li>
         {% endfor %}
     </ul>
