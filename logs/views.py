@@ -37,7 +37,6 @@ nombre d'objets par models, nombre d'actions par user, etc
 """
 
 from __future__ import unicode_literals
-from itertools import chain
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
@@ -105,9 +104,7 @@ from .models import (
     ActionsSearch,
     RevisionAction,
     MachineHistorySearch,
-    UserHistory,
-    MachineHistory,
-    InterfaceHistory
+    get_history_class
 )
 
 from .forms import (
@@ -526,33 +523,24 @@ def stats_search_machine_history(request):
     return render(request, "logs/search_machine_history.html", {"history_form": history_form})
 
 
-def get_history_object(request, model, object_name, object_id, allow_deleted=False):
+def get_history_object(request, model, object_name, object_id):
     """Get the objet of type model with the given object_id
     Handles permissions and DoesNotExist errors
     """
-    is_deleted = False
-
     try:
         object_name_id = object_name + "id"
         kwargs = {object_name_id: object_id}
         instance = model.get_instance(**kwargs)
     except model.DoesNotExist:
-        is_deleted = True
         instance = None
 
-    if is_deleted and not allow_deleted:
-        messages.error(request, _("Nonexistent entry."))
-        return False, redirect(
-            reverse("users:profil", kwargs={"userid": str(request.user.id)})
-        )
-
-    if is_deleted:
-        can_view = can_view_app("logs")
+    if instance is None:
+        authorized = can_view_app("logs")
         msg = None
     else:
-        can_view, msg, _permissions = instance.can_view(request.user)
+        authorized, msg, _permissions = instance.can_view(request.user)
 
-    if not can_view:
+    if not authorized:
         messages.error(
             request, msg or _("You don't have the right to access this menu.")
         )
@@ -564,60 +552,13 @@ def get_history_object(request, model, object_name, object_id, allow_deleted=Fal
 
 
 @login_required
-def detailed_history(request, object_name, object_id):
-    """Render a detailed history for a model.
-    Permissions are handled by get_history_object.
-    """
-    # Only handle objects for which a detailed view exists
-    if object_name == "user":
-        model = User
-        history = UserHistory()
-    elif object_name == "machine":
-        model = Machine
-        history = MachineHistory()
-    elif object_name == "interface":
-        model = Interface
-        history = InterfaceHistory()
-    else:
-        raise Http404(_("No model found."))
-
-    # Get instance and check permissions
-    can_view, instance = get_history_object(request, model, object_name, object_id, allow_deleted=True)
-    if not can_view:
-        return instance
-
-    # Generate the pagination with the objects
-    max_result = GeneralOption.get_cached_value("pagination_number")
-    events = history.get(int(object_id))
-
-    # Events is None if object wasn't found
-    if events is None:
-        messages.error(request, _("Nonexistent entry."))
-        return redirect(
-            reverse("users:profil", kwargs={"userid": str(request.user.id)})
-        )
-
-    # Add the paginator in case there are many results
-    events = re2o_paginator(request, events, max_result)
-
-    # Add a title in case the object was deleted
-    title = instance or "{} ({})".format(history.name, _("Deleted"))
-
-    return render(
-        request,
-        "logs/detailed_history.html",
-        {"title": title, "events": events, "related_history": history.related},
-    )
-
-
-@login_required
 def history(request, application, object_name, object_id):
     """Render history for a model.
 
     The model is determined using the `HISTORY_BIND` dictionnary if none is
     found, raises a Http404. The view checks if the user is allowed to see the
-    history using the `can_view` method of the model.
-    Permissions are handled by get_history_object.
+    history using the `can_view` method of the model, or the generic
+    `can_view_app("logs")` for deleted objects (see `get_history_object`).
 
     Args:
         request: The request sent by the user.
@@ -637,16 +578,29 @@ def history(request, application, object_name, object_id):
     except LookupError:
         raise Http404(_("No model found."))
 
-    can_view, instance = get_history_object(request, model, object_name, object_id)
+    authorized, instance = get_history_object(request, model, object_name, object_id)
     if not can_view:
         return instance
 
-    pagination_number = GeneralOption.get_cached_value("pagination_number")
-    reversions = Version.objects.get_for_object(instance)
-    if hasattr(instance, "linked_objects"):
-        for related_object in chain(instance.linked_objects()):
-            reversions = reversions | Version.objects.get_for_object(related_object)
-    reversions = re2o_paginator(request, reversions, pagination_number)
+    history = get_history_class(model)
+    events = history.get(int(object_id), model)
+
+    # Events is None if object wasn't found
+    if events is None:
+        messages.error(request, _("Nonexistent entry."))
+        return redirect(
+            reverse("users:profil", kwargs={"userid": str(request.user.id)})
+        )
+
+    # Generate the pagination with the objects
+    max_result = GeneralOption.get_cached_value("pagination_number")
+    events = re2o_paginator(request, events, max_result)
+
+    # Add a default title in case the object was deleted
+    title = instance or "{} ({})".format(history.name, _("Deleted"))
+
     return render(
-        request, "re2o/history.html", {"reversions": reversions, "object": instance}
+        request,
+        "logs/detailed_history.html",
+        {"title": title, "events": events, "related_history": history.related},
     )
