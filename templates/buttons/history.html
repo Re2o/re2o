@@ -24,13 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load i18n %}
 
-{% if detailed %}
-<a {% if class%}class="btn btn-info btn-sm"{% endif %} role="button" title="{% trans "History" %}" href="{% url 'logs:detailed-history' name id %}">
-    <i class="fa fa-history"></i> {% if text %}{% trans "History" %}{% endif %}
-</a>
-{% else %}
 <a {% if class%}class="btn btn-info btn-sm"{% endif %} role="button" title="{% trans "History" %}" href="{% url 'logs:history' application name id %}">
     <i class="fa fa-history"></i> {% if text %}{% trans "History" %}{% endif %}
 </a>
-{% endif %}
 

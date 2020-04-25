@@ -42,11 +42,6 @@ urlpatterns = [
         views.history,
         name="history",
     ),
-    url(
-        r"(?P<object_name>\w+)/(?P<object_id>[0-9]+)$",
-        views.detailed_history,
-        name="detailed-history",
-    ),
     url(r"^stats_general/$", views.stats_general, name="stats-general"),
     url(r"^stats_models/$", views.stats_models, name="stats-models"),
     url(r"^stats_users/$", views.stats_users, name="stats-users"),
