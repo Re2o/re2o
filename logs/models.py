@@ -260,7 +260,7 @@ class HistoryEvent:
         """
         self.version = version
         self.previous_version = previous_version
-        self.edited_fields = edited_fields
+        self.edited_fields = edited_fields or []
         self.date = version.revision.date_created
         self.performed_by = version.revision.user
         self.comment = version.revision.get_comment() or None
