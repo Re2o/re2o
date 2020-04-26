@@ -955,7 +955,7 @@ def edit_srv(request, srv_instance, **_kwargs):
         if srv.changed_data:
             srv.save()
             messages.success(request, _("The SRV record was edited."))
-        return redirect(reverse("machines:1index-extension"))
+        return redirect(reverse("machines:index-extension"))
     return form(
         {"srvform": srv, "action_name": _("Edit")}, "machines/machine.html", request
     )
