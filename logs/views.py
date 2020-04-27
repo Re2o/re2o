@@ -113,8 +113,7 @@ from .forms import ActionsSearchForm, MachineHistorySearchForm
 @login_required
 @can_view_app("logs")
 def index(request):
-    """Affiche les logs affinés, date reformatées, selectionne
-    les event importants (ajout de droits, ajout de ban/whitelist)"""
+    """View used to display summary of events about users."""
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     # The types of content kept for display
     content_type_filter = ["ban", "whitelist", "vente", "interface", "user"]
@@ -155,8 +154,7 @@ def index(request):
 @login_required
 @can_view_all(GeneralOption)
 def stats_logs(request):
-    """Affiche l'ensemble des logs et des modifications sur les objets,
-    classés par date croissante, en vrac"""
+    """View used to do an advanced search through the logs."""
     actions_form = ActionsSearchForm(request.GET or None)
 
     if actions_form.is_valid():
@@ -185,7 +183,7 @@ def stats_logs(request):
 @login_required
 @can_edit_history
 def revert_action(request, revision_id):
-    """ Annule l'action en question """
+    """View used to revert actions."""
     try:
         revision = Revision.objects.get(id=revision_id)
     except Revision.DoesNotExist:
@@ -204,9 +202,10 @@ def revert_action(request, revision_id):
 @login_required
 @can_view_all(IpList, Interface, User)
 def stats_general(request):
-    """Statistiques générales affinées sur les ip, activées, utilisées par
-    range, et les statistiques générales sur les users : users actifs,
-    cotisants, activés, archivés, etc"""
+    """View used to display general statistics about users (activated,
+    disabled, archived etc.) and IP addresses (ranges, number of assigned
+    addresses etc.).
+    """
     ip_dict = dict()
     for ip_range in IpType.objects.select_related("vlan").all():
         all_ip = IpList.objects.filter(ip_type=ip_range)
@@ -377,9 +376,9 @@ def stats_general(request):
 @login_required
 @can_view_app("users", "cotisations", "machines", "topologie")
 def stats_models(request):
-    """Statistiques générales, affiche les comptages par models:
-    nombre d'users, d'écoles, de droits, de bannissements,
-    de factures, de ventes, de banque, de machines, etc"""
+    """View used to display general statistics about the number of objects
+    stored in the database, for each model.
+    """
     stats = {
         _("Users (members and clubs)"): {
             "users": [User._meta.verbose_name, User.objects.count()],
@@ -452,10 +451,9 @@ def stats_models(request):
 @login_required
 @can_view_app("users")
 def stats_users(request):
-    """Affiche les statistiques base de données aggrégées par user :
-    nombre de machines par user, d'etablissements par user,
-    de moyens de paiements par user, de banque par user,
-    de bannissement par user, etc"""
+    """View used to display statistics aggregated by user (number of machines,
+    bans, whitelists, rights etc.).
+    """
     stats = {
         User._meta.verbose_name: {
             Machine._meta.verbose_name_plural: User.objects.annotate(
@@ -496,9 +494,7 @@ def stats_users(request):
 @login_required
 @can_view_app("users")
 def stats_actions(request):
-    """Vue qui affiche les statistiques de modifications d'objets par
-    utilisateurs.
-    Affiche le nombre de modifications aggrégées par utilisateurs"""
+    """View used to display the number of actions, aggregated by user."""
     stats = {
         User._meta.verbose_name: {
             _("actions"): User.objects.annotate(num=Count("revision")).order_by("-num")[
@@ -512,8 +508,9 @@ def stats_actions(request):
 @login_required
 @can_view_app("users")
 def stats_search_machine_history(request):
-    """View which displays the history of machines with the given
-    une IP or MAC adresse"""
+    """View used to display the history of machines with the given IP or MAC
+    address.
+    """
     history_form = MachineHistorySearchForm(request.GET or None)
     if history_form.is_valid():
         history = MachineHistorySearch()

@@ -69,12 +69,16 @@ def make_version_filter(key, value):
 
 class MachineHistorySearchEvent:
     def __init__(self, user, machine, interface, start=None, end=None):
-        """
-        :param user: User, The user owning the maching at the time of the event
-        :param machine: Version, the machine version related to the interface
-        :param interface: Version, the interface targeted by this event
-        :param start: datetime, the date at which this version was created
-        :param end: datetime, the date at which this version was replace by a new one
+        """Initialise an instance of MachineHistorySearchEvent.
+
+        Args:
+            user: User, the user owning the machine at the time of the event.
+            machine: Version, the machine version related to the interface.
+            interface: Version, the interface targeted by this event.
+            start: datetime, the date at which this version was created
+                (default: None).
+            end: datetime, the date at which this version was replace by a new
+                one (default: None).
         """
         self.user = user
         self.machine = machine
@@ -86,9 +90,13 @@ class MachineHistorySearchEvent:
         self.comment = interface.revision.get_comment() or None
 
     def is_similar(self, elt2):
-        """
-        Checks whether two events are similar enough to be merged
-        :return: bool
+        """Check whether two events are similar enough to be merged.
+
+        Args:
+            elt2: MachineHistorySearchEvent, the event to compare with self.
+
+        Returns:
+            A boolean, True if the events can be merged and False otherwise.
         """
         return (
             elt2 is not None
@@ -115,10 +123,14 @@ class MachineHistorySearch:
         self._last_evt = None
 
     def get(self, search, params):
-        """
-        :param search: ip or mac to lookup
-        :param params: dict built by the search view
-        :return: list or None, a list of MachineHistorySearchEvent in reverse chronological order
+        """Get the events in machine histories related to the search.
+
+        Args:
+            search: the IP or MAC address used in the search.
+            params: the dictionary built by the search view.
+
+        Returns:
+            A list of MachineHistorySearchEvent in reverse chronological order.
         """
         self.start = params.get("s", None)
         self.end = params.get("e", None)
@@ -140,11 +152,12 @@ class MachineHistorySearch:
         return []
 
     def _add_revision(self, user, machine, interface):
-        """
-        Add a new revision to the chronological order
-        :param user: User, The user owning the maching at the time of the event
-        :param machine: Version, the machine version related to the interface
-        :param interface: Version, the interface targeted by this event
+        """Add a new revision to the chronological order.
+
+        Args:
+            user: User, the user owning the maching at the time of the event.
+            machine: Version, the machine version related to the interface.
+            interface: Version, the interface targeted by this event.
         """
         evt = MachineHistorySearchEvent(user, machine, interface)
         evt.start_date = interface.revision.date_created
@@ -171,10 +184,15 @@ class MachineHistorySearch:
         self._last_evt = evt
 
     def _get_interfaces_for_ip(self, ip):
-        """
-        :param ip: str
-        :return: An iterable object with the Version objects
-                 of Interfaces with the given IP
+        """Get the Version objects of interfaces with the given IP
+        address.
+
+        Args:
+            ip: the string corresponding to the IP address.
+
+        Returns:
+            An iterable object with the Version objects of interfaces with the
+            given IP address.
         """
         # TODO: What if ip list was deleted?
         try:
@@ -189,10 +207,15 @@ class MachineHistorySearch:
         )
 
     def _get_interfaces_for_mac(self, mac):
-        """
-        :param mac: str
-        :return: An iterable object with the Version objects
-                 of Interfaces with the given MAC address
+        """Get the Version objects of interfaces with the given MAC
+        address.
+
+        Args:
+            mac: the string corresponding to the MAC address.
+
+        Returns:
+            An iterable object with the Version objects of interfaces with the
+            given MAC address.
         """
         return (
             Version.objects.get_for_model(Interface)
@@ -201,10 +224,14 @@ class MachineHistorySearch:
         )
 
     def _get_machines_for_interface(self, interface):
-        """
-        :param interface: Version, the interface for which to find the machines
-        :return: An iterable object with the Version objects of Machine to
-                 which the given interface was attributed
+        """Get the Version objects of machines with the given interface.
+
+        Args:
+            interface: Version, the interface used to find machines.
+
+        Returns:
+            An iterable object with the Version objects of machines to which
+            the given interface was assigned.
         """
         machine_id = interface.field_dict["machine_id"]
         return (
@@ -214,18 +241,27 @@ class MachineHistorySearch:
         )
 
     def _get_user_for_machine(self, machine):
-        """
-        :param machine: Version, the machine of which the owner must be found
-        :return: The user to which the given machine belongs
+        """Get the User instance owning the given machine.
+
+        Args:
+            machine: Version, the machine used to find its owner.
+
+        Returns:
+            The User instance of the owner of the given machine.
         """
         # TODO: What if user was deleted?
         user_id = machine.field_dict["user_id"]
         return User.objects.get(id=user_id)
 
     def _get_by_ip(self, ip):
-        """
-        :param ip: str, The IP to lookup
-        :returns: list, a list of MachineHistorySearchEvent
+        """Get events related to the given IP address.
+
+        Args:
+            ip: the string corresponding to the IP address.
+
+        Returns:
+            A list of MachineHistorySearchEvent related to the given IP
+            address.
         """
         interfaces = self._get_interfaces_for_ip(ip)
 
@@ -239,9 +275,14 @@ class MachineHistorySearch:
         return self.events
 
     def _get_by_mac(self, mac):
-        """
-        :param mac: str, The MAC address to lookup
-        :returns: list, a list of MachineHistorySearchEvent
+        """Get events related to the given MAC address.
+
+        Args:
+            mac: the string corresponding to the MAC address.
+
+        Returns:
+            A list of MachineHistorySearchEvent related to the given MAC
+            address.
         """
         interfaces = self._get_interfaces_for_mac(mac)
 
@@ -261,10 +302,10 @@ class MachineHistorySearch:
 
 class RelatedHistory:
     def __init__(self, version):
-        """
-        :param name: Name of this instance
-        :param model_name: Name of the related model (e.g. "user")
-        :param object_id: ID of the related object
+        """Initialise an instance of RelatedHistory.
+
+        Args:
+            version: Version, the version related to the history.
         """
         self.version = version
         self.app_name = version.content_type.app_label
@@ -287,10 +328,14 @@ class RelatedHistory:
 
 class HistoryEvent:
     def __init__(self, version, previous_version=None, edited_fields=None):
-        """
-        :param version: Version, the version of the object for this event
-        :param previous_version: Version, the version of the object before this event
-        :param edited_fields: list, The list of modified fields by this event
+        """Initialise an instance of HistoryEvent.
+
+        Args:
+            version: Version, the version of the object for this event.
+            previous_version: Version, the version of the object before this
+                event (default: None).
+            edited_fields: list, The list of modified fields by this event
+                (default: None).
         """
         self.version = version
         self.previous_version = previous_version
@@ -300,11 +345,15 @@ class HistoryEvent:
         self.comment = version.revision.get_comment() or None
 
     def _repr(self, name, value):
-        """
-        Returns the best representation of the given field
-        :param name: the name of the field
-        :param value: the value of the field
-        :return: object
+        """Get the appropriate representation of the given field.
+
+        Args:
+            name: the name of the field
+            value: the value of the field
+
+        Returns:
+            The string corresponding to the appropriate representation of the
+            given field.
         """
         if value is None:
             return _("None")
@@ -312,10 +361,14 @@ class HistoryEvent:
         return value
 
     def edits(self, hide=[]):
-        """
-        Build a list of the changes performed during this event
-        :param hide: list, the list of fields for which not to show details
-        :return: str
+        """Get the list of the changes performed during this event.
+
+        Args:
+            hide: the list of fields for which not to show details (default:
+            []).
+
+        Returns:
+            The list of fields edited by the event to display.
         """
         edits = []
 
@@ -342,10 +395,15 @@ class History:
         self.event_type = HistoryEvent
 
     def get(self, instance_id, model):
-        """
-        :param instance_id: int, The id of the instance to lookup
-        :param model: class, The type of object to lookup
-        :return: list or None, a list of HistoryEvent, in reverse chronological order
+        """Get the list of history events of the given object.
+
+        Args:
+            instance_id: int, the id of the instance to lookup.
+            model: class, the type of object to lookup.
+
+        Returns:
+            A list of HistoryEvent, in reverse chronological order, related to
+            the given object or None if no version was found.
         """
         self.events = []
 
@@ -368,12 +426,16 @@ class History:
         return self.events[::-1]
 
     def _compute_diff(self, v1, v2, ignoring=[]):
-        """
-        Find the edited field between two versions
-        :param v1: Version
-        :param v2: Version
-        :param ignoring: List, a list of fields to ignore
-        :return: List of field names
+        """Find the edited fields between two versions.
+
+        Args:
+            v1: Version to compare.
+            v2: Version to compare.
+            ignoring: a list of fields to ignore.
+
+        Returns:
+            The list of field names in v1 that are different from the ones in
+            v2.
         """
         fields = []
 
@@ -384,9 +446,10 @@ class History:
         return fields
 
     def _add_revision(self, version):
-        """
-        Add a new revision to the chronological order
-        :param version: Version, The version of the interface for this event
+        """Add a new revision to the chronological order.
+
+        Args:
+            version: Version, the version of the interface for this event.
         """
         diff = None
         if self._last_version is not None:
@@ -427,6 +490,15 @@ class VersionAction(HistoryEvent):
         return apps.get_model(self.application(), self.model_name())
 
     def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
+        """Get the list of the changes performed during this event.
+
+        Args:
+            hide: the list of fields for which not to show details (default:
+            ["password", "pwd_ntlm", "gpg_fingerprint"]).
+
+        Returns:
+            The list of fields edited by the event to display.
+        """
         self.previous_version = self._previous_version()
 
         if self.previous_version is None:
@@ -436,6 +508,12 @@ class VersionAction(HistoryEvent):
         return super(VersionAction, self).edits(hide)
 
     def _previous_version(self):
+        """Get the previous version of self.
+
+        Returns:
+            The Version corresponding to the previous version of self, or None
+            in case of exception.
+        """
         model = self.object_type()
         try:
             query = (
@@ -451,12 +529,16 @@ class VersionAction(HistoryEvent):
             return None
 
     def _compute_diff(self, v1, v2, ignoring=["pwd_ntlm"]):
-        """
-        Find the edited field between two versions
-        :param v1: Version
-        :param v2: Version
-        :param ignoring: List, a list of fields to ignore
-        :return: List of field names
+        """Find the edited fields between two versions.
+
+        Args:
+            v1: Version to compare.
+            v2: Version to compare.
+            ignoring: a list of fields to ignore (default: ["pwd_ntlm"]).
+
+        Returns:
+            The list of field names in v1 that are different from the ones in
+            v2.
         """
         fields = []
 
@@ -468,7 +550,8 @@ class VersionAction(HistoryEvent):
 
 
 class RevisionAction:
-    """A Revision may group multiple Version objects together"""
+    """A Revision may group multiple Version objects together."""
+
     def __init__(self, revision):
         self.performed_by = revision.user
         self.revision = revision
@@ -486,9 +569,13 @@ class RevisionAction:
 
 class ActionsSearch:
     def get(self, params):
-        """
-        :param params: dict built by the search view
-        :return: QuerySet of Revision objects
+        """Get the Revision objects corresponding to the search.
+
+        Args:
+            params: dictionary built by the search view.
+
+        Returns:
+            The QuerySet of Revision objects corresponding to the search.
         """
         user = params.get("u", None)
         start = params.get("s", None)
@@ -540,11 +627,15 @@ class ActionsSearch:
 
 class UserHistoryEvent(HistoryEvent):
     def _repr(self, name, value):
-        """
-        Returns the best representation of the given field
-        :param name: the name of the field
-        :param value: the value of the field
-        :return: object
+        """Get the appropriate representation of the given field.
+
+        Args:
+            name: the name of the field
+            value: the value of the field
+
+        Returns:
+            The string corresponding to the appropriate representation of the
+            given field.
         """
         if name == "groups":
             if len(value) == 0:
@@ -599,10 +690,14 @@ class UserHistoryEvent(HistoryEvent):
         return super(UserHistoryEvent, self)._repr(name, value)
 
     def edits(self, hide=["password", "pwd_ntlm", "gpg_fingerprint"]):
-        """
-        Build a list of the changes performed during this event
-        :param hide: list, the list of fields for which not to show details
-        :return: str
+        """Get the list of the changes performed during this event.
+
+        Args:
+            hide: the list of fields for which not to show details (default:
+            ["password", "pwd_ntlm", "gpg_fingerprint"]).
+
+        Returns:
+            The list of fields edited by the event to display.
         """
         return super(UserHistoryEvent, self).edits(hide)
 
@@ -631,9 +726,14 @@ class UserHistory(History):
         self.event_type = UserHistoryEvent
 
     def get(self, user_id, model):
-        """
-        :param user_id: int, the id of the user to lookup
-        :return: list or None, a list of UserHistoryEvent, in reverse chronological order
+        """Get the the list of UserHistoryEvent related to the object.
+
+        Args:
+            user_id: int, the id of the user to lookup.
+
+        Returns:
+            The list of UserHistoryEvent, in reverse chronological order,
+            related to the object, or None if nothing was found.
         """
         self.events = []
 
@@ -710,10 +810,10 @@ class UserHistory(History):
         )
 
     def _add_revision(self, version):
-        """
-        Add a new revision to the chronological order
-        :param user: User, The user displayed in this history
-        :param version: Version, The version of the user for this event
+        """Add a new revision to the chronological order.
+
+        Args:
+            version: Version, the version of the user for this event.
         """
         diff = None
         if self._last_version is not None:
@@ -736,11 +836,15 @@ class UserHistory(History):
 
 class MachineHistoryEvent(HistoryEvent):
     def _repr(self, name, value):
-        """
-        Returns the best representation of the given field
-        :param name: the name of the field
-        :param value: the value of the field
-        :return: object
+        """Return the appropriate representation of the given field.
+
+        Args:
+            name: the name of the field
+            value: the value of the field
+
+        Returns:
+            The string corresponding to the appropriate representation of the
+            given field.
         """
         if name == "user_id":
             try:
@@ -757,6 +861,15 @@ class MachineHistory(History):
         self.event_type = MachineHistoryEvent
 
     def get(self, machine_id, model):
+        """Get the the list of MachineHistoryEvent related to the object.
+
+        Args:
+            machine_id: int, the id of the machine to lookup.
+
+        Returns:
+            The list of MachineHistoryEvent, in reverse chronological order,
+            related to the object.
+        """
         self.related = (
             Version.objects.get_for_model(Interface)
             .filter(make_version_filter("machine", machine_id))
@@ -772,11 +885,15 @@ class MachineHistory(History):
 
 class InterfaceHistoryEvent(HistoryEvent):
     def _repr(self, name, value):
-        """
-        Returns the best representation of the given field
-        :param name: the name of the field
-        :param value: the value of the field
-        :return: object
+        """Get the appropriate representation of the given field.
+
+        Args:
+            name: the name of the field
+            value: the value of the field
+
+        Returns:
+            The string corresponding to the appropriate representation of the
+            given field.
         """
         if name == "ipv4_id" and value is not None:
             try:
@@ -813,6 +930,15 @@ class InterfaceHistory(History):
         self.event_type = InterfaceHistoryEvent
 
     def get(self, interface_id, model):
+        """Get the the list of InterfaceHistoryEvent related to the object.
+
+        Args:
+            interface_id: int, the id of the interface to lookup.
+
+        Returns:
+            The list of InterfaceHistoryEvent, in reverse chronological order,
+            related to the object.
+        """
         return super(InterfaceHistory, self).get(interface_id, Interface)
 
 
@@ -829,10 +955,15 @@ HISTORY_CLASS_MAPPING = {
 
 
 def get_history_class(model):
-    """
-    Find the mos appropriate History subclass to represent
-    the given model's history
-    :model: class
+    """Get the most appropriate History subclass to represent the given model's
+    history.
+
+    Args:
+        model: the class for which to get the history.
+
+    Returns:
+        The most appropriate History subclass for the given model's history,
+        or History if no other was found.
     """
     try:
         return HISTORY_CLASS_MAPPING[model]()

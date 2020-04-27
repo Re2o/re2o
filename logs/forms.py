@@ -53,6 +53,15 @@ CHOICES_TYPE = (
 
 
 def all_classes(module):
+    """Get the list of all class names of the module.
+
+    Args:
+        module: the module in which to retrieve classes.
+
+    Returns:
+        A list containing the names of all classes that are defined in
+        the module.
+    """
     classes = []
 
     for name, obj in inspect.getmembers(module):
@@ -63,8 +72,16 @@ def all_classes(module):
 
 
 def classes_for_action_type(action_type):
-    """Return the list of class names to be displayed for a
-    given actions type filter"""
+    """Get the list of class names to be displayed for a given action type
+    filter.
+
+    Args:
+        action_type: the string used to filter the class names.
+
+    Returns:
+        A list containing the class names corresponding to the action type
+        filter.
+    """
     if action_type == "users":
         return [
             users.models.User.__name__,
@@ -96,7 +113,7 @@ def classes_for_action_type(action_type):
 
 
 class ActionsSearchForm(Form):
-    """The form for a simple search"""
+    """Form used to do an advanced search through the logs."""
     u = forms.ModelChoiceField(
         label=_("Performed by"),
         queryset=users.models.User.objects.all(),
@@ -123,7 +140,7 @@ class ActionsSearchForm(Form):
 
 
 class MachineHistorySearchForm(Form):
-    """The form for a simple search"""
+    """Form used to do a search through the machine histories."""
     q = forms.CharField(
         label=_("Search"),
         max_length=100,
