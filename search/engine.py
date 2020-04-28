@@ -45,21 +45,43 @@ from re2o.base import SortTable, re2o_paginator
 class Query:
     """Class representing a query.
     It can contain the user-entered text, the operator for the query,
-    and a list of subqueries"""
+    and a list of subqueries.
+
+    Attributes:
+        text: the string written by the user in a query.
+        operator: character used to link subqueries, e.g. "+".
+        subqueries: list of Query objects when the current query is split in
+            several parts.
+    """
     def __init__(self, text="", case_sensitive=False):
-        self.text = text  # Content of the query
-        self.operator = None  # Whether a special char (ex "+") was used
-        self.subqueries = None   # When splitting the query in subparts
+        """Initialise an instance of Query.
+
+        Args:
+            text: the content of the query (default: "").
+            case_sensitive: bool, True if the query is case sensitive and
+                False if not (default: False).
+        """
+        self.text = text
+        self.operator = None
+        self.subqueries = None
         self.case_sensitive = case_sensitive
 
     def add_char(self, char):
-        """Add the given char to the query's text"""
+        """Add the given character to the query's text.
+
+        Args:
+            char: the character to be added.
+        """
         self.text += char
 
     def add_operator(self, operator):
         """Consider a new operator was entered, and that it must be processed.
         The query's current text is moved to self.subqueries in the form
-        of a plain Query object"""
+        of a plain Query object.
+
+        Args:
+            operator: the operator to be added.
+        """
         self.operator = operator
 
         if self.subqueries is None:
@@ -71,7 +93,7 @@ class Query:
 
     @property
     def plaintext(self):
-        """Returns a textual representation of the query's content"""
+        """Return the textual representation of the query's content."""
         if self.operator is not None:
             return self.operator.join([q.plaintext for q in self.subqueries])
 
@@ -82,7 +104,7 @@ class Query:
 
 
 def filter_fields():
-    """Return the list of fields the search applies to"""
+    """Return the list of fields the search applies to."""
     return ["users",
             "clubs",
             "machines",
@@ -95,12 +117,12 @@ def filter_fields():
 
 
 def empty_filters():
-    """Build empty filters used by Django"""
+    """Build empty filters used by Django."""
     return {f: Q() for f in filter_fields()}
 
 
 def is_int(variable):
-    """ Check if the variable can be casted to an integer """
+    """Check if the variable can be cast to an integer."""
     try:
         int(variable)
     except ValueError:
@@ -111,8 +133,18 @@ def is_int(variable):
 
 def finish_results(request, results, col, order):
     """Sort the results by applying filters and then limit them to the
-    number of max results. Finally add the info of the nmax number of results
-    to the dict"""
+    number of max results. Finally add the info of the maximum number of
+    results to the dictionary.
+
+    Args:
+        request: django request, corresponding to the search.
+        results: dict, the results of the search.
+        col: the column used to sort the results.
+        order: the order used to sort the results.
+
+    Returns:
+        The dictionary of results sorted and paginated.
+    """
     results["users"] = SortTable.sort(
         results["users"], col, order, SortTable.USERS_INDEX
     )
@@ -156,7 +188,16 @@ def finish_results(request, results, col, order):
 
 def contains_filter(attribute, word, case_sensitive=False):
     """Create a django model filtering whether the given attribute
-    contains the specified value."""
+    contains the specified value.
+
+    Args:
+        attribute: the attribute used to check if it contains the given word or
+            not.
+        word: the word used to check if it is contained in the attribute or
+            not.
+        case_sensitive: bool, True if the check is case sensitive and
+            False if not (default: False).
+    """
     if case_sensitive:
         attr = "{}__{}".format(attribute, "contains")
     else:
@@ -168,12 +209,13 @@ def contains_filter(attribute, word, case_sensitive=False):
 def search_single_word(word, filters, user, start, end,
                        user_state, email_state, aff,
                        case_sensitive=False):
-    """ Construct the correct filters to match differents fields of some models
+    """Construct the correct filters to match differents fields of some models
     with the given query according to the given filters.
-    The match field are either CharField or IntegerField that will be displayed
+    The match fields are either CharField or IntegerField that will be displayed
     on the results page (else, one might not see why a result has matched the
     query). IntegerField are matched against the query only if it can be casted
-    to an int."""
+    to an int.
+    """
 
     # Users
     if "0" in aff:
@@ -333,7 +375,7 @@ def search_single_word(word, filters, user, start, end,
 
 
 def apply_filters(filters, user, aff):
-    """ Apply the filters constructed by search_single_query.
+    """Apply the filters constructed by search_single_query.
     It also takes into account the visual filters defined during
     the search query.
     """
@@ -406,8 +448,8 @@ def apply_filters(filters, user, aff):
 
 
 def search_single_query(query, filters, user, start, end, user_state, email_state, aff):
-    """ Handle different queries an construct the correct filters using
-    search_single_word"""
+    """Handle different queries an construct the correct filters using
+    search_single_word."""
     if query.operator == "+":
         # Special queries with "+" operators should use & rather than |
         newfilters = empty_filters()

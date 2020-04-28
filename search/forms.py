@@ -62,7 +62,7 @@ def initial_choices(choice_set):
 
 
 class SearchForm(Form):
-    """The form for a simple search"""
+    """Form used to do a simple search."""
 
     q = forms.CharField(
         label=_("Search"),
@@ -78,7 +78,7 @@ class SearchForm(Form):
 
 
 class SearchFormPlus(Form):
-    """The form for an advanced search (with filters)"""
+    """Form used to do an advanced search (with filters)."""
 
     q = forms.CharField(
         label=_("Search"),
