@@ -34,7 +34,7 @@ from .models import Preferences
 
 
 class EditPreferencesForm(ModelForm):
-    """ Edit the ticket's settings"""
+    """Form used to edit the settings of multi_op."""
 
     class Meta:
         model = Preferences
