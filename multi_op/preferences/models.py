@@ -19,7 +19,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Fichier définissant les administration des models de preference 
+multi_op preferences model. The settings are used when managing dormitories
+with multiple operators.
 """
 
 
@@ -28,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Preferences(models.Model):
-    """ Definition of the app settings"""
+    """Definition of the settings of multi_op."""
 
     enabled_dorm = models.ManyToManyField(
         "topologie.Dormitory",

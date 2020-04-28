@@ -36,7 +36,7 @@ from topologie.models import Dormitory
 
 
 class DormitoryForm(FormRevMixin, Form):
-    """Select a dorm"""
+    """Form used to select dormitories."""
 
     dormitory = forms.ModelMultipleChoiceField(
         queryset=Dormitory.objects.all(),
