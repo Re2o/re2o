@@ -32,7 +32,7 @@ from preferences.models import PreferencesModel
 
 
 class TicketOption(AclMixin, PreferencesModel):
-    """ Definition of the ticket's settings"""
+    """Definition of the settings of tickets."""
 
     publish_address = models.EmailField(
         help_text=_(
