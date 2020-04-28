@@ -32,7 +32,7 @@ from .models import TicketOption
 
 
 class EditTicketOptionForm(FormRevMixin, ModelForm):
-    """ Edit the ticket's settings"""
+    """Form used to edit the settings of tickets."""
 
     class Meta:
         model = TicketOption

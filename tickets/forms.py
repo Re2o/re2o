@@ -35,7 +35,7 @@ from .models import Ticket, CommentTicket
 
 
 class NewTicketForm(FormRevMixin, ModelForm):
-    """ Creation of a ticket"""
+    """Form used to create tickets."""
 
     class Meta:
         model = Ticket
@@ -53,7 +53,7 @@ class NewTicketForm(FormRevMixin, ModelForm):
 
 
 class EditTicketForm(FormRevMixin, ModelForm):
-    """ Creation of a ticket"""
+    """Form used to edit tickets."""
 
     class Meta:
         model = Ticket
@@ -65,7 +65,7 @@ class EditTicketForm(FormRevMixin, ModelForm):
 
 
 class CommentTicketForm(FormRevMixin, ModelForm):
-    """Edit and create comment to a ticket"""
+    """Form used to create and edit comments of a ticket."""
 
     class Meta:
         model = CommentTicket

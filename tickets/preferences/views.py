@@ -42,7 +42,7 @@ from . import models
 
 
 def aff_preferences(request):
-    """ View to display the settings of the tickets in the preferences page"""
+    """View used to display the settings of tickets in the preferences page."""
     pref, created = models.TicketOption.objects.get_or_create()
     context = {
         "preferences": pref,
