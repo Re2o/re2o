@@ -24,8 +24,8 @@
 # Gabriel Détraz, Augustin Lemesle
 # Gplv2
 """
-Vue d'affichage, et de modification des réglages (réglages machine,
-topologie, users, service...)
+Views to display and edit settings (preferences of machines, users, topology,
+services etc.)
 """
 
 from __future__ import unicode_literals
@@ -88,7 +88,7 @@ from . import forms
 
 
 def edit_options_template_function(request, section, forms, models):
-    """ Edition des préférences générales"""
+    """View used to edit general preferences."""
     model = getattr(models, section, None)
     form_instance = getattr(forms, "Edit" + section + "Form", None)
     if not (model or form_instance):
@@ -127,8 +127,7 @@ def edit_options_template_function(request, section, forms, models):
     HomeOption,
 )
 def display_options(request):
-    """Vue pour affichage des options (en vrac) classé selon les models
-    correspondants dans un tableau"""
+    """View used to display preferences sorted by model."""
     useroptions, _created = OptionalUser.objects.get_or_create()
     machineoptions, _created = OptionalMachine.objects.get_or_create()
     topologieoptions, _created = OptionalTopologie.objects.get_or_create()
@@ -188,7 +187,7 @@ def edit_options(request, section):
 @login_required
 @can_create(Service)
 def add_service(request):
-    """Ajout d'un service de la page d'accueil"""
+    """View used to add services displayed on the home page."""
     service = ServiceForm(request.POST or None, request.FILES or None)
     if service.is_valid():
         service.save()
@@ -204,7 +203,7 @@ def add_service(request):
 @login_required
 @can_edit(Service)
 def edit_service(request, service_instance, **_kwargs):
-    """Edition des services affichés sur la page d'accueil"""
+    """View used to edit services displayed on the home page."""
     service = ServiceForm(
         request.POST or None, request.FILES or None, instance=service_instance
     )
@@ -222,7 +221,7 @@ def edit_service(request, service_instance, **_kwargs):
 @login_required
 @can_delete(Service)
 def del_service(request, service_instance, **_kwargs):
-    """Suppression d'un service de la page d'accueil"""
+    """View used to delete services displayed on the home page."""
     if request.method == "POST":
         service_instance.delete()
         messages.success(request, _("The service was deleted."))
@@ -237,7 +236,7 @@ def del_service(request, service_instance, **_kwargs):
 @login_required
 @can_create(Reminder)
 def add_reminder(request):
-    """Ajout d'un mail de rappel"""
+    """View used to add reminders."""
     reminder = ReminderForm(request.POST or None, request.FILES or None)
     if reminder.is_valid():
         reminder.save()
@@ -253,7 +252,7 @@ def add_reminder(request):
 @login_required
 @can_edit(Reminder)
 def edit_reminder(request, reminder_instance, **_kwargs):
-    """Edition reminder"""
+    """View used to edit reminders."""
     reminder = ReminderForm(
         request.POST or None, request.FILES or None, instance=reminder_instance
     )
@@ -271,7 +270,7 @@ def edit_reminder(request, reminder_instance, **_kwargs):
 @login_required
 @can_delete(Reminder)
 def del_reminder(request, reminder_instance, **_kwargs):
-    """Destruction d'un reminder"""
+    """View used to delete reminders."""
     if request.method == "POST":
         reminder_instance.delete()
         messages.success(request, _("The reminder was deleted."))
@@ -286,7 +285,7 @@ def del_reminder(request, reminder_instance, **_kwargs):
 @login_required
 @can_create(RadiusKey)
 def add_radiuskey(request):
-    """Ajout d'une clef radius"""
+    """View used to add RADIUS keys."""
     radiuskey = RadiusKeyForm(request.POST or None)
     if radiuskey.is_valid():
         radiuskey.save()
@@ -301,7 +300,7 @@ def add_radiuskey(request):
 
 @can_edit(RadiusKey)
 def edit_radiuskey(request, radiuskey_instance, **_kwargs):
-    """Edition des clefs radius"""
+    """View used to edit RADIUS keys."""
     radiuskey = RadiusKeyForm(request.POST or None, instance=radiuskey_instance)
     if radiuskey.is_valid():
         radiuskey.save()
@@ -317,7 +316,7 @@ def edit_radiuskey(request, radiuskey_instance, **_kwargs):
 @login_required
 @can_delete(RadiusKey)
 def del_radiuskey(request, radiuskey_instance, **_kwargs):
-    """Destruction d'un radiuskey"""
+    """View used to delete RADIUS keys."""
     if request.method == "POST":
         try:
             radiuskey_instance.delete()
@@ -342,6 +341,7 @@ def del_radiuskey(request, radiuskey_instance, **_kwargs):
 @can_create(SwitchManagementCred)
 def add_switchmanagementcred(request):
     """Ajout de creds de management"""
+    """View used to add switch management credentials."""
     switchmanagementcred = SwitchManagementCredForm(request.POST or None)
     if switchmanagementcred.is_valid():
         switchmanagementcred.save()
@@ -356,7 +356,7 @@ def add_switchmanagementcred(request):
 
 @can_edit(SwitchManagementCred)
 def edit_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
-    """Edition des creds de management"""
+    """View used to edit switch management credentials."""
     switchmanagementcred = SwitchManagementCredForm(
         request.POST or None, instance=switchmanagementcred_instance
     )
@@ -374,7 +374,7 @@ def edit_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs)
 @login_required
 @can_delete(SwitchManagementCred)
 def del_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
-    """Destruction d'un switchmanagementcred"""
+    """View used to delete switch management credentials."""
     if request.method == "POST":
         try:
             switchmanagementcred_instance.delete()
@@ -404,7 +404,7 @@ def del_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs):
 @login_required
 @can_create(MailContact)
 def add_mailcontact(request):
-    """Add a contact email adress."""
+    """View used to add contact email addresses."""
     mailcontact = MailContactForm(request.POST or None, request.FILES or None)
     if mailcontact.is_valid():
         mailcontact.save()
@@ -420,7 +420,7 @@ def add_mailcontact(request):
 @login_required
 @can_edit(MailContact)
 def edit_mailcontact(request, mailcontact_instance, **_kwargs):
-    """Edit contact email adress."""
+    """View used to edit contact email addresses."""
     mailcontact = MailContactForm(
         request.POST or None, request.FILES or None, instance=mailcontact_instance
     )
@@ -438,7 +438,7 @@ def edit_mailcontact(request, mailcontact_instance, **_kwargs):
 @login_required
 @can_delete_set(MailContact)
 def del_mailcontact(request, instances):
-    """Delete an email adress"""
+    """View used to delete one or several contact email addresses."""
     mailcontacts = DelMailContactForm(request.POST or None, instances=instances)
     if mailcontacts.is_valid():
         mailcontacts_dels = mailcontacts.cleaned_data["mailcontacts"]
@@ -456,9 +456,7 @@ def del_mailcontact(request, instances):
 @login_required
 @can_create(DocumentTemplate)
 def add_document_template(request):
-    """
-    View used to add a document template.
-    """
+    """View used to add document templates."""
     document_template = DocumentTemplateForm(
         request.POST or None, request.FILES or None
     )
@@ -480,9 +478,7 @@ def add_document_template(request):
 @login_required
 @can_edit(DocumentTemplate)
 def edit_document_template(request, document_template_instance, **_kwargs):
-    """
-    View used to edit a document_template.
-    """
+    """View used to edit document templates."""
     document_template = DocumentTemplateForm(
         request.POST or None, request.FILES or None, instance=document_template_instance
     )
@@ -505,9 +501,7 @@ def edit_document_template(request, document_template_instance, **_kwargs):
 @login_required
 @can_delete_set(DocumentTemplate)
 def del_document_template(request, instances):
-    """
-    View used to delete a set of document template.
-    """
+    """View used to delete one or several document templates."""
     document_template = DelDocumentTemplateForm(
         request.POST or None, instances=instances
     )
@@ -545,7 +539,7 @@ def del_document_template(request, instances):
 @login_required
 @can_create(RadiusAttribute)
 def add_radiusattribute(request):
-    """Create a RADIUS attribute."""
+    """View used to add RADIUS attributes."""
     attribute = RadiusAttributeForm(request.POST or None)
     if attribute.is_valid():
         attribute.save()
@@ -561,7 +555,7 @@ def add_radiusattribute(request):
 @login_required
 @can_edit(RadiusAttribute)
 def edit_radiusattribute(request, radiusattribute_instance, **_kwargs):
-    """Edit a RADIUS attribute."""
+    """View used to edit RADIUS attributes."""
     attribute = RadiusAttributeForm(
         request.POST or None, instance=radiusattribute_instance
     )
@@ -579,7 +573,7 @@ def edit_radiusattribute(request, radiusattribute_instance, **_kwargs):
 @login_required
 @can_delete(RadiusAttribute)
 def del_radiusattribute(request, radiusattribute_instance, **_kwargs):
-    """Delete a RADIUS attribute."""
+    """View used to delete RADIUS attributes."""
     if request.method == "POST":
         radiusattribute_instance.delete()
         messages.success(request, _("The attribute was deleted."))
@@ -594,7 +588,7 @@ def del_radiusattribute(request, radiusattribute_instance, **_kwargs):
 @login_required
 @can_create(Mandate)
 def add_mandate(request):
-    """Create a mandate."""
+    """View used to add mandates."""
     mandate = MandateForm(request.POST or None)
     if mandate.is_valid():
         mandate.save()
@@ -610,7 +604,7 @@ def add_mandate(request):
 @login_required
 @can_edit(Mandate)
 def edit_mandate(request, mandate_instance, **_kwargs):
-    """Edit a mandate."""
+    """View used to edit mandates."""
     mandate = MandateForm(request.POST or None, instance=mandate_instance)
     if mandate.is_valid():
         mandate.save()
@@ -626,7 +620,7 @@ def edit_mandate(request, mandate_instance, **_kwargs):
 @login_required
 @can_delete(Mandate)
 def del_mandate(request, mandate_instance, **_kwargs):
-    """Delete a mandate."""
+    """View used to delete mandates."""
     if request.method == "POST":
         mandate_instance.delete()
         messages.success(request, _("The mandate was deleted."))

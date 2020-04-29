@@ -53,7 +53,7 @@ from topologie.models import Switch
 
 
 class EditOptionalUserForm(ModelForm):
-    """Formulaire d'édition des options de l'user. (solde, telephone..)"""
+    """Form used to edit user preferences."""
 
     class Meta:
         model = OptionalUser
@@ -82,7 +82,7 @@ class EditOptionalUserForm(ModelForm):
 
 
 class EditOptionalMachineForm(ModelForm):
-    """Options machines (max de machines, etc)"""
+    """Form used to edit machine preferences."""
 
     class Meta:
         model = OptionalMachine
@@ -105,9 +105,7 @@ class EditOptionalMachineForm(ModelForm):
 
 
 class EditOptionalTopologieForm(ModelForm):
-    """Options de topologie, formulaire d'edition (vlan par default etc)
-    On rajoute un champ automatic provision switchs pour gérer facilement
-    l'ajout de switchs au provisionning automatique"""
+    """Form used to edit the configuration of switches."""
 
     automatic_provision_switchs = forms.ModelMultipleChoiceField(
         Switch.objects.all(), required=False
@@ -135,7 +133,7 @@ class EditOptionalTopologieForm(ModelForm):
 
 
 class EditGeneralOptionForm(ModelForm):
-    """Options générales (affichages de résultats de recherche, etc)"""
+    """Form used to edit general preferences."""
 
     class Meta:
         model = GeneralOption
@@ -165,7 +163,7 @@ class EditGeneralOptionForm(ModelForm):
 
 
 class EditAssoOptionForm(ModelForm):
-    """Options de l'asso (addresse, telephone, etc)"""
+    """Form used to edit information about the organisation."""
 
     class Meta:
         model = AssoOption
@@ -189,7 +187,7 @@ class EditAssoOptionForm(ModelForm):
 
 
 class EditMailMessageOptionForm(ModelForm):
-    """Formulaire d'edition des messages de bienvenue personnalisés"""
+    """Form used to edit welcome email messages."""
 
     class Meta:
         model = MailMessageOption
@@ -207,7 +205,9 @@ class EditMailMessageOptionForm(ModelForm):
 
 
 class EditHomeOptionForm(ModelForm):
-    """Edition forms of Home options"""
+    """Form used to edit the social networks information displayed on the home
+    page.
+    """
 
     class Meta:
         model = HomeOption
@@ -222,7 +222,7 @@ class EditHomeOptionForm(ModelForm):
 
 
 class EditRadiusOptionForm(ModelForm):
-    """Edition forms for Radius options"""
+    """Form used to edit RADIUS preferences."""
 
     class Meta:
         model = RadiusOption
@@ -242,7 +242,7 @@ class EditRadiusOptionForm(ModelForm):
 
 
 class EditCotisationsOptionForm(ModelForm):
-    """Edition forms for Cotisations options"""
+    """Form used to edit subscription preferences."""
 
     class Meta:
         model = CotisationsOption
@@ -250,7 +250,7 @@ class EditCotisationsOptionForm(ModelForm):
 
 
 class MandateForm(ModelForm):
-    """Edit Mandates"""
+    """Form used to add and edit mandates."""
 
     class Meta:
         model = Mandate
@@ -319,7 +319,7 @@ class MandateForm(ModelForm):
 
 
 class ServiceForm(ModelForm):
-    """Edition, ajout de services sur la page d'accueil"""
+    """Form used to add and edit services displayed on the home page."""
 
     class Meta:
         model = Service
@@ -335,7 +335,8 @@ class ServiceForm(ModelForm):
 
 
 class DelServiceForm(Form):
-    """Suppression de services sur la page d'accueil"""
+    """Form used to delete one or several services displayed on the home page.
+    """
 
     services = forms.ModelMultipleChoiceField(
         queryset=Service.objects.none(),
@@ -353,7 +354,7 @@ class DelServiceForm(Form):
 
 
 class ReminderForm(FormRevMixin, ModelForm):
-    """Edition, ajout de services sur la page d'accueil"""
+    """Form used to add and edit reminders."""
 
     class Meta:
         model = Reminder
@@ -365,7 +366,7 @@ class ReminderForm(FormRevMixin, ModelForm):
 
 
 class RadiusKeyForm(FormRevMixin, ModelForm):
-    """Edition, ajout de clef radius"""
+    """Form used to add and edit RADIUS keys."""
 
     members = forms.ModelMultipleChoiceField(
         queryset=Switch.objects.all(), required=False
@@ -389,8 +390,7 @@ class RadiusKeyForm(FormRevMixin, ModelForm):
 
 
 class SwitchManagementCredForm(FormRevMixin, ModelForm):
-    """Edition, ajout de creds de management pour gestion
-    et interface rest des switchs"""
+    """Form used to add and edit switch management credentials."""
 
     members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
 
@@ -412,7 +412,7 @@ class SwitchManagementCredForm(FormRevMixin, ModelForm):
 
 
 class MailContactForm(ModelForm):
-    """Edition, ajout d'adresse de contact"""
+    """Form used to add and edit contact email addresses."""
 
     class Meta:
         model = MailContact
@@ -424,7 +424,7 @@ class MailContactForm(ModelForm):
 
 
 class DelMailContactForm(Form):
-    """Delete contact email adress"""
+    """Form used to delete one or several contact email addresses."""
 
     mailcontacts = forms.ModelMultipleChoiceField(
         queryset=MailContact.objects.none(),
@@ -442,9 +442,7 @@ class DelMailContactForm(Form):
 
 
 class DocumentTemplateForm(FormRevMixin, ModelForm):
-    """
-    Form used to create a document template.
-    """
+    """Form used to add and edit document templates."""
 
     class Meta:
         model = DocumentTemplate
@@ -456,10 +454,7 @@ class DocumentTemplateForm(FormRevMixin, ModelForm):
 
 
 class DelDocumentTemplateForm(FormRevMixin, Form):
-    """
-    Form used to delete one or more document templatess.
-    The use must choose the one to delete by checking the boxes.
-    """
+    """Form used to delete one or several document templates."""
 
     document_templates = forms.ModelMultipleChoiceField(
         queryset=DocumentTemplate.objects.none(),
@@ -477,7 +472,7 @@ class DelDocumentTemplateForm(FormRevMixin, Form):
 
 
 class RadiusAttributeForm(ModelForm):
-    """Edit and add RADIUS attributes."""
+    """Form used to add and edit RADIUS attributes."""
 
     class Meta:
         model = RadiusAttribute
@@ -489,7 +484,7 @@ class RadiusAttributeForm(ModelForm):
 
 
 class DelRadiusAttributeForm(Form):
-    """Delete RADIUS attributes"""
+    """Form used to delete one or several RADIUS attributes."""
 
     attributes = forms.ModelMultipleChoiceField(
         queryset=RadiusAttribute.objects.none(),
