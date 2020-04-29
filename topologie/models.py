@@ -21,18 +21,15 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Definition des modèles de l'application topologie.
+Definition of models for the 'topologie' app.
 
-On défini les models suivants :
-
-- stack (id, id_min, id_max et nom) regrouppant les switches
-- switch : nom, nombre de port, et interface
-machine correspondante (mac, ip, etc) (voir machines.models.interface)
-- Port: relié à un switch parent par foreign_key, numero du port,
-relié de façon exclusive à un autre port, une machine
-(serveur ou borne) ou une prise murale
-- room : liste des prises murales, nom et commentaire de l'état de
-la prise
+The following models are defined:
+    * stack (grouping switches): id, id_min, id_max and name
+    * switch: name, number of ports, related interface and machine (MAC
+    address, IP address etc.) (see machines.models.interface)
+    * port: related to a switch by foreign_key, number of the port, related
+    exclusively to another port, machine (server or AP) or room outlets
+    * room: list of outlets, name and comments about the plug's state
 """
 
 from __future__ import unicode_literals
@@ -56,9 +53,15 @@ from re2o.mixins import AclMixin, RevMixin
 
 
 class Stack(AclMixin, RevMixin, models.Model):
-    """Un objet stack. Regrouppe des switchs en foreign key
-    ,contient une id de stack, un switch id min et max dans
-    le stack"""
+    """Switch stack.
+
+    Attributes:
+        name: the name of the stack.
+        stack_id: the ID of the stack, as a text chosen by the user.
+        details: the description to provide details about the stack.
+        member_id_min: the minimum switch ID in the stack.
+        member_id_max: the maximum switch ID in the stack.
+    """
 
     name = models.CharField(max_length=32, blank=True, null=True)
     stack_id = models.CharField(max_length=32, unique=True)
@@ -89,9 +92,10 @@ class Stack(AclMixin, RevMixin, models.Model):
 
 
 class AccessPoint(Machine):
-    """Define a wireless AP. Inherit from machines.interfaces
+    """Wireless Access Point. Inherits from machines.interfaces.
 
-    Definition pour une borne wifi , hérite de machines.interfaces
+    Attributes:
+        location: the text to provide details about the AP's location.
     """
 
     location = models.CharField(
@@ -107,17 +111,16 @@ class AccessPoint(Machine):
         verbose_name_plural = _("access points")
 
     def port(self):
-        """Return the queryset of ports for this device"""
+        """Return the queryset of ports for this device."""
         return Port.objects.filter(machine_interface__machine=self)
 
     def switch(self):
-        """Return the switch where this is plugged"""
+        """Return the switch where this is plugged."""
         return Switch.objects.filter(ports__machine_interface__machine=self)
 
     def building(self):
-        """
-        Return the building of the AP/Server (building of the switchs
-        connected to...)
+        """Return the building of the AP/Server (building of the switches
+        connected to...).
         """
         return Building.objects.filter(switchbay__switch=self.switch())
 
@@ -127,7 +130,14 @@ class AccessPoint(Machine):
 
     @classmethod
     def all_ap_in(cls, building_instance):
-        """Get a building as argument, returns all ap of a building"""
+        """Get all the APs of the given building.
+
+        Args:
+            building_instance: the building used to find APs.
+
+        Returns:
+            The queryset of all APs in the given building.
+        """
         return cls.objects.filter(
             interface__port__switch__switchbay__building=building_instance
         )
@@ -158,25 +168,24 @@ class AccessPoint(Machine):
 
 
 class Server(Machine):
-    """
-    Dummy class, to retrieve servers of a building, or get switch of a server
+    """Dummy class, to retrieve servers of a building, or get switch of a
+    server.
     """
 
     class Meta:
         proxy = True
 
     def port(self):
-        """Return the queryset of ports for this device"""
+        """Return the queryset of ports for this device."""
         return Port.objects.filter(machine_interface__machine=self)
 
     def switch(self):
-        """Return the switch where this is plugged"""
+        """Return the switch where this is plugged."""
         return Switch.objects.filter(ports__machine_interface__machine=self)
 
     def building(self):
-        """
-        Return the building of the AP/Server
-        (building of the switchs connected to...)
+        """Return the building of the AP/Server (building of the switches
+        connected to...).
         """
         return Building.objects.filter(switchbay__switch=self.switch())
 
@@ -186,7 +195,14 @@ class Server(Machine):
 
     @classmethod
     def all_server_in(cls, building_instance):
-        """Get a building as argument, returns all server of a building"""
+        """Get all the servers of the given building.
+
+        Args:
+            building_instance: the building used to find servers.
+
+        Returns:
+            The queryset of all servers in the given building.
+        """
         return cls.objects.filter(
             interface__port__switch__switchbay__building=building_instance
         ).exclude(accesspoint__isnull=False)
@@ -217,17 +233,19 @@ class Server(Machine):
 
 
 class Switch(Machine):
-    """ Definition d'un switch. Contient un nombre de ports (number),
-    un emplacement (location), un stack parent (optionnel, stack)
-    et un id de membre dans le stack (stack_member_id)
-    relié en onetoone à une interface
-    Pourquoi ne pas avoir fait hériter switch de interface ?
-    Principalement par méconnaissance de la puissance de cette façon de faire.
-    Ceci étant entendu, django crée en interne un onetoone, ce qui a un
-    effet identique avec ce que l'on fait ici
+    """Switch.
 
-    Validation au save que l'id du stack est bien dans le range id_min
-    id_max de la stack parente"""
+    Attributes:
+        number: the number of ports of the switch.
+        stack: the stack the switch is a part of.
+        stack_member_id: the ID of the switch in the related stack.
+        model: the model of the switch.
+        switchbay: the bay in which the switch is located.
+        radius_key: the RADIUS key of the switch.
+        management_creds: the management credentials of the switch.
+        automatic_provision: whether automatic provision is enabled for the
+            switch.
+    """
 
     number = models.PositiveIntegerField(help_text=_("Number of ports."))
     stack = models.ForeignKey(
@@ -269,8 +287,9 @@ class Switch(Machine):
         verbose_name_plural = _("switches")
 
     def clean(self):
-        """ Verifie que l'id stack est dans le bon range
-        Appelle également le clean de la classe parente"""
+        """Check if the stack member ID is in the range of the stack's IDs and
+        calls the clean of the parent class.
+        """
         super(Switch, self).clean()
         if self.stack is not None:
             if self.stack_member_id is not None:
@@ -293,6 +312,12 @@ class Switch(Machine):
     def create_ports(self, begin, end):
         """ Crée les ports de begin à end si les valeurs données
         sont cohérentes. """
+        """Create ports for the switch if the values are consistent.
+
+        Args:
+            begin: the number of the start port.
+            end: the number of the end port.
+        """
         if end < begin:
             raise ValidationError(_("The end port is less than the start port."))
         ports_to_create = range(begin, end + 1)
@@ -313,8 +338,7 @@ class Switch(Machine):
             )
 
     def main_interface(self):
-        """ Returns the 'main' interface of the switch
-        It must the the management interface for that device"""
+        """Get the main interface of the switch (the management interface)."""
         switch_iptype = OptionalTopologie.get_cached_value("switchs_ip_type")
         if switch_iptype:
             return (
@@ -329,12 +353,14 @@ class Switch(Machine):
 
     @cached_property
     def get_radius_key(self):
-        """Retourne l'objet de la clef radius de ce switch"""
+        """Get the RADIUS key object related to the switch."""
         return self.radius_key or RadiusKey.objects.filter(default_switch=True).first()
 
     @cached_property
     def get_radius_key_value(self):
-        """Retourne la valeur en str de la clef radius, none si il n'y en a pas"""
+        """Get the RADIUS key as a string, or None if there are no RADIUS key
+        related to the switch.
+        """
         if self.get_radius_key:
             return self.get_radius_key.radius_key
         else:
@@ -362,7 +388,7 @@ class Switch(Machine):
 
     @cached_property
     def get_management_cred(self):
-        """Retourne l'objet des creds de managament de ce switch"""
+        """Get the management credentials objects of the switch."""
         return (
             self.management_creds
             or SwitchManagementCred.objects.filter(default_switch=True).first()
@@ -370,7 +396,9 @@ class Switch(Machine):
 
     @cached_property
     def get_management_cred_value(self):
-        """Retourne un dict des creds de management du switch"""
+        """Get the management credentials as a dictionary, or None if there are
+        no management credentials related to the switch.
+        """
         if self.get_management_cred:
             return {
                 "id": self.get_management_cred.management_id,
@@ -401,17 +429,19 @@ class Switch(Machine):
 
     @cached_property
     def ipv4(self):
-        """Return the switch's management ipv4"""
+        """Get the IPv4 address of the switch's management interface."""
         return str(self.main_interface().ipv4)
 
     @cached_property
     def ipv6(self):
-        """Returne the switch's management ipv6"""
+        """Get the IPv6 address of the switch's management interface."""
         return str(self.main_interface().ipv6().first())
 
     @cached_property
     def interfaces_subnet(self):
-        """Return dict ip:subnet for all ip of the switch"""
+        """Get a dictionary of IPv4 addresses:subnets of all the switch's
+        interfaces.
+        """
         return dict(
             (
                 str(interface.ipv4),
@@ -423,7 +453,9 @@ class Switch(Machine):
 
     @cached_property
     def interfaces6_subnet(self):
-        """Return dict ip6:subnet for all ipv6 of the switch"""
+        """Get a dictionary of IPv6 addresses:subnets of all the switch's
+        interfaces.
+        """
         return dict(
             (
                 str(interface.ipv6().first()),
@@ -434,7 +466,9 @@ class Switch(Machine):
 
     @cached_property
     def list_modules(self):
-        """Return modules of that switch, list of dict (rank, reference)"""
+        """Get the list of dictionaries (rank, reference) of modules related to
+        the switch.
+        """
         modules = []
         if getattr(self.model, "is_modular", None):
             if self.model.is_itself_module:
@@ -445,7 +479,7 @@ class Switch(Machine):
 
     @cached_property
     def get_dormitory(self):
-        """Returns the dormitory of that switch"""
+        """Get the dormitory in which the switch is located."""
         if self.switchbay:
             return self.switchbay.building.dormitory
         else:
@@ -453,19 +487,19 @@ class Switch(Machine):
 
     @classmethod
     def nothing_profile(cls):
-        """Return default nothing port profile"""
+        """Return default nothing port profile."""
         nothing_profile, _created = PortProfile.objects.get_or_create(
             profil_default="nothing", name="nothing", radius_type="NO"
         )
         return nothing_profile
 
     def profile_type_or_nothing(self, profile_type):
-        """Return the profile for a profile_type of this switch
+        """Return the profile for a profile_type of this switch.
 
-        If exists, returns the defined default profile for a profile type on the dormitory which
-        the switch belongs
-
-        Otherwise, returns the nothing profile"""
+        If it exists, return the defined default profile for a profile type on
+        the dormitory which the switch belongs.
+        Otherwise, return the nothing profile.
+        """
         profile_queryset = PortProfile.objects.filter(profil_default=profile_type)
         if self.get_dormitory:
             port_profile = (
@@ -478,22 +512,22 @@ class Switch(Machine):
 
     @cached_property
     def default_uplink_profile(self):
-        """Default uplink profile for that switch -- in cache"""
+        """Default uplink profile for that switch -- in cache."""
         return self.profile_type_or_nothing("uplink")
 
     @cached_property
     def default_access_point_profile(self):
-        """Default ap profile for that switch -- in cache"""
+        """Default AP profile for that switch -- in cache."""
         return self.profile_type_or_nothing("access_point")
 
     @cached_property
     def default_room_profile(self):
-        """Default room profile for that switch -- in cache"""
+        """Default room profile for that switch -- in cache."""
         return self.profile_type_or_nothing("room")
 
     @cached_property
     def default_asso_machine_profile(self):
-        """Default asso machine profile for that switch -- in cache"""
+        """Default asso machine profile for that switch -- in cache."""
         return self.profile_type_or_nothing("asso_machine")
 
     def __str__(self):
@@ -522,7 +556,16 @@ class Switch(Machine):
 
 
 class ModelSwitch(AclMixin, RevMixin, models.Model):
-    """Un modèle (au sens constructeur) de switch"""
+    """Switch model.
+
+    Attributes:
+        reference: the reference of the switch model.
+        commercial_name: the commercial name of the switch model.
+        constructor: the constructor of the switch model.
+        firmware: the firmware of the switch model.
+        is_modular: whether the switch model is modular.
+        is_itself_module: whether the switch is considered as a module.
+    """
 
     reference = models.CharField(max_length=255)
     commercial_name = models.CharField(max_length=255, null=True, blank=True)
@@ -550,7 +593,12 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
 
 
 class ModuleSwitch(AclMixin, RevMixin, models.Model):
-    """A module of a switch"""
+    """Switch module.
+
+    Attributes:
+        reference: the reference of the switch module.
+        comment: the comment to describe the switch module.
+    """
 
     reference = models.CharField(
         max_length=255,
@@ -575,7 +623,13 @@ class ModuleSwitch(AclMixin, RevMixin, models.Model):
 
 
 class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
-    """Link beetween module and switch"""
+    """Link beetween module and switch.
+
+    Attributes:
+        module: the switch module related to the link.
+        switch: the switch related to the link.
+        slot: the slot on the switch related to the link.
+    """
 
     module = models.ForeignKey("ModuleSwitch", on_delete=models.CASCADE)
     switch = models.ForeignKey("Switch", on_delete=models.CASCADE)
@@ -601,7 +655,11 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
-    """Un constructeur de switch"""
+    """Switch constructor.
+
+    Attributes:
+        name: the name of the switch constructor.
+    """
 
     name = models.CharField(max_length=255)
 
@@ -617,7 +675,13 @@ class ConstructorSwitch(AclMixin, RevMixin, models.Model):
 
 
 class SwitchBay(AclMixin, RevMixin, models.Model):
-    """Une baie de brassage"""
+    """Switch bay.
+
+    Attributes:
+        name: the name of the switch bay.
+        building: the building in which the switch bay is located.
+        info: the information to describe to switch bay.
+    """
 
     name = models.CharField(max_length=255)
     building = models.ForeignKey("Building", on_delete=models.PROTECT)
@@ -633,8 +697,11 @@ class SwitchBay(AclMixin, RevMixin, models.Model):
 
 
 class Dormitory(AclMixin, RevMixin, models.Model):
-    """A student accomodation/dormitory
-    Une résidence universitaire"""
+    """Dormitory.
+
+    Attributes:
+        name: the name of the dormitory.
+    """
 
     name = models.CharField(max_length=255)
 
@@ -644,7 +711,7 @@ class Dormitory(AclMixin, RevMixin, models.Model):
         verbose_name_plural = _("dormitories")
 
     def all_ap_in(self):
-        """Returns all ap of the dorms"""
+        """Get all the APs in the dormitory."""
         return AccessPoint.all_ap_in(self.building_set.all())
 
     @classmethod
@@ -660,8 +727,13 @@ class Dormitory(AclMixin, RevMixin, models.Model):
 
 
 class Building(AclMixin, RevMixin, models.Model):
-    """A building of a dormitory
-    Un batiment"""
+    """Building.
+
+    Attributes:
+        name: the name of the building.
+        dormitory: the dormitory of the building (a Dormitory can contain
+            multiple dormitories).
+    """
 
     name = models.CharField(max_length=255)
     dormitory = models.ForeignKey("Dormitory", on_delete=models.PROTECT)
@@ -672,7 +744,7 @@ class Building(AclMixin, RevMixin, models.Model):
         verbose_name_plural = _("buildings")
 
     def all_ap_in(self):
-        """Returns all ap of the building"""
+        """Get all the APs in the building."""
         return AccessPoint.all_ap_in(self)
 
     def get_name(self):
@@ -690,21 +762,32 @@ class Building(AclMixin, RevMixin, models.Model):
 
 
 class Port(AclMixin, RevMixin, models.Model):
-    """ Definition d'un port. Relié à un switch(foreign_key),
-    un port peut etre relié de manière exclusive à :
-    - une chambre (room)
-    - une machine (serveur etc) (machine_interface)
-    - un autre port (uplink) (related)
-    Champs supplémentaires :
-    - RADIUS (mode STRICT : connexion sur port uniquement si machine
-    d'un adhérent à jour de cotisation et que la chambre est également à
-    jour de cotisation
-    mode COMMON : vérification uniquement du statut de la machine
-    mode NO : accepte toute demande venant du port et place sur le vlan normal
-    mode BLOQ : rejet de toute authentification
-    - vlan_force : override la politique générale de placement vlan, permet
-    de forcer un port sur un vlan particulier. S'additionne à la politique
-    RADIUS"""
+    """Port of a switch.
+
+    A port is related exclusively to either:
+        * a room
+        * a machine, e.g. server
+        * another port
+    Behaviour according to the RADIUS mode:
+        * STRICT: connection only if the machine and room have access
+        * COMMON: check only the machine's state
+        * NO: accept only request coming from the port and set on the standard
+        VLAN.
+        * BLOQ: reject all requests.
+    The VLAN can be forced to override the general policy for VLAN setting.
+    This enables to force a port to a particular VLAN. It adds to the RADIUS
+    policy.
+
+    Attributes:
+        switch: the switch to which the port belongs.
+        port: the port number on the switch for the Port object.
+        room: the room to which the port is related.
+        machine_interface: the machine to which the port is related
+        related: the other port to which is port is related.
+        custom_profile: the port profile of the port.
+        state: whether the port is active.
+        details: the details to describre the port.
+    """
 
     switch = models.ForeignKey("Switch", related_name="ports", on_delete=models.CASCADE)
     port = models.PositiveIntegerField()
@@ -733,7 +816,7 @@ class Port(AclMixin, RevMixin, models.Model):
 
     @cached_property
     def pretty_name(self):
-        """More elaborated name for label on switch conf"""
+        """More elaborated name for label on switch configuration."""
         if self.related:
             return _("Uplink: ") + self.related.switch.short_name
         elif self.machine_interface:
@@ -745,14 +828,13 @@ class Port(AclMixin, RevMixin, models.Model):
 
     @cached_property
     def get_port_profile(self):
-        """Return the config profil for this port
-        :returns: the profile of self (port)
+        """Get the configuration profile for this port.
 
-        If is defined a custom profile, returns it
-        elIf a default profile is defined for its dormitory, returns it
-        Else, returns the global default profil
-        If not exists, create a nothing profile"""
-
+        Returns:
+            The custom profile if it exists, else the default profile of the
+            dormitory if it exists, else the global default profile, else the
+            nothing profile.
+        """
         if self.custom_profile:
             return self.custom_profile
         elif self.related:
@@ -779,26 +861,25 @@ class Port(AclMixin, RevMixin, models.Model):
         )
 
     def make_port_related(self):
-        """ Synchronise le port distant sur self"""
+        """Synchronise the related port with self."""
         related_port = self.related
         related_port.related = self
         related_port.save()
 
     def clean_port_related(self):
-        """ Supprime la relation related sur self"""
+        """Delete the related relation on self."""
         related_port = self.related_port
         related_port.related = None
         related_port.save()
 
     def clean(self):
-        """ Verifie que un seul de chambre, interface_parent et related_port
-        est rempli. Verifie que le related n'est pas le port lui-même....
-        Verifie que le related n'est pas déjà occupé par une machine ou une
-        chambre. Si ce n'est pas le cas, applique la relation related
-        Si un port related point vers self, on nettoie la relation
-        A priori pas d'autre solution que de faire ça à la main. A priori
-        tout cela est dans un bloc transaction, donc pas de problème de
-        cohérence"""
+        """
+        Check if the port is only related exclusively to either a room, a
+        machine or another port.
+        Check if the related port is not self and applies the relation to the
+        related port if the relation is correct.
+        Delete the relation if it points to self.
+        """
         if hasattr(self, "switch"):
             if self.port > self.switch.number:
                 raise ValidationError(
@@ -835,7 +916,13 @@ class Port(AclMixin, RevMixin, models.Model):
 
 
 class Room(AclMixin, RevMixin, models.Model):
-    """Une chambre/local contenant une prise murale"""
+    """Room.
+
+    Attributes:
+        name: the name of the room.
+        details: the details describing the room.
+        building: the building in which the room is located.
+    """
 
     name = models.CharField(max_length=255)
     details = models.CharField(max_length=255, blank=True)
@@ -853,7 +940,28 @@ class Room(AclMixin, RevMixin, models.Model):
 
 
 class PortProfile(AclMixin, RevMixin, models.Model):
-    """Contains the information of the ports' configuration for a switch"""
+    """Port profile.
+
+    Contains the information of the ports' configuration for a switch.
+
+    Attributes:
+        name: the name of the port profile.
+        profil_default: the type of default profile (room, AP, uplink etc.).
+        on_dormitory: the dormitory with this default port profile.
+        vlan_untagged: the VLAN untagged of the port profile.
+        vlan_tagged: the VLAN(s) tagged of the port profile.
+        radius_type: the type of RADIUS authentication (inactive, MAC-address
+            or 802.1X) of the port profile.
+        radius_mode: the RADIUS mode of the port profile.
+        speed: the port speed limit of the port profile.
+        mac_limit: the MAC limit of the port profile.
+        flow_control: whether flow control is enabled.
+        dhcp_snooping: whether DHCP snooping is enabled.
+        dhcpv6_snooping: whether DHCPv6 snooping is enabled.
+        arp_protect: whether ARP protection is enabled.
+        ra_guard: whether RA guard is enabled.
+        loop_protect: whether loop protection is enabled.
+    """
 
     TYPES = (("NO", "NO"), ("802.1X", "802.1X"), ("MAC-radius", _("MAC-RADIUS")))
     MODES = (("STRICT", "STRICT"), ("COMMON", "COMMON"))
@@ -983,7 +1091,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
         return ",".join(self.security_parameters_enabled)
 
     def clean(self):
-        """ Check that there is only one generic profil default"""
+        """Check that there is only one generic profile default."""
         super(PortProfile, self).clean()
         if (
             self.profil_default
@@ -1007,21 +1115,21 @@ class PortProfile(AclMixin, RevMixin, models.Model):
 
 @receiver(post_save, sender=AccessPoint)
 def ap_post_save(**_kwargs):
-    """Regeneration des noms des bornes vers le controleur"""
+    """Regenerate the AP names towards the controller."""
     regen("unifi-ap-names")
     regen("graph_topo")
 
 
 @receiver(post_delete, sender=AccessPoint)
 def ap_post_delete(**_kwargs):
-    """Regeneration des noms des bornes vers le controleur"""
+    """Regenerate the AP names towards the controller."""
     regen("unifi-ap-names")
     regen("graph_topo")
 
 
 @receiver(post_delete, sender=Stack)
 def stack_post_delete(**_kwargs):
-    """Vide les id des switches membres d'une stack supprimée"""
+    """Empty the stack member ID of switches when a stack is deleted."""
     Switch.objects.filter(stack=None).update(stack_member_id=None)
 
 
