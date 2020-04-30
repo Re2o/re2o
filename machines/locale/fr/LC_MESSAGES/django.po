@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-24 18:45+0200\n"
+"POT-Creation-Date: 2020-04-30 22:19+0200\n"
 "PO-Revision-Date: 2018-06-23 16:35+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -192,8 +192,7 @@ msgstr ""
 "Vous avez atteint le nombre maximal d'interfaces que vous pouvez créer vous-"
 "même (%s)."
 
-#: machines/models.py:189 machines/models.py:1354 machines/models.py:1373
-#: machines/models.py:1476 machines/models.py:1494
+#: machines/models.py:189
 msgid "You don't have the right to edit a machine of another user."
 msgstr ""
 "Vous n'avez pas le droit de modifier une machine d'un autre utilisateur."
@@ -588,9 +587,19 @@ msgstr ""
 msgid "You don't have the right to edit the machine."
 msgstr "Vous n'avez pas le droit d'éditer une machine."
 
-#: machines/models.py:1391 machines/models.py:1511
-msgid "You don't have the right to view machines other than yours."
-msgstr "Vous n'avez pas le droit de voir d'autres machines que les vôtres."
+#: machines/models.py:1354
+msgid "You don't have the right to edit interfaces of another user."
+msgstr ""
+"Vous n'avez pas le droit de modifier une interface d'un autre utilisateur."
+
+#: machines/models.py:1373
+msgid "You don't have the right to delete interfaces of another user."
+msgstr ""
+"Vous n'avez pas le droit de supprimer une interface d'une autre utilisateur."
+
+#: machines/models.py:1391
+msgid "You don't have the right to view interfaces other than yours."
+msgstr "Vous n'avez pas le droit de voir d'autres interfaces que les vôtres."
 
 #: machines/models.py:1419
 msgid "Can view an IPv6 addresses list object"
@@ -612,16 +621,29 @@ msgstr "Listes d'adresses IPv6"
 msgid "Nonexistent interface."
 msgstr "Interface inexistante."
 
-#: machines/models.py:1444 machines/models.py:1688
-msgid "You don't have the right to add an alias to a machine of another user."
+#: machines/models.py:1444
+msgid "You don't have the right to add ipv6 to a machine of another user."
 msgstr ""
-"Vous n'avez pas le droit d'ajouter un alias à une machine d'un autre "
-"utilisateur."
+"Vous n'avez pas le droit d'ajouter des ipv6 à une machine d'un autre utilisateur."
 
 #: machines/models.py:1457
 msgid "You don't have the right to change the SLAAC value of an IPv6 address."
 msgstr ""
 "Vous n'avez pas le droit de changer la valeur SLAAC d'une adresse IPv6."
+
+#: machines/models.py:1476
+msgid "You don't have the right to edit ipv6 of a machine of another user."
+msgstr ""
+"Vous n'avez pas le droit de modifier les ipv6 d'une machine d'un autre utilisateur."
+
+#: machines/models.py:1494
+msgid "You don't have the right to delete ipv6 of a machine of another user."
+msgstr ""
+"Vous n'avez pas le droit de supprimer les ipv6 d'une machine d'une autre utilisateur."
+
+#: machines/models.py:1511
+msgid "You don't have the right to view ipv6 of machines other than yours."
+msgstr "Vous n'avez pas le droit de voir les ipv6 d'autres machines que les vôtres."
 
 #: machines/models.py:1543
 msgid "A SLAAC IP address is already registered."
@@ -676,6 +698,12 @@ msgstr "Le nom de domaine %s contient des caractères interdits."
 #: machines/models.py:1653
 msgid "Invalid extension."
 msgstr "Extension invalide."
+
+#: machines/models.py:1688
+msgid "You don't have the right to add an alias to a machine of another user."
+msgstr ""
+"Vous n'avez pas le droit d'ajouter un alias à une machine d'un autre "
+"utilisateur."
 
 #: machines/models.py:1704
 #, python-format
