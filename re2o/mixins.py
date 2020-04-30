@@ -61,8 +61,7 @@ class FormRevMixin(object):
             )
         elif self.changed_data:
             reversion.set_comment(
-                "Field(s) edited: %s"
-                % ", ".join(field for field in self.changed_data)
+                "Field(s) edited: %s" % ", ".join(field for field in self.changed_data)
             )
         return super(FormRevMixin, self).save(*args, **kwargs)
 
@@ -93,11 +92,9 @@ class AclMixin(object):
         return str(cls.__module__).split(".")[0].lower()
 
     @classmethod
-    def get_instance(cls, *_args, **kwargs):
+    def get_instance(cls, object_id, *_args, **kwargs):
         """Récupère une instance
-        :param objectid: Instance id à trouver
         :return: Une instance de la classe évidemment"""
-        object_id = kwargs.get(cls.get_classname() + "id")
         return cls.objects.get(pk=object_id)
 
     @classmethod

@@ -47,8 +47,7 @@ def acl_error_message(msg, permissions):
     message = msg or _("You don't have the right to edit this option.")
     if groups:
         return (
-            message
-            + _("You need to be a member of one of these groups: %s.") % groups
+            message + _("You need to be a member of one of these groups: %s.") % groups
         )
     else:
         return message + _("No group has the %s permission(s)!") % " or ".join(
@@ -124,7 +123,7 @@ ModelC)
         ```
         The view will be called like this:
         ```
-            view(request, instance_of_A, instance_of_b, *args, **kwargs)
+             view(request, instance_of_A, instance_of_b, *args, **kwargs)
         ```
         where `*args` and `**kwargs` are the original view arguments.
     """
@@ -153,7 +152,7 @@ ModelC)
             """The wrapper used for a specific request"""
             instances = []
 
-            def process_target(target, fields):
+            def process_target(target, fields, target_id=None):
                 """This function calls the methods on the target and checks for
                 the can_change_`field` method with the given fields. It also
                 stores the instances of models in order to avoid duplicate DB
@@ -161,7 +160,7 @@ ModelC)
                 """
                 if on_instance:
                     try:
-                        target = target.get_instance(*args, **kwargs)
+                        target = target.get_instance(target_id, *args, **kwargs)
                         instances.append(target)
                     except target.DoesNotExist:
                         yield False, _("Nonexistent entry."), []
@@ -175,8 +174,12 @@ ModelC)
 
             error_messages = []
             warning_messages = []
-            for target, fields in group_targets():
-                for can, msg, permissions in process_target(target, fields):
+            for arg_key, (target, fields) in zip(kwargs.keys(), group_targets()):
+                if on_instance:
+                    target_id = int(kwargs[arg_key])
+                else:
+                    target_id = None
+                for can, msg, permissions in process_target(target, fields, target_id):
                     if not can:
                         error_messages.append(acl_error_message(msg, permissions))
                     elif msg:
