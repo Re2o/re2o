@@ -178,7 +178,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, AclMixin, models.Model):
                 return (
                     False,
                     _("You don't have the right to edit a machine of another" " user."),
-                    ("machines.change_interface",) + permissions,
+                    ("machines.change_interface",) + (permissions or ()),
                 )
         return True, None, None
 
@@ -199,7 +199,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, AclMixin, models.Model):
                         "You don't have the right to delete a machine"
                         " of another user."
                     ),
-                    ("machines.delete_interface",) + permissions,
+                    ("machines.change_interface",) + (permissions or ()),
                 )
         return True, None, None
 
@@ -1344,7 +1344,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 return (
                     False,
                     _("You don't have the right to edit a machine of another" " user."),
-                    ("machines.change_interface",) + permissions,
+                    ("machines.change_interface",) + (permissions or ()),
                 )
         return True, None, None
 
@@ -1362,7 +1362,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 return (
                     False,
                     _("You don't have the right to edit a machine of another" " user."),
-                    ("machines.change_interface",) + permissions,
+                    ("machines.change_interface",) + (permissions or ()),
                 )
         return True, None, None
 
@@ -1481,8 +1481,8 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             if not (user_request.has_perm("machines.delete_ipv6list") and can_user):
                 return (
                     False,
-                    _("You don't have the right to delete ipv6 of a machine of another user."),
-                    ("machines.delete_ipv6list",) + permissions,
+                    _("You don't have the right to edit a machine of another user."),
+                    ("machines.change_ipv6list",) + (permissions or ()),
                 )
         return True, None, None
 

@@ -138,7 +138,7 @@ class Facture(BaseInvoice):
         abstract = False
         permissions = (
             # TODO : change facture to invoice
-            ("change_facture_control", _("Can edit the \"controlled\" state")),
+            ("change_facture_control", _('Can edit the "controlled" state')),
             ("view_facture", _("Can view an invoice object")),
             ("change_all_facture", _("Can edit all the previous invoices")),
         )
@@ -166,7 +166,7 @@ class Facture(BaseInvoice):
             return (
                 False,
                 _("You don't have the right to edit this user's invoices."),
-                ("cotisations.change_all_facture",) + permissions,
+                ("cotisations.change_all_facture",) + (permissions or ()),
             )
         elif not user_request.has_perm("cotisations.change_all_facture") and (
             self.control or not self.valid
@@ -198,7 +198,7 @@ class Facture(BaseInvoice):
             return (
                 False,
                 _("You don't have the right to delete this user's invoices."),
-                ("cotisations.change_all_facture",) + permissions,
+                ("cotisations.change_all_facture",) + (permissions or ()),
             )
         elif not user_request.has_perm("cotisations.change_all_facture") and (
             self.control or not self.valid
@@ -243,7 +243,7 @@ class Facture(BaseInvoice):
         can = user_request.has_perm("cotisations.change_facture_control")
         return (
             can,
-            _("You don't have the right to edit the \"controlled\" state.")
+            _('You don\'t have the right to edit the "controlled" state.')
             if not can
             else None,
             ("cotisations.change_facture_control",),
@@ -297,21 +297,21 @@ class Facture(BaseInvoice):
         for purchase in self.vente_set.all():
             if hasattr(purchase, "cotisation"):
                 cotisation = purchase.cotisation
-                if cotisation.type_cotisation == 'Connexion':
+                if cotisation.type_cotisation == "Connexion":
                     cotisation.date_start = date_con
                     date_con += relativedelta(
                         months=(purchase.duration or 0) * purchase.number,
                         days=(purchase.duration_days or 0) * purchase.number,
                     )
                     cotisation.date_end = date_con
-                elif cotisation.type_cotisation == 'Adhesion':
+                elif cotisation.type_cotisation == "Adhesion":
                     cotisation.date_start = date_adh
                     date_adh += relativedelta(
                         months=(purchase.duration or 0) * purchase.number,
                         days=(purchase.duration_days or 0) * purchase.number,
                     )
                     cotisation.date_end = date_adh
-                else: # it is assumed that adhesion is required for a connexion
+                else:  # it is assumed that adhesion is required for a connexion
                     date = min(date_adh, date_con)
                     cotisation.date_start = date
                     date_adh += relativedelta(
@@ -566,7 +566,7 @@ class Vente(RevMixin, AclMixin, models.Model):
             return (
                 False,
                 _("You don't have the right to edit this user's purchases."),
-                ("cotisations.change_all_facture",) + permissions,
+                ("cotisations.change_all_facture",) + (permissions or ()),
             )
         elif not user_request.has_perm("cotisations.change_all_vente") and (
             self.facture.control or not self.facture.valid
