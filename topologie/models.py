@@ -88,7 +88,7 @@ class Stack(AclMixin, RevMixin, models.Model):
             )
 
 
-class AccessPoint(AclMixin, Machine):
+class AccessPoint(Machine):
     """Define a wireless AP. Inherit from machines.interfaces
 
     Definition pour une borne wifi , hérite de machines.interfaces
@@ -135,6 +135,12 @@ class AccessPoint(AclMixin, Machine):
     def __str__(self):
         return str(self.interface_set.first())
 
+    @classmethod
+    def get_instance(cls, object_id, *_args, **kwargs):
+        """Récupère une instance
+        :return: Une instance de la classe évidemment"""
+        return cls.objects.get(pk=object_id)
+
 
 class Server(Machine):
     """
@@ -173,8 +179,14 @@ class Server(Machine):
     def __str__(self):
         return str(self.interface_set.first())
 
+    @classmethod
+    def get_instance(cls, object_id, *_args, **kwargs):
+        """Récupère une instance
+        :return: Une instance de la classe évidemment"""
+        return cls.objects.get(pk=object_id)
 
-class Switch(AclMixin, Machine):
+
+class Switch(Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),
     un emplacement (location), un stack parent (optionnel, stack)
     et un id de membre dans le stack (stack_member_id)
@@ -457,6 +469,12 @@ class Switch(AclMixin, Machine):
     def __str__(self):
         return str(self.get_name)
 
+    @classmethod
+    def get_instance(cls, object_id, *_args, **kwargs):
+        """Récupère une instance
+        :return: Une instance de la classe évidemment"""
+        return cls.objects.get(pk=object_id)
+
 
 class ModelSwitch(AclMixin, RevMixin, models.Model):
     """Un modèle (au sens constructeur) de switch"""
@@ -532,7 +550,9 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
         unique_together = ["slot", "switch"]
 
     def __str__(self):
-        return _("On slot %(slot)s of %(switch)s").format(slot=str(self.slot), switch=str(self.switch))
+        return _("On slot %(slot)s of %(switch)s").format(
+            slot=str(self.slot), switch=str(self.switch)
+        )
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
@@ -842,9 +862,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     radius_type = models.CharField(
         max_length=32,
         choices=TYPES,
-        help_text=_(
-            "Type of RADIUS authentication: inactive, MAC-address or 802.1X."
-        ),
+        help_text=_("Type of RADIUS authentication: inactive, MAC-address or 802.1X."),
         verbose_name=_("RADIUS type"),
     )
     radius_mode = models.CharField(
