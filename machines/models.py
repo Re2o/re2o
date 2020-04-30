@@ -192,14 +192,14 @@ class Machine(RevMixin, FieldPermissionModelMixin, AclMixin, models.Model):
             can_user, _message, permissions = self.user.can_edit(
                 self.user, user_request, *args, **kwargs
             )
-            if not (user_request.has_perm("machines.change_interface") and can_user):
+            if not (user_request.has_perm("machines.delete_interface") and can_user):
                 return (
                     False,
                     _(
                         "You don't have the right to delete a machine"
                         " of another user."
                     ),
-                    ("machines.change_interface",) + (permissions or ()),
+                    ("machines.delete_interface",) + (permissions or ()),
                 )
         return True, None, None
 
@@ -1343,7 +1343,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             if not (user_request.has_perm("machines.change_interface") and can_user):
                 return (
                     False,
-                    _("You don't have the right to edit a machine of another" " user."),
+                    _("You don't have the right to edit a machine of another user."),
                     ("machines.change_interface",) + (permissions or ()),
                 )
         return True, None, None
@@ -1358,11 +1358,12 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             can_user, _message, permissions = self.machine.user.can_edit(
                 user_request, *args, **kwargs
             )
-            if not (user_request.has_perm("machines.change_interface") and can_user):
+            if not (user_request.has_perm("machines.delete_interface") and can_user):
                 return (
                     False,
-                    _("You don't have the right to edit a machine of another" " user."),
-                    ("machines.change_interface",) + (permissions or ()),
+                    _("You don't have the right to delete interfaces of another"
+                      " user."),
+                    ("machines.delete_interface",) + (permissions or ()),
                 )
         return True, None, None
 
@@ -1378,7 +1379,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         ):
             return (
                 False,
-                _("You don't have the right to view machines other than yours."),
+                _("You don't have the right to view interfaces other than yours."),
                 ("machines.view_interface",),
             )
         return True, None, None
@@ -1431,7 +1432,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 return (
                     False,
                     _(
-                        "You don't have the right to add an alias to a"
+                        "You don't have the right to add ipv6 to a"
                         " machine of another user."
                     ),
                     ("machines.add_ipv6list",),
@@ -1463,7 +1464,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             if not (user_request.has_perm("machines.change_ipv6list") and can_user):
                 return (
                     False,
-                    _("You don't have the right to edit a machine of another user."),
+                    _("You don't have the right to edit ipv6 of a machine of another user."),
                     ("machines.change_ipv6list",),
                 )
         return True, None, None
@@ -1478,11 +1479,11 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             can_user, _message, permissions = self.interface.machine.user.can_edit(
                 user_request, *args, **kwargs
             )
-            if not (user_request.has_perm("machines.change_ipv6list") and can_user):
+            if not (user_request.has_perm("machines.delete_ipv6list") and can_user):
                 return (
                     False,
-                    _("You don't have the right to edit a machine of another user."),
-                    ("machines.change_ipv6list",) + (permissions or ()),
+                    _("You don't have the right to delete ipv6 of a machine of another user."),
+                    ("machines.delete_ipv6list",) + (permissions or ()),
                 )
         return True, None, None
 
@@ -1498,7 +1499,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         ):
             return (
                 False,
-                _("You don't have the right to view machines other than yours."),
+                _("You don't have the right to view ipv6 of machines other than yours."),
                 ("machines.view_ipv6list",),
             )
         return True, None, None

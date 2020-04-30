@@ -197,13 +197,13 @@ class CommentTicket(AclMixin, models.Model):
         """ Check that the user has the right to edit the ticket comment
         or that it is the author"""
         if (
-            not user_request.has_perm("tickets.edit_commentticket")
+            not user_request.has_perm("tickets.change_commentticket")
             and (self.parent_ticket.user != user_request or self.parent_ticket.user != self.created_by)
         ):
             return (
                 False,
                 _("You don't have the right to edit other tickets comments than yours."),
-                ("tickets.edit_commentticket",),
+                ("tickets.change_commentticket",),
             )
         else:
             return True, None, None
