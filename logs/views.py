@@ -104,13 +104,10 @@ from .models import (
     ActionsSearch,
     RevisionAction,
     MachineHistorySearch,
-    get_history_class
+    get_history_class,
 )
 
-from .forms import (
-    ActionsSearchForm,
-    MachineHistorySearchForm
-)
+from .forms import ActionsSearchForm, MachineHistorySearchForm
 
 
 @login_required
@@ -180,7 +177,9 @@ def stats_logs(request):
         revisions.object_list = [RevisionAction(r) for r in revisions.object_list]
         return render(request, "logs/stats_logs.html", {"revisions_list": revisions})
 
-    return render(request, "logs/search_stats_logs.html", {"actions_form": actions_form})
+    return render(
+        request, "logs/search_stats_logs.html", {"actions_form": actions_form}
+    )
 
 
 @login_required
@@ -305,19 +304,29 @@ def stats_general(request):
                 "email_state_verified_users": [
                     _("Users with a confirmed email"),
                     User.objects.filter(email_state=User.EMAIL_STATE_VERIFIED).count(),
-                    Adherent.objects.filter(email_state=User.EMAIL_STATE_VERIFIED).count(),
+                    Adherent.objects.filter(
+                        email_state=User.EMAIL_STATE_VERIFIED
+                    ).count(),
                     Club.objects.filter(email_state=User.EMAIL_STATE_VERIFIED).count(),
                 ],
                 "email_state_unverified_users": [
                     _("Users with an unconfirmed email"),
-                    User.objects.filter(email_state=User.EMAIL_STATE_UNVERIFIED).count(),
-                    Adherent.objects.filter(email_state=User.EMAIL_STATE_UNVERIFIED).count(),
-                    Club.objects.filter(email_state=User.EMAIL_STATE_UNVERIFIED).count(),
+                    User.objects.filter(
+                        email_state=User.EMAIL_STATE_UNVERIFIED
+                    ).count(),
+                    Adherent.objects.filter(
+                        email_state=User.EMAIL_STATE_UNVERIFIED
+                    ).count(),
+                    Club.objects.filter(
+                        email_state=User.EMAIL_STATE_UNVERIFIED
+                    ).count(),
                 ],
                 "email_state_pending_users": [
                     _("Users pending email confirmation"),
                     User.objects.filter(email_state=User.EMAIL_STATE_PENDING).count(),
-                    Adherent.objects.filter(email_state=User.EMAIL_STATE_PENDING).count(),
+                    Adherent.objects.filter(
+                        email_state=User.EMAIL_STATE_PENDING
+                    ).count(),
                     Club.objects.filter(email_state=User.EMAIL_STATE_PENDING).count(),
                 ],
                 "actives_interfaces": [
@@ -449,32 +458,36 @@ def stats_users(request):
     de bannissement par user, etc"""
     stats = {
         User._meta.verbose_name: {
-            Machine._meta.verbose_name_plural: User.objects.annotate(num=Count("machine")).order_by("-num")[
-                :10
-            ],
-            Facture._meta.verbose_name_plural: User.objects.annotate(num=Count("facture")).order_by("-num")[
-                :10
-            ],
-            Ban._meta.verbose_name_plural: User.objects.annotate(num=Count("ban")).order_by("-num")[:10],
-            Whitelist._meta.verbose_name_plural: User.objects.annotate(num=Count("whitelist")).order_by(
-                "-num"
-            )[:10],
+            Machine._meta.verbose_name_plural: User.objects.annotate(
+                num=Count("machine")
+            ).order_by("-num")[:10],
+            Facture._meta.verbose_name_plural: User.objects.annotate(
+                num=Count("facture")
+            ).order_by("-num")[:10],
+            Ban._meta.verbose_name_plural: User.objects.annotate(
+                num=Count("ban")
+            ).order_by("-num")[:10],
+            Whitelist._meta.verbose_name_plural: User.objects.annotate(
+                num=Count("whitelist")
+            ).order_by("-num")[:10],
             _("rights"): User.objects.annotate(num=Count("groups")).order_by("-num")[
                 :10
             ],
         },
         School._meta.verbose_name: {
-            User._meta.verbose_name_plural: School.objects.annotate(num=Count("user")).order_by("-num")[:10]
+            User._meta.verbose_name_plural: School.objects.annotate(
+                num=Count("user")
+            ).order_by("-num")[:10]
         },
         Paiement._meta.verbose_name: {
-            User._meta.verbose_name_plural: Paiement.objects.annotate(num=Count("facture")).order_by("-num")[
-                :10
-            ]
+            User._meta.verbose_name_plural: Paiement.objects.annotate(
+                num=Count("facture")
+            ).order_by("-num")[:10]
         },
         Banque._meta.verbose_name: {
-            User._meta.verbose_name_plural: Banque.objects.annotate(num=Count("facture")).order_by("-num")[
-                :10
-            ]
+            User._meta.verbose_name_plural: Banque.objects.annotate(
+                num=Count("facture")
+            ).order_by("-num")[:10]
         },
     }
     return render(request, "logs/stats_users.html", {"stats_list": stats})
@@ -505,22 +518,15 @@ def stats_search_machine_history(request):
     if history_form.is_valid():
         history = MachineHistorySearch()
         events = history.get(
-            history_form.cleaned_data.get("q", ""),
-            history_form.cleaned_data
+            history_form.cleaned_data.get("q", ""), history_form.cleaned_data
         )
         max_result = GeneralOption.get_cached_value("pagination_number")
-        events = re2o_paginator(
-            request,
-            events,
-            max_result
-        )
+        events = re2o_paginator(request, events, max_result)
 
-        return render(
-            request,
-            "logs/machine_history.html",
-            { "events": events },
-        )
-    return render(request, "logs/search_machine_history.html", {"history_form": history_form})
+        return render(request, "logs/machine_history.html", {"events": events},)
+    return render(
+        request, "logs/search_machine_history.html", {"history_form": history_form}
+    )
 
 
 def get_history_object(request, model, object_name, object_id):
@@ -528,9 +534,7 @@ def get_history_object(request, model, object_name, object_id):
     Handles permissions and DoesNotExist errors
     """
     try:
-        object_name_id = object_name + "id"
-        kwargs = {object_name_id: object_id}
-        instance = model.get_instance(**kwargs)
+        instance = model.get_instance(object_id)
     except model.DoesNotExist:
         instance = None
 
@@ -544,8 +548,9 @@ def get_history_object(request, model, object_name, object_id):
         messages.error(
             request, msg or _("You don't have the right to access this menu.")
         )
-        return False, redirect(
-            reverse("users:profil", kwargs={"userid": str(request.user.id)})
+        return (
+            False,
+            redirect(reverse("users:profil", kwargs={"userid": str(request.user.id)})),
         )
 
     return True, instance

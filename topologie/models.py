@@ -88,7 +88,7 @@ class Stack(AclMixin, RevMixin, models.Model):
             )
 
 
-class AccessPoint(AclMixin, Machine):
+class AccessPoint(Machine):
     """Define a wireless AP. Inherit from machines.interfaces
 
     Definition pour une borne wifi , hérite de machines.interfaces
@@ -135,6 +135,27 @@ class AccessPoint(AclMixin, Machine):
     def __str__(self):
         return str(self.interface_set.first())
 
+    # We want to retrieve the default behaviour given by AclMixin rather
+    # than the one overwritten by Machine. If you are not familiar with
+    # the behaviour of `super`, please check https://docs.python.org/3/library/functions.html#super
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        return super(Machine, cls).get_instance(*args, **kwargs)
+
+    @classmethod
+    def can_create(cls, *args, **kwargs):
+        return super(Machine, cls).can_create(*args, **kwargs)
+
+    def can_edit(self, *args, **kwargs):
+        return super(Machine, self).can_edit(*args, **kwargs)
+
+    def can_delete(self, *args, **kwargs):
+        return super(Machine, self).can_delete(*args, **kwargs)
+
+    def can_view(self, *args, **kwargs):
+        return super(Machine, self).can_view(*args, **kwargs)
+
 
 class Server(Machine):
     """
@@ -173,8 +194,29 @@ class Server(Machine):
     def __str__(self):
         return str(self.interface_set.first())
 
+    # We want to retrieve the default behaviour given by AclMixin rather
+    # than the one overwritten by Machine. If you are not familiar with
+    # the behaviour of `super`, please check https://docs.python.org/3/library/functions.html#super
 
-class Switch(AclMixin, Machine):
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        return super(Machine, cls).get_instance(*args, **kwargs)
+
+    @classmethod
+    def can_create(cls, *args, **kwargs):
+        return super(Machine, cls).can_create(*args, **kwargs)
+
+    def can_edit(self, *args, **kwargs):
+        return super(Machine, self).can_edit(*args, **kwargs)
+
+    def can_delete(self, *args, **kwargs):
+        return super(Machine, self).can_delete(*args, **kwargs)
+
+    def can_view(self, *args, **kwargs):
+        return super(Machine, self).can_view(*args, **kwargs)
+
+
+class Switch(Machine):
     """ Definition d'un switch. Contient un nombre de ports (number),
     un emplacement (location), un stack parent (optionnel, stack)
     et un id de membre dans le stack (stack_member_id)
@@ -457,6 +499,27 @@ class Switch(AclMixin, Machine):
     def __str__(self):
         return str(self.get_name)
 
+    # We want to retrieve the default behaviour given by AclMixin rather
+    # than the one overwritten by Machine. If you are not familiar with
+    # the behaviour of `super`, please check https://docs.python.org/3/library/functions.html#super
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs):
+        return super(Machine, cls).get_instance(*args, **kwargs)
+
+    @classmethod
+    def can_create(cls, *args, **kwargs):
+        return super(Machine, cls).can_create(*args, **kwargs)
+
+    def can_edit(self, *args, **kwargs):
+        return super(Machine, self).can_edit(*args, **kwargs)
+
+    def can_delete(self, *args, **kwargs):
+        return super(Machine, self).can_delete(*args, **kwargs)
+
+    def can_view(self, *args, **kwargs):
+        return super(Machine, self).can_view(*args, **kwargs)
+
 
 class ModelSwitch(AclMixin, RevMixin, models.Model):
     """Un modèle (au sens constructeur) de switch"""
@@ -532,7 +595,9 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
         unique_together = ["slot", "switch"]
 
     def __str__(self):
-        return _("On slot %(slot)s of %(switch)s").format(slot=str(self.slot), switch=str(self.switch))
+        return _("On slot %(slot)s of %(switch)s").format(
+            slot=str(self.slot), switch=str(self.switch)
+        )
 
 
 class ConstructorSwitch(AclMixin, RevMixin, models.Model):
@@ -842,9 +907,7 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     radius_type = models.CharField(
         max_length=32,
         choices=TYPES,
-        help_text=_(
-            "Type of RADIUS authentication: inactive, MAC-address or 802.1X."
-        ),
+        help_text=_("Type of RADIUS authentication: inactive, MAC-address or 802.1X."),
         verbose_name=_("RADIUS type"),
     )
     radius_mode = models.CharField(
