@@ -135,11 +135,26 @@ class AccessPoint(Machine):
     def __str__(self):
         return str(self.interface_set.first())
 
+    # We want to retrieve the default behaviour given by AclMixin rather
+    # than the one overwritten by Machine. If you are not familiar with
+    # the behaviour of `super`, please check https://docs.python.org/3/library/functions.html#super
+
     @classmethod
-    def get_instance(cls, object_id, *_args, **kwargs):
-        """Récupère une instance
-        :return: Une instance de la classe évidemment"""
-        return cls.objects.get(pk=object_id)
+    def get_instance(cls, *args, **kwargs):
+        return super(Machine, cls).get_instance(*args, **kwargs)
+
+    @classmethod
+    def can_create(cls, *args, **kwargs):
+        return super(Machine, cls).can_create(*args, **kwargs)
+
+    def can_edit(self, *args, **kwargs):
+        return super(Machine, self).can_edit(*args, **kwargs)
+
+    def can_delete(self, *args, **kwargs):
+        return super(Machine, self).can_delete(*args, **kwargs)
+
+    def can_view(self, *args, **kwargs):
+        return super(Machine, self).can_view(*args, **kwargs)
 
 
 class Server(Machine):
@@ -179,11 +194,26 @@ class Server(Machine):
     def __str__(self):
         return str(self.interface_set.first())
 
+    # We want to retrieve the default behaviour given by AclMixin rather
+    # than the one overwritten by Machine. If you are not familiar with
+    # the behaviour of `super`, please check https://docs.python.org/3/library/functions.html#super
+
     @classmethod
-    def get_instance(cls, object_id, *_args, **kwargs):
-        """Récupère une instance
-        :return: Une instance de la classe évidemment"""
-        return cls.objects.get(pk=object_id)
+    def get_instance(cls, *args, **kwargs):
+        return super(Machine, cls).get_instance(*args, **kwargs)
+
+    @classmethod
+    def can_create(cls, *args, **kwargs):
+        return super(Machine, cls).can_create(*args, **kwargs)
+
+    def can_edit(self, *args, **kwargs):
+        return super(Machine, self).can_edit(*args, **kwargs)
+
+    def can_delete(self, *args, **kwargs):
+        return super(Machine, self).can_delete(*args, **kwargs)
+
+    def can_view(self, *args, **kwargs):
+        return super(Machine, self).can_view(*args, **kwargs)
 
 
 class Switch(Machine):
@@ -469,11 +499,26 @@ class Switch(Machine):
     def __str__(self):
         return str(self.get_name)
 
+    # We want to retrieve the default behaviour given by AclMixin rather
+    # than the one overwritten by Machine. If you are not familiar with
+    # the behaviour of `super`, please check https://docs.python.org/3/library/functions.html#super
+
     @classmethod
-    def get_instance(cls, object_id, *_args, **kwargs):
-        """Récupère une instance
-        :return: Une instance de la classe évidemment"""
-        return cls.objects.get(pk=object_id)
+    def get_instance(cls, *args, **kwargs):
+        return super(Machine, cls).get_instance(*args, **kwargs)
+
+    @classmethod
+    def can_create(cls, *args, **kwargs):
+        return super(Machine, cls).can_create(*args, **kwargs)
+
+    def can_edit(self, *args, **kwargs):
+        return super(Machine, self).can_edit(*args, **kwargs)
+
+    def can_delete(self, *args, **kwargs):
+        return super(Machine, self).can_delete(*args, **kwargs)
+
+    def can_view(self, *args, **kwargs):
+        return super(Machine, self).can_view(*args, **kwargs)
 
 
 class ModelSwitch(AclMixin, RevMixin, models.Model):

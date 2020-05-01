@@ -130,6 +130,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, AclMixin, models.Model):
         :param user_request: Utilisateur qui fait la requête
         :param userid: id de l'user dont on va créer une machine
         :return: soit True, soit False avec la raison de l'échec"""
+        raise ValueError("Now you see me.")
         try:
             user = users.models.User.objects.get(pk=userid)
         except users.models.User.DoesNotExist:
