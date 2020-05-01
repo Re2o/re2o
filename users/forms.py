@@ -72,62 +72,16 @@ from .models import (
 )
 
 
-class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
-    """Formulaire de changement de mot de passe. Verifie que les 2
-    nouveaux mots de passe renseignés sont identiques et respectent
-    une norme"""
-
-    selfpasswd = forms.CharField(
-        label=_("Current password"), max_length=255, widget=forms.PasswordInput
-    )
-    passwd1 = forms.CharField(
-        label=_("New password"),
-        max_length=255,
-        widget=forms.PasswordInput,
-        help_text=password_validators_help_text_html()
-    )
-    passwd2 = forms.CharField(
-        label=_("New password confirmation"),
-        max_length=255,
-        widget=forms.PasswordInput,
-    )
-
-    class Meta:
-        model = User
-        fields = []
-
-    def clean_passwd2(self):
-        """Verifie que passwd1 et 2 sont identiques"""
-        # Check that the two password entries match
-        password1 = self.cleaned_data.get("passwd1")
-        password2 = self.cleaned_data.get("passwd2")
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError(_("The new passwords don't match."))
-        validate_password(password1, user=self.instance)
-        return password2
-
-    def clean_selfpasswd(self):
-        """Verifie si il y a lieu que le mdp self est correct"""
-        if not self.instance.check_password(self.cleaned_data.get("selfpasswd")):
-            raise forms.ValidationError(_("The current password is incorrect."))
-        return
-
-    def save(self, commit=True):
-        """Changement du mot de passe"""
-        user = super(PassForm, self).save(commit=False)
-        user.set_password(self.cleaned_data.get("passwd1"))
-        user.state = User.STATE_NOT_YET_ACTIVE
-        user.set_active()
-        user.save()
+#### Django Admin Custom Views
 
 
 class UserAdminForm(FormRevMixin, forms.ModelForm):
     """A form for creating new and editing users. Includes all the required
     fields, plus a repeated password.
 
-    Formulaire pour la création d'un user. N'est utilisé que pour
-    l'admin, lors de la creation d'un user par admin. Inclu tous les
-    champs obligatoires"""
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """
 
     password1 = forms.CharField(
         label=_("Password"),
@@ -152,8 +106,14 @@ class UserAdminForm(FormRevMixin, forms.ModelForm):
         fields = ("pseudo", "surname", "name", "email", "is_superuser")
 
     def clean_password2(self):
-        """Verifie que password1 et 2 sont identiques"""
-        # Check that the two password entries match
+        """Clean password 2, check if passwd1 and 2 values match.
+
+        Parameters:
+            self : Apply on a django Form UserCreationForm instance
+            
+        Returns:
+            password2 (string): The password2 value if all tests returned True
+        """
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2:
@@ -163,6 +123,13 @@ class UserAdminForm(FormRevMixin, forms.ModelForm):
         return password2
 
     def save(self, commit=True):
+        """Save function. Call standard "set_password" django function,
+        from provided value for new password, for making hash.
+
+        Parameters:
+            self : Apply on a django Form UserCreationForm instance
+            commit : If False, don't make the real save in database
+        """
         # Save the provided password in hashed format
         user = super(UserAdminForm, self).save(commit=False)
         if self.cleaned_data["password1"]:
@@ -172,11 +139,12 @@ class UserAdminForm(FormRevMixin, forms.ModelForm):
 
 
 class ServiceUserAdminForm(FormRevMixin, forms.ModelForm):
-    """A form for creating new users. Includes all the required
-    fields, plus a repeated password.
+    """A form for creating new service users. Includes all the required
+    fields, plus a repeated password. For Admin view purpose only.
 
-    Formulaire pour la creation de nouveaux serviceusers.
-    Requiert seulement un mot de passe; et un pseudo"""
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """
 
     password1 = forms.CharField(
         label=_("Password"),
@@ -198,8 +166,14 @@ class ServiceUserAdminForm(FormRevMixin, forms.ModelForm):
         fields = ("pseudo",)
 
     def clean_password2(self):
-        """Verifie que password1 et 2 sont identiques"""
-        # Check that the two password entries match
+        """Clean password 2, check if passwd1 and 2 values match.
+
+        Parameters:
+            self : Apply on a django Form UserCreationForm instance
+ 
+        Returns:
+            password2 (string): The password2 value if all tests returned True
+        """
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
@@ -207,25 +181,111 @@ class ServiceUserAdminForm(FormRevMixin, forms.ModelForm):
         return password2
 
     def save(self, commit=True):
-        # Save the provided password in hashed format
+        """Save function. Call standard "set_password" django function,
+        from provided value for new password, for making hash. 
+
+        Parameters:
+            self : Apply on a django Form ServiceUserAdminForm instance
+            commit : If False, don't make the real save in database
+        """
         user = super(ServiceUserAdminForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         user.save()
         return user
 
 
+### Classic Django View
+
+
+class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
+    """Django form for changing password, check if 2 passwords are the same,
+    and validate password for django base password validators provided in
+    settings_local.
+    
+    Parameters:
+        DjangoForm : Inherit from basic django form
+        
+    """
+    selfpasswd = forms.CharField(
+        label=_("Current password"), max_length=255, widget=forms.PasswordInput
+    )
+    passwd1 = forms.CharField(
+        label=_("New password"),
+        max_length=255,
+        widget=forms.PasswordInput,
+        help_text=password_validators_help_text_html()
+    )
+    passwd2 = forms.CharField(
+        label=_("New password confirmation"),
+        max_length=255,
+        widget=forms.PasswordInput,
+    )
+
+    class Meta:
+        model = User
+        fields = []
+
+    def clean_passwd2(self):
+        """Clean password 2, check if passwd1 and 2 values match, and
+        apply django validator with validate_password function. 
+        
+        Parameters:
+            self : Apply on a django Form PassForm instance
+            
+        Returns:
+            password2 (string): The password2 value if all tests returned True
+        """
+        password1 = self.cleaned_data.get("passwd1")
+        password2 = self.cleaned_data.get("passwd2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(_("The new passwords don't match."))
+        validate_password(password1, user=self.instance)
+        return password2
+
+    def clean_selfpasswd(self):
+        """Clean selfpassword, check if provided original user password match
+        with the stored value.
+
+        Parameters:
+            self : Apply on a django Form PassForm instance
+        """
+        if not self.instance.check_password(self.cleaned_data.get("selfpasswd")):
+            raise forms.ValidationError(_("The current password is incorrect."))
+        return
+
+    def save(self, commit=True):
+        """Save function. Call standard "set_password" django function,
+        and call set_active for set user in active state if needed.
+
+        Parameters:
+            self : Apply on a django Form PassForm instance
+            commit : If False, don't make the real save in database
+        """
+        user = super(PassForm, self).save(commit=False)
+        user.set_password(self.cleaned_data.get("passwd1"))
+        user.state = User.STATE_NOT_YET_ACTIVE
+        user.set_active()
+        user.save()
+
+
 class ResetPasswordForm(forms.Form):
-    """Formulaire de demande de reinitialisation de mot de passe,
-    mdp oublié"""
+    """A form for asking to reset password. 
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """    
 
     pseudo = forms.CharField(label=_("Username"), max_length=255)
     email = forms.EmailField(max_length=255)
 
 
 class MassArchiveForm(forms.Form):
-    """Formulaire d'archivage des users inactif. Prend en argument
-    du formulaire la date de depart avant laquelle archiver les
-    users"""
+    """A form for archiving a lot de users. Get a start date
+    for start archiving.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """   
 
     date = forms.DateTimeField(help_text="%d/%m/%y")
     full_archive = forms.BooleanField(
@@ -251,9 +311,12 @@ class MassArchiveForm(forms.Form):
 
 
 class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
-    pour l'edition de self par self ou un cableur. On formate les champs
-    avec des label plus jolis"""
+    """Adherent Edition Form, base form used for editing user by himself
+    or another user. Labels are provided for help purposes.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """   
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -288,24 +351,42 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     )
 
     def clean_telephone(self):
-        """Verifie que le tel est présent si 'option est validée
-        dans preferences"""
+        """Clean telephone, check if telephone is made mandatory, and
+        raise error if not provided
+        
+        Parameters:
+            self : Apply on a django Form AdherentForm instance
+            
+        Returns:
+            telephone (string): The telephone string if clean is True
+        """
         telephone = self.cleaned_data["telephone"]
         if not telephone and OptionalUser.get_cached_value("is_tel_mandatory"):
             raise forms.ValidationError(_("A valid telephone number is required."))
         return telephone
 
     def clean_force(self):
-        """On supprime l'ancien user de la chambre si et seulement si la
-        case est cochée"""
+        """Clean force, remove previous user from room if needed.
+
+        Parameters:
+            self : Apply on a django Form AdherentForm instance
+        """
         room = self.cleaned_data.get("room")
         if self.cleaned_data.get("force", False) and room:
             remove_user_room(room)
         return
 
     def clean_room(self):
-        """On supprime l'ancien user de la chambre si l'option est activée,
-        et que l'ancien user a une connexion désactivée"""
+        """Clean room, based on room policy provided by preferences.
+        If needed, call remove_user_room to make the room empty before
+        saving self.instance into that room.
+        
+        Parameters:
+            self : Apply on a django Form AdherentForm instance
+            
+        Returns:
+            room (string): The room instance
+        """
         # Handle case where regular users can force move
         room = self.cleaned_data.get("room")
         room_policy = OptionalUser.get_cached_value("self_room_policy")
@@ -320,10 +401,13 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 
 class AdherentCreationForm(AdherentForm):
-    """Formulaire de création d'un user.
-    AdherentForm auquel on ajoute une checkbox afin d'éviter les
-    doublons d'utilisateurs et, optionnellement,
-    un champ mot de passe"""
+    """AdherentCreationForm. Inherit from AdherentForm, base form used for creating
+    user by himself or another user. Labels are provided for help purposes.
+    Add some instructions, and validation for initial creation.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
     # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
     init_password_by_mail_info = _(
         "If this options is set, you will receive a link to set"
@@ -407,7 +491,15 @@ class AdherentCreationForm(AdherentForm):
             self.fields.pop("password2")
 
     def clean_password2(self):
-        """Verifie que password1 et 2 sont identiques (si nécessaire)"""
+        """Clean password 2, check if passwd1 and 2 values match, and
+        apply django validator with validate_password function. 
+
+        Parameters:
+            self : Apply on a django Form AdherentCreationForm instance
+            
+        Returns:
+            password2 (string): The password2 value if all tests returned True
+        """
         send_email = self.cleaned_data.get("init_password_by_mail")
         if send_email:
             return None
@@ -421,9 +513,14 @@ class AdherentCreationForm(AdherentForm):
         return password2
 
     def save(self, commit=True):
-        """Set the user's password, if entered
-        Returns the user and a bool indicating whether
-        an email to init the password should be sent"""
+        """Save function. If password has been set during creation, 
+        call standard "set_password" django function from provided value
+        for new password, for making hash.
+
+        Parameters:
+            self : Apply on a django Form AdherentCreationForm instance
+            commit : If False, don't make the real save in database
+        """
         # Save the provided password in hashed format
         user = super(AdherentForm, self).save(commit=False)
 
@@ -437,8 +534,13 @@ class AdherentCreationForm(AdherentForm):
 
 
 class AdherentEditForm(AdherentForm):
-    """Formulaire d'édition d'un user.
-    AdherentForm incluant la modification des champs gpg et shell"""
+    """AdherentEditForm. Inherit from AdherentForm, base form used for editing
+    user by himself or another user. Labels are provided for help purposes.
+    Add some instructions, and validation, fields depends on editing user rights.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     def __init__(self, *args, **kwargs):
         super(AdherentEditForm, self).__init__(*args, **kwargs)
@@ -469,9 +571,13 @@ class AdherentEditForm(AdherentForm):
 
 
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Formulaire de base d'edition d'un user. Formulaire de base, utilisé
-    pour l'edition de self par self ou un cableur. On formate les champs
-    avec des label plus jolis"""
+    """ClubForm. For editing club by himself or another user. Labels are provided for
+    help purposes. Add some instructions, and validation, fields depends 
+    on editing user rights.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -503,8 +609,15 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         ]
 
     def clean_telephone(self):
-        """Verifie que le tel est présent si 'option est validée
-        dans preferences"""
+        """Clean telephone, check if telephone is made mandatory, and
+        raise error if not provided
+        
+        Parameters:
+            self : Apply on a django Form ClubForm instance
+            
+        Returns:
+            telephone (string): The telephone string if clean is True
+        """
         telephone = self.cleaned_data["telephone"]
         if not telephone and OptionalUser.get_cached_value("is_tel_mandatory"):
             raise forms.ValidationError(_("A valid telephone number is required."))
@@ -512,8 +625,12 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 
 class ClubAdminandMembersForm(FormRevMixin, ModelForm):
-    """Permet d'éditer la liste des membres et des administrateurs
-    d'un club"""
+    """ClubAdminandMembersForm. Only For editing administrators of a club by himself
+    or another user.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     class Meta:
         model = Club
@@ -525,8 +642,11 @@ class ClubAdminandMembersForm(FormRevMixin, ModelForm):
 
 
 class PasswordForm(FormRevMixin, ModelForm):
-    """ Formulaire de changement brut de mot de passe.
-    Ne pas utiliser sans traitement"""
+    """PasswordForm. Do not use directly in views without extra validations.
+    
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     class Meta:
         model = User
@@ -538,8 +658,12 @@ class PasswordForm(FormRevMixin, ModelForm):
 
 
 class ServiceUserForm(FormRevMixin, ModelForm):
-    """Service user creation
-    force initial password set"""
+    """ServiceUserForm, used for creating a service user, require
+    a password and set it.
+    
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     password = forms.CharField(
         label=_("New password"),
@@ -558,7 +682,14 @@ class ServiceUserForm(FormRevMixin, ModelForm):
         super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     def save(self, commit=True):
-        """Password change"""
+        """Save function. If password has been changed and provided, 
+        call standard "set_password" django function from provided value
+        for new password, for making hash.
+
+        Parameters:
+            self : Apply on a django Form ServiceUserForm instance
+            commit : If False, don't make the real save in database
+        """
         user = super(ServiceUserForm, self).save(commit=False)
         if self.cleaned_data["password"]:
             user.set_password(self.cleaned_data.get("password"))
@@ -566,8 +697,12 @@ class ServiceUserForm(FormRevMixin, ModelForm):
 
 
 class EditServiceUserForm(ServiceUserForm):
-    """Formulaire d'edition de base d'un service user. Ne permet
-    d'editer que son group d'acl et son commentaire"""
+    """EditServiceUserForm, used for editing a service user, can
+    edit password, access_group and comment.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     password = forms.CharField(
         label=_("New password"),
@@ -582,7 +717,12 @@ class EditServiceUserForm(ServiceUserForm):
 
 
 class StateForm(FormRevMixin, ModelForm):
-    """Change state of an user, and if its main email is verified or not"""
+    """StateForm, Change state of an user, and if
+    its main email is verified or not
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     class Meta:
         model = User
@@ -596,7 +736,11 @@ class StateForm(FormRevMixin, ModelForm):
 
 
 class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
-    """ Gestion des groupes d'un user"""
+    """GroupForm, form used for editing user groups.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     groups = forms.ModelMultipleChoiceField(
         Group.objects.all(), widget=forms.CheckboxSelectMultiple, required=False
@@ -614,7 +758,11 @@ class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
 
 
 class SchoolForm(FormRevMixin, ModelForm):
-    """Edition, creation d'un école"""
+    """SchoolForm, form used for creating or editing school.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     class Meta:
         model = School
@@ -627,7 +775,11 @@ class SchoolForm(FormRevMixin, ModelForm):
 
 
 class ShellForm(FormRevMixin, ModelForm):
-    """Edition, creation d'un école"""
+    """ShellForm, form used for creating or editing shell.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     class Meta:
         model = ListShell
@@ -640,8 +792,13 @@ class ShellForm(FormRevMixin, ModelForm):
 
 
 class ListRightForm(FormRevMixin, ModelForm):
-    """Edition, d'un groupe , équivalent à un droit
-    Ne permet pas d'editer le gid, car il sert de primary key"""
+    """ListRightForm, form used for editing a listright,
+    related with django group object. Gid, primary key, can't
+    be edited.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     permissions = forms.ModelMultipleChoiceField(
         Permission.objects.all().select_related("content_type"),
@@ -660,7 +817,12 @@ class ListRightForm(FormRevMixin, ModelForm):
 
 
 class NewListRightForm(ListRightForm):
-    """Ajout d'un groupe/list de droit """
+    """ListRightForm, form used for creating a listright,
+    related with django group object.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     class Meta(ListRightForm.Meta):
         fields = ("name", "unix_name", "gid", "critical", "permissions", "details")
@@ -673,7 +835,12 @@ class NewListRightForm(ListRightForm):
 
 
 class DelListRightForm(Form):
-    """Suppression d'un ou plusieurs groupes"""
+    """DelListRightForm, form for deleting one or several ListRight
+    instances.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     listrights = forms.ModelMultipleChoiceField(
         queryset=ListRight.objects.none(),
@@ -691,7 +858,12 @@ class DelListRightForm(Form):
 
 
 class DelSchoolForm(Form):
-    """Suppression d'une ou plusieurs écoles"""
+    """DelSchoolForm, form for deleting one or several School
+    instances.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     schools = forms.ModelMultipleChoiceField(
         queryset=School.objects.none(),
@@ -709,7 +881,11 @@ class DelSchoolForm(Form):
 
 
 class BanForm(FormRevMixin, ModelForm):
-    """Creation, edition d'un objet bannissement"""
+    """BanForm, form used for creating or editing a ban instance.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -724,7 +900,11 @@ class BanForm(FormRevMixin, ModelForm):
 
 
 class WhitelistForm(FormRevMixin, ModelForm):
-    """Creation, edition d'un objet whitelist"""
+    """WhitelistForm, form used for creating or editing a whitelist instance.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -739,7 +919,12 @@ class WhitelistForm(FormRevMixin, ModelForm):
 
 
 class EMailAddressForm(FormRevMixin, ModelForm):
-    """Create and edit a local email address"""
+    """EMailAddressForm, form used for creating or editing a local
+    email for a user.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -756,7 +941,11 @@ class EMailAddressForm(FormRevMixin, ModelForm):
 
 
 class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Edit email-related settings"""
+    """EMailSettingsForm, form used for editing email settings for a user.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -775,6 +964,12 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 
 class InitialRegisterForm(forms.Form):
+    """InitialRegisterForm, form used for auto-register of room and mac-address
+    with captive-portal.
+
+    Parameters:
+        DjangoForm : Inherit from basic django form
+    """ 
     register_room = forms.BooleanField(required=False)
     register_machine = forms.BooleanField(required=False)
 
@@ -818,6 +1013,13 @@ class InitialRegisterForm(forms.Form):
             self.fields.pop("register_machine")
 
     def clean_register_room(self):
+        """Clean room, call remove_user_room to make the room empty before
+        saving self.instance into that room.
+        
+        Parameters:
+            self : Apply on a django Form InitialRegisterForm instance
+            
+        """
         if self.cleaned_data["register_room"]:
             if self.user.is_class_adherent:
                 remove_user_room(self.new_room)
@@ -830,6 +1032,12 @@ class InitialRegisterForm(forms.Form):
                 user.save()
 
     def clean_register_machine(self):
+        """Clean register room, autoregister machine from user request mac_address.
+
+        Parameters:
+            self : Apply on a django Form InitialRegisterForm instance
+            
+        """
         if self.cleaned_data["register_machine"]:
             if self.mac_address and self.nas_type:
                 self.user.autoregister_machine(self.mac_address, self.nas_type)
