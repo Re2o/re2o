@@ -56,15 +56,26 @@ from .forms import (
 
 
 class LdapUserAdmin(admin.ModelAdmin):
-    """Administration du ldapuser"""
+    """LdapUser Admin view. Can't change password, manage
+    by User General model.
 
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
     list_display = ("name", "uidNumber", "login_shell")
     exclude = ("user_password", "sambat_nt_password")
     search_fields = ("name",)
 
 
 class LdapServiceUserAdmin(admin.ModelAdmin):
-    """Administration du ldapserviceuser"""
+    """LdapServiceUser Admin view. Can't change password, manage
+    by User General model.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     list_display = ("name",)
     exclude = ("user_password",)
@@ -72,63 +83,123 @@ class LdapServiceUserAdmin(admin.ModelAdmin):
 
 
 class LdapUserGroupAdmin(admin.ModelAdmin):
-    """Administration du ldapusergroupe"""
+    """LdapUserGroup Admin view.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     list_display = ("name", "members", "gid")
     search_fields = ("name",)
 
 
 class LdapServiceUserGroupAdmin(admin.ModelAdmin):
-    """Administration du ldap serviceusergroup"""
+    """LdapServiceUserGroup Admin view.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     list_display = ("name",)
     search_fields = ("name",)
 
 
 class SchoolAdmin(VersionAdmin):
-    """Administration, gestion des écoles"""
+    """School Admin view and management.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class ListRightAdmin(VersionAdmin):
-    """Gestion de la liste des droits existants
-    Ne permet pas l'edition du gid (primarykey pour ldap)"""
+    """ListRight and groups Admin view and management.
+    Even if it is possible, gid should NOT be changed
+    as it is the ldap primary key.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     list_display = ("unix_name",)
 
 
 class ListShellAdmin(VersionAdmin):
-    """Gestion de la liste des shells coté admin"""
+    """Users Shell Admin view and management.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class RequestAdmin(admin.ModelAdmin):
-    """Gestion des request objet, ticket pour lien de reinit mot de passe"""
+    """User Request Admin view and management, for
+    change password and email validation.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     list_display = ("user", "type", "created_at", "expires_at")
 
 
 class BanAdmin(VersionAdmin):
-    """Gestion des bannissements"""
+    """Ban Admin view and management, for
+    User Ban
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class EMailAddressAdmin(VersionAdmin):
-    """Gestion des alias mail"""
+    """EmailAddress Admin view and management, for
+    auxiliary and local email addresses
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class WhitelistAdmin(VersionAdmin):
-    """Gestion des whitelist"""
+    """Whitelist Admin view and management, for
+    free access whitelisted users
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class AdherentAdmin(VersionAdmin, BaseUserAdmin):
+    """Adherent Admin view and management, for
+    Adherent fields : password, pseudo, etc, admin can
+    edit all fields on user instance.
+    Inherit from django BaseUserAdmin
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
+
     # The forms to add and change user instances
 
     add_form = UserAdminForm
@@ -179,6 +250,15 @@ class AdherentAdmin(VersionAdmin, BaseUserAdmin):
 
 
 class ClubAdmin(VersionAdmin, BaseUserAdmin):
+    """Club Admin view and management, for
+    Club fields : password, pseudo, etc, admin can
+    edit all fields on user instance.
+    Inherit from django BaseUserAdmin
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
     # The forms to add and change user instances
     add_form = UserAdminForm
     form = UserAdminForm
@@ -225,8 +305,15 @@ class ClubAdmin(VersionAdmin, BaseUserAdmin):
 
 
 class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
-    """Gestion d'un service user admin : champs personnels,
-    mot de passe; etc"""
+    """ServiceUser Admin view and management, for
+    User fields : password, pseudo, etc, admin can
+    edit all fields on user instance.
+    Inherit from django BaseUserAdmin
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     # The forms to add and change user instances
     form = ServiceUserAdminForm
