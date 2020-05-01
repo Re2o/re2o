@@ -2141,7 +2141,7 @@ def extension_post_save(**_kwargs):
 
 
 @receiver(post_delete, sender=Extension)
-def extension_post_selete(**_kwargs):
+def extension_post_delete(**_kwargs):
     """Regeneration dns après suppression d'une extension"""
     regen("dns")
 
