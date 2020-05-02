@@ -59,7 +59,7 @@ def make_version_filter(key, value):
 
     return (
         Q(serialized_data__contains='\"{}\": {},'.format(key, formatted_value))
-        | Q(serialized_data__contains='\"{}\": {}}'.format(key, formatted_value))
+        | Q(serialized_data__contains='\"{}\": {}}}'.format(key, formatted_value))
     )
 
 
