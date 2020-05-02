@@ -50,8 +50,8 @@ def make_version_filter(key, value):
     :param value: str or int, The argument's value
     :returns: A Q filter
     """
-    # The lookup is done in a json string, so the lookup has to be formated
-    # based on the value's type
+    # The lookup is done in a json string, so it has to be formated
+    # based on the value's type (to add " or not)
     if type(value) is str:
         formatted_value = "\"{}\"".format(value)
     else:
@@ -196,7 +196,7 @@ class MachineHistorySearch:
         """
         return (
             Version.objects.get_for_model(Interface)
-            .filter(make_version_filter("mac_address", mac))
+            .filter(make_version_filter("mac_address", str(mac)))
             .order_by("revision__date_created")
         )
 
