@@ -42,6 +42,27 @@ from topologie.models import Port
 from .forms import classes_for_action_type
 
 
+def make_version_filter(key, value):
+    """
+    Builds a filter for a Version object to filter by argument in its
+    serialized_date
+    :param key: str, The argument's key
+    :param value: str or int, The argument's value
+    :returns: A Q filter
+    """
+    # The lookup is done in a json string, so the lookup has to be formated
+    # based on the value's type
+    if type(value) is str:
+        formatted_value = "\"{}\"".format(value)
+    else:
+        formatted_value = str(value)
+
+    return (
+        Q(serialized_data__contains='\"{}\": {},'.format(key, formatted_value))
+        | Q(serialized_data__contains='\"{}\": {}}'.format(key, formatted_value))
+    )
+
+
 ############################
 #  Machine history search  #
 ############################
@@ -163,7 +184,7 @@ class MachineHistorySearch:
 
         return (
             Version.objects.get_for_model(Interface)
-            .filter(serialized_data__contains='"ipv4": {}'.format(ip_id))
+            .filter(make_version_filter("ipv4", ip_id))
             .order_by("revision__date_created")
         )
 
@@ -175,7 +196,7 @@ class MachineHistorySearch:
         """
         return (
             Version.objects.get_for_model(Interface)
-            .filter(serialized_data__contains='"mac_address": "{}"'.format(mac))
+            .filter(make_version_filter("mac_address", mac))
             .order_by("revision__date_created")
         )
 
@@ -188,7 +209,7 @@ class MachineHistorySearch:
         machine_id = interface.field_dict["machine_id"]
         return (
             Version.objects.get_for_model(Machine)
-            .filter(serialized_data__contains='"pk": {}'.format(machine_id))
+            .filter(make_version_filter("pk", machine_id))
             .order_by("revision__date_created")
         )
 
@@ -332,7 +353,7 @@ class History:
         self._last_version = None
         interface_versions = (
             Version.objects.get_for_model(model)
-            .filter(serialized_data__contains='"pk": {}'.format(instance_id))
+            .filter(make_version_filter("pk", instance_id))
             .order_by("revision__date_created")
         )
 
@@ -418,9 +439,7 @@ class VersionAction(HistoryEvent):
         model = self.object_type()
         try:
             query = (
-                Q(
-                    serialized_data__contains='"pk": {}'.format(self.object_id())
-                )
+                make_version_filter("pk", self.object_id())
                 & Q(
                     revision__date_created__lt=self.version.revision.date_created
                 )
@@ -428,7 +447,7 @@ class VersionAction(HistoryEvent):
             return (Version.objects.get_for_model(model)
                     .filter(query)
                     .order_by("-revision__date_created")[0])
-        except Exception as e:
+        except Exception:
             return None
 
     def _compute_diff(self, v1, v2, ignoring=["pwd_ntlm"]):
@@ -622,7 +641,7 @@ class UserHistory(History):
         # If it exists, its id will be the same as the user's
         adherents = (
             Version.objects.get_for_model(Adherent)
-            .filter(serialized_data__contains='"pk": {}'.format(user_id))
+            .filter(make_version_filter("pk", user_id))
         )
         try:
             obj = adherents[0]
@@ -634,7 +653,7 @@ class UserHistory(History):
         if obj is None:
             clubs = (
                 Version.objects.get_for_model(Club)
-                .filter(serialized_data__contains='"pk": {}'.format(user_id))
+                .filter(make_version_filter("pk", user_id))
             )
 
             try:
@@ -651,7 +670,7 @@ class UserHistory(History):
         # that were once owned by this user
         self.related = (
             Version.objects.all()
-            .filter(serialized_data__contains='"user": {}'.format(user_id))
+            .filter(make_version_filter("user", user_id))
             .order_by("content_type__model")
         )
         self.related = [RelatedHistory(v) for v in self.related]
@@ -661,7 +680,7 @@ class UserHistory(History):
         self._last_version = None
         user_versions = (
             Version.objects.get_for_model(User)
-            .filter(serialized_data__contains='"pk": {}'.format(user_id))
+            .filter(make_version_filter("pk", user_id))
             .order_by("revision__date_created")
         )
 
@@ -675,7 +694,7 @@ class UserHistory(History):
         self._last_version = None
         obj_versions = (
             Version.objects.get_for_model(model)
-            .filter(serialized_data__contains='"pk": {}'.format(user_id))
+            .filter(make_version_filter("pk", user_id))
             .order_by("revision__date_created")
         )
 
@@ -740,7 +759,7 @@ class MachineHistory(History):
     def get(self, machine_id, model):
         self.related = (
             Version.objects.get_for_model(Interface)
-            .filter(serialized_data__contains='"machine": {}'.format(machine_id))
+            .filter(make_version_filter("machine", machine_id))
             .order_by("content_type__model")
         )
 
