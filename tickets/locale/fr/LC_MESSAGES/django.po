@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-24 18:45+0200\n"
+"POT-Creation-Date: 2020-05-03 02:10+0200\n"
 "PO-Revision-Date: 2019-11-16 00:35+0100\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -59,9 +59,8 @@ msgid "tickets"
 msgstr "tickets"
 
 #: tickets/models.py:82
-#, python-format
-msgid "Ticket from %(name)s. Date: %(date)s."
-msgstr "Ticket de %(name)s. Date : %(date)s."
+msgid "Ticket from {name}. Date: {date}."
+msgstr "Ticket de {name}. Date : {date}."
 
 #: tickets/models.py:84
 #, python-format

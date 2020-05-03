@@ -79,7 +79,7 @@ class Ticket(AclMixin, models.Model):
 
     def __str__(self):
         if self.user:
-            return _("Ticket from %(name)s. Date: %(date)s.").format(name=self.user.surname, date=self.date)
+            return _("Ticket from {name}. Date: {date}.").format(name=self.user.get_full_name(),date=self.date)
         else:
             return _("Anonymous ticket. Date: %s.") % (self.date)
 
