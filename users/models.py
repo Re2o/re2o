@@ -217,24 +217,42 @@ class User(
         ),
     )
     local_email_enabled = models.BooleanField(
-        default=False, help_text=_("Enable the local email account.")
+        default=False,
+        help_text=_("Enable the local email account.")
     )
     school = models.ForeignKey(
-        "School", on_delete=models.PROTECT, null=True, blank=True
+        "School",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text=_("Education institute.")
     )
     shell = models.ForeignKey(
-        "ListShell", on_delete=models.PROTECT, null=True, blank=True
+        "ListShell",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text=_("Unix shell.")
     )
     comment = models.CharField(
         help_text=_("Comment, school year."), max_length=255, blank=True
     )
     pwd_ntlm = models.CharField(max_length=255)
-    state = models.IntegerField(choices=STATES, default=STATE_NOT_YET_ACTIVE)
+    state = models.IntegerField(
+        choices=STATES,
+        default=STATE_NOT_YET_ACTIVE,
+        help_text=_("Account state.")
+    )
     email_state = models.IntegerField(choices=EMAIL_STATES, default=EMAIL_STATE_PENDING)
     registered = models.DateTimeField(auto_now_add=True)
     telephone = models.CharField(max_length=15, blank=True, null=True)
     uid_number = models.PositiveIntegerField(default=get_fresh_user_uid, unique=True)
-    rezo_rez_uid = models.PositiveIntegerField(unique=True, blank=True, null=True)
+    legacy_uid = models.PositiveIntegerField(
+        unique=True,
+        blank=True,
+        null=True,
+        help_text=_("Optionnal legacy uid, for import and transition purpose")
+    )
     shortcuts_enabled = models.BooleanField(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
