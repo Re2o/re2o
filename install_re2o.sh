@@ -92,7 +92,7 @@ install_radius_requirements() {
 
     echo "Setting up the required packages ..."
     cat $APT_RADIUS_REQ_FILE | xargs apt-get -y install
-    python -m pip install -r $PIP_REQ_FILE
+    pip3 install -r $PIP_REQ_FILE
     echo "Setting up the required packages: Done"
 }
 
