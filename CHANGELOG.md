@@ -203,3 +203,17 @@ If you use MySQL, please run
 ```
 SET GLOBAL SQL_MODE=ANSI_QUOTES;
 ```
+
+## MR 531
+
+To use the freeradius python3 backend, please add buster-backports sources to
+your apt lists.
+
+Then, install and update freeradius :
+```bash
+apt install -t buster-backports freeradius
+apt install python3-dev
+```
+
+Make sure that all dépending packages (python3-django etc) provided in the new
+apt_requirements_radius.txt are installed.
