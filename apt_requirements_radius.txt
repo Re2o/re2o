@@ -18,6 +18,9 @@ fonts-font-awesome
 graphviz
 git
 gettext
+libfreeradius3=3.0.21+dfsg-1~bpo10+1
+freeradius-utils=3.0.21+dfsg-1~bpo10+1
+freeradius=3.0.21+dfsg-1~bpo10+1
 freeradius-common
 freeradius-python3
 python3-dev
