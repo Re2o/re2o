@@ -25,7 +25,7 @@
 """
 Python backend for freeradius.
 
-This file contain definition of some functions called by freeradius backend
+This file contains definition of some functions called by freeradius backend
 during auth for wifi, wired device and nas.
 
 Other examples can be found here :
