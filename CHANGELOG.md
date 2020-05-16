@@ -215,5 +215,5 @@ apt install -t buster-backports freeradius
 apt install python3-dev
 ```
 
-Make sure that all dépending packages (python3-django etc) provided in the new
+Make sure that all depending packages (python3-django etc) provided in the new
 apt_requirements_radius.txt are installed.
