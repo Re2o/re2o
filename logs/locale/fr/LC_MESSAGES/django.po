@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-24 18:45+0200\n"
+"POT-Creation-Date: 2020-05-17 12:49+0200\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -54,7 +54,7 @@ msgstr "Accès gracieux"
 msgid "Bans"
 msgstr "Bannissements"
 
-#: logs/forms.py:45 logs/views.py:424
+#: logs/forms.py:45 logs/views.py:430
 msgid "Topology"
 msgstr "Topologie"
 
@@ -70,7 +70,7 @@ msgstr "IPv4"
 msgid "MAC address"
 msgstr "Adresse MAC"
 
-#: logs/forms.py:101 logs/templates/logs/detailed_history.html:38
+#: logs/forms.py:101
 msgid "Performed by"
 msgstr "Effectué(e) par"
 
@@ -89,7 +89,7 @@ msgid "End date"
 msgstr "Date de fin"
 
 #: logs/forms.py:128 logs/templates/logs/search_machine_history.html:38
-#: logs/templates/logs/search_stats_logs.html:38
+#: logs/templates/logs/search_stats_logs.html:36
 msgid "Search"
 msgstr "Rechercher"
 
@@ -97,24 +97,22 @@ msgstr "Rechercher"
 msgid "Search type"
 msgstr "Type de recherche"
 
-#: logs/models.py:314 logs/models.py:498 logs/models.py:531 logs/models.py:614
-#: logs/models.py:706 logs/models.py:744
+#: logs/models.py:310 logs/models.py:552 logs/models.py:585 logs/models.py:798
 msgid "None"
 msgstr "Aucun(e)"
 
-#: logs/models.py:508 logs/models.py:527 logs/models.py:541 logs/models.py:686
-#: logs/models.py:731 logs/models.py:736 logs/models.py:741 logs/models.py:751
-#: logs/views.py:604
+#: logs/models.py:562 logs/models.py:581 logs/models.py:595 logs/models.py:749
+#: logs/models.py:785 logs/models.py:790 logs/models.py:795 logs/models.py:805
+#: logs/views.py:605
 msgid "Deleted"
 msgstr "Supprimé(e)"
 
-#: logs/models.py:515 logs/models.py:520
-#: logs/templates/logs/detailed_history.html:52
+#: logs/models.py:569 logs/models.py:574
 #: logs/templates/logs/machine_history.html:55
 msgid "Unknown"
 msgstr "Inconnu(e)"
 
-#: logs/models.py:739
+#: logs/models.py:793
 msgid "No name"
 msgstr "Sans nom"
 
@@ -131,19 +129,15 @@ msgid "Date of editing"
 msgstr "Date de modification"
 
 #: logs/templates/logs/aff_stats_logs.html:41
-#: logs/templates/logs/detailed_history.html:39
 msgid "Edited"
 msgstr "Modifié"
 
 #: logs/templates/logs/aff_stats_logs.html:42
-#: logs/templates/logs/detailed_history.html:40
 #: logs/templates/logs/machine_history.html:39
 msgid "Comment"
 msgstr "Commentaire"
 
 #: logs/templates/logs/aff_stats_logs.html:51
-#: logs/templates/logs/detailed_history.html:28
-#: logs/templates/logs/detailed_history.html:85
 msgid "History"
 msgstr "Historique"
 
@@ -184,7 +178,6 @@ msgid "Rank"
 msgstr "Rang"
 
 #: logs/templates/logs/aff_summary.html:37
-#: logs/templates/logs/detailed_history.html:37
 msgid "Date"
 msgstr "Date"
 
@@ -248,19 +241,6 @@ msgstr ""
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: logs/templates/logs/detailed_history.html:31
-#, python-format
-msgid "History of %(title)s"
-msgstr "Historique de %(title)s"
-
-#: logs/templates/logs/detailed_history.html:75
-msgid "No event"
-msgstr "Aucun évènement"
-
-#: logs/templates/logs/detailed_history.html:80
-msgid "Related elements"
-msgstr "Élements liés"
-
 #: logs/templates/logs/index.html:29 logs/templates/logs/stats_general.html:29
 #: logs/templates/logs/stats_logs.html:29
 #: logs/templates/logs/stats_models.html:29
@@ -269,7 +249,7 @@ msgid "Statistics"
 msgstr "Statistiques"
 
 #: logs/templates/logs/index.html:32 logs/templates/logs/stats_logs.html:32
-#: logs/views.py:439
+#: logs/views.py:445
 msgid "Actions performed"
 msgstr "Actions effectuées"
 
@@ -294,8 +274,8 @@ msgstr "Aucun résultat"
 msgid "Search machine history"
 msgstr "Rechercher l'historique des machines"
 
-#: logs/templates/logs/search_stats_logs.html:27
-#: logs/templates/logs/search_stats_logs.html:32
+#: logs/templates/logs/search_stats_logs.html:28
+#: logs/templates/logs/search_stats_logs.html:33
 msgid "Search events"
 msgstr "Recherche les évènements"
 
@@ -335,134 +315,143 @@ msgstr "Statistiques sur la base de données"
 msgid "Statistics about users"
 msgstr "Statistiques sur les utilisateurs"
 
-#: logs/views.py:196
+#: logs/views.py:192
 msgid "Nonexistent revision."
 msgstr "Révision inexistante."
 
-#: logs/views.py:199
+#: logs/views.py:195
 msgid "The action was deleted."
 msgstr "L'action a été supprimée."
 
-#: logs/views.py:240
+#: logs/views.py:236
 msgid "Category"
 msgstr "Catégorie"
 
-#: logs/views.py:241
+#: logs/views.py:237
 msgid "Number of users (members and clubs)"
 msgstr "Nombre d'utilisateurs (adhérents et clubs)"
 
-#: logs/views.py:242
+#: logs/views.py:238
 msgid "Number of members"
 msgstr "Nombre d'adhérents"
 
-#: logs/views.py:243
+#: logs/views.py:239
 msgid "Number of clubs"
 msgstr "Nombre de clubs"
 
-#: logs/views.py:247
+#: logs/views.py:243
 msgid "Activated users"
 msgstr "Utilisateurs activés"
 
-#: logs/views.py:253
+#: logs/views.py:249
 msgid "Disabled users"
 msgstr "Utilisateurs désactivés"
 
-#: logs/views.py:259
+#: logs/views.py:255
 msgid "Archived users"
 msgstr "Utilisateurs archivés"
 
-#: logs/views.py:265
+#: logs/views.py:261
 msgid "Fully archived users"
 msgstr "Utilisateurs complètement archivés"
 
-#: logs/views.py:275
+#: logs/views.py:271
 msgid "Not yet active users"
 msgstr "Utilisateurs pas encore actifs"
 
-#: logs/views.py:285
+#: logs/views.py:281
 msgid "Contributing members"
 msgstr "Adhérents cotisants"
 
-#: logs/views.py:291
+#: logs/views.py:287
 msgid "Users benefiting from a connection"
 msgstr "Utilisateurs bénéficiant d'une connexion"
 
-#: logs/views.py:297
+#: logs/views.py:293
 msgid "Banned users"
 msgstr "Utilisateurs bannis"
 
-#: logs/views.py:303
+#: logs/views.py:299
 msgid "Users benefiting from a free connection"
 msgstr "Utilisateurs bénéficiant d'une connexion gratuite"
 
-#: logs/views.py:309
+#: logs/views.py:305
 msgid "Users with a confirmed email"
 msgstr "Utilisateurs ayant un mail confirmé"
 
-#: logs/views.py:315
+#: logs/views.py:313
 msgid "Users with an unconfirmed email"
 msgstr "Utilisateurs ayant un mail non confirmé"
 
-#: logs/views.py:321
+#: logs/views.py:325
 msgid "Users pending email confirmation"
 msgstr "Utilisateurs en attente de confirmation du mail"
 
-#: logs/views.py:327
+#: logs/views.py:333
 msgid "Active interfaces (with access to the network)"
 msgstr "Interfaces actives (ayant accès au réseau)"
 
-#: logs/views.py:341
+#: logs/views.py:347
 msgid "Active interfaces assigned IPv4"
 msgstr "Interfaces actives assignées IPv4"
 
-#: logs/views.py:358
+#: logs/views.py:364
 msgid "IP range"
 msgstr "Plage d'IP"
 
-#: logs/views.py:359
+#: logs/views.py:365
 msgid "VLAN"
 msgstr "VLAN"
 
-#: logs/views.py:360
+#: logs/views.py:366
 msgid "Total number of IP addresses"
 msgstr "Nombre total d'adresses IP"
 
-#: logs/views.py:361
+#: logs/views.py:367
 msgid "Number of assigned IP addresses"
 msgstr "Nombre d'adresses IP assignées"
 
-#: logs/views.py:362
+#: logs/views.py:368
 msgid "Number of IP address assigned to an activated machine"
 msgstr "Nombre d'adresses IP assignées à une machine activée"
 
-#: logs/views.py:363
+#: logs/views.py:369
 msgid "Number of unassigned IP addresses"
 msgstr "Nombre d'adresses IP non assignées"
 
-#: logs/views.py:378
+#: logs/views.py:384
 msgid "Users (members and clubs)"
 msgstr "Utilisateurs (adhérents et clubs)"
 
-#: logs/views.py:440
+#: logs/views.py:446
 msgid "Number of actions"
 msgstr "Nombre d'actions"
 
-#: logs/views.py:465
+#: logs/views.py:473
 msgid "rights"
 msgstr "droits"
 
-#: logs/views.py:494
+#: logs/views.py:504
 msgid "actions"
 msgstr "actions"
 
-#: logs/views.py:544 logs/views.py:595
-msgid "Nonexistent entry."
-msgstr "Entrée inexistante."
-
-#: logs/views.py:557
+#: logs/views.py:549
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
 
-#: logs/views.py:582 logs/views.py:638
+#: logs/views.py:584
 msgid "No model found."
 msgstr "Aucun modèle trouvé."
+
+#: logs/views.py:595
+msgid "Nonexistent entry."
+msgstr "Entrée inexistante."
+
+#~ msgid "History of %(title)s"
+#~ msgstr "Historique de %(title)s"
+
+#~ msgid "No event"
+#~ msgstr "Aucun évènement"
+
+#~ msgid "Related elements"
+#~ msgstr "Élements liés"

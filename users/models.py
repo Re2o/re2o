@@ -73,6 +73,7 @@ from django.contrib.auth.models import (
 from django.core.validators import RegexValidator
 import traceback
 from django.utils.translation import ugettext_lazy as _
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from reversion import revisions as reversion
 
@@ -90,7 +91,9 @@ from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
 
-
+from PIL import Image
+from io import BytesIO
+import sys
 # Utilitaires généraux
 
 
@@ -257,7 +260,8 @@ class User(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
     email_change_date = models.DateTimeField(auto_now_add=True)
-
+    profile_image = models.ImageField(upload_to='profile_image', blank=True)
+    
     USERNAME_FIELD = "pseudo"
     REQUIRED_FIELDS = ["surname", "email"]
 
@@ -1394,6 +1398,23 @@ class User(
         super(User, self).clean(*args, **kwargs)
         self.clean_pseudo(*args, **kwargs)
         self.clean_email(*args, **kwargs)
+
+    @property
+    def image_url(self):
+        if self.profile_image and hasattr(self.profile_image, 'url'):
+            return self.profile_image.url
+
+    def save(self, *args, **kwargs):
+        if self.profile_image: 
+            im = Image.open(self.profile_image)
+            output = BytesIO()
+            im = im.resize( (100,100) )
+            if im.mode in ("RGBA", "P"):
+                im = im.convert("RGB")
+            im.save(output, format='JPEG', quality=100)
+            output.seek(0)
+            self.profile_image = InMemoryUploadedFile(output,'ImageField', "%s.jpg" %self.profile_image.name.split('.')[0], 'image/jpeg', sys.getsizeof(output), None)
+        super(User,self).save(*args, **kwargs)
 
     def __str__(self):
         return self.pseudo

@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-24 18:45+0200\n"
+"POT-Creation-Date: 2020-05-17 12:49+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -30,11 +30,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/admin/base_site.html:65 templates/base.html:290
+#: templates/admin/base_site.html:65 templates/base.html:293
 msgid "powered by"
 msgstr "propulsé par"
 
-#: templates/admin/base_site.html:69 templates/base.html:298
+#: templates/admin/base_site.html:69 templates/base.html:301
 msgid ""
 "This software is under the terms of the <a href=\"http://www.gnu.org/"
 "licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
@@ -167,68 +167,68 @@ msgstr "Mon profil"
 msgid "Log out"
 msgstr ""
 
-#: templates/base.html:223
+#: templates/base.html:226
 msgid "Username"
 msgstr "Pseudo"
 
-#: templates/base.html:227
+#: templates/base.html:230
 msgid "Room"
 msgstr "Chambre"
 
-#: templates/base.html:231
+#: templates/base.html:234
 msgid "Internet access"
 msgstr "Accès Internet"
 
-#: templates/base.html:234
+#: templates/base.html:237
 #, python-format
 msgid "Until %(end_access_date)s"
 msgstr "Jusqu'au %(end_access_date)s"
 
-#: templates/base.html:236
+#: templates/base.html:239
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: templates/base.html:241
+#: templates/base.html:244
 msgid "Membership"
 msgstr "Adhésion"
 
-#: templates/base.html:244
+#: templates/base.html:247
 #, python-format
 msgid "Until %(end_adhesion_date)s"
 msgstr "Jusqu'au %(end_adhesion_date)s"
 
-#: templates/base.html:246
+#: templates/base.html:249
 msgid "Non member"
 msgstr "Non adhérent"
 
-#: templates/base.html:254
+#: templates/base.html:257
 msgid "View my profile"
 msgstr "Voir mon profil"
 
-#: templates/base.html:259
+#: templates/base.html:262
 msgid "You are not logged in."
 msgstr "Vous n'êtes pas connecté."
 
-#: templates/base.html:266
+#: templates/base.html:269
 #, python-format
 msgid "%(nb)s active machine"
 msgid_plural "%(nb)s active machines"
 msgstr[0] "%(nb)s machine active"
 msgstr[1] "%(nb)s machines actives"
 
-#: templates/base.html:275
+#: templates/base.html:278
 msgid "View my machines"
 msgstr "Voir mes machines"
 
-#: templates/base.html:288
+#: templates/base.html:291
 msgid "Back to top"
 msgstr "Retour en haut"
 
-#: templates/base.html:292
+#: templates/base.html:295
 msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
 msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
 
-#: templates/base.html:295
+#: templates/base.html:298
 msgid "About this website"
 msgstr "À propos de ce site"
 
@@ -240,8 +240,7 @@ msgstr ""
 msgid "Edit"
 msgstr "Modifier"
 
-#: templates/buttons/history.html:28 templates/buttons/history.html:29
-#: templates/buttons/history.html:32 templates/buttons/history.html:33
+#: templates/buttons/history.html:27 templates/buttons/history.html:28
 msgid "History"
 msgstr ""
 

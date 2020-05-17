@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-03 02:10+0200\n"
+"POT-Creation-Date: 2020-05-17 12:49+0200\n"
 "PO-Revision-Date: 2019-11-16 00:35+0100\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -34,60 +34,61 @@ msgstr ""
 msgid "comment"
 msgstr "commentaire"
 
-#: tickets/models.py:58
+#: tickets/models.py:59
 msgid "Title of the ticket."
 msgstr "Titre du ticket."
 
-#: tickets/models.py:67
+#: tickets/models.py:68
 msgid "An email address to get back to you."
 msgstr "Une adresse mail pour vous recontacter."
 
-#: tickets/models.py:71
+#: tickets/models.py:72
 msgid "Language of the ticket."
 msgstr "Langue des tickets"
 
-#: tickets/models.py:76 tickets/models.py:173
+#: tickets/models.py:77 tickets/models.py:174
 msgid "Can view a ticket object"
 msgstr "Peut voir un objet ticket"
 
-#: tickets/models.py:77 tickets/models.py:174
+#: tickets/models.py:78 tickets/models.py:175
 msgid "ticket"
 msgstr "ticket"
 
-#: tickets/models.py:78 tickets/models.py:175
+#: tickets/models.py:79 tickets/models.py:176
 msgid "tickets"
 msgstr "tickets"
 
-#: tickets/models.py:82
+#: tickets/models.py:83
+#, python-brace-format
 msgid "Ticket from {name}. Date: {date}."
 msgstr "Ticket de {name}. Date : {date}."
 
-#: tickets/models.py:84
+#: tickets/models.py:85
 #, python-format
 msgid "Anonymous ticket. Date: %s."
 msgstr "Ticket anonyme. Date : %s."
 
-#: tickets/models.py:92 tickets/templates/tickets/aff_ticket.html:52
+#: tickets/models.py:93 tickets/templates/tickets/aff_ticket.html:52
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tickets/models.py:130
+#: tickets/models.py:131
 msgid "You don't have the right to view other tickets than yours."
 msgstr "Vous n'avez pas le droit de voir d'autres tickets que les vôtres."
 
-#: tickets/models.py:142 tickets/models.py:217
+#: tickets/models.py:143 tickets/models.py:218
 msgid "You don't have the right to view the list of tickets."
 msgstr "Vous n'avez pas le droit de voir la liste des tickets."
 
-#: tickets/models.py:190
+#: tickets/models.py:191
 msgid "You don't have the right to view other tickets comments than yours."
 msgstr "Vous n'avez pas le droit de voir d'autres tickets que les vôtres."
 
-#: tickets/models.py:205
+#: tickets/models.py:206
 msgid "You don't have the right to edit other tickets comments than yours."
 msgstr "Vous n'avez pas le droit d'éditer d'autres tickets que les vôtres."
 
-#: tickets/models.py:236
+#: tickets/models.py:237
 msgid "Update of your ticket"
 msgstr "Mise à jour de votre ticket"
 

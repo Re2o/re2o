@@ -321,6 +321,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields["email"].label = _("Email address")
         self.fields["school"].label = _("School")
         self.fields["comment"].label = _("Comment")
+        self.fields["profile_image"].label = _("Profile Image")
         if "room" in self.fields:
             self.fields["room"].label = _("Room")
             self.fields["room"].empty_label = _("No room")
@@ -336,6 +337,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             "school",
             "comment",
             "telephone",
+            "profile_image",
             "room",
         ]
 
@@ -438,6 +440,7 @@ class AdherentCreationForm(AdherentForm):
             "school",
             "comment",
             "telephone",
+            "profile_image",
             "room",
             "state",
         ]
@@ -515,6 +518,7 @@ class AdherentEditForm(AdherentForm):
             "school",
             "comment",
             "telephone",
+            "profile_image",
             "room",
             "shell",
             "gpg_fingerprint",
@@ -550,6 +554,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             "room",
             "email",
             "telephone",
+            "profile_image",
             "email",
             "shell",
             "mailing",

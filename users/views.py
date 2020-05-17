@@ -117,7 +117,7 @@ from .forms import (
 def new_user(request):
     """ Vue de création d'un nouvel utilisateur,
     envoie un mail pour le mot de passe"""
-    user = AdherentCreationForm(request.POST or None, user=request.user)
+    user = AdherentCreationForm(request.POST or None, request.FILES or None, user=request.user)
     user.request = request
 
     GTU_sum_up = GeneralOption.get_cached_value("GTU_sum_up")
@@ -167,7 +167,7 @@ def new_user(request):
 def new_club(request):
     """ Vue de création d'un nouveau club,
     envoie un mail pour le mot de passe"""
-    club = ClubForm(request.POST or None, user=request.user)
+    club = ClubForm(request.POST or None, request.FILES or None, user=request.user)
     club.request = request
 
     if club.is_valid():
@@ -192,7 +192,7 @@ def new_club(request):
 def edit_club_admin_members(request, club_instance, **_kwargs):
     """Vue d'edition de la liste des users administrateurs et
     membres d'un club"""
-    club = ClubAdminandMembersForm(request.POST or None, instance=club_instance)
+    club = ClubAdminandMembersForm(request.POST or None, request.FILES or None, instance=club_instance)
     if club.is_valid():
         if club.changed_data:
             club.save()
@@ -215,11 +215,11 @@ def edit_info(request, user, userid):
     possession du droit cableur """
     if user.is_class_adherent:
         user_form = AdherentEditForm(
-            request.POST or None, instance=user.adherent, user=request.user
+            request.POST or None, request.FILES or None, instance=user.adherent, user=request.user
         )
     else:
         user_form = ClubForm(
-            request.POST or None, instance=user.club, user=request.user
+            request.POST or None, request.FILES or None,instance=user.club, user=request.user
         )
     if user_form.is_valid():
         if user_form.changed_data:

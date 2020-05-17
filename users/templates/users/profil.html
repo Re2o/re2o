@@ -205,6 +205,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <dd>{{ users.pseudo }}</dd>
                     </div>
 
+                    {% if users.image_url %}
+                    <div class="col-md-6">
+                        <dt>{% trans "Profile picture" %}</dt>
+                        <dd><img src="{{ users.image_url }}" height="42" width="42" /></dd>
+                    </div>
+                    {% endif %}
+
                     <div class="col-md-6">
                         <dt>{% trans "Email address" %}</dt>
                         <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a>{% if users.email_state != users.EMAIL_STATE_VERIFIED %}<br/><i class="text-warning">{% trans "Pending confirmation..." %}</i>{% endif %}</dd>
