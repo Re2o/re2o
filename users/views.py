@@ -59,7 +59,7 @@ from machines.models import Machine
 
 from preferences.models import OptionalUser, GeneralOption, AssoOption
 from importlib import import_module
-from re2o.settings import BASE_DIR
+from django.conf import settings
 from re2o.settings_local import OPTIONNAL_APPS_RE2O
 from re2o.views import form
 from re2o.utils import all_has_access, permission_tree
@@ -229,7 +229,7 @@ def edit_info(request, user, userid):
             former_user = Adherent.objects.get(pseudo=user.pseudo)
             if former_user.profile_image:
                 if (user.profile_image and user.profile_image.url != former_user.profile_image.url) or (not user.profile_image):
-                        former_image = BASE_DIR+former_user.profile_image.url
+                        former_image = settings.BASE_DIR+former_user.profile_image.url
                         os.remove(former_image)
             user = user_form.save()
             messages.success(request, _("The user was edited."))
