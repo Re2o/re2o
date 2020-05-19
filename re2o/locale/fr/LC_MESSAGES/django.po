@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-24 18:45+0200\n"
+"POT-Creation-Date: 2020-05-17 12:49+0200\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -34,25 +34,25 @@ msgstr ""
 msgid "You don't have the right to edit this option."
 msgstr "Vous n'avez pas le droit de modifier cette option."
 
-#: re2o/acl.py:51
+#: re2o/acl.py:50
 #, python-format
 msgid "You need to be a member of one of these groups: %s."
 msgstr "Vous devez être membre de l'un de ces groupes : %s."
 
-#: re2o/acl.py:54
+#: re2o/acl.py:53
 #, python-format
 msgid "No group has the %s permission(s)!"
 msgstr "Aucun groupe ne possède la ou les permissions %s !"
 
-#: re2o/acl.py:167
+#: re2o/acl.py:166
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: re2o/acl.py:193 re2o/acl.py:264
+#: re2o/acl.py:196 re2o/acl.py:267
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
 
-#: re2o/acl.py:314
+#: re2o/acl.py:317
 msgid "You don't have the right to edit the history."
 msgstr "Vous n'avez pas le droit de modifier l'historique."
 
@@ -79,27 +79,27 @@ msgstr "Format : {main}"
 msgid "Failed to send email: %(error)s."
 msgstr "Échec de l'envoi du mail : %(error)s."
 
-#: re2o/mixins.py:113
+#: re2o/mixins.py:110
 #, python-format
 msgid "You don't have the right to create a %s object."
 msgstr "Vous n'avez pas le droit de créer un objet %s."
 
-#: re2o/mixins.py:129
+#: re2o/mixins.py:126
 #, python-format
 msgid "You don't have the right to edit a %s object."
 msgstr "Vous n'avez pas le droit de modifier un objet %s."
 
-#: re2o/mixins.py:145
+#: re2o/mixins.py:142
 #, python-format
 msgid "You don't have the right to delete a %s object."
 msgstr "Vous n'avez pas le droit de supprimer un objet %s."
 
-#: re2o/mixins.py:161
+#: re2o/mixins.py:158
 #, python-format
 msgid "You don't have the right to view every %s object."
 msgstr "Vous n'avez pas le droit de voir tous les objets %s."
 
-#: re2o/mixins.py:177
+#: re2o/mixins.py:174
 #, python-format
 msgid "You don't have the right to view a %s object."
 msgstr "Vous n'avez pas le droit de voir un objet %s."
@@ -207,25 +207,37 @@ msgstr "<b>Date du commit</b> : %(git_info_commit_date)s"
 msgid "Dependencies"
 msgstr "Dépendances"
 
-#: re2o/templates/re2o/aff_history.html:30
-msgid "Next"
-msgstr "Suivant"
-
-#: re2o/templates/re2o/aff_history.html:37
-msgid "Previous"
-msgstr "Précédent"
-
-#: re2o/templates/re2o/aff_history.html:45
+#: re2o/templates/re2o/aff_history.html:33
 msgid "Date"
 msgstr "Date"
 
-#: re2o/templates/re2o/aff_history.html:46
+#: re2o/templates/re2o/aff_history.html:34
 msgid "Performed by"
 msgstr "Effectuée par"
 
-#: re2o/templates/re2o/aff_history.html:47
+#: re2o/templates/re2o/aff_history.html:35
+msgid "Edited"
+msgstr ""
+
+#: re2o/templates/re2o/aff_history.html:36
 msgid "Comment"
 msgstr "Commentaire"
+
+#: re2o/templates/re2o/aff_history.html:48
+msgid "Unknown"
+msgstr ""
+
+#: re2o/templates/re2o/aff_history.html:71
+msgid "No event"
+msgstr ""
+
+#: re2o/templates/re2o/aff_history.html:76
+msgid "Related elements"
+msgstr ""
+
+#: re2o/templates/re2o/aff_history.html:82 re2o/templates/re2o/history.html:30
+msgid "History"
+msgstr "Historique"
 
 #: re2o/templates/re2o/contact.html:29
 msgid "Contact"
@@ -236,13 +248,10 @@ msgstr "Contact"
 msgid "Contact the organisation %(asso_name)s"
 msgstr "Contacter l'association %(asso_name)s"
 
-#: re2o/templates/re2o/history.html:29
-msgid "History"
-msgstr "Historique"
-
-#: re2o/templates/re2o/history.html:32
-#, python-format
-msgid "History of %(object)s"
+#: re2o/templates/re2o/history.html:33
+#, fuzzy, python-format
+#| msgid "History of %(object)s"
+msgid "History of %(title)s"
 msgstr "Historique de %(object)s"
 
 #: re2o/templates/re2o/index.html:30
@@ -327,3 +336,9 @@ msgstr "Page d'accueil"
 #: re2o/views.py:96
 msgid "Unable to get the information."
 msgstr "Impossible d'obtenir l'information."
+
+#~ msgid "Next"
+#~ msgstr "Suivant"
+
+#~ msgid "Previous"
+#~ msgstr "Précédent"

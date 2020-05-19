@@ -157,7 +157,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
         (None, {"fields": ("pseudo", "password")}),
         (
             "Personal info",
-            {"fields": ("surname", "email", "school", "shell", "uid_number")},
+            {"fields": ("surname", "email", "school", "shell", "uid_number", "profile_image")},
         ),
         ("Permissions", {"fields": ("is_admin",)}),
     )
@@ -176,6 +176,7 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
                     "is_admin",
                     "password1",
                     "password2",
+                    "profile_image",
                 ),
             },
         ),

@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 {% bootstrap_form_errors userform %}
 
-<form class="form" method="post">
+<form class="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% massive_bootstrap_form userform 'room,school,administrators,members' %}
     {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}

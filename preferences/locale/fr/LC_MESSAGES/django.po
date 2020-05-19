@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-24 18:45+0200\n"
+"POT-Creation-Date: 2020-05-17 12:49+0200\n"
 "PO-Revision-Date: 2018-06-24 15:54+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -207,90 +207,94 @@ msgid "Telephone number"
 msgstr "Numéro de téléphone"
 
 #: preferences/forms.py:183
+msgid "Profile image"
+msgstr "Photo de profil"
+
+#: preferences/forms.py:184
 #: preferences/templates/preferences/display_preferences.html:343
 msgid "Usual name"
 msgstr "Nom d'usage"
 
-#: preferences/forms.py:185
+#: preferences/forms.py:186
 msgid "Account used for editing from /admin"
 msgstr "Compte utilisé pour les modifications depuis /admin"
 
-#: preferences/forms.py:187 preferences/forms.py:332
+#: preferences/forms.py:188 preferences/forms.py:333
 #: preferences/templates/preferences/aff_service.html:33
 msgid "Description"
 msgstr "Description"
 
-#: preferences/forms.py:201
+#: preferences/forms.py:202
 msgid "Message for the French welcome email"
 msgstr "Message pour le mail de bienvenue en français"
 
-#: preferences/forms.py:204
+#: preferences/forms.py:205
 msgid "Message for the English welcome email"
 msgstr "Message pour le mail de bienvenue en anglais"
 
-#: preferences/forms.py:218
+#: preferences/forms.py:219
 msgid "Facebook URL"
 msgstr "URL du compte Facebook"
 
-#: preferences/forms.py:219
+#: preferences/forms.py:220
 msgid "Twitter URL"
 msgstr "URL du compte Twitter"
 
-#: preferences/forms.py:220
+#: preferences/forms.py:221
 #: preferences/templates/preferences/display_preferences.html:504
 msgid "Twitter account name"
 msgstr "Nom du compte Twitter"
 
-#: preferences/forms.py:238
+#: preferences/forms.py:239
 msgid "You chose to set vlan but did not set any VLAN."
 msgstr ""
 "Vous avez choisi de paramétrer vlan mais vous n'avez indiqué aucun VLAN."
 
-#: preferences/forms.py:239
+#: preferences/forms.py:240
 msgid "Please, choose a VLAN."
 msgstr "Veuillez choisir un VLAN."
 
-#: preferences/forms.py:270
+#: preferences/forms.py:271
 msgid "There is already a mandate taking place at the specified start date."
 msgstr "Il y a déjà un mandat ayant cours à la date de début renseignée."
 
-#: preferences/forms.py:284
+#: preferences/forms.py:285
 msgid "There is already a mandate taking place at the specified end date."
 msgstr "Il y a déjà un madant ayant cours à la date de fin renseignée."
 
-#: preferences/forms.py:298
+#: preferences/forms.py:299
 msgid "The specified dates overlap with an existing mandate."
 msgstr "Les dates renseignées se superposent avec un mandat existant."
 
-#: preferences/forms.py:330
+#: preferences/forms.py:331
 #: preferences/templates/preferences/aff_service.html:31
 #: preferences/templates/preferences/display_preferences.html:327
 msgid "Name"
 msgstr "Nom"
 
-#: preferences/forms.py:331
+#: preferences/forms.py:332
 #: preferences/templates/preferences/aff_service.html:32
 msgid "URL"
 msgstr "URL"
 
-#: preferences/forms.py:333
+#: preferences/forms.py:334
 #: preferences/templates/preferences/aff_service.html:34
 msgid "Image"
 msgstr "Image"
 
-#: preferences/forms.py:341
+#: preferences/forms.py:342
 msgid "Current services"
 msgstr "Services actuels"
 
-#: preferences/forms.py:430
+#: preferences/forms.py:431
 msgid "Current email addresses"
 msgstr "Adresses mail actuelles"
 
-#: preferences/forms.py:465
+#: preferences/forms.py:466
 msgid "Current document templates"
 msgstr "Modèles de document actuels"
 
-#: preferences/forms.py:495
+#: preferences/forms.py:496
 msgid "Current attributes"
 msgstr "Attributs actuels"
 
