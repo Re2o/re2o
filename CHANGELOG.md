@@ -217,3 +217,16 @@ apt install python3-dev
 
 Make sure that all depending packages (python3-django etc) provided in the new
 apt_requirements_radius.txt are installed.
+
+## MR 535 : Routers
+
+It is now possible to use a custom router file, if you want to have mutli database
+support, with for example one as master database and one as replica database.
+If you want to add a database routers, please fill in in settings_local.py 
+and add your databse.
+Then, add a file "local_routers.py" in folder app re2o, and add your router path 
+in the settings_local.py file :
+
+```python
+LOCAL_ROUTERS = ["re2o.local_routers.DbRouter"]
+```
