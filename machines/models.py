@@ -1153,11 +1153,13 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         Sans prefixe ipv6, on return
         Si l'ip slaac n'est pas celle qu'elle devrait être, on maj"""
         ipv6_slaac = self.ipv6_slaac
+        print(self.id)
         if not ipv6_slaac:
             return
         ipv6_object = Ipv6List.objects.filter(interface=self, slaac_ip=True).first()
         if not ipv6_object:
-            ipv6_object = Ipv6List(interface=self, slaac_ip=True)
+            ipv6_object = Ipv6List.objects.using("master").create(interface=Interface.objects.using("master").get(id=self.id), slaac_ip=True, ipv6=ipv6_slaac)
+            return
         if ipv6_object.ipv6 != str(ipv6_slaac):
             ipv6_object.ipv6 = str(ipv6_slaac)
             ipv6_object.save()
@@ -2089,7 +2091,7 @@ def interface_post_save(**kwargs):
     """Synchronisation ldap et régen parefeu/dhcp lors de la modification
     d'une interface"""
     interface = kwargs["instance"]
-    interface.sync_ipv6()
+    #interface.sync_ipv6()
     user = interface.machine.user
     user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
     # Regen services
