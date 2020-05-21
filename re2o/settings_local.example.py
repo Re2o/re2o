@@ -103,6 +103,11 @@ UID_RANGES = {"users": [21001, 30000], "service-users": [20000, 21000]}
 # A range of GID to use. Used in linux environement
 GID_RANGES = {"posix": [501, 600]}
 
+# If you want to add a database routers, please fill in above and add your databse.
+# Then, add a file "local_routers.py" in folder app re2o, and add your router path in
+# the LOCAL_ROUTERS var as "re2o.local_routers.DbRouter". You can also add extra routers. 
+LOCAL_ROUTERS = []
+
 # Some optionnal Re2o Apps
 OPTIONNAL_APPS_RE2O = ()
 

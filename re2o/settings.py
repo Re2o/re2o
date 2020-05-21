@@ -154,6 +154,8 @@ USE_TZ = True
 
 # Router config for database
 DATABASE_ROUTERS = ["ldapdb.router.Router"]
+if "LOCAL_ROUTERS" in globals():
+    DATABASE_ROUTERS += LOCAL_ROUTERS
 
 # django-bootstrap3 config
 BOOTSTRAP3 = {
