@@ -217,7 +217,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <div class="panel-heading">
                             <h4>{{ request_user.name }} {{ request_user.surname }}</h4>
                             {% if request_user.image_url %}
-                            <img src="{{ users.image_url }}" height="42" width="42" />
+                            <img src="{{ request_user.image_url }}" height="42" width="42" />
                             {% endif %}
                         </div>
                         <table class="table">
