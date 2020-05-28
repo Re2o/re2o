@@ -122,7 +122,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
 
 
 class UserAdminForm(FormRevMixin, forms.ModelForm):
-    """A form for creating new users. Includes all the required
+    """A form for creating new and editing users. Includes all the required
     fields, plus a repeated password.
 
     Formulaire pour la création d'un user. N'est utilisé que pour
@@ -171,7 +171,7 @@ class UserAdminForm(FormRevMixin, forms.ModelForm):
         return user
 
 
-class ServiceUserCreationForm(FormRevMixin, forms.ModelForm):
+class ServiceUserAdminForm(FormRevMixin, forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password.
 
@@ -179,25 +179,26 @@ class ServiceUserCreationForm(FormRevMixin, forms.ModelForm):
     Requiert seulement un mot de passe; et un pseudo"""
 
     password1 = forms.CharField(
-        label=_("Password"), widget=forms.PasswordInput, min_length=8, max_length=255
+        label=_("Password"),
+        widget=forms.PasswordInput,
+        max_length=255,
     )
     password2 = forms.CharField(
         label=_("Password confirmation"),
         widget=forms.PasswordInput,
-        min_length=8,
         max_length=255,
     )
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
-        super(ServiceUserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(ServiceUserAdminForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     class Meta:
         model = ServiceUser
         fields = ("pseudo",)
 
     def clean_password2(self):
-        """Verifie que password1 et 2 sont indentiques"""
+        """Verifie que password1 et 2 sont identiques"""
         # Check that the two password entries match
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
@@ -207,33 +208,10 @@ class ServiceUserCreationForm(FormRevMixin, forms.ModelForm):
 
     def save(self, commit=True):
         # Save the provided password in hashed format
-        user = super(ServiceUserCreationForm, self).save(commit=False)
+        user = super(ServiceUserAdminForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         user.save()
         return user
-
-
-class ServiceUserChangeForm(FormRevMixin, forms.ModelForm):
-    """A form for updating users. Includes all the fields on
-    the user, but replaces the password field with admin's
-    password hash display field.
-
-    Formulaire pour l'edition des service users coté admin
-    """
-
-    password = ReadOnlyPasswordHashField()
-
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop("prefix", self.Meta.model.__name__)
-        super(ServiceUserChangeForm, self).__init__(*args, prefix=prefix, **kwargs)
-
-    class Meta:
-        model = ServiceUser
-        fields = ("pseudo",)
-
-    def clean_password(self):
-        """Dummy fun"""
-        return self.initial["password"]
 
 
 class ResetPasswordForm(forms.Form):
