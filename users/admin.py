@@ -51,8 +51,7 @@ from .models import (
 )
 from .forms import (
     UserAdminForm,
-    ServiceUserChangeForm,
-    ServiceUserCreationForm,
+    ServiceUserAdminForm,
 )
 
 
@@ -230,15 +229,15 @@ class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
     mot de passe; etc"""
 
     # The forms to add and change user instances
-    form = ServiceUserChangeForm
-    add_form = ServiceUserCreationForm
+    form = ServiceUserAdminForm
+    add_form = ServiceUserAdminForm
 
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
     list_display = ("pseudo", "access_group")
     list_filter = ()
-    fieldsets = ((None, {"fields": ("pseudo", "password", "access_group")}),)
+    fieldsets = ((None, {"fields": ("pseudo", "access_group", "comment", "password1", "password2")}),)
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
@@ -263,9 +262,6 @@ admin.site.register(Ban, BanAdmin)
 admin.site.register(EMailAddress, EMailAddressAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
-# Now register the new UserAdmin...
-admin.site.unregister(ServiceUser)
-admin.site.register(ServiceUser, ServiceUserAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 admin.site.unregister(Group)
