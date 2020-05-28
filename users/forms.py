@@ -121,7 +121,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         user.save()
 
 
-class UserCreationForm(FormRevMixin, forms.ModelForm):
+class UserAdminForm(FormRevMixin, forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password.
 
@@ -133,40 +133,41 @@ class UserCreationForm(FormRevMixin, forms.ModelForm):
         label=_("Password"),
         widget=forms.PasswordInput,
         max_length=255,
-        help_text=password_validators_help_text_html()
+        help_text=password_validators_help_text_html(),
+        required=False,
     )
     password2 = forms.CharField(
         label=_("Password confirmation"),
         widget=forms.PasswordInput,
         max_length=255,
+        required=False,
     )
-    is_admin = forms.BooleanField(label=_("Is admin"))
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
-        super(UserCreationForm, self).__init__(*args, prefix=prefix, **kwargs)
+        super(UserAdminForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields["email"].required = True
 
     class Meta:
-        model = Adherent
-        fields = ("pseudo", "surname", "email")
+        fields = ("pseudo", "surname", "name", "email", "is_superuser")
 
     def clean_password2(self):
         """Verifie que password1 et 2 sont identiques"""
         # Check that the two password entries match
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError(_("The passwords don't match."))
-        validate_password(password1)
+        if password1 and password2:
+            if password1 and password2 and password1 != password2:
+                raise forms.ValidationError(_("The passwords don't match."))
+            validate_password(password1)
         return password2
 
     def save(self, commit=True):
         # Save the provided password in hashed format
-        user = super(UserCreationForm, self).save(commit=False)
-        user.set_password(self.cleaned_data["password1"])
-        user.save()
-        user.is_admin = self.cleaned_data.get("is_admin")
+        user = super(UserAdminForm, self).save(commit=False)
+        if self.cleaned_data["password1"]:
+            user.set_password(self.cleaned_data["password1"])
+            user.save()
         return user
 
 
@@ -209,43 +210,6 @@ class ServiceUserCreationForm(FormRevMixin, forms.ModelForm):
         user = super(ServiceUserCreationForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         user.save()
-        return user
-
-
-class UserChangeForm(FormRevMixin, forms.ModelForm):
-    """A form for updating users. Includes all the fields on
-    the user, but replaces the password field with admin's
-    password hash display field.
-
-    Formulaire pour la modification d'un user coté admin
-    """
-
-    password = ReadOnlyPasswordHashField()
-    is_admin = forms.BooleanField(label=_("Is admin"), required=False)
-
-    class Meta:
-        model = Adherent
-        fields = ("pseudo", "password", "surname", "email")
-
-    def __init__(self, *args, **kwargs):
-        prefix = kwargs.pop("prefix", self.Meta.model.__name__)
-        super(UserChangeForm, self).__init__(*args, prefix=prefix, **kwargs)
-        print(_("User is admin: %s") % kwargs["instance"].is_admin)
-        self.initial["is_admin"] = kwargs["instance"].is_admin
-
-    def clean_password(self):
-        """Dummy fun"""
-        # Regardless of what the user provides, return the initial value.
-        # This is done here, rather than on the field, because the
-        # field does not have access to the initial value
-        return self.initial["password"]
-
-    def save(self, commit=True):
-        # Save the provided password in hashed format
-        user = super(UserChangeForm, self).save(commit=False)
-        user.is_admin = self.cleaned_data.get("is_admin")
-        if commit:
-            user.save()
         return user
 
 

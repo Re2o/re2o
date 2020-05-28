@@ -50,8 +50,7 @@ from .models import (
     LdapUserGroup,
 )
 from .forms import (
-    UserChangeForm,
-    UserCreationForm,
+    UserAdminForm,
     ServiceUserChangeForm,
     ServiceUserCreationForm,
 )
@@ -130,36 +129,29 @@ class WhitelistAdmin(VersionAdmin):
     pass
 
 
-class UserAdmin(VersionAdmin, BaseUserAdmin):
-    """Gestion d'un user : modification des champs perso, mot de passe, etc"""
-
+class AdherentAdmin(VersionAdmin, BaseUserAdmin):
     # The forms to add and change user instances
-    form = UserChangeForm
-    add_form = UserCreationForm
 
-    # The fields to be used in displaying the User model.
-    # These override the definitions on the base UserAdmin
-    # that reference specific fields on auth.User.
+    add_form = UserAdminForm
+    form = UserAdminForm
+
     list_display = (
         "pseudo",
+        "name",
         "surname",
         "email",
         "local_email_redirect",
         "local_email_enabled",
         "school",
-        "is_admin",
         "shell",
     )
-    # Need to reset the settings from BaseUserAdmin
-    # They are using fields we don't use like 'is_staff'
     list_filter = ()
     fieldsets = (
-        (None, {"fields": ("pseudo", "password")}),
+        (None, {"fields": ("pseudo",)}),
         (
             "Personal info",
-            {"fields": ("surname", "email", "school", "shell", "uid_number", "profile_image")},
+            {"fields": ("surname", "name", "email", "school", "shell", "uid_number", "profile_image", "password1", "password2")},
         ),
-        ("Permissions", {"fields": ("is_admin",)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -171,12 +163,59 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
                 "fields": (
                     "pseudo",
                     "surname",
+                    "name",
                     "email",
                     "school",
-                    "is_admin",
                     "password1",
                     "password2",
                     "profile_image",
+                    "is_superuser",
+                ),
+            },
+        ),
+    )
+    search_fields = ("pseudo", "surname", "name")
+    ordering = ("pseudo",)
+    filter_horizontal = ()
+
+
+class ClubAdmin(VersionAdmin, BaseUserAdmin):
+    # The forms to add and change user instances
+    add_form = UserAdminForm
+    form = UserAdminForm
+
+    list_display = (
+        "pseudo",
+        "surname",
+        "email",
+        "local_email_redirect",
+        "local_email_enabled",
+        "school",
+        "shell",
+    )
+    list_filter = ()
+    fieldsets = (
+        (None, {"fields": ("pseudo",)}),
+        (
+            "Personal info",
+            {"fields": ("surname", "email", "school", "shell", "uid_number", "profile_image", "password1", "password2")},
+        ),
+    )
+
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "pseudo",
+                    "surname",
+                    "email",
+                    "school",
+                    "password1",
+                    "password2",
+                    "profile_image",
+                    "is_superuser",
                 ),
             },
         ),
@@ -210,9 +249,8 @@ class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
     filter_horizontal = ()
 
 
-admin.site.register(User, UserAdmin)
-admin.site.register(Adherent, UserAdmin)
-admin.site.register(Club, UserAdmin)
+admin.site.register(Adherent, AdherentAdmin)
+admin.site.register(Club, ClubAdmin)
 admin.site.register(ServiceUser, ServiceUserAdmin)
 admin.site.register(LdapUser, LdapUserAdmin)
 admin.site.register(LdapUserGroup, LdapUserGroupAdmin)
@@ -226,9 +264,7 @@ admin.site.register(EMailAddress, EMailAddressAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
 # Now register the new UserAdmin...
-admin.site.unregister(User)
 admin.site.unregister(ServiceUser)
-admin.site.register(User, UserAdmin)
 admin.site.register(ServiceUser, ServiceUserAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
