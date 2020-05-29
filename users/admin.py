@@ -21,8 +21,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Definition des vues pour les admin. Classique, sauf pour users,
-où on fait appel à UserChange et ServiceUserChange, forms custom
+Admin views basic definition, include basic definition of admin view.
+
+Except for Admin edition and creation of users and services users;
+with AdherentAdmin, ClubAdmin and ServiceUserAdmin.
 """
 
 from __future__ import unicode_literals
