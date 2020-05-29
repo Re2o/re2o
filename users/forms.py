@@ -23,14 +23,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Definition des forms pour l'application users.
+Forms for the 'users' app of re2o. It highly depends on
+:users:models and is mainly used by :users:views.
 
-Modification, creation de :
-    - un user (informations personnelles)
-    - un bannissement
-    - le mot de passe d'un user
-    - une whiteliste
-    - un user de service
+The following forms are mainly used to create, edit or delete
+anything related to 'users' :
+    * Adherent (personnal data)
+    * Club
+    * Ban
+    * ServiceUser
+    * Whitelists
+    * ...
+
+See the details for each of these operations in the documentation
+of each of the method.
 """
 
 from __future__ import unicode_literals

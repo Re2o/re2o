@@ -23,25 +23,30 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Models de l'application users.
+The database models for the 'users' app of re2o.
 
-On défini ici des models django classiques:
-- users, qui hérite de l'abstract base user de django. Permet de définit
-un utilisateur du site (login, passwd, chambre, adresse, etc)
-- les whiteslist
-- les bannissements
-- les établissements d'enseignement (school)
-- les droits (right et listright)
-- les utilisateurs de service (pour connexion automatique)
+The goal is to keep the main actions here, i.e. the 'clean' and 'save'
+function are higly reposnsible for the changes, checking the coherence of the
+data and the good behaviour in general for not breaking the database.
 
-On défini aussi des models qui héritent de django-ldapdb :
-- ldapuser
-- ldapgroup
-- ldapserviceuser
+For further details on each of those models, see the documentation details for
+each.
 
-Ces utilisateurs ldap sont synchronisés à partir des objets
-models sql classiques. Seuls certains champs essentiels sont
-dupliqués.
+Here are defined the following django models :
+    * Users : Adherent and Club (which inherit from Base User Abstract of django).
+    * Whitelists
+    * Bans
+    * Schools (teaching structures)
+    * Rights (Groups and ListRight)
+    * ServiceUser (for ldap connexions)
+
+Also define django-ldapdb models :
+    * LdapUser
+    * LdapGroup
+    * LdapServiceUser
+
+These objects are sync from django regular models as auxiliary models from
+sql data into ldap.
 """
 
 
@@ -94,18 +99,32 @@ from preferences.models import OptionalMachine, MailMessageOption
 from PIL import Image
 from io import BytesIO
 import sys
-# Utilitaires généraux
 
+# General utilities 
 
 def linux_user_check(login):
-    """ Validation du pseudo pour respecter les contraintes unix"""
+    """Check if a login comply with unix base login policy
+
+    Parameters:
+        login (string): Login to check
+
+    Returns:
+        boolean: True if login comply with policy 
+    """
     UNIX_LOGIN_PATTERN = re.compile("^[a-z][a-z0-9-]*[$]?$")
     return UNIX_LOGIN_PATTERN.match(login)
 
 
 def linux_user_validator(login):
-    """ Retourne une erreur de validation si le login ne respecte
-    pas les contraintes unix (maj, min, chiffres ou tiret)"""
+    """Check if a login comply with unix base login policy, returns
+    a standard Django ValidationError if login is not correct
+
+    Parameters:
+        login (string): Login to check
+
+    Returns:
+        ValidationError if login comply with policy 
+    """
     if not linux_user_check(login):
         raise forms.ValidationError(
             _("The username \"%(label)s\" contains forbidden characters."),
@@ -114,7 +133,11 @@ def linux_user_validator(login):
 
 
 def get_fresh_user_uid():
-    """ Renvoie le plus petit uid non pris. Fonction très paresseuse """
+    """Return a fresh unused uid.
+
+    Returns:
+        uid (int): The fresh uid available
+    """
     uids = list(range(int(min(UID_RANGES["users"])), int(max(UID_RANGES["users"]))))
     try:
         used_uids = list(User.objects.values_list("uid_number", flat=True))
@@ -125,7 +148,11 @@ def get_fresh_user_uid():
 
 
 def get_fresh_gid():
-    """ Renvoie le plus petit gid libre  """
+    """Return a fresh unused gid.
+
+    Returns:
+        uid (int): The fresh gid available
+    """
     gids = list(range(int(min(GID_RANGES["posix"])), int(max(GID_RANGES["posix"]))))
     used_gids = list(ListRight.objects.values_list("gid", flat=True))
     free_gids = [id for id in gids if id not in used_gids]
@@ -174,9 +201,28 @@ class UserManager(BaseUserManager):
 class User(
     RevMixin, FieldPermissionModelMixin, AbstractBaseUser, PermissionsMixin, AclMixin
 ):
-    """ Definition de l'utilisateur de base.
-    Champs principaux : name, surnname, pseudo, email, room, password
-    Herite du django BaseUser et du système d'auth django"""
+    """Base re2o User model
+
+    Attributes:
+        surname: surname of the user
+        pseudo: login of the user
+        email: The main email of the user
+        local_email_redirect: Option for redirection of all emails to the main email
+        local_email_enabled: If True, enable a local email account
+        school: Optional field, the school of the user
+        shell: User shell linux
+        comment: Optionnal comment field
+        pwd_ntlm: Hash password in ntlm for freeradius
+        state: State of the user, can be active, not yet active, etc (see below)
+        email_state: State of the main email (if confirmed or not)
+        registered: Date of initial creation
+        telephone: Phone number
+        uid_number: Linux uid of this user
+        legacy_uid: Optionnal legacy user id
+        shortcuts_enabled : Option for js shortcuts
+        email_change_date: Date of the last email change
+        profile_image: Optionnal image profile
+    """
 
     STATE_ACTIVE = 0
     STATE_DISABLED = 1
@@ -285,9 +331,19 @@ class User(
         verbose_name = _("user (member or club)")
         verbose_name_plural = _("users (members or clubs)")
 
+    ###### Shortcuts and methods for user instance ######
+
     @cached_property
     def name(self):
-        """Si il s'agit d'un adhérent, on renvoie le prénom"""
+        """Shortcuts, returns name attribute if the user is linked with
+        an adherent instance.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            name (string): Name value if available
+        """
         if self.is_class_adherent:
             return self.adherent.name
         else:
@@ -295,7 +351,15 @@ class User(
 
     @cached_property
     def room(self):
-        """Alias vers room """
+        """Shortcuts, returns room attribute; unique for adherent
+        and multiple (queryset) for club.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            room (room instance): Room instance
+        """
         if self.is_class_adherent:
             return self.adherent.room
         elif self.is_class_club:
@@ -305,13 +369,30 @@ class User(
 
     @cached_property
     def get_mail_addresses(self):
+        """Shortcuts, returns all local email address queryset only if local_email
+        global option is enabled.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            emailaddresse_set (queryset): All Email address of the local account
+        """
         if self.local_email_enabled:
             return self.emailaddress_set.all()
         return None
 
     @cached_property
     def get_mail(self):
-        """Return the mail address choosen by the user"""
+        """Shortcuts, returns the email address to use to contact the instance user self.
+        Depends on if local_email account has been activated, otherwise returns self.email.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            email (string): The correct email to use
+        """
         if (
             not OptionalUser.get_cached_value("local_email_accounts_enabled")
             or not self.local_email_enabled
@@ -323,7 +404,15 @@ class User(
 
     @cached_property
     def class_type(self):
-        """Returns the type of that user; returns database keyname"""
+        """Shortcuts, returns the class string "Adherent" of "Club", related with the
+        self instance.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            class (string): The class "Adherent" or "Club"
+        """
         if hasattr(self, "adherent"):
             return "Adherent"
         elif hasattr(self, "club"):
@@ -333,7 +422,15 @@ class User(
 
     @cached_property
     def class_display(self):
-        """Returns the typename of that user to display for user interface"""
+        """Shortcuts, returns the pretty string "Member" of "Club", related with the
+        self instance.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            class (string): "Member" or "Club"
+        """
         if hasattr(self, "adherent"):
             return _("Member")
         elif hasattr(self, "club"):
@@ -343,24 +440,68 @@ class User(
 
     @cached_property
     def gid_number(self):
-        """renvoie le gid par défaut des users"""
+        """Shortcuts, returns the main and default gid for users,
+        from settings file
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            gid (int): Default gid number
+        """
         return int(LDAP["user_gid"])
 
     @cached_property
+    def gid(self):
+        """Shortcuts, returns the main and default gid for users,
+        from settings file
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            gid (int): Default gid number
+        """
+        return LDAP["user_gid"]
+
+    @cached_property
     def is_class_club(self):
-        """ Returns True if the object is a Club (subclassing User) """
-        # TODO : change to isinstance (cleaner)
+        """Shortcuts, returns if the instance related with user is
+        a club.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            boolean : Returns true if this user is a club
+        """
         return hasattr(self, "club")
 
     @cached_property
     def is_class_adherent(self):
-        """ Returns True if the object is a Adherent (subclassing User) """
-        # TODO : change to isinstance (cleaner)
+        """Shortcuts, returns if the instance related with user is
+        an adherent.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            boolean : Returns true if this user is an adherent
+        """
         return hasattr(self, "adherent")
 
     @property
     def is_active(self):
-        """ Renvoie si l'user est à l'état actif"""
+        """Shortcuts, used by django for allowing connection from this user.
+        Returns True if this user has state active, or not yet active,
+        or if preferences allows connection for archived users.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            boolean : Returns true if this user is allow to connect.
+        """
         allow_archived = OptionalUser.get_cached_value("allow_archived_connexion")
         return (
             self.state == self.STATE_ACTIVE
@@ -371,34 +512,43 @@ class User(
             )
         )
 
-    def set_active(self):
-        """Enable this user if he subscribed successfully one time before
-        Reenable it if it was archived
-        Do nothing if disabled or waiting for email confirmation"""
-        if self.state == self.STATE_NOT_YET_ACTIVE:
-            if self.facture_set.filter(valid=True).filter(
-                Q(vente__type_cotisation="All") | Q(vente__type_cotisation="Adhesion")
-            ).exists() or OptionalUser.get_cached_value("all_users_active"):
-                self.state = self.STATE_ACTIVE
-                self.save()
-        if self.state == self.STATE_ARCHIVE or self.state == self.STATE_FULL_ARCHIVE:
-            self.state = self.STATE_ACTIVE
-            self.unarchive()
-            self.save()
-
     @property
     def is_staff(self):
-        """ Fonction de base django, renvoie si l'user est admin"""
+        """Shortcuts, used by django for admin pannel access, shortcuts to
+        is_admin. 
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            boolean : Returns true if this user is_staff.
+        """
         return self.is_admin
 
     @property
     def is_admin(self):
-        """ Renvoie si l'user est admin"""
+        """Shortcuts, used by django for admin pannel access. Test if user
+        instance is_superuser or member of admin group.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            boolean : Returns true if this user is allow to access to admin pannel.
+        """
         admin, _ = Group.objects.get_or_create(name="admin")
         return self.is_superuser or admin in self.groups.all()
 
     def get_full_name(self):
-        """ Renvoie le nom complet de l'user formaté nom/prénom"""
+        """Shortcuts, returns pretty full name to display both in case of user
+        is a club or an adherent.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            full_name (string) : Returns full name, name + surname.
+        """
         name = self.name
         if name:
             return "%s %s" % (name, self.surname)
@@ -406,142 +556,71 @@ class User(
             return self.surname
 
     def get_short_name(self):
-        """ Renvoie seulement le nom"""
-        return self.surname
+        """Shortcuts, returns short name to display both in case of user is
+        a club or an adherent.
 
-    @cached_property
-    def gid(self):
-        """return the default gid of user"""
-        return LDAP["user_gid"]
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            surname (string) : Returns surname.
+        """
+        return self.surname
 
     @property
     def get_shell(self):
-        """ A utiliser de préférence, prend le shell par défaut
-        si il n'est pas défini"""
+        """Shortcuts, returns linux user shell to use for this user if
+        provided, otherwise the default shell defined in preferences.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            shell (linux shell) : Returns linux shell.
+        """
         return self.shell or OptionalUser.get_cached_value("shell_default")
 
     @cached_property
     def home_directory(self):
+        """Shortcuts, returns linux user home directory to use.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            home dir (string) : Returns home directory.
+        """
         return "/home/" + self.pseudo
 
     @cached_property
     def get_shadow_expire(self):
-        """Return the shadow_expire value for the user"""
+        """Shortcuts, returns the shadow expire value : 0 if this account is
+        disabled or if the email has not been verified to block the account
+        access.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            shadow_expire (int) : Shadow expire value.
+        """
         if self.state == self.STATE_DISABLED or self.email_state == self.EMAIL_STATE_UNVERIFIED:
             return str(0)
         else:
             return None
 
-    def end_adhesion(self):
-        """ Renvoie la date de fin d'adhésion d'un user. Examine les objets
-        cotisation"""
-        date_max = (
-            Cotisation.objects.filter(
-                vente__in=Vente.objects.filter(
-                    facture__in=Facture.objects.filter(user=self).exclude(valid=False)
-                )
-            )
-            .filter(Q(type_cotisation="All") | Q(type_cotisation="Adhesion"))
-            .aggregate(models.Max("date_end"))["date_end__max"]
-        )
-        return date_max
-
-    def end_connexion(self):
-        """ Renvoie la date de fin de connexion d'un user. Examine les objets
-        cotisation"""
-        date_max = (
-            Cotisation.objects.filter(
-                vente__in=Vente.objects.filter(
-                    facture__in=Facture.objects.filter(user=self).exclude(valid=False)
-                )
-            )
-            .filter(Q(type_cotisation="All") | Q(type_cotisation="Connexion"))
-            .aggregate(models.Max("date_end"))["date_end__max"]
-        )
-        return date_max
-
-    def is_adherent(self):
-        """ Renvoie True si l'user est adhérent : si
-        self.end_adhesion()>now"""
-        end = self.end_adhesion()
-        if not end:
-            return False
-        elif end < timezone.now():
-            return False
-        else:
-            return True
-
-    def is_connected(self):
-        """ Renvoie True si l'user est adhérent : si
-        self.end_adhesion()>now et end_connexion>now"""
-        end = self.end_connexion()
-        if not end:
-            return False
-        elif end < timezone.now():
-            return False
-        else:
-            return self.is_adherent()
-
-    def end_ban(self):
-        """ Renvoie la date de fin de ban d'un user, False sinon """
-        date_max = Ban.objects.filter(user=self).aggregate(models.Max("date_end"))[
-            "date_end__max"
-        ]
-        return date_max
-
-    def end_whitelist(self):
-        """ Renvoie la date de fin de whitelist d'un user, False sinon """
-        date_max = Whitelist.objects.filter(user=self).aggregate(
-            models.Max("date_end")
-        )["date_end__max"]
-        return date_max
-
-    def is_ban(self):
-        """ Renvoie si un user est banni ou non """
-        end = self.end_ban()
-        if not end:
-            return False
-        elif end < timezone.now():
-            return False
-        else:
-            return True
-
-    def is_whitelisted(self):
-        """ Renvoie si un user est whitelisté ou non """
-        end = self.end_whitelist()
-        if not end:
-            return False
-        elif end < timezone.now():
-            return False
-        else:
-            return True
-
-    def has_access(self):
-        """ Renvoie si un utilisateur a accès à internet """
-        return (
-            self.state == User.STATE_ACTIVE
-            and self.email_state != User.EMAIL_STATE_UNVERIFIED
-            and not self.is_ban()
-            and (self.is_connected() or self.is_whitelisted())
-        ) or self == AssoOption.get_cached_value("utilisateur_asso")
-
-    def end_access(self):
-        """ Renvoie la date de fin normale d'accès (adhésion ou whiteliste)"""
-        if not self.end_connexion():
-            if not self.end_whitelist():
-                return None
-            else:
-                return self.end_whitelist()
-        else:
-            if not self.end_whitelist():
-                return self.end_connexion()
-            else:
-                return max(self.end_connexion(), self.end_whitelist())
-
     @cached_property
     def solde(self):
-        """ Renvoie le solde d'un user.
-        Somme les crédits de solde et retire les débit payés par solde"""
+        """Shortcuts, calculate and returns the balance for this user, as a
+        dynamic balance beetween debiti (-) and credit (+) "Vente" objects
+        flaged as balance operations.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            solde (float) : The balance of the user.
+        """
         solde_objects = Paiement.objects.filter(is_balance=True)
         somme_debit = (
             Vente.objects.filter(
@@ -573,10 +652,240 @@ class User(
         )
         return somme_credit - somme_debit
 
+    @property
+    def image_url(self):
+        """Shortcuts, returns the url associated with the user profile_image,
+        if an image has been set.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            profile_image_url (url) : Returns the url of this profile image.
+        """
+        if self.profile_image and hasattr(self.profile_image, 'url'):
+            return self.profile_image.url
+
+    @cached_property
+    def email_address(self):
+        """Shortcuts, returns all the email addresses (queryset) associated
+        with the local account, if the account has been activated,
+        otherwise return a none queryset.
+
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            email_address (django queryset) : Returns a queryset containing 
+            EMailAddress of this user.
+        """
+        if (
+            OptionalUser.get_cached_value("local_email_accounts_enabled")
+            and self.local_email_enabled
+        ):
+            return self.emailaddress_set.all()
+        return EMailAddress.objects.none()
+
+    def end_adhesion(self):
+        """Methods, calculate and returns the end of membership value date of
+        this user with aggregation of Cotisation objects linked to user
+        instance.
+        
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            end_adhesion (date) : Date of the end of the membership.
+        """
+        date_max = (
+            Cotisation.objects.filter(
+                vente__in=Vente.objects.filter(
+                    facture__in=Facture.objects.filter(user=self).exclude(valid=False)
+                )
+            )
+            .filter(Q(type_cotisation="All") | Q(type_cotisation="Adhesion"))
+            .aggregate(models.Max("date_end"))["date_end__max"]
+        )
+        return date_max
+
+    def end_connexion(self):
+        """Methods, calculate and returns the end of connection subscription value date
+        of this user with aggregation of Cotisation objects linked to user instance.
+        
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            end_adhesion (date) : Date of the end of the connection subscription.
+        """
+        date_max = (
+            Cotisation.objects.filter(
+                vente__in=Vente.objects.filter(
+                    facture__in=Facture.objects.filter(user=self).exclude(valid=False)
+                )
+            )
+            .filter(Q(type_cotisation="All") | Q(type_cotisation="Connexion"))
+            .aggregate(models.Max("date_end"))["date_end__max"]
+        )
+        return date_max
+
+    def is_adherent(self):
+        """Methods, calculate and returns if the user has a valid membership by testing
+        if end_adherent is after now or not.
+        
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            is_adherent (boolean) : True is user has a valid membership.
+        """
+        end = self.end_adhesion()
+        if not end:
+            return False
+        elif end < timezone.now():
+            return False
+        else:
+            return True
+
+    def is_connected(self):
+        """Methods, calculate and returns if the user has a valid membership AND a
+        valid connection subscription by testing if end_connexion is after now or not.
+        If true, returns is_adherent() method value.
+        
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            is_connected (boolean) : True is user has a valid membership and a valid connexion.
+        """
+        end = self.end_connexion()
+        if not end:
+            return False
+        elif end < timezone.now():
+            return False
+        else:
+            return self.is_adherent()
+
+    def end_ban(self):
+        """Methods, calculate and returns the end of a ban value date
+        of this user with aggregation of ban objects linked to user instance.
+        
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            end_ban (date) : Date of the end of the bans objects.
+        """
+        date_max = Ban.objects.filter(user=self).aggregate(models.Max("date_end"))[
+            "date_end__max"
+        ]
+        return date_max
+
+    def end_whitelist(self):
+        """Methods, calculate and returns the end of a whitelist value date
+        of this user with aggregation of whitelists objects linked to user instance.
+        
+        Parameters:
+            self (user instance): user to return infos
+
+        Returns:
+            end_whitelist (date) : Date of the end of the whitelists objects.
+        """
+        date_max = Whitelist.objects.filter(user=self).aggregate(
+            models.Max("date_end")
+        )["date_end__max"]
+        return date_max
+
+    def is_ban(self):
+        """Methods, calculate and returns if the user is banned by testing
+        if end_ban is after now or not.
+        
+        parameters:
+            self (user instance): user to return infos
+
+        returns:
+            is_ban (boolean) : true if user is under a ban sanction decision.
+        """
+        end = self.end_ban()
+        if not end:
+            return False
+        elif end < timezone.now():
+            return False
+        else:
+            return True
+
+    def is_whitelisted(self):
+        """Methods, calculate and returns if the user has a whitelist free connection 
+        if end_whitelist is after now or not.
+        
+        parameters:
+            self (user instance): user to return infos
+
+        returns:
+            is_whitelisted (boolean) : true if user has a whitelist connection.
+        """
+        end = self.end_whitelist()
+        if not end:
+            return False
+        elif end < timezone.now():
+            return False
+        else:
+            return True
+
+    def has_access(self):
+        """Methods, returns if the user has an internet access.
+        Return True if user is active and has a verified email, is not under a ban
+        decision and has a valid membership and connection or a whitelist.
+        
+        parameters:
+            self (user instance): user to return infos
+
+        returns:
+            has_access (boolean) : true if user has an internet connection.
+        """
+        return (
+            self.state == User.STATE_ACTIVE
+            and self.email_state != User.EMAIL_STATE_UNVERIFIED
+            and not self.is_ban()
+            and (self.is_connected() or self.is_whitelisted())
+        ) or self == AssoOption.get_cached_value("utilisateur_asso")
+
+    def end_access(self):
+        """Methods, returns the date of the end of the connection for this user,
+        as the maximum date beetween connection (membership objects) and whitelists.
+
+        parameters:
+            self (user instance): user to return infos
+
+        returns:
+            end_access (datetime) : Returns the date of the end_access connection.
+        """
+        if not self.end_connexion():
+            if not self.end_whitelist():
+                return None
+            else:
+                return self.end_whitelist()
+        else:
+            if not self.end_whitelist():
+                return self.end_connexion()
+            else:
+                return max(self.end_connexion(), self.end_whitelist())
+
     @classmethod
     def users_interfaces(cls, users, active=True, all_interfaces=False):
-        """ Renvoie toutes les interfaces dont les machines appartiennent à
-        self. Par defaut ne prend que les interfaces actives"""
+        """Class method, returns all interfaces related/belonging to users
+        contained in query_sert "users".
+
+        Parameters:
+            users (list of users queryset): users which interfaces
+            have to be returned
+            active (boolean): If true, filter on interfaces
+            all_interfaces (boolean): If true, returns all interfaces
+
+        returns:
+            interfaces (queryset): Queryset of interfaces instances
+
+        """
         if all_interfaces:
             return Interface.objects.filter(
                 machine__in=Machine.objects.filter(user__in=users)
@@ -587,21 +896,90 @@ class User(
             ).select_related("domain__extension")
 
     def user_interfaces(self, active=True, all_interfaces=False):
-        """ Renvoie toutes les interfaces dont les machines appartiennent à
-        self. Par defaut ne prend que les interfaces actives"""
+        """Method, returns all interfaces related/belonging to an user.
+
+        Parameters:
+            self (user instance): user which interfaces
+            have to be returned
+            active (boolean): If true, filter on interfaces
+            all_interfaces (boolean): If true, returns all interfaces
+
+        returns:
+            interfaces (queryset): Queryset of interfaces instances
+
+        """
         return self.users_interfaces(
             [self], active=active, all_interfaces=all_interfaces
         )
 
+    ###### Methods and user edition functions, modify user attributes ######
+
+    def set_active(self):
+        """Method, make this user active. Called in post-saved of subscription,
+        set the state value active if state is not_yet_active, with
+        a valid membership.
+        Also make an archived user fully active.
+
+        Parameters:
+            self (user instance): user to set active 
+
+        """
+        if self.state == self.STATE_NOT_YET_ACTIVE:
+            if self.facture_set.filter(valid=True).filter(
+                Q(vente__type_cotisation="All") | Q(vente__type_cotisation="Adhesion")
+            ).exists() or OptionalUser.get_cached_value("all_users_active"):
+                self.state = self.STATE_ACTIVE
+                self.save()
+        if self.state == self.STATE_ARCHIVE or self.state == self.STATE_FULL_ARCHIVE:
+            self.state = self.STATE_ACTIVE
+            self.unarchive()
+            self.save()
+
+    def set_password(self, password):
+        """Method, overload the basic set_password inherited from django BaseUser.
+        Called when setting a new password, to set the classic django password
+        hashed, and also the NTLM hashed pwd_ntlm password.
+
+        Parameters:
+            self (user instance): user to set password 
+            password (string): new password (cleatext) to set.
+
+        """
+        from re2o.login import hashNT
+
+        super().set_password(password)
+        self.pwd_ntlm = hashNT(password)
+        return
+
+    def confirm_mail(self):
+        """Method, set the email_state to VERIFIED when the email has been verified. 
+
+        Parameters:
+            self (user instance): user to set password 
+
+        """
+        self.email_state = self.EMAIL_STATE_VERIFIED
+
     def assign_ips(self):
-        """ Assign une ipv4 aux machines d'un user """
+        """Method, assigns ipv4 to all interfaces related to a user. 
+
+        Parameters:
+            self (user instance): user which interfaces have to be assigned 
+
+        """
         interfaces = self.user_interfaces()
         with transaction.atomic(), reversion.create_revision():
             Interface.mass_assign_ipv4(interfaces)
             reversion.set_comment("IPv4 assignment")
 
     def unassign_ips(self):
-        """ Désassigne les ipv4 aux machines de l'user"""
+        """Method, unassigns and remove ipv4 to all interfaces related to a user.
+        (set ipv4 field to null)
+
+        Parameters:
+            self (user instance): user which interfaces have to be assigned 
+
+        """
         interfaces = self.user_interfaces()
         with transaction.atomic(), reversion.create_revision():
             Interface.mass_unassign_ipv4(interfaces)
@@ -609,48 +987,119 @@ class User(
 
     @classmethod
     def mass_unassign_ips(cls, users_list):
+        """Class method, unassigns and remove ipv4 to all interfaces related
+        to a list of users. 
+
+        Parameters:
+            users_list (list of users or queryset): users which interfaces
+            have to be unassigned 
+
+        """
         interfaces = cls.users_interfaces(users_list)
         with transaction.atomic(), reversion.create_revision():
             Interface.mass_unassign_ipv4(interfaces)
             reversion.set_comment("IPv4 assignment")
 
-    @classmethod
-    def mass_disable_email(cls, queryset_users):
-        """Disable email account and redirection"""
-        queryset_users.update(local_email_enabled=False)
-        queryset_users.update(local_email_redirect=False)
-
-    @classmethod
-    def mass_delete_data(cls, queryset_users):
-        """This users will be completely archived, so only keep mandatory data"""
-        cls.mass_disable_email(queryset_users)
-        Machine.mass_delete(Machine.objects.filter(user__in=queryset_users))
-        cls.ldap_delete_users(queryset_users)
-
     def disable_email(self):
-        """Disable email account and redirection"""
+        """Method, disable email account and email redirection for
+        an user.
+
+        Parameters:
+            self (user instance): user to disabled email. 
+
+        """
         self.local_email_enabled = False
         self.local_email_redirect = False
 
+    @classmethod
+    def mass_disable_email(cls, queryset_users):
+        """Class method, disable email accounts and email redirection for
+        a list of users (or queryset).
+
+        Parameters:
+            users_list (list of users or queryset): users which email
+            account to disable.
+
+        """
+        queryset_users.update(local_email_enabled=False)
+        queryset_users.update(local_email_redirect=False)
+
     def delete_data(self):
-        """This user will be completely archived, so only keep mandatory data"""
+        """Method, delete non mandatory data, delete machine,
+        and disable email accounts for a list of users (or queryset).
+        Called during full archive process.
+
+        Parameters:
+            self (user instance): user to delete data. 
+
+        """
         self.disable_email()
         self.machine_set.all().delete()
 
     @classmethod
+    def mass_delete_data(cls, queryset_users):
+        """Class method, delete non mandatory data, delete machine
+        and disable email accounts for a list of users (or queryset).
+        Called during full archive process.
+
+        Parameters:
+            users_list (list of users or queryset): users to perform
+            delete data.
+
+        """
+        cls.mass_disable_email(queryset_users)
+        Machine.mass_delete(Machine.objects.filter(user__in=queryset_users))
+        cls.ldap_delete_users(queryset_users)
+
+    def archive(self):
+        """Method, archive user by unassigning ips. 
+
+        Parameters:
+            self (user instance): user to archive. 
+
+        """
+        self.unassign_ips()
+
+    @classmethod
     def mass_archive(cls, users_list):
-        """Mass Archive several users, take a queryset
-        Copy Queryset to avoid eval problem with queryset update"""
+        """Class method, mass archive a queryset of users.
+        Called during archive process, unassign ip and set to
+        archive state.
+
+        Parameters:
+            users_list (list of users queryset): users to perform
+            mass archive.
+
+        """
         # Force eval of queryset
         bool(users_list)
         users_list = users_list.all()
         cls.mass_unassign_ips(users_list)
         users_list.update(state=User.STATE_ARCHIVE)
 
+    def full_archive(self):
+        """Method, full archive an user by unassigning ips, deleting data
+        and ldap deletion. 
+
+        Parameters:
+            self (user instance): user to full archive. 
+
+        """
+        self.archive()
+        self.delete_data()
+        self.ldap_del()
+
     @classmethod
     def mass_full_archive(cls, users_list):
-        """Mass Archive several users, take a queryset
-        Copy Queryset to avoid eval problem with queryset update"""
+        """Class method, mass full archive a queryset of users.
+        Called during full archive process, unassign ip, delete
+        non mandatory data and set to full archive state.
+
+        Parameters:
+            users_list (list of users queryset): users to perform
+            mass full archive.
+
+        """
         # Force eval of queryset
         bool(users_list)
         users_list = users_list.all()
@@ -658,23 +1107,25 @@ class User(
         cls.mass_delete_data(users_list)
         users_list.update(state=User.STATE_FULL_ARCHIVE)
 
-    def archive(self):
-        """ Filling the user; no more active"""
-        self.unassign_ips()
-
-    def full_archive(self):
-        """Full Archive = Archive + Service access complete deletion"""
-        self.archive()
-        self.delete_data()
-        self.ldap_del()
-
     def unarchive(self):
-        """Unfilling the user"""
+        """Method, unarchive an user by assigning ips, and recreating
+        ldap user associated.
+
+        Parameters:
+            self (user instance): user to unarchive. 
+
+        """
         self.assign_ips()
         self.ldap_sync()
 
     def state_sync(self):
-        """Archive, or unarchive, if the user was not active/or archived before"""
+        """Master Method, call unarchive, full_archive or archive method
+        on an user when state is changed, based on previous state.
+
+        Parameters:
+            self (user instance): user to sync state. 
+
+        """
         if (
             self.__original_state != self.STATE_ACTIVE
             and self.state == self.STATE_ACTIVE
@@ -694,15 +1145,26 @@ class User(
     def ldap_sync(
         self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False
     ):
-        """ Synchronisation du ldap. Synchronise dans le ldap les attributs de
-        self
-        Options : base : synchronise tous les attributs de base - nom, prenom,
-        mail, password, shell, home
-        access_refresh : synchronise le dialup_access notant si l'user a accès
-        aux services
-        mac_refresh : synchronise les machines de l'user
-        group_refresh : synchronise les group de l'user
-        Si l'instance n'existe pas, on crée le ldapuser correspondant"""
+        """Method ldap_sync, sync in ldap with self user attributes.
+        Each User instance is copy into ldap, via a LdapUser virtual objects.
+        This method performs a copy of several attributes (name, surname, mail,
+        hashed SSHA password, ntlm password, shell, homedirectory).
+        
+        Update, or create if needed a ldap entry related with the User instance.
+
+        Parameters:
+            self (user instance): user to sync in ldap.
+            base (boolean): Default true, if base is true, perform a basic
+            sync of basic attributes.
+            access_refresh (boolean): Default true, if access_refresh is true,
+            update the dialup_access attributes based on has_access (is this user
+            has a valid internet access).
+            mac_refresh (boolean): Default true, if mac_refresh, update the mac_address
+            list of the user.
+            group_refresh (boolean): Default False, if true, update the groups membership
+            of this user. Onerous option, call ldap_sync() on every groups of the user.
+
+        """
         if sys.version_info[0] >= 3 and (
             self.state == self.STATE_ACTIVE
             or self.state == self.STATE_ARCHIVE
@@ -759,7 +1221,12 @@ class User(
             user_ldap.save()
 
     def ldap_del(self):
-        """ Supprime la version ldap de l'user"""
+        """Method, delete an user in ldap.
+
+        Parameters:
+            self (user instance): user to delete in Ldap. 
+
+        """
         try:
             user_ldap = LdapUser.objects.get(name=self.pseudo)
             user_ldap.delete()
@@ -768,13 +1235,29 @@ class User(
 
     @classmethod
     def ldap_delete_users(cls, queryset_users):
-        """Delete multiple users in ldap"""
+        """Class method, delete several users in ldap (queryset). 
+
+        Parameters:
+            queryset_users (list of users queryset): users to delete
+            in ldap.
+        """
         LdapUser.objects.filter(
             name__in=list(queryset_users.values_list("pseudo", flat=True))
         )
 
+    ###### Send mail functions ######
+
     def notif_inscription(self, request=None):
-        """ Prend en argument un objet user, envoie un mail de bienvenue """
+        """Method/function, send an email 'welcome' to user instance, after
+        successfull register.
+
+        Parameters:
+            self (user instance): user to send the welcome email
+            request (optional request): Specify request
+
+        Returns:
+            email: Welcome email after user register
+        """
         template = loader.get_template("users/email_welcome")
         mailmessageoptions, _created = MailMessageOption.objects.get_or_create()
         context = {
@@ -797,8 +1280,17 @@ class User(
         )
 
     def reset_passwd_mail(self, request):
-        """ Prend en argument un request, envoie un mail de
-        réinitialisation de mot de pass """
+        """Method/function, makes a Request class instance, and send
+        an email to user instance for password change in case of initial
+        password set or forget password form.
+
+        Parameters:
+            self (user instance): user to send the welcome email
+            request: Specify request, mandatory to build the reset link
+
+        Returns:
+            email: Reset password email for user instance
+        """
         req = Request()
         req.type = Request.PASSWD
         req.user = self
@@ -826,11 +1318,18 @@ class User(
         )
 
     def send_confirm_email_if_necessary(self, request):
-        """Update the user's email state:
+        """Method/function, check if a confirmation by email is needed,
+        and trigger send.
         * If the user changed email, it needs to be confirmed
         * If they're not fully archived, send a confirmation email
 
-        Returns whether an email was sent"""
+        Parameters:
+            self (user instance): user to send the confirmation email
+            request: Specify request, mandatory to build the reset link
+
+        Returns:
+            boolean: True if a confirmation of the mail is needed
+        """
         # Only update the state if the email changed
         if self.__original_email == self.email:
             return False
@@ -855,7 +1354,17 @@ class User(
         return True
 
     def trigger_email_changed_state(self, request):
-        """Trigger an email, and changed values after email_state been manually updated"""
+        """Method/function, update the value of the last email change,
+        and call and send the confirm email link.
+        Function called only after a manual of email_state by an admin.
+
+        Parameters:
+            self (user instance): user to send the confirmation email
+            request: Specify request, mandatory to build the reset link
+
+        Returns:
+            boolean: True if a confirmation of the mail is needed
+        """
         if self.email_state == self.EMAIL_STATE_VERIFIED:
             return False
 
@@ -866,6 +1375,16 @@ class User(
         return True
 
     def confirm_email_before_date(self):
+        """Method/function, calculate the maximum date for confirmation
+        of the new email address
+        
+        Parameters:
+            self (user instance): user to calculate maximum date
+            for confirmation
+
+        Returns:
+            date: Date of the maximum time to perform email confirmation
+        """
         if self.email_state == self.EMAIL_STATE_VERIFIED:
             return None
 
@@ -873,8 +1392,18 @@ class User(
         return self.email_change_date + timedelta(days=days)
 
     def confirm_email_address_mail(self, request):
-        """Prend en argument un request, envoie un mail pour
-        confirmer l'adresse"""
+        """Method/function, makes a Request class instance, and send
+        an email to user instance to confirm a new email address.
+        * If the user changed email, it needs to be confirmed
+        * If they're not fully archived, send a confirmation email
+
+        Parameters:
+            self (user instance): user to send the confirmation email
+            request: Specify request, mandatory to build the reset link
+
+        Returns:
+            email: An email with a link to confirm the new email address
+        """
         # Delete all older requests for this user, that aren't for this email
         filter = Q(user=self) & Q(type=Request.EMAIL) & ~Q(email=self.email)
         Request.objects.filter(filter).delete()
@@ -912,8 +1441,19 @@ class User(
         return
 
     def autoregister_machine(self, mac_address, nas_type, request=None):
-        """ Fonction appellée par freeradius. Enregistre la mac pour
-        une machine inconnue sur le compte de l'user"""
+        """Function, register a new interface on the user instance account.
+        Called automaticaly mainly by freeradius python backend, for autoregister.
+
+        Parameters:
+            self (user instance): user to register new interface
+            mac_address (string): New mac address to add on the new interface
+            nas_type (Django Nas object instance): The nas object calling
+            request: Optional django request 
+
+        Returns:
+            interface (Interface instance): The new interface registered
+
+        """
         allowed, _message, _rights = Machine.can_create(self, self.id)
         if not allowed:
             return False, _("Maximum number of registered machines reached.")
@@ -944,8 +1484,16 @@ class User(
         return interface_cible, _("OK")
 
     def notif_auto_newmachine(self, interface):
-        """Notification mail lorsque une machine est automatiquement
-        ajoutée par le radius"""
+        """Function/method, send an email to notify the new interface
+        registered on user instance account.
+
+        Parameters:
+            self (user instance): user to notify new registration 
+            interface (interface instance): new interface registered
+
+        Returns:
+            boolean: True if a confirmation of the mail is needed
+        """
         template = loader.get_template("users/email_auto_newmachine")
         context = {
             "nom": self.get_full_name(),
@@ -967,7 +1515,16 @@ class User(
         return
 
     def notif_disable(self, request=None):
-        """Envoi un mail de notification informant que l'adresse mail n'a pas été confirmée"""
+        """Function/method, send an email to notify that the account is disabled
+        in case of unconfirmed email address.
+
+        Parameters:
+            self (user instance): user to notif disabled decision 
+            request (django request): request to build email
+
+        Returns:
+            email: Notification email
+        """
         template = loader.get_template("users/email_disable_notif")
         context = {
             "name": self.get_full_name(),
@@ -986,34 +1543,14 @@ class User(
         )
         return
 
-    def set_password(self, password):
-        """ A utiliser de préférence, set le password en hash courrant et
-        dans la version ntlm"""
-        from re2o.login import hashNT
-
-        super().set_password(password)
-        self.pwd_ntlm = hashNT(password)
-        return
-
-    def confirm_mail(self):
-        """Marque l'email de l'utilisateur comme confirmé"""
-        self.email_state = self.EMAIL_STATE_VERIFIED
-
-    @cached_property
-    def email_address(self):
-        if (
-            OptionalUser.get_cached_value("local_email_accounts_enabled")
-            and self.local_email_enabled
-        ):
-            return self.emailaddress_set.all()
-        return EMailAddress.objects.none()
-
     def get_next_domain_name(self):
-        """Look for an available name for a new interface for
-        this user by trying "pseudo0", "pseudo1", "pseudo2", ...
+        """Function/method, provide a unique name for a new interface. 
 
-        Recherche un nom disponible, pour une machine. Doit-être
-        unique, concatène le nom, le pseudo et le numero de machine
+        Parameters:
+            self (user instance): user to get a new domain name
+
+        Returns:
+           domain name (string): String of new domain name
         """
 
         def simple_pseudo():
@@ -1281,6 +1818,7 @@ class User(
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if permission is granted.
+        
         """
         can = user_request.is_superuser
         return (
@@ -1298,6 +1836,7 @@ class User(
         :param user_request: The user who ask for viewing the target.
         :return: A boolean telling if the acces is granted and an explanation
             text
+        
         """
         if self.is_class_club and user_request.is_class_adherent:
             if (
@@ -1330,6 +1869,7 @@ class User(
         :param user_request: The user who wants to view the list.
         :return: True if the user can view the list and an explanation
             message.
+        
         """
         can = user_request.has_perm("users.view_user")
         return (
@@ -1370,13 +1910,36 @@ class User(
         self.__original_email = self.email
 
     def clean_pseudo(self, *args, **kwargs):
+        """Method, clean the pseudo value. The pseudo must be unique, but also
+        it must not already be used an an email address, so a check is performed.
+
+        Parameters:
+            self (user instance): user to clean pseudo value.
+
+        Returns:
+            Django ValidationError: if the pseudo value can not be used.
+
+        """
         if EMailAddress.objects.filter(local_part=self.pseudo.lower()).exclude(
             user_id=self.id
         ):
             raise ValidationError(_("This username is already used."))
 
     def clean_email(self, *args, **kwargs):
-        # Allow empty emails only if the user had an empty email before
+        """Method, clean the email value.
+        Validate that:
+            * An email value has been provided; email field can't be nullified.
+            (the user must be reachable by email)
+            * The provided email is not a local email to avoid loops
+            * Set the email as lower.
+
+        Parameters:
+            self (user instance): user to clean email value.
+
+        Returns:
+            Django ValidationError: if the email value can not be used.
+
+        """
         is_created = not self.pk
         if not self.email and (self.__original_email or is_created):
             raise forms.ValidationError(
@@ -1393,16 +1956,17 @@ class User(
             )
 
     def clean(self, *args, **kwargs):
-        """Check if this pseudo is already used by any mailalias.
-        Better than raising an error in post-save and catching it"""
+        """Method, general clean for User model.
+        Clean pseudo and clean email.
+
+        Parameters:
+            self (user instance): user to clean.
+
+        """
         super(User, self).clean(*args, **kwargs)
         self.clean_pseudo(*args, **kwargs)
         self.clean_email(*args, **kwargs)
 
-    @property
-    def image_url(self):
-        if self.profile_image and hasattr(self.profile_image, 'url'):
-            return self.profile_image.url
 
     def save(self, *args, **kwargs):
         if self.profile_image: 
@@ -1421,8 +1985,14 @@ class User(
 
 
 class Adherent(User):
-    """ A class representing a member (it's a user with special
-    informations) """
+    """Base re2o Adherent model, inherit from User. Add other attributes.
+
+    Attributes:
+        name: name of the user
+        room: room of the user
+        gpg_fingerprint: The gpgfp of the user
+    
+    """
 
     name = models.CharField(max_length=255)
     room = models.OneToOneField(
@@ -1435,7 +2005,13 @@ class Adherent(User):
         verbose_name_plural = _("members")
 
     def format_gpgfp(self):
-        """Format gpg finger print as AAAA BBBB... from a string AAAABBBB...."""
+        """Method, format the gpgfp value, with blocks of 4 characters,
+        as AAAA BBBB instead of AAAABBBB.
+
+        Parameters:
+            self (user instance): user to clean gpgfp value.
+
+        """
         self.gpg_fingerprint = " ".join(
             [
                 self.gpg_fingerprint[i : i + 4]
@@ -1444,7 +2020,15 @@ class Adherent(User):
         )
 
     def validate_gpgfp(self):
-        """Validate from raw entry if is it a valid gpg fp"""
+        """Method, clean the gpgfp value, validate if the raw entry is a valid gpg fp.
+
+        Parameters:
+            self (user instance): user to clean gpgfp check.
+
+        Returns:
+            Django ValidationError: if the gpgfp value is invalid.
+
+        """
         if self.gpg_fingerprint:
             gpg_fingerprint = self.gpg_fingerprint.replace(" ", "").upper()
             if not re.match("^[0-9A-F]{40}$", gpg_fingerprint):
@@ -1459,6 +2043,7 @@ class Adherent(User):
 
         :param adherentid: The id of the adherent we are looking for.
         :return: An adherent.
+        
         """
         return cls.objects.get(pk=adherentid)
 
@@ -1469,6 +2054,7 @@ class Adherent(User):
         :param user_request: The user who wants to create a user object.
         :return: a message and a boolean which is True if the user can create
             a user or if the `options.all_can_create` is set.
+        
         """
         if not user_request.is_authenticated:
             if not OptionalUser.get_cached_value(
@@ -1491,7 +2077,12 @@ class Adherent(User):
                 )
 
     def clean(self, *args, **kwargs):
-        """Format the GPG fingerprint"""
+        """Method, clean and validate the gpgfp value.
+
+        Parameters:
+            self (user instance): user to perform clean.
+
+        """
         super(Adherent, self).clean(*args, **kwargs)
         if self.gpg_fingerprint:
             self.validate_gpgfp()
@@ -1500,7 +2091,15 @@ class Adherent(User):
 
 class Club(User):
     """ A class representing a club (it is considered as a user
-    with special informations) """
+    with special informations) 
+    
+    Attributes:
+        administrators: administrators of the club
+        members: members of the club
+        room: room(s) of the club
+        mailing: Boolean, activate mailing list for this club.
+    
+    """
 
     room = models.ForeignKey(
         "topologie.Room", on_delete=models.PROTECT, blank=True, null=True
@@ -1579,9 +2178,11 @@ class Club(User):
 @receiver(post_save, sender=Club)
 @receiver(post_save, sender=User)
 def user_post_save(**kwargs):
-    """ Synchronisation post_save : envoie le mail de bienvenue si creation
-    Synchronise le pseudo, en créant un alias mail correspondant
-    Synchronise le ldap"""
+    """Django signal, post save operations on Adherent, Club and User.
+    Sync pseudo, sync ldap, create mailalias and send welcome email if needed
+    (new user)
+
+    """
     is_created = kwargs["created"]
     user = kwargs["instance"]
     EMailAddress.objects.get_or_create(local_part=user.pseudo.lower(), user=user)
@@ -1598,6 +2199,10 @@ def user_post_save(**kwargs):
 
 @receiver(m2m_changed, sender=User.groups.through)
 def user_group_relation_changed(**kwargs):
+    """Django signal, used for User Groups change (related models).
+    Sync ldap, with calling group_refresh.
+
+    """
     action = kwargs["action"]
     if action in ("post_add", "post_remove", "post_clear"):
         user = kwargs["instance"]
@@ -1610,14 +2215,29 @@ def user_group_relation_changed(**kwargs):
 @receiver(post_delete, sender=Club)
 @receiver(post_delete, sender=User)
 def user_post_delete(**kwargs):
-    """Post delete d'un user, on supprime son instance ldap"""
+    """Django signal, post delete operations on Adherent, Club and User.
+    Delete user in ldap.
+
+    """
     user = kwargs["instance"]
     user.ldap_del()
     regen("mailing")
 
 
 class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
-    """ Classe des users daemons, règle leurs accès au ldap"""
+    """A class representing a serviceuser (it is considered as a user
+    with special informations).
+    The serviceuser is a special user used with special access to ldap tree. It is
+    its only usefullness, and service user can't connect to re2o.
+    Each service connected to ldap for auth (ex dokuwiki, owncloud, etc) should
+    have a different service user with special acl (readonly, auth) and password.
+    
+    Attributes:
+        pseudo: login of the serviceuser
+        access_group: acl for this serviceuser
+        comment: Comment for this serviceuser.
+    
+    """
 
     readonly = "readonly"
     ACCESS = (("auth", "auth"), ("readonly", "readonly"), ("usermgmt", "usermgmt"))
@@ -1640,15 +2260,34 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
         verbose_name_plural = _("service users")
 
     def get_full_name(self):
-        """ Renvoie le nom complet du serviceUser formaté nom/prénom"""
+        """Shortcuts, return a pretty name for the serviceuser.
+
+        Parameters:
+            self (ServiceUser instance): serviceuser to return infos. 
+
+        """
         return _("Service user <{name}>").format(name=self.pseudo)
 
     def get_short_name(self):
-        """ Renvoie seulement le nom"""
+        """Shortcuts, return the shortname (pseudo) of the serviceuser.
+
+        Parameters:
+            self (ServiceUser instance): serviceuser to return infos. 
+
+        """
         return self.pseudo
 
     def ldap_sync(self):
-        """ Synchronisation du ServiceUser dans sa version ldap"""
+        """Method ldap_sync, sync the serviceuser in ldap with its attributes.
+        Each ServiceUser instance is copy into ldap, via a LdapServiceUser virtual object.
+        This method performs a copy of several attributes (pseudo, access).
+        
+        Update, or create if needed a mirror ldap entry related with the ServiceUserinstance.
+
+        Parameters:
+            self (serviceuser instance): ServiceUser to sync in ldap.
+
+        """
         try:
             user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
         except LdapServiceUser.DoesNotExist:
@@ -1658,7 +2297,12 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
         self.serviceuser_group_sync()
 
     def ldap_del(self):
-        """Suppression de l'instance ldap d'un service user"""
+        """Method, delete an ServiceUser in ldap.
+
+        Parameters:
+            self (ServiceUser instance): serviceuser to delete in Ldap. 
+
+        """
         try:
             user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
             user_ldap.delete()
@@ -1667,7 +2311,15 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
         self.serviceuser_group_sync()
 
     def serviceuser_group_sync(self):
-        """Synchronise le groupe et les droits de groupe dans le ldap"""
+        """Method, update serviceuser group sync in ldap.
+        In LDAP, Acl depends on the ldapgroup (readonly, auth, or usermgt),
+        so the ldap group need to be synced with the accessgroup field on ServiceUser.
+        Called by ldap_sync and ldap_del.
+
+        Parameters:
+            self (ServiceUser instance): serviceuser to update groups in LDAP. 
+
+        """
         try:
             group = LdapServiceUserGroup.objects.get(name=self.access_group)
         except:
@@ -1690,20 +2342,31 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
 
 @receiver(post_save, sender=ServiceUser)
 def service_user_post_save(**kwargs):
-    """ Synchronise un service user ldap après modification django"""
+    """Django signal, post save operations on ServiceUser.
+    Sync or create serviceuser in ldap.
+
+    """
     service_user = kwargs["instance"]
     service_user.ldap_sync()
 
 
 @receiver(post_delete, sender=ServiceUser)
 def service_user_post_delete(**kwargs):
-    """ Supprime un service user ldap après suppression django"""
+    """Django signal, post delete operations on ServiceUser.
+    Delete service user in ldap.
+
+    """
     service_user = kwargs["instance"]
     service_user.ldap_del()
 
 
 class School(RevMixin, AclMixin, models.Model):
-    """ Etablissement d'enseignement"""
+    """A class representing a school; which users are linked.
+
+    Attributes:
+        name: name of the school
+
+    """
 
     name = models.CharField(max_length=255)
 
@@ -1717,11 +2380,19 @@ class School(RevMixin, AclMixin, models.Model):
 
 
 class ListRight(RevMixin, AclMixin, Group):
-    """ Ensemble des droits existants. Chaque droit crée un groupe
-    ldap synchronisé, avec gid.
-    Permet de gérer facilement les accès serveurs et autres
-    La clef de recherche est le gid, pour cette raison là
-    il n'est plus modifiable après creation"""
+    """ A class representing a listright, inherit from basic django Group object.
+    Each listrights/groups gathers several users, and can have individuals django
+    rights, like can_view, can_edit, etc.
+    Moreover, a ListRight is also a standard unix group, usefull for creating linux
+    unix groups for servers access or re2o single rights, or both.
+    Gid is used as a primary key, and can't be changed. 
+
+    Attributes:
+        name: Inherited from Group, name of the ListRight
+        gid: Group id unix
+        critical: Boolean, if True the Group can't be changed without special acl
+        details: Details and description of the group
+    """
 
     unix_name = models.CharField(
         max_length=255,
@@ -1746,7 +2417,17 @@ class ListRight(RevMixin, AclMixin, Group):
         return self.name
 
     def ldap_sync(self):
-        """Sychronise les groups ldap avec le model listright coté django"""
+        """Method ldap_sync, sync the listright/group in ldap with its listright attributes.
+        Each ListRight/Group instance is copy into ldap, via a LdapUserGroup virtual objects.
+        This method performs a copy of several attributes (name, members, gid, etc).
+        The primary key is the gid, and should never change.
+        
+        Update, or create if needed a ldap entry related with the ListRight/Group instance.
+
+        Parameters:
+            self (listright instance): ListRight/Group to sync in ldap.
+
+        """
         try:
             group_ldap = LdapUserGroup.objects.get(gid=self.gid)
         except LdapUserGroup.DoesNotExist:
@@ -1756,7 +2437,12 @@ class ListRight(RevMixin, AclMixin, Group):
         group_ldap.save()
 
     def ldap_del(self):
-        """Supprime un groupe ldap"""
+        """Method, delete an ListRight/Group in ldap.
+
+        Parameters:
+            self (listright/Group instance): group to delete in Ldap. 
+
+        """
         try:
             group_ldap = LdapUserGroup.objects.get(gid=self.gid)
             group_ldap.delete()
@@ -1766,21 +2452,32 @@ class ListRight(RevMixin, AclMixin, Group):
 
 @receiver(post_save, sender=ListRight)
 def listright_post_save(**kwargs):
-    """ Synchronise le droit ldap quand il est modifié"""
+    """Django signal, post save operations on ListRight/Group objects.
+    Sync or create group in ldap.
+
+    """
     right = kwargs["instance"]
     right.ldap_sync()
 
 
 @receiver(post_delete, sender=ListRight)
 def listright_post_delete(**kwargs):
-    """Suppression d'un groupe ldap après suppression coté django"""
+    """Django signal, post delete operations on ListRight/Group objects.
+    Delete group in ldap.
+
+    """
     right = kwargs["instance"]
     right.ldap_del()
 
 
 class ListShell(RevMixin, AclMixin, models.Model):
-    """Un shell possible. Pas de check si ce shell existe, les
-    admin sont des grands"""
+    """A class representing a shell; which users are linked.
+    A standard linux user shell. (zsh, bash, etc)
+
+    Attributes:
+        shell: name of the shell
+
+    """
 
     shell = models.CharField(max_length=255, unique=True)
 
@@ -1790,7 +2487,15 @@ class ListShell(RevMixin, AclMixin, models.Model):
         verbose_name_plural = _("shells")
 
     def get_pretty_name(self):
-        """Return the canonical name of the shell"""
+        """Method, returns a pretty name for a shell like "bash" or "zsh".
+
+        Parameters:
+            self (listshell): Shell to return a pretty name.
+
+        Returns:
+           pretty_name (string): Return a pretty name string for this shell. 
+
+        """
         return self.shell.split("/")[-1]
 
     def __str__(self):
@@ -1798,8 +2503,17 @@ class ListShell(RevMixin, AclMixin, models.Model):
 
 
 class Ban(RevMixin, AclMixin, models.Model):
-    """ Bannissement. Actuellement a un effet tout ou rien.
-    Gagnerait à être granulaire"""
+    """ A class representing a ban, which cuts internet access,
+    as a sanction.
+
+    Attributes:
+        user: related user for this whitelist
+        raison: reason of this ban, can be null
+        date_start: Date of the start of the ban
+        date_end: Date of the end of the ban
+        state: Has no effect now, would specify this kind of ban
+        (hard, soft)
+    """
 
     STATE_HARD = 0
     STATE_SOFT = 1
@@ -1823,7 +2537,16 @@ class Ban(RevMixin, AclMixin, models.Model):
         verbose_name_plural = _("bans")
 
     def notif_ban(self, request=None):
-        """ Prend en argument un objet ban, envoie un mail de notification """
+        """Function/method, send an email to notify that a ban has been
+        decided and internet access disabled.
+
+        Parameters:
+            self (ban instance): ban to notif disabled decision 
+            request (django request): request to build email
+
+        Returns:
+            email: Notification email
+        """
         template = loader.get_template("users/email_ban_notif")
         context = {
             "name": self.user.get_full_name(),
@@ -1843,7 +2566,15 @@ class Ban(RevMixin, AclMixin, models.Model):
         return
 
     def is_active(self):
-        """Ce ban est-il actif?"""
+        """Method, return if the ban is active now or not.
+
+        Parameters:
+            self (ban): Ban to test if is active.
+
+        Returns:
+           is_active (boolean): Return True if the ban is active. 
+
+        """
         return self.date_end > timezone.now()
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -1869,7 +2600,10 @@ class Ban(RevMixin, AclMixin, models.Model):
 
 @receiver(post_save, sender=Ban)
 def ban_post_save(**kwargs):
-    """ Regeneration de tous les services après modification d'un ban"""
+    """Django signal, post save operations on Ban objects.
+    Sync user's access state in ldap, call email notification if needed.
+
+    """
     ban = kwargs["instance"]
     is_created = kwargs["created"]
     user = ban.user
@@ -1886,7 +2620,10 @@ def ban_post_save(**kwargs):
 
 @receiver(post_delete, sender=Ban)
 def ban_post_delete(**kwargs):
-    """ Regen de tous les services après suppression d'un ban"""
+    """Django signal, post delete operations on Ban objects.
+    Sync user's access state in ldap.
+
+    """
     user = kwargs["instance"].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
     regen("mailing")
@@ -1895,9 +2632,16 @@ def ban_post_delete(**kwargs):
 
 
 class Whitelist(RevMixin, AclMixin, models.Model):
-    """Accès à titre gracieux. L'utilisateur ne paye pas; se voit
-    accorder un accès internet pour une durée défini. Moins
-    fort qu'un ban quel qu'il soit"""
+    """ A class representing a whitelist, which gives a free internet
+    access to a user for special reason.
+    Is overrided by a ban object.
+
+    Attributes:
+        user: related user for this whitelist
+        raison: reason of this whitelist, can be null
+        date_start: Date of the start of the whitelist
+        date_end: Date of the end of the whitelist
+    """
 
     user = models.ForeignKey("User", on_delete=models.PROTECT)
     raison = models.CharField(max_length=255)
@@ -1910,7 +2654,15 @@ class Whitelist(RevMixin, AclMixin, models.Model):
         verbose_name_plural = _("whitelists (free of charge access)")
 
     def is_active(self):
-        """ Is this whitelisting active ? """
+        """Method, returns if the whitelist is active now or not.
+
+        Parameters:
+            self (whitelist): Whitelist to test if is active.
+
+        Returns:
+           is_active (boolean): Return True if the whistelist is active. 
+
+        """
         return self.date_end > timezone.now()
 
     def can_view(self, user_request, *_args, **_kwargs):
@@ -1939,8 +2691,10 @@ class Whitelist(RevMixin, AclMixin, models.Model):
 
 @receiver(post_save, sender=Whitelist)
 def whitelist_post_save(**kwargs):
-    """Après modification d'une whitelist, on synchronise les services
-    et on lui permet d'avoir internet"""
+    """Django signal, post save operations on Whitelist objects.
+    Sync user's access state in ldap.
+
+    """
     whitelist = kwargs["instance"]
     user = whitelist.user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
@@ -1956,8 +2710,10 @@ def whitelist_post_save(**kwargs):
 
 @receiver(post_delete, sender=Whitelist)
 def whitelist_post_delete(**kwargs):
-    """Après suppression d'une whitelist, on supprime l'accès internet
-    en forçant la régénration"""
+    """Django signal, post delete operations on Whitelist objects.
+    Sync user's access state in ldap.
+
+    """
     user = kwargs["instance"].user
     user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
     regen("mailing")
@@ -1966,9 +2722,17 @@ def whitelist_post_delete(**kwargs):
 
 
 class Request(models.Model):
-    """ Objet request, générant une url unique de validation.
-    Utilisé par exemple pour la generation du mot de passe et
-    sa réinitialisation"""
+    """ A class representing for user's request of reset password by email, or
+    confirm a new email address, with a link.
+
+    Attributes:
+        type: type of request (password, or confirm email address)
+        token: single-user token for this request
+        user: related user for this request
+        email: If needed, related email to send the request and the link
+        created_at: Date at the request was created
+        expires_at: The request will be invalid after the expires_at date
+    """
 
     PASSWD = "PW"
     EMAIL = "EM"
@@ -1990,138 +2754,13 @@ class Request(models.Model):
         super(Request, self).save()
 
 
-class LdapUser(ldapdb.models.Model):
-    """
-    Class for representing an LDAP user entry.
-    """
-
-    # LDAP meta-data
-    base_dn = LDAP["base_user_dn"]
-    object_classes = [
-        "inetOrgPerson",
-        "top",
-        "posixAccount",
-        "sambaSamAccount",
-        "radiusprofile",
-        "shadowAccount",
-    ]
-
-    # attributes
-    gid = ldapdb.models.fields.IntegerField(db_column="gidNumber")
-    name = ldapdb.models.fields.CharField(
-        db_column="cn", max_length=200, primary_key=True
-    )
-    uid = ldapdb.models.fields.CharField(db_column="uid", max_length=200)
-    uidNumber = ldapdb.models.fields.IntegerField(db_column="uidNumber", unique=True)
-    sn = ldapdb.models.fields.CharField(db_column="sn", max_length=200)
-    login_shell = ldapdb.models.fields.CharField(
-        db_column="loginShell", max_length=200, blank=True, null=True
-    )
-    mail = ldapdb.models.fields.CharField(db_column="mail", max_length=200)
-    given_name = ldapdb.models.fields.CharField(db_column="givenName", max_length=200)
-    home_directory = ldapdb.models.fields.CharField(
-        db_column="homeDirectory", max_length=200
-    )
-    display_name = ldapdb.models.fields.CharField(
-        db_column="displayName", max_length=200, blank=True, null=True
-    )
-    dialupAccess = ldapdb.models.fields.CharField(db_column="dialupAccess")
-    sambaSID = ldapdb.models.fields.IntegerField(db_column="sambaSID", unique=True)
-    user_password = ldapdb.models.fields.CharField(
-        db_column="userPassword", max_length=200, blank=True, null=True
-    )
-    sambat_nt_password = ldapdb.models.fields.CharField(
-        db_column="sambaNTPassword", max_length=200, blank=True, null=True
-    )
-    macs = ldapdb.models.fields.ListField(
-        db_column="radiusCallingStationId", max_length=200, blank=True, null=True
-    )
-    shadowexpire = ldapdb.models.fields.CharField(
-        db_column="shadowExpire", blank=True, null=True
-    )
-
-    def __str__(self):
-        return self.name
-
-    def __unicode__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.sn = self.name
-        self.uid = self.name
-        self.sambaSID = self.uidNumber
-        super(LdapUser, self).save(*args, **kwargs)
-
-
-class LdapUserGroup(ldapdb.models.Model):
-    """
-    Class for representing an LDAP group entry.
-
-    Un groupe ldap
-    """
-
-    # LDAP meta-data
-    base_dn = LDAP["base_usergroup_dn"]
-    object_classes = ["posixGroup"]
-
-    # attributes
-    gid = ldapdb.models.fields.IntegerField(db_column="gidNumber")
-    members = ldapdb.models.fields.ListField(db_column="memberUid", blank=True)
-    name = ldapdb.models.fields.CharField(
-        db_column="cn", max_length=200, primary_key=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class LdapServiceUser(ldapdb.models.Model):
-    """
-    Class for representing an LDAP userservice entry.
-
-    Un user de service coté ldap
-    """
-
-    # LDAP meta-data
-    base_dn = LDAP["base_userservice_dn"]
-    object_classes = ["applicationProcess", "simpleSecurityObject"]
-
-    # attributes
-    name = ldapdb.models.fields.CharField(
-        db_column="cn", max_length=200, primary_key=True
-    )
-    user_password = ldapdb.models.fields.CharField(
-        db_column="userPassword", max_length=200, blank=True, null=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class LdapServiceUserGroup(ldapdb.models.Model):
-    """
-    Class for representing an LDAP userservice entry.
-
-    Un group user de service coté ldap. Dans userservicegroupdn
-    (voir dans settings_local.py)
-    """
-
-    # LDAP meta-data
-    base_dn = LDAP["base_userservicegroup_dn"]
-    object_classes = ["groupOfNames"]
-
-    # attributes
-    name = ldapdb.models.fields.CharField(
-        db_column="cn", max_length=200, primary_key=True
-    )
-    members = ldapdb.models.fields.ListField(db_column="member", blank=True)
-
-    def __str__(self):
-        return self.name
-
-
 class EMailAddress(RevMixin, AclMixin, models.Model):
-    """Defines a local email account for a user
+    """ A class representing an EMailAddress, for local emailaccounts
+    support. Each emailaddress belongs to a user.
+
+    Attributes:
+        user: parent user address for this email
+        local_part: local extension of the email 
     """
 
     user = models.ForeignKey(
@@ -2145,6 +2784,16 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
 
     @cached_property
     def complete_email_address(self):
+        """Shortcuts, returns a complete mailaddress from localpart and emaildomain
+        specified in preferences.
+
+        Parameters:
+            self (emailaddress): emailaddress.
+
+        Returns:
+            emailaddress (string): Complete valid emailaddress
+
+        """
         return str(self.local_part) + OptionalUser.get_cached_value(
             "local_email_domain"
         )
@@ -2280,6 +2929,17 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         )
 
     def clean(self, *args, **kwargs):
+        """Method, general clean for EMailAddres model.
+        Clean email local_part field, checking if it is available by calling
+        the smtp..
+
+        Parameters:
+            self (emailaddress): emailaddress local_part to clean.
+
+        Returns:
+            Django ValidationError, if the localpart does not comply with the policy.
+
+        """
         self.local_part = self.local_part.lower()
         if "@" in self.local_part or "+" in self.local_part:
             raise ValidationError(_("The local part must not contain @ or +."))
@@ -2287,3 +2947,172 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if result:
             raise ValidationError(reason)
         super(EMailAddress, self).clean(*args, **kwargs)
+
+
+class LdapUser(ldapdb.models.Model):
+    """A class representing a LdapUser in LDAP, its LDAP conterpart.
+    Synced from re2o django User model, (User django models),
+    with a copy of its attributes/fields into LDAP, so this class is a mirror 
+    of the classic django User model.
+
+    The basedn userdn is specified in settings.
+
+    Attributes:
+        name: The name of this User
+        uid: The uid (login) for the unix user
+        uidNumber: Linux uid number
+        gid: The default gid number for this user
+        sn: The user "str" pseudo
+        login_shell: Linux shell for the user
+        mail: Email address contact for this user
+        display_name: Pretty display name for this user
+        dialupAccess: Boolean, True for valid membership
+        sambaSID: Identical id as uidNumber
+        user_password: SSHA hashed password of user
+        samba_nt_password: NTLM hashed password of user
+        macs: Multivalued mac address
+        shadowexpire: Set it to 0 to block access for this user and disabled
+        account
+    """
+
+    # LDAP meta-data
+    base_dn = LDAP["base_user_dn"]
+    object_classes = [
+        "inetOrgPerson",
+        "top",
+        "posixAccount",
+        "sambaSamAccount",
+        "radiusprofile",
+        "shadowAccount",
+    ]
+
+    # attributes
+    gid = ldapdb.models.fields.IntegerField(db_column="gidNumber")
+    name = ldapdb.models.fields.CharField(
+        db_column="cn", max_length=200, primary_key=True
+    )
+    uid = ldapdb.models.fields.CharField(db_column="uid", max_length=200)
+    uidNumber = ldapdb.models.fields.IntegerField(db_column="uidNumber", unique=True)
+    sn = ldapdb.models.fields.CharField(db_column="sn", max_length=200)
+    login_shell = ldapdb.models.fields.CharField(
+        db_column="loginShell", max_length=200, blank=True, null=True
+    )
+    mail = ldapdb.models.fields.CharField(db_column="mail", max_length=200)
+    given_name = ldapdb.models.fields.CharField(db_column="givenName", max_length=200)
+    home_directory = ldapdb.models.fields.CharField(
+        db_column="homeDirectory", max_length=200
+    )
+    display_name = ldapdb.models.fields.CharField(
+        db_column="displayName", max_length=200, blank=True, null=True
+    )
+    dialupAccess = ldapdb.models.fields.CharField(db_column="dialupAccess")
+    sambaSID = ldapdb.models.fields.IntegerField(db_column="sambaSID", unique=True)
+    user_password = ldapdb.models.fields.CharField(
+        db_column="userPassword", max_length=200, blank=True, null=True
+    )
+    sambat_nt_password = ldapdb.models.fields.CharField(
+        db_column="sambaNTPassword", max_length=200, blank=True, null=True
+    )
+    macs = ldapdb.models.fields.ListField(
+        db_column="radiusCallingStationId", max_length=200, blank=True, null=True
+    )
+    shadowexpire = ldapdb.models.fields.CharField(
+        db_column="shadowExpire", blank=True, null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.sn = self.name
+        self.uid = self.name
+        self.sambaSID = self.uidNumber
+        super(LdapUser, self).save(*args, **kwargs)
+
+
+class LdapUserGroup(ldapdb.models.Model):
+    """A class representing a LdapUserGroup in LDAP, its LDAP conterpart.
+    Synced from UserGroup, (ListRight/Group django models),
+    with a copy of its attributes/fields into LDAP, so this class is a mirror 
+    of the classic django ListRight model.
+
+    The basedn usergroupdn is specified in settings.
+
+    Attributes:
+        name: The name of this LdapUserGroup
+        gid: The gid number for this unix group
+        members: Users dn members of this LdapUserGroup
+    """
+
+    # LDAP meta-data
+    base_dn = LDAP["base_usergroup_dn"]
+    object_classes = ["posixGroup"]
+
+    # attributes
+    gid = ldapdb.models.fields.IntegerField(db_column="gidNumber")
+    members = ldapdb.models.fields.ListField(db_column="memberUid", blank=True)
+    name = ldapdb.models.fields.CharField(
+        db_column="cn", max_length=200, primary_key=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class LdapServiceUser(ldapdb.models.Model):
+    """A class representing a ServiceUser in LDAP, its LDAP conterpart.
+    Synced from ServiceUser, with a copy of its attributes/fields into LDAP,
+    so this class is a mirror of the classic django ServiceUser model.
+
+    The basedn userservicedn is specified in settings.
+
+    Attributes:
+        name: The name of this ServiceUser
+        user_password: The SSHA hashed password of this ServiceUser
+    """
+
+    # LDAP meta-data
+    base_dn = LDAP["base_userservice_dn"]
+    object_classes = ["applicationProcess", "simpleSecurityObject"]
+
+    # attributes
+    name = ldapdb.models.fields.CharField(
+        db_column="cn", max_length=200, primary_key=True
+    )
+    user_password = ldapdb.models.fields.CharField(
+        db_column="userPassword", max_length=200, blank=True, null=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class LdapServiceUserGroup(ldapdb.models.Model):
+    """A class representing a ServiceUserGroup in LDAP, its LDAP conterpart.
+    Synced from ServiceUserGroup, with a copy of its attributes/fields into LDAP,
+    so this class is a mirror of the classic django ServiceUserGroup model.
+
+    The basedn userservicegroupdn is specified in settings.
+
+    Attributes:
+        name: The name of this ServiceUserGroup
+        members: ServiceUsers dn members of this ServiceUserGroup
+    """
+
+    # LDAP meta-data
+    base_dn = LDAP["base_userservicegroup_dn"]
+    object_classes = ["groupOfNames"]
+
+    # attributes
+    name = ldapdb.models.fields.CharField(
+        db_column="cn", max_length=200, primary_key=True
+    )
+    members = ldapdb.models.fields.ListField(db_column="member", blank=True)
+
+    def __str__(self):
+        return self.name
+
+
