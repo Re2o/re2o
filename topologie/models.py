@@ -84,7 +84,7 @@ class Stack(AclMixin, RevMixin, models.Model):
         super(Stack, self).save(*args, **kwargs)
 
     def clean(self):
-        """ Verification que l'id_max < id_min"""
+        """Check if id_max < id_min."""
         if self.member_id_max < self.member_id_min:
             raise ValidationError(
                 {"member_id_max": _("The maximum ID is less than the minimum ID.")}
@@ -310,8 +310,6 @@ class Switch(Machine):
                 )
 
     def create_ports(self, begin, end):
-        """ Crée les ports de begin à end si les valeurs données
-        sont cohérentes. """
         """Create ports for the switch if the values are consistent.
 
         Args:
