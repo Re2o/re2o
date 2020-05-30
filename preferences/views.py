@@ -340,7 +340,6 @@ def del_radiuskey(request, radiuskey_instance, **_kwargs):
 @login_required
 @can_create(SwitchManagementCred)
 def add_switchmanagementcred(request):
-    """Ajout de creds de management"""
     """View used to add switch management credentials."""
     switchmanagementcred = SwitchManagementCredForm(request.POST or None)
     if switchmanagementcred.is_valid():
