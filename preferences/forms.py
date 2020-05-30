@@ -20,7 +20,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Formulaire d'edition des réglages : user, machine, topologie, asso...
+Forms to edit preferences: users, machines, topology, organisation etc.
 """
 
 from __future__ import unicode_literals
