@@ -34,7 +34,7 @@ from .models import CustomInvoice, CostEstimate
 
 
 class FactureAdmin(VersionAdmin):
-    """Class admin d'une facture, tous les champs"""
+    """Admin class for invoices."""
 
     pass
 
@@ -52,32 +52,31 @@ class CustomInvoiceAdmin(VersionAdmin):
 
 
 class VenteAdmin(VersionAdmin):
-    """Class admin d'une vente, tous les champs (facture related)"""
+    """Admin class for purchases."""
 
     pass
 
 
 class ArticleAdmin(VersionAdmin):
-    """Class admin d'un article en vente"""
+    """Admin class for articles."""
 
     pass
 
 
 class BanqueAdmin(VersionAdmin):
-    """Class admin de la liste des banques (facture related)"""
+    """Admin class for banks."""
 
     pass
 
 
 class PaiementAdmin(VersionAdmin):
-    """Class admin d'un moyen de paiement (facture related"""
+    """Admin class for payment methods."""
 
     pass
 
 
 class CotisationAdmin(VersionAdmin):
-    """Class admin d'une cotisation (date de debut et de fin),
-    Vente related"""
+    """Admin class for subscriptions."""
 
     pass
 

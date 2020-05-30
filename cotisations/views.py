@@ -185,7 +185,7 @@ def new_cost_estimate(request):
     """
     # The template needs the list of articles (for the JS part)
     articles = Article.objects.all()
-    # Building the invocie form and the article formset
+    # Building the invoice form and the article formset
     cost_estimate_form = CostEstimateForm(request.POST or None)
 
     articles_formset = formset_factory(SelectArticleForm)(
@@ -240,7 +240,7 @@ def new_custom_invoice(request):
     """
     # The template needs the list of articles (for the JS part)
     articles = Article.objects.all()
-    # Building the invocie form and the article formset
+    # Building the invoice form and the article formset
     invoice_form = CustomInvoiceForm(request.POST or None)
 
     articles_formset = formset_factory(SelectArticleForm)(
@@ -366,7 +366,7 @@ def edit_facture(request, facture, **_kwargs):
 @can_delete(Facture)
 def del_facture(request, facture, **_kwargs):
     """
-    View used to delete an existing invocie.
+    View used to delete an existing invoice.
     """
     if request.method == "POST":
         facture.delete()
@@ -382,7 +382,7 @@ def del_facture(request, facture, **_kwargs):
 @login_required
 @can_edit(CostEstimate)
 def edit_cost_estimate(request, invoice, **kwargs):
-    # Building the invocie form and the article formset
+    # Building the invoice form and the article formset
     invoice_form = CostEstimateForm(request.POST or None, instance=invoice)
     purchases_objects = Vente.objects.filter(facture=invoice)
     purchase_form_set = modelformset_factory(
@@ -411,7 +411,7 @@ def edit_cost_estimate(request, invoice, **kwargs):
 @can_edit(CostEstimate)
 @can_create(CustomInvoice)
 def cost_estimate_to_invoice(request, cost_estimate, **_kwargs):
-    """Create a custom invoice from a cos estimate"""
+    """Create a custom invoice from a cost estimate."""
     cost_estimate.create_invoice()
     messages.success(
         request, _("An invoice was successfully created from your cost estimate.")
@@ -422,7 +422,7 @@ def cost_estimate_to_invoice(request, cost_estimate, **_kwargs):
 @login_required
 @can_edit(CustomInvoice)
 def edit_custom_invoice(request, invoice, **kwargs):
-    # Building the invocie form and the article formset
+    # Building the invoice form and the article formset
     invoice_form = CustomInvoiceForm(request.POST or None, instance=invoice)
     purchases_objects = Vente.objects.filter(facture=invoice)
     purchase_form_set = modelformset_factory(
@@ -498,7 +498,7 @@ def cost_estimate_pdf(request, invoice, **_kwargs):
 @can_delete(CostEstimate)
 def del_cost_estimate(request, estimate, **_kwargs):
     """
-    View used to delete an existing invocie.
+    View used to delete an existing invoice.
     """
     if request.method == "POST":
         estimate.delete()
@@ -561,7 +561,7 @@ def custom_invoice_pdf(request, invoice, **_kwargs):
 @can_delete(CustomInvoice)
 def del_custom_invoice(request, invoice, **_kwargs):
     """
-    View used to delete an existing invocie.
+    View used to delete an existing invoice.
     """
     if request.method == "POST":
         invoice.delete()
