@@ -19,11 +19,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""
-Definition des urls de l'application topologie.
-Inclu dans urls de re2o.
-
-Fait référence aux fonctions du views
+"""topologie.urls
+The defined URLs for topologie app. Included in re2o.urls.
 """
 
 from __future__ import unicode_literals
