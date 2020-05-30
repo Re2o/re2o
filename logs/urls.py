@@ -19,9 +19,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""
-Urls de l'application logs, pointe vers les fonctions de views.
-Inclu dans le re2o.urls
+"""logs.urls
+The defined URLs for the logs app. Included in re2o.urls.
 """
 from __future__ import unicode_literals
 

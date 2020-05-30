@@ -24,16 +24,16 @@
 # App de gestion des statistiques pour re2o
 # Gabriel Détraz
 # Gplv2
-"""
-Vues des logs et statistiques générales.
+"""logs.views
+Views of logs and general statistics.
 
-La vue index générale affiche une selection des dernières actions,
-classées selon l'importance, avec date, et user formatés.
+The general indew view displays a list of the last actions, sorted by
+importance, with date and user formatted.
 
-Stats_logs renvoie l'ensemble des logs.
+stats_logs returns all the logs.
 
-Les autres vues sont thématiques, ensemble des statistiques et du
-nombre d'objets par models, nombre d'actions par user, etc
+The other views are related to specific topics, with statistics for number of
+objects for per model, number of actions per user etc.
 """
 
 from __future__ import unicode_literals
