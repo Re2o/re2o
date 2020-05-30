@@ -20,10 +20,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# App de gestion des users pour re2o
-# Lara Kermarec, Gabriel Détraz, Lemesle Augustin
-# Gplv2
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -196,7 +192,7 @@ def aff_tickets(request):
     return render(request, "tickets/index.html", context=context)
 
 
-# views cannoniques des apps optionnels
+# Canonic views for optional apps
 def profil(request, user):
     """View used to display the tickets on a user's profile."""
     tickets_list = Ticket.objects.filter(user=user).all().order_by("-date")
