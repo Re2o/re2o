@@ -292,7 +292,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, AclMixin, models.Model):
         self.field_permissions = {"user": self.can_change_user}
 
     def __str__(self):
-        return str(self.user) + " - " + str(self.id) + " - " + str(self.name)
+        return str(self.user) + " - " + str(self.id) + " - " + str(self.get_name)
 
 
 class MachineType(RevMixin, AclMixin, models.Model):
