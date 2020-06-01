@@ -27,13 +27,30 @@
 # Lara Kermarec, Gabriel Détraz, Lemesle Augustin
 # Gplv2
 """
-Module des views.
+Django users views module.
 
-On définit les vues pour l'ajout, l'edition des users : infos personnelles,
-mot de passe, etc
+Here are defined all functions of views, for the users re2o application. This views
+allow both edition, creation, deletion and diplay of users objects.
+Here are view that allow the addition/deletion/edition of:
+    * Users (Club/Adherent) and derived settings like EmailSettings of users
+    * School
+    * Bans
+    * Whitelist
+    * Shell
+    * ServiceUser
 
-Permet aussi l'ajout, edition et suppression des droits, des bannissements,
-des whitelist, des services users et des écoles
+Also add extra views for :
+    * Ask for reset password by email
+    * Ask for new email for email confirmation
+    * Register room and interface on user account with switch web redirection.
+
+All the view must be as simple as possible, with returning the correct form to user during
+get, and during post, performing change in database with simple ".save()" function.
+
+The aim is to put all "intelligent" functions in both forms and models functions. In fact, this
+will allow to user other frontend (like REST api) to perform editions, creations, etc on database,
+without code duplication.
+
 """
 
 from __future__ import unicode_literals
@@ -117,8 +134,17 @@ import os
 
 @can_create(Adherent)
 def new_user(request):
-    """ Vue de création d'un nouvel utilisateur,
-    envoie un mail pour le mot de passe"""
+    """View for new Adherent/User form creation.
+    Then, send an email to the new user, and also if needed to
+    set its password.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django User form.
+
+    """
     user = AdherentCreationForm(request.POST or None, request.FILES or None, user=request.user)
     user.request = request
 
@@ -167,8 +193,17 @@ def new_user(request):
 @login_required
 @can_create(Club)
 def new_club(request):
-    """ Vue de création d'un nouveau club,
-    envoie un mail pour le mot de passe"""
+    """View for new Club/User form creation.
+    Then, send an email to the new user, and also if needed to
+    set its password.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django User form.
+
+    """
     club = ClubForm(request.POST or None, request.FILES or None, user=request.user)
     club.request = request
 
@@ -192,8 +227,16 @@ def new_club(request):
 @login_required
 @can_edit(Club)
 def edit_club_admin_members(request, club_instance, **_kwargs):
-    """Vue d'edition de la liste des users administrateurs et
-    membres d'un club"""
+    """View for editing clubs and administrators.
+
+    Parameters:
+        request (django request): Standard django request.
+        club_instance: Club instance to edit
+
+    Returns:
+        Django User form.
+
+    """
     club = ClubAdminandMembersForm(request.POST or None, request.FILES or None, instance=club_instance)
     if club.is_valid():
         if club.changed_data:
@@ -212,9 +255,17 @@ def edit_club_admin_members(request, club_instance, **_kwargs):
 @login_required
 @can_edit(User)
 def edit_info(request, user, userid):
-    """ Edite un utilisateur à partir de son id,
-    si l'id est différent de request.user, vérifie la
-    possession du droit cableur """
+    """View for editing base user informations.
+    Perform an acl check on user instance.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to edit
+
+    Returns:
+        Django User form.
+
+    """
     if user.is_class_adherent:
         user_form = AdherentEditForm(
             request.POST or None, request.FILES or None, instance=user.adherent, user=request.user
@@ -246,7 +297,18 @@ def edit_info(request, user, userid):
 @login_required
 @can_edit(User, "state")
 def state(request, user, userid):
-    """ Change the state (active/unactive/archived) of a user"""
+    """View for editing state of user.
+    Perform an acl check on user instance, and check if editing user
+    has state edition permission.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to edit
+
+    Returns:
+        Django User form.
+
+    """
     state_form = StateForm(request.POST or None, instance=user)
     if state_form.is_valid():
         if state_form.changed_data:
@@ -265,7 +327,18 @@ def state(request, user, userid):
 @login_required
 @can_edit(User, "groups")
 def groups(request, user, userid):
-    """ View to edit the groups of a user """
+    """View for editing groups of user.
+    Perform an acl check on user instance, and check if editing user
+    has groups edition permission.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to edit
+
+    Returns:
+        Django User form.
+
+    """
     group_form = GroupForm(request.POST or None, instance=user, user=request.user)
     if group_form.is_valid():
         if group_form.changed_data:
@@ -280,9 +353,20 @@ def groups(request, user, userid):
 @login_required
 @can_edit(User, "password")
 def password(request, user, userid):
-    """ Reinitialisation d'un mot de passe à partir de l'userid,
-    pour self par défaut, pour tous sans droit si droit cableur,
-    pour tous si droit bureau """
+    """View for editing password of user.
+    Perform an acl check on user instance, and check if editing user
+    has password edition permission.
+    If User instance is in critical groups, the edition requires extra
+    permission.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to edit password
+
+    Returns:
+        Django User form.
+
+    """
     u_form = PassForm(request.POST or None, instance=user, user=request.user)
     if u_form.is_valid():
         if u_form.changed_data:
@@ -299,7 +383,20 @@ def password(request, user, userid):
 @login_required
 @can_edit(User, "groups")
 def del_group(request, user, listrightid, **_kwargs):
-    """ View used to delete a group """
+    """View for editing groups of user.
+    Perform an acl check on user instance, and check if editing user
+    has groups edition permission.
+    If User instance is in critical groups, the edition requires extra
+    permission.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to edit groups
+
+    Returns:
+        Django User form.
+
+    """
     user.groups.remove(ListRight.objects.get(id=listrightid))
     user.save()
     messages.success(request, _("%s was removed from the group.") % user)
@@ -309,7 +406,18 @@ def del_group(request, user, listrightid, **_kwargs):
 @login_required
 @can_edit(User, "is_superuser")
 def del_superuser(request, user, **_kwargs):
-    """Remove the superuser right of an user."""
+    """View for editing superuser attribute of user.
+    Perform an acl check on user instance, and check if editing user
+    has edition of superuser flag on target user.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to edit superuser flag.
+
+    Returns:
+        Django User form.
+
+    """
     user.is_superuser = False
     user.save()
     messages.success(request, _("%s is no longer superuser.") % user)
@@ -319,7 +427,18 @@ def del_superuser(request, user, **_kwargs):
 @login_required
 @can_create(ServiceUser)
 def new_serviceuser(request):
-    """ Vue de création d'un nouvel utilisateur service"""
+    """View for creation of new serviceuser, for external services on
+    ldap tree for auth purpose (dokuwiki, owncloud, etc).
+    Perform an acl check on editing user, and check if editing user
+    has permission of create new serviceuser.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django ServiceUser form.
+
+    """
     user = ServiceUserForm(request.POST or None)
     if user.is_valid():
         user.save()
@@ -333,7 +452,19 @@ def new_serviceuser(request):
 @login_required
 @can_edit(ServiceUser)
 def edit_serviceuser(request, serviceuser, **_kwargs):
-    """ Edit a ServiceUser """
+    """View for edition of serviceuser, for external services on
+    ldap tree for auth purpose (dokuwiki, owncloud, etc).
+    Perform an acl check on editing user, and check if editing user
+    has permission of edit target serviceuser.
+
+    Parameters:
+        request (django request): Standard django request.
+        serviceuser: ServiceUser instance to edit attributes.
+
+    Returns:
+        Django ServiceUser form.
+
+    """
     serviceuser = EditServiceUserForm(request.POST or None, instance=serviceuser)
     if serviceuser.is_valid():
         if serviceuser.changed_data:
@@ -348,7 +479,19 @@ def edit_serviceuser(request, serviceuser, **_kwargs):
 @login_required
 @can_delete(ServiceUser)
 def del_serviceuser(request, serviceuser, **_kwargs):
-    """Suppression d'un ou plusieurs serviceusers"""
+    """View for removing serviceuser, for external services on
+    ldap tree for auth purpose (dokuwiki, owncloud, etc).
+    Perform an acl check on editing user, and check if editing user
+    has permission of deleting target serviceuser.
+
+    Parameters:
+        request (django request): Standard django request.
+        serviceuser: ServiceUser instance to delete.
+
+    Returns:
+        Django ServiceUser form.
+
+    """
     if request.method == "POST":
         serviceuser.delete()
         messages.success(request, _("The service user was deleted."))
@@ -364,9 +507,19 @@ def del_serviceuser(request, serviceuser, **_kwargs):
 @can_create(Ban)
 @can_edit(User)
 def add_ban(request, user, userid):
-    """ Ajouter un banissement, nécessite au moins le droit bofh
-    (a fortiori bureau)
-    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
+    """View for adding a ban object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of adding a ban on target user, add_ban.
+    Syntaxe: DD/MM/AAAA, the ban takes an immediate effect.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to add a ban.
+
+    Returns:
+        Django Ban form.
+
+    """
     ban_instance = Ban(user=user)
     ban = BanForm(request.POST or None, instance=ban_instance)
     ban.request = request
@@ -383,9 +536,19 @@ def add_ban(request, user, userid):
 @login_required
 @can_edit(Ban)
 def edit_ban(request, ban_instance, **_kwargs):
-    """ Editer un bannissement, nécessite au moins le droit bofh
-    (a fortiori bureau)
-    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement"""
+    """View for editing a ban object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of editing a ban on target user, edit_ban.
+    Syntaxe: DD/MM/AAAA, the ban takes an immediate effect.
+
+    Parameters:
+        request (django request): Standard django request.
+        ban: Ban instance to edit.
+
+    Returns:
+        Django Ban form.
+
+    """
     ban = BanForm(request.POST or None, instance=ban_instance)
     ban.request = request
 
@@ -400,7 +563,18 @@ def edit_ban(request, ban_instance, **_kwargs):
 @login_required
 @can_delete(Ban)
 def del_ban(request, ban, **_kwargs):
-    """ Supprime un banissement"""
+    """View for removing a ban object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of deleting a ban on target user, del_ban.
+
+    Parameters:
+        request (django request): Standard django request.
+        ban: Ban instance to delete.
+
+    Returns:
+        Django Ban form.
+
+    """
     if request.method == "POST":
         ban.delete()
         messages.success(request, _("The ban was deleted."))
@@ -412,10 +586,19 @@ def del_ban(request, ban, **_kwargs):
 @can_create(Whitelist)
 @can_edit(User)
 def add_whitelist(request, user, userid):
-    """ Accorder un accès gracieux, temporaire ou permanent.
-    Need droit cableur
-    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement,
-    raison obligatoire"""
+    """View for adding a whitelist object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of adding a wheitelist on target user, add_whitelist.
+    Syntaxe: DD/MM/AAAA, the whitelist takes an immediate effect.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to add a whitelist.
+
+    Returns:
+        Django Whitelist form.
+
+    """
     whitelist_instance = Whitelist(user=user)
     whitelist = WhitelistForm(request.POST or None, instance=whitelist_instance)
     if whitelist.is_valid():
@@ -434,10 +617,19 @@ def add_whitelist(request, user, userid):
 @login_required
 @can_edit(Whitelist)
 def edit_whitelist(request, whitelist_instance, **_kwargs):
-    """ Editer un accès gracieux, temporaire ou permanent.
-    Need droit cableur
-    Syntaxe : JJ/MM/AAAA , heure optionnelle, prend effet immédiatement,
-    raison obligatoire"""
+    """View for editing a whitelist object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of editing a whitelist on target user, edit_whitelist.
+    Syntaxe: DD/MM/AAAA, the whitelist takes an immediate effect.
+
+    Parameters:
+        request (django request): Standard django request.
+        whitelist: whitelist instance to edit.
+
+    Returns:
+        Django Whitelist form.
+
+    """
     whitelist = WhitelistForm(request.POST or None, instance=whitelist_instance)
     if whitelist.is_valid():
         if whitelist.changed_data:
@@ -452,7 +644,18 @@ def edit_whitelist(request, whitelist_instance, **_kwargs):
 @login_required
 @can_delete(Whitelist)
 def del_whitelist(request, whitelist, **_kwargs):
-    """ Supprime un acces gracieux"""
+    """View for removing a whitelist object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of deleting a whitelist on target user, del_whitelist.
+
+    Parameters:
+        request (django request): Standard django request.
+        whitelist: Whitelist instance to delete.
+
+    Returns:
+        Django Whitelist form.
+
+    """
     if request.method == "POST":
         whitelist.delete()
         messages.success(request, _("The whitelist was deleted."))
@@ -468,7 +671,18 @@ def del_whitelist(request, whitelist, **_kwargs):
 @can_create(EMailAddress)
 @can_edit(User)
 def add_emailaddress(request, user, userid):
-    """ Create a new local email account"""
+    """View for adding an emailaddress object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of adding an emailaddress on target user.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to add an emailaddress.
+
+    Returns:
+        Django EmailAddress form.
+
+    """
     emailaddress_instance = EMailAddress(user=user)
     emailaddress = EMailAddressForm(
         request.POST or None, instance=emailaddress_instance
@@ -487,7 +701,18 @@ def add_emailaddress(request, user, userid):
 @login_required
 @can_edit(EMailAddress)
 def edit_emailaddress(request, emailaddress_instance, **_kwargs):
-    """ Edit a local email account"""
+    """View for edit an emailaddress object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of editing an emailaddress on target user.
+
+    Parameters:
+        request (django request): Standard django request.
+        emailaddress: Emailaddress to edit.
+
+    Returns:
+        Django EmailAddress form.
+
+    """
     emailaddress = EMailAddressForm(
         request.POST or None, instance=emailaddress_instance
     )
@@ -510,7 +735,18 @@ def edit_emailaddress(request, emailaddress_instance, **_kwargs):
 @login_required
 @can_delete(EMailAddress)
 def del_emailaddress(request, emailaddress, **_kwargs):
-    """Delete a local email account"""
+    """View for deleting an emailaddress object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of deleting an emailaddress on target user.
+
+    Parameters:
+        request (django request): Standard django request.
+        emailaddress: Emailaddress to delete.
+
+    Returns:
+        Django EmailAddress form.
+
+    """
     if request.method == "POST":
         emailaddress.delete()
         messages.success(request, _("The local email account was deleted."))
@@ -527,7 +763,18 @@ def del_emailaddress(request, emailaddress, **_kwargs):
 @login_required
 @can_edit(User)
 def edit_email_settings(request, user_instance, **_kwargs):
-    """Edit the email settings of a user"""
+    """View for editing User's emailaddress settings for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of editing email settings on target user.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to edit email settings.
+
+    Returns:
+        Django User form.
+
+    """
     email_settings = EmailSettingsForm(
         request.POST or None, instance=user_instance, user=request.user
     )
@@ -559,8 +806,17 @@ def edit_email_settings(request, user_instance, **_kwargs):
 @login_required
 @can_create(School)
 def add_school(request):
-    """ Ajouter un établissement d'enseignement à la base de donnée,
-    need cableur"""
+    """View for adding a new school object.
+    Perform an acl check on editing user, and check if editing user
+    has permission of adding a new school, add_school.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django School form.
+
+    """
     school = SchoolForm(request.POST or None)
     if school.is_valid():
         school.save()
@@ -574,8 +830,18 @@ def add_school(request):
 @login_required
 @can_edit(School)
 def edit_school(request, school_instance, **_kwargs):
-    """ Editer un établissement d'enseignement à partir du schoolid dans
-    la base de donnée, need cableur"""
+    """View for editing a school instance object.
+    Perform an acl check on editing user, and check if editing user
+    has permission of editing a school, edit_school.
+
+    Parameters:
+        request (django request): Standard django request.
+        school_instance: school instance to edit.
+
+    Returns:
+        Django School form.
+
+    """
     school = SchoolForm(request.POST or None, instance=school_instance)
     if school.is_valid():
         if school.changed_data:
@@ -590,10 +856,20 @@ def edit_school(request, school_instance, **_kwargs):
 @login_required
 @can_delete_set(School)
 def del_school(request, instances):
-    """ Supprimer un établissement d'enseignement à la base de donnée,
-    need cableur
-    Objet protégé, possible seulement si aucun user n'est affecté à
-    l'établissement """
+    """View for deleting a school instance object.
+    Perform an acl check on editing user, and check if editing user
+    has permission of deleting a school, del_school.
+    A school can be deleted only if it is not assigned to a user (mode
+    protect).
+
+    Parameters:
+        request (django request): Standard django request.
+        school_instance: school instance to delete.
+
+    Returns:
+        Django School form.
+
+    """
     school = DelSchoolForm(request.POST or None, instances=instances)
     if school.is_valid():
         school_dels = school.cleaned_data["schools"]
@@ -619,7 +895,17 @@ def del_school(request, instances):
 @login_required
 @can_create(ListShell)
 def add_shell(request):
-    """ Ajouter un shell à la base de donnée"""
+    """View for adding a new linux shell object.
+    Perform an acl check on editing user, and check if editing user
+    has permission of adding a new shell, add_school.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django Shell form.
+
+    """
     shell = ShellForm(request.POST or None)
     if shell.is_valid():
         shell.save()
@@ -633,7 +919,18 @@ def add_shell(request):
 @login_required
 @can_edit(ListShell)
 def edit_shell(request, shell_instance, **_kwargs):
-    """ Editer un shell à partir du listshellid"""
+    """View for editing a shell instance object.
+    Perform an acl check on editing user, and check if editing user
+    has permission of editing a shell, edit_shell.
+
+    Parameters:
+        request (django request): Standard django request.
+        shell_instance: shell instance to edit.
+
+    Returns:
+        Django Shell form.
+
+    """
     shell = ShellForm(request.POST or None, instance=shell_instance)
     if shell.is_valid():
         if shell.changed_data:
@@ -648,7 +945,20 @@ def edit_shell(request, shell_instance, **_kwargs):
 @login_required
 @can_delete(ListShell)
 def del_shell(request, shell, **_kwargs):
-    """Destruction d'un shell"""
+    """View for deleting a shell instance object.
+    Perform an acl check on editing user, and check if editing user
+    has permission of deleting a shell, del_shell.
+    A shell can be deleted only if it is not assigned to a user (mode
+    protect).
+
+    Parameters:
+        request (django request): Standard django request.
+        shell_instance: shell instance to delete.
+
+    Returns:
+        Django Shell form.
+
+    """
     if request.method == "POST":
         shell.delete()
         messages.success(request, _("The shell was deleted."))
@@ -661,8 +971,18 @@ def del_shell(request, shell, **_kwargs):
 @login_required
 @can_create(ListRight)
 def add_listright(request):
-    """ Ajouter un droit/groupe, nécessite droit bureau.
-    Obligation de fournir un gid pour la synchro ldap, unique """
+    """View for adding a new group of rights and users (listright linked to groups)
+    object for user instance.
+    Perform an acl check on editing user, and check if editing user
+    has permission of adding a new listright.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django ListRight form.
+
+    """
     listright = NewListRightForm(request.POST or None)
     if listright.is_valid():
         listright.save()
@@ -678,8 +998,18 @@ def add_listright(request):
 @login_required
 @can_edit(ListRight)
 def edit_listright(request, listright_instance, **_kwargs):
-    """ Editer un groupe/droit, necessite droit bureau,
-    à partir du listright id """
+    """View for editing a listright instance object.
+    Perform an acl check on editing user, and check if editing user
+    has permission of editing a listright, edit_listright.
+
+    Parameters:
+        request (django request): Standard django request.
+        listright_instance: listright instance to edit.
+
+    Returns:
+        Django ListRight form.
+
+    """
     listright_form = ListRightForm(request.POST or None, instance=listright_instance)
     if listright_form.is_valid():
         if listright_form.changed_data:
@@ -701,8 +1031,20 @@ def edit_listright(request, listright_instance, **_kwargs):
 @login_required
 @can_delete_set(ListRight)
 def del_listright(request, instances):
-    """ Supprimer un ou plusieurs groupe, possible si il est vide, need droit
-    bureau """
+    """View for deleting a listright instance object.
+    Perform an acl check on editing user, and check if editing user
+    has permission of deleting a listright, del_listright.
+    A listright/group can be deleted only if it is empty (mode
+    protect).
+
+    Parameters:
+        request (django request): Standard django request.
+        listright_instance: listright instance to delete.
+
+    Returns:
+        Django ListRight form.
+
+    """
     listright = DelListRightForm(request.POST or None, instances=instances)
     if listright.is_valid():
         listright_dels = listright.cleaned_data["listrights"]
@@ -729,7 +1071,17 @@ def del_listright(request, instances):
 @can_view_all(User)
 @can_change(User, "state")
 def mass_archive(request):
-    """ Permet l'archivage massif"""
+    """View for performing a mass archive operation.
+    Check if editing User has the acl for globaly changing "State"
+    flag on users, and can edit all the users.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django User form.
+
+    """
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     to_archive_form = MassArchiveForm(request.POST or None)
     to_archive_list = []
@@ -764,7 +1116,16 @@ def mass_archive(request):
 @login_required
 @can_view_all(Adherent)
 def index(request):
-    """ Affiche l'ensemble des adherents, need droit cableur """
+    """View for displaying the paginated list of all users/adherents in re2o.
+    Need the global acl for viewing all users, can_view_all.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django Adherent Form.
+
+    """
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     users_list = Adherent.objects.select_related("room")
     users_list = SortTable.sort(
@@ -780,7 +1141,16 @@ def index(request):
 @login_required
 @can_view_all(Club)
 def index_clubs(request):
-    """ Affiche l'ensemble des clubs, need droit cableur """
+    """View for displaying the paginated list of all users/clubs in re2o.
+    Need the global acl for viewing all users, can_view_all.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django Adherent Form.
+
+    """
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     clubs_list = Club.objects.select_related("room")
     clubs_list = SortTable.sort(
@@ -796,7 +1166,16 @@ def index_clubs(request):
 @login_required
 @can_view_all(Ban)
 def index_ban(request):
-    """ Affiche l'ensemble des ban, need droit cableur """
+    """View for displaying the paginated list of all bans in re2o.
+    Need the global acl for viewing all bans, can_view_all.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django Ban Form.
+
+    """
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     ban_list = Ban.objects.select_related("user")
     ban_list = SortTable.sort(
@@ -812,7 +1191,16 @@ def index_ban(request):
 @login_required
 @can_view_all(Whitelist)
 def index_white(request):
-    """ Affiche l'ensemble des whitelist, need droit cableur """
+    """View for displaying the paginated list of all whitelists in re2o.
+    Need the global acl for viewing all whitelists, can_view_all.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django Whitelist Form.
+
+    """
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     white_list = Whitelist.objects.select_related("user")
     white_list = SortTable.sort(
@@ -828,7 +1216,16 @@ def index_white(request):
 @login_required
 @can_view_all(School)
 def index_school(request):
-    """ Affiche l'ensemble des établissement"""
+    """View for displaying the paginated list of all schools in re2o.
+    Need the global acl for viewing all schools, can_view_all.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django School Form.
+
+    """
     school_list = School.objects.order_by("name")
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     school_list = SortTable.sort(
@@ -844,7 +1241,16 @@ def index_school(request):
 @login_required
 @can_view_all(ListShell)
 def index_shell(request):
-    """ Affiche l'ensemble des shells"""
+    """View for displaying the paginated list of all shells in re2o.
+    Need the global acl for viewing all shells, can_view_all.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django Shell Form.
+
+    """
     shell_list = ListShell.objects.order_by("shell")
     return render(request, "users/index_shell.html", {"shell_list": shell_list})
 
@@ -852,7 +1258,17 @@ def index_shell(request):
 @login_required
 @can_view_all(ListRight)
 def index_listright(request):
-    """ Affiche l'ensemble des droits"""
+    """View for displaying the listrights/groups list in re2o.
+    The listrights are sorted by members users, and individual
+    acl for a complete display.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django ListRight Form.
+
+    """
     rights = {}
     for right in (
         ListRight.objects.order_by("name")
@@ -875,7 +1291,17 @@ def index_listright(request):
 @login_required
 @can_view_all(ServiceUser)
 def index_serviceusers(request):
-    """ Affiche les users de services (pour les accès ldap)"""
+    """View for displaying the paginated list of all serviceusers in re2o
+    See ServiceUser model for more informations on service users.
+    Need the global acl for viewing all serviceusers, can_view_all.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django ServiceUser Form.
+
+    """
     serviceusers_list = ServiceUser.objects.order_by("pseudo")
     return render(
         request,
@@ -886,14 +1312,42 @@ def index_serviceusers(request):
 
 @login_required
 def mon_profil(request):
-    """ Lien vers profil, renvoie request.id à la fonction """
+    """Shortcuts view to profil view, with correct arguments.
+    Returns the view profil with users argument, users is set to
+    default request.user.
+    
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django User Profil Form.
+
+    """
     return redirect(reverse("users:profil", kwargs={"userid": str(request.user.id)}))
 
 
 @login_required
 @can_view(User)
 def profil(request, users, **_kwargs):
-    """ Affiche un profil, self or cableur, prend un userid en argument """
+    """Profil view. Display informations on users, the single user.
+    Informations displayed are:
+        * Adherent or Club User instance informations
+        * Interface/Machine belonging to User instance
+        * Invoice belonging to User instance
+        * Ban instances belonging to User
+        * Whitelists instances belonging to User
+        * Email Settings of User instance
+        * Tickets belonging to User instance.
+    Requires the acl can_view on user instance.
+ 
+    Parameters:
+        request (django request): Standard django request.
+        users: User instance to display profil
+
+    Returns:
+        Django User Profil Form.
+
+    """
     machines = (
         Machine.objects.filter(user=users)
         .select_related("user")
@@ -969,7 +1423,17 @@ def profil(request, users, **_kwargs):
 
 
 def reset_password(request):
-    """ Reintialisation du mot de passe si mdp oublié """
+    """Reset password form, linked to form forgotten password.
+    If an user is found, send an email to him with a link
+    to reset its password.
+    
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Django ResetPassword Form.
+
+    """
     userform = ResetPasswordForm(request.POST or None)
     if userform.is_valid():
         try:
@@ -994,8 +1458,17 @@ def reset_password(request):
 
 
 def process(request, token):
-    """Process, lien pour la reinitialisation du mot de passe
-    et la confirmation de l'email"""
+    """Process view, in case of both reset password, or confirm email in case
+    of new email set.
+    This view calls process_passwd or process_email.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Correct Django process Form.
+
+    """
     valid_reqs = Request.objects.filter(expires_at__gt=timezone.now())
     req = get_object_or_404(valid_reqs, token=token)
 
@@ -1009,8 +1482,16 @@ def process(request, token):
 
 
 def process_passwd(request, req):
-    """Process le changeemnt de mot de passe, renvoie le formulaire
-    demandant le nouveau password"""
+    """Process view, in case of reset password by email. Returns
+    a form to change and reset the password.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Correct Django process password Form.
+
+    """
     user = req.user
     u_form = PassForm(request.POST or None, instance=user, user=request.user)
     if u_form.is_valid():
@@ -1031,8 +1512,17 @@ def process_passwd(request, req):
 
 
 def process_email(request, req):
-    """Process la confirmation de mail, renvoie le formulaire
-    de validation"""
+    """Process view, in case of confirm a new email. Returns
+    a form to notify the success of the email confirmation to
+    request.User.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Correct Django process email Form.
+
+    """
     user = req.user
     if request.method == "POST":
         with transaction.atomic(), reversion.create_revision():
@@ -1055,7 +1545,16 @@ def process_email(request, req):
 @login_required
 @can_edit(User)
 def resend_confirmation_email(request, logged_user, userid):
-    """ Renvoi du mail de confirmation """
+    """View to resend confirm email, for adding a new email.
+    Check if User has the correct acl.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+        Correct Django resend email Form.
+
+    """
     try:
         user = User.objects.get(
             id=userid,
@@ -1074,6 +1573,20 @@ def resend_confirmation_email(request, logged_user, userid):
 
 @login_required
 def initial_register(request):
+    """View to register both a new room, and a new interface/machine for a user.
+    This view is used with switchs function of redirect web after AAA authentication
+    failed. Then, the users log-in, and the new mac-address and switch port, in order to
+    get the room, are included in HTTP Headers by the switch redirection functionnality.
+    This allow to add the new interface with the correct mac-address, and confirm if needed,
+    the new room of request.user.
+
+    Parameters:
+        request (django request): Standard django request.
+
+    Returns:
+         Initial room and interface/machine register Form.
+
+    """
     switch_ip = request.GET.get("switch_ip", None)
     switch_port = request.GET.get("switch_port", None)
     client_mac = request.GET.get("client_mac", None)
