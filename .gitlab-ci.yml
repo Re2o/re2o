@@ -24,6 +24,7 @@ pages:
     - python3 -m pip install -U -r pip_requirements.txt
     - python3 -m pip install -U sphinx
     - cp re2o/settings_local.example.py re2o/settings_local.py
+    - sed -i 's/MY_EMAIL_PORT/25/g' re2o/settings_local.py
     - sphinx-apidoc -o re2o/docs_utils/source/autodoc/ -f . ./*/migrations/*
     - sphinx-build -b html docs_utils/source/ public
   artifacts:
