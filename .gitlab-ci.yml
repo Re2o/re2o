@@ -22,7 +22,7 @@ pages:
     - apt-get -qq update
     - cat apt_requirements.txt | grep python3 | xargs apt-get -qq install -y
     - python3 -m pip install -U -r pip_requirements.txt
-    - python3 -m pip install -U sphinx
+    - python3 -m pip install -U sphinx recommonmark
     - cp re2o/settings_local.example.py re2o/settings_local.py
     - sed -i 's/MY_EMAIL_PORT/25/g' re2o/settings_local.py
     - apt-get -y install python3-mysqldb default-mysql-client
