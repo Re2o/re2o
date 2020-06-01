@@ -93,16 +93,27 @@ class AclMixin(object):
 
     @classmethod
     def get_instance(cls, object_id, *_args, **kwargs):
-        """Récupère une instance
-        :return: Une instance de la classe évidemment"""
+        """Get an instance from its id.
+
+        Parameters:
+           object_id (int): Id of the instance to find
+
+        Returns:
+           Django instance: Instance of this class
+        """
         return cls.objects.get(pk=object_id)
 
     @classmethod
     def can_create(cls, user_request, *_args, **_kwargs):
-        """Verifie que l'user a les bons droits pour créer
-        un object
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
+        """Check if a user has the right to create an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = cls.get_modulename() + ".add_" + cls.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -114,11 +125,16 @@ class AclMixin(object):
         )
 
     def can_edit(self, user_request, *_args, **_kwargs):
-        """Verifie que l'user a les bons droits pour editer
-        cette instance
-        :param self: Instance à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
+        """Check if a user has the right to edit an instance
+
+        Parameters:
+            user_request: User calling for this action
+            self: Instance to edit 
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = self.get_modulename() + ".change_" + self.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -130,11 +146,16 @@ class AclMixin(object):
         )
 
     def can_delete(self, user_request, *_args, **_kwargs):
-        """Verifie que l'user a les bons droits pour delete
-        cette instance
-        :param self: Instance à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
+        """Check if a user has the right to delete an instance
+
+        Parameters:
+            user_request: User calling for this action
+            self: Instance to delete 
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = self.get_modulename() + ".delete_" + self.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -147,10 +168,15 @@ class AclMixin(object):
 
     @classmethod
     def can_view_all(cls, user_request, *_args, **_kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des objets,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
+        """Check if a user can view all instances of an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = cls.get_modulename() + ".view_" + cls.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -162,11 +188,16 @@ class AclMixin(object):
         )
 
     def can_view(self, user_request, *_args, **_kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
+        """Check if a user can view an instance of an object
+
+        Parameters:
+            user_request: User calling for this action
+            self: Instance to view 
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = self.get_modulename() + ".view_" + self.get_classname()
         can = user_request.has_perm(permission)
         return (

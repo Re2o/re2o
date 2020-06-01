@@ -20,10 +20,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# App de gestion des users pour re2o
-# Lara Kermarec, Gabriel Détraz, Lemesle Augustin
-# Gplv2
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -52,7 +48,7 @@ from .forms import NewTicketForm, EditTicketForm, CommentTicketForm
 
 
 def new_ticket(request):
-    """ Ticket creation view"""
+    """View used to display the creation form of tickets."""
     ticketform = NewTicketForm(request.POST or None, request=request)
     if ticketform.is_valid():
         ticketform.save()
@@ -76,7 +72,7 @@ def new_ticket(request):
 @login_required
 @can_view(Ticket)
 def aff_ticket(request, ticket, ticketid):
-    """View to display only one ticket"""
+    """View used to display a single ticket."""
     comments = CommentTicket.objects.filter(parent_ticket=ticket)
     return render(
         request,
@@ -88,7 +84,7 @@ def aff_ticket(request, ticket, ticketid):
 @login_required
 @can_edit(Ticket)
 def change_ticket_status(request, ticket, ticketid):
-    """View to edit ticket state"""
+    """View used to change a ticket's status."""
     ticket.solved = not ticket.solved
     ticket.save()
     return redirect(
@@ -99,7 +95,7 @@ def change_ticket_status(request, ticket, ticketid):
 @login_required
 @can_edit(Ticket)
 def edit_ticket(request, ticket, ticketid):
-    """ Ticket creation view"""
+    """View used to display the edit form of tickets."""
     ticketform = EditTicketForm(request.POST or None, instance=ticket)
     if ticketform.is_valid():
         ticketform.save()
@@ -120,7 +116,7 @@ def edit_ticket(request, ticket, ticketid):
 @login_required
 @can_view(Ticket)
 def add_comment(request, ticket, ticketid):
-    """ Add a comment to a ticket"""
+    """View used to add a comment to a ticket."""
     commentticket = CommentTicketForm(request.POST or None, request=request)
     if commentticket.is_valid():
         commentticket = commentticket.save(commit=False)
@@ -139,7 +135,7 @@ def add_comment(request, ticket, ticketid):
 @login_required
 @can_edit(CommentTicket)
 def edit_comment(request, commentticket_instance, **_kwargs):
-    """ Edit a comment of a ticket"""
+    """View used to edit a comment of a ticket."""
     commentticket = CommentTicketForm(request.POST or None, instance=commentticket_instance)
     if commentticket.is_valid():
         ticketid = commentticket_instance.parent_ticket.id
@@ -157,7 +153,7 @@ def edit_comment(request, commentticket_instance, **_kwargs):
 @login_required
 @can_delete(CommentTicket)
 def del_comment(request, commentticket, **_kwargs):
-    """Delete a comment of a ticket"""
+    """View used to delete a comment of a ticket."""
     if request.method == "POST":
         ticketid = commentticket.parent_ticket.id
         commentticket.delete()
@@ -173,7 +169,7 @@ def del_comment(request, commentticket, **_kwargs):
 @login_required
 @can_view_all(Ticket)
 def aff_tickets(request):
-    """ View to display all the tickets """
+    """View used to display all tickets."""
     tickets_list = Ticket.objects.all().order_by("-date")
     nbr_tickets = tickets_list.count()
     nbr_tickets_unsolved = tickets_list.filter(solved=False).count()
@@ -196,9 +192,9 @@ def aff_tickets(request):
     return render(request, "tickets/index.html", context=context)
 
 
-# views cannoniques des apps optionnels
+# Canonic views for optional apps
 def profil(request, user):
-    """ View to display the ticket's module on the profil"""
+    """View used to display the tickets on a user's profile."""
     tickets_list = Ticket.objects.filter(user=user).all().order_by("-date")
     nbr_tickets = tickets_list.count()
     nbr_tickets_unsolved = tickets_list.filter(solved=False).count()
@@ -223,16 +219,19 @@ def profil(request, user):
 
 
 def contact(request):
-    """View to display a contact address on the contact page
-    used here to display a link to open a ticket"""
+    """View used to display contact addresses to be used for tickets on the
+    contact page.
+    """
     return render_to_string("tickets/contact.html")
 
 
 def navbar_user():
-    """View to display the ticket link in thet user's dropdown in the navbar"""
+    """View used to display a link to tickets in the navbar (in the dropdown
+    menu Users).
+    """
     return ("users", render_to_string("tickets/navbar.html"))
 
 
 def navbar_logout():
-    """View to display the ticket link to log out users"""
+    """View used to display a link to open tickets for logged out users."""
     return render_to_string("tickets/navbar_logout.html")

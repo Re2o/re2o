@@ -83,7 +83,7 @@ def get_results(query, request, params):
 @login_required
 @can_view_all(User, Machine, Cotisation)
 def search(request):
-    """ La page de recherche standard """
+    """View used to display the simple search page."""
     search_form = SearchForm(request.GET or None)
     if search_form.is_valid():
         return render(
@@ -101,7 +101,7 @@ def search(request):
 @login_required
 @can_view_all(User, Machine, Cotisation)
 def searchp(request):
-    """ La page de recherche avancée """
+    """View used to display the advanced search page."""
     search_form = SearchFormPlus(request.GET or None)
     if search_form.is_valid():
         return render(

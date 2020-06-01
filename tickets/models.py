@@ -46,7 +46,23 @@ from .preferences.models import TicketOption
 
 
 class Ticket(AclMixin, models.Model):
-    """Model of a ticket"""
+    """Model of a ticket.
+
+    Attributes:
+        user: User, the user creating the ticket.
+        title: the title of the ticket, chosen by the user.
+        description: the main content of the ticket, written by the user to
+            explain their problem.
+        date: datetime, the date of creation of the ticket.
+        email: the email address used to reply to the ticket.
+        solved: boolean, True if the problem explained in the ticket has been
+            solved, False otherwise. It is used to see easily which tickets
+            still require attention.
+        language: the language of the ticket, used to select the appropriate
+            template when sending automatic emails, e.g. ticket creation.
+        request: the request displayed if there is an error when sending emails
+            related to the ticket.
+    """
 
     user = models.ForeignKey(
         "users.User",
@@ -86,7 +102,7 @@ class Ticket(AclMixin, models.Model):
 
     @cached_property
     def opened_by(self):
-        """Return full name of this ticket opener"""
+        """Get the full name of the user who opened the ticket."""
         if self.user:
             return self.user.get_full_name()
         else:
@@ -94,10 +110,13 @@ class Ticket(AclMixin, models.Model):
 
     @cached_property
     def get_mail(self):
-        """Return the mail of the owner of this ticket"""
+        """Get the email address of the user who opened the ticket."""
         return self.email or self.user.get_mail 
 
     def publish_mail(self):
+        """Send an email for a newly opened ticket to the address set in the
+        preferences.
+        """
         site_url = GeneralOption.get_cached_value("main_site_url")
         to_addr = TicketOption.get_cached_value("publish_address")
         context = {"ticket": self, "site_url": site_url}
@@ -120,8 +139,8 @@ class Ticket(AclMixin, models.Model):
 
 
     def can_view(self, user_request, *_args, **_kwargs):
-        """ Check that the user has the right to view the ticket
-        or that it is the author"""
+        """Check that the user has the right to view the ticket
+        or that it is the author."""
         if (
             not user_request.has_perm("tickets.view_ticket")
             and self.user != user_request
@@ -136,7 +155,7 @@ class Ticket(AclMixin, models.Model):
 
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
-        """ Check that the user has access to the list of all tickets"""
+        """Check that the user has access to the list of all tickets."""
         can = user_request.has_perm("tickets.view_ticket")
         return (
             can,
@@ -147,12 +166,23 @@ class Ticket(AclMixin, models.Model):
         )
 
     def can_create(user_request, *_args, **_kwargs):
-        """ Authorise all users to open tickets """
+        """Authorise all users to open tickets."""
         return True, None, None
 
 
 class CommentTicket(AclMixin, models.Model):
-    """A comment of a ticket"""
+    """A comment of a ticket.
+
+    Attributes:
+        date: datetime, the date of creation of the comment.
+        comment: the text written as a comment to a ticket.
+        parent_ticket: the ticket which is commented.
+        created_at: datetime, the date of creation of the comment.
+        created_by: the user who wrote the comment.
+        request: the request used if there is an error when sending emails
+            related to the comment.
+    """
+
     date = models.DateTimeField(auto_now_add=True)
     comment = models.TextField(
         max_length=4095,
@@ -180,8 +210,8 @@ class CommentTicket(AclMixin, models.Model):
         return CommentTicket.objects.filter(parent_ticket=self.parent_ticket, pk__lt=self.pk).count() + 1
 
     def can_view(self, user_request, *_args, **_kwargs):
-        """ Check that the user has the right to view the ticket comment
-        or that it is the author"""
+        """Check that the user has the right to view the ticket comment
+        or that it is the author."""
         if (
             not user_request.has_perm("tickets.view_commentticket")
             and self.parent_ticket.user != user_request
@@ -195,8 +225,8 @@ class CommentTicket(AclMixin, models.Model):
             return True, None, None
 
     def can_edit(self, user_request, *_args, **_kwargs):
-        """ Check that the user has the right to edit the ticket comment
-        or that it is the author"""
+        """Check that the user has the right to edit the ticket comment
+        or that it is the author."""
         if (
             not user_request.has_perm("tickets.change_commentticket")
             and (self.parent_ticket.user != user_request or self.parent_ticket.user != self.created_by)
@@ -211,7 +241,7 @@ class CommentTicket(AclMixin, models.Model):
 
     @staticmethod
     def can_view_all(user_request, *_args, **_kwargs):
-        """ Check that the user has access to the list of all tickets comments"""
+        """Check that the user has access to the list of all tickets comments."""
         can = user_request.has_perm("tickets.view_commentticket")
         return (
             can,
@@ -225,7 +255,9 @@ class CommentTicket(AclMixin, models.Model):
         return "Comment " + str(self.comment_id) + " on " + str(self.parent_ticket)
 
     def publish_mail(self):
-        """Send mail to user and admin after new comment"""
+        """Send an email for a newly written comment to the ticket's author and
+        to the address set in the preferences.
+        """
         site_url = GeneralOption.get_cached_value("main_site_url")
         to_addr = TicketOption.get_cached_value("publish_address")
         context = {"comment": self, "site_url": site_url}
@@ -246,7 +278,7 @@ class CommentTicket(AclMixin, models.Model):
 
 @receiver(post_save, sender=Ticket)
 def ticket_post_save(**kwargs):
-    """ Send the mail to publish the new ticket """
+    """Call the method to publish an email when a ticket is created."""
     if kwargs["created"]:
         if TicketOption.get_cached_value("publish_address"):
             ticket = kwargs["instance"]
@@ -255,7 +287,7 @@ def ticket_post_save(**kwargs):
 
 @receiver(post_save, sender=CommentTicket)
 def comment_post_save(**kwargs):
-    """ Send the mail to publish the new comment """
+    """Call the method to publish an email when a comment is created."""
     if kwargs["created"]:
         if TicketOption.get_cached_value("publish_address"):
             comment = kwargs["instance"]

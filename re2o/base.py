@@ -21,9 +21,7 @@
 
 # -*- coding: utf-8 -*-
 """
-Regroupe les fonctions transversales utiles
-
-Et non corrélées/dépendantes des autres applications
+Global independant usefull functions
 """
 
 import smtplib
