@@ -47,3 +47,6 @@ settings_local.py
 local_routers.py
 re2o.png
 media/
+
+# documentation
+docs_utils/source/autodoc/*
