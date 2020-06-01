@@ -1,8 +1,8 @@
 ---
 image: debian:buster
 stages:
-  - deploy_doc
   - lint
+  - deploy_doc
 
 lint:
   stage: lint
@@ -32,5 +32,8 @@ pages:
   artifacts:
     paths:
       - public
+  only:
+    - dev
+
 
 
