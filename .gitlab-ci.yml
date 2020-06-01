@@ -23,6 +23,7 @@ pages:
     - cat apt_requirements.txt | grep python3 | xargs apt-get -qq install -y
     - python3 -m pip install -U -r pip_requirements.txt
     - python3 -m pip install -U sphinx
+    - cp re2o/settings_local.example.py re2o/settings_local.py
     - sphinx-apidoc -o re2o/docs_utils/source/autodoc/ -f . ./*/migrations/*
     - sphinx-build -b html docs_utils/source/ public
   artifacts:
