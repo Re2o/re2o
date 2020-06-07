@@ -36,7 +36,11 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 from __future__ import unicode_literals
 
 import os
-from .settings_local import *
+from .settings_default import *
+try:
+    from settings_local import *
+except ImportError:
+    pass
 from django.utils.translation import ugettext_lazy as _
 
 # The root directory for the project
