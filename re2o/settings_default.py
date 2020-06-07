@@ -48,15 +48,6 @@ SESSION_COOKIE_AGE = 60 * 60 * 3
 # The path where your organization logo is stored
 LOGO_PATH = "static_files/logo.png"
 
-# Settings of the LDAP structure
-LDAP = {
-    "base_user_dn": "cn=Utilisateurs,dc=example,dc=net",
-    "base_userservice_dn": "ou=service-users,dc=example,dc=net",
-    "base_usergroup_dn": "ou=posix,ou=groups,dc=example,dc=net",
-    "base_userservicegroup_dn": "ou=services,ou=groups,dc=example,dc=net",
-    "user_gid": 500,
-}
-
 # A range of UID to use. Used in linux environement
 UID_RANGES = {"users": [21001, 30000], "service-users": [20000, 21000]}
 
