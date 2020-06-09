@@ -353,6 +353,9 @@ class MachineType(RevMixin, AclMixin, models.Model):
         """Get all interfaces of the current machine type (self)."""
         return Interface.objects.filter(machine_type=self)
 
+    def update_domains(self):
+        Domain.objects.filter(interface_parent__machine_type=self).update(extension=self.ip_type.extension)
+
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
         """Check if an user can use all machine types.
@@ -2479,7 +2482,7 @@ def machinetype_post_save(**kwargs):
     parent IP type).
     """
     machinetype = kwargs["instance"]
-    Domain.objects.filter(interface_parent__machine_type=machinetype).update(extension=machinetype.ip_type.extension)
+    machinetype.update_domains()
 
 
 @receiver(post_save, sender=Domain)
