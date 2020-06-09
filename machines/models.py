@@ -353,6 +353,12 @@ class MachineType(RevMixin, AclMixin, models.Model):
         """Get all interfaces of the current machine type (self)."""
         return Interface.objects.filter(machine_type=self)
 
+    def update_domains(self):
+        """Update domains extension with the extension of interface_parent. Called after update of an ip_type or a machine_type object. Exceptions are handled in the views.
+        (Calling domain.clear() for all domains could take several minutes)
+        """
+        Domain.objects.filter(interface_parent__machine_type=self).update(extension=self.ip_type.extension)
+
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
         """Check if an user can use all machine types.
@@ -593,6 +599,10 @@ class IpType(RevMixin, AclMixin, models.Model):
             return all_active_interfaces(full=True).filter(machine_type__ip_type=self)
         else:
             return None
+
+    def all_machine_types(self):
+        """Get all machine types associated with this ip type (self)."""
+        return MachineType.objects.filter(ip_type=self)
 
     def clean(self):
         """
@@ -1416,6 +1426,10 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                 interface.assign_ipv4()
                 interface.save()
                 reversion.set_comment("IPv4 assignment")
+
+    def all_domains(self):
+        """Get all domains associated with this interface (self)."""
+        return Domain.objects.filter(interface_parent=self)
 
     def update_type(self):
         """Reassign addresses when the IP type of the machine type changed."""
@@ -2430,7 +2444,8 @@ def machine_post_delete(**kwargs):
 
 @receiver(post_save, sender=Interface)
 def interface_post_save(**kwargs):
-    """Synchronise LDAP and regen firewall/DHCP after an interface is edited.
+    """Synchronise LDAP, regen firewall/DHCP after an interface is edited
+    and update associated domains
     """
     interface = kwargs["instance"]
     interface.sync_ipv6()
@@ -2439,6 +2454,10 @@ def interface_post_save(**kwargs):
     # Regen services
     regen("dhcp")
     regen("mac_ip_list")
+    # Update associated domains
+    for domain in interface.all_domains():
+        domain.clean()
+        domain.save()
 
 
 @receiver(post_delete, sender=Interface)
@@ -2456,6 +2475,8 @@ def iptype_post_save(**kwargs):
     iptype = kwargs["instance"]
     iptype.gen_ip_range()
     iptype.check_replace_prefixv6()
+    for machinetype in iptype.all_machine_types():
+        machinetype.save()
 
 
 @receiver(post_save, sender=MachineType)
@@ -2464,8 +2485,7 @@ def machinetype_post_save(**kwargs):
     parent IP type).
     """
     machinetype = kwargs["instance"]
-    for interface in machinetype.all_interfaces():
-        interface.update_type()
+    machinetype.update_domains()
 
 
 @receiver(post_save, sender=Domain)
