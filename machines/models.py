@@ -354,6 +354,9 @@ class MachineType(RevMixin, AclMixin, models.Model):
         return Interface.objects.filter(machine_type=self)
 
     def update_domains(self):
+        """Update domains extension with the extension of interface_parent. Called after update of an ip_type or a machine_type object. Exceptions are handled in the views.
+        (Calling domain.clear() for all domains could take several minutes)
+        """
         Domain.objects.filter(interface_parent__machine_type=self).update(extension=self.ip_type.extension)
 
     @staticmethod
