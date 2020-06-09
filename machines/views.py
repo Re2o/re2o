@@ -663,13 +663,17 @@ def del_extension(request, instances):
             try:
                 extension_del.delete()
                 messages.success(request, _("The extension was deleted."))
-            except ProtectedError:
+            except ProtectedError as e:
                 messages.error(
                     request,
                     (
                         _(
-                            "The extension %s is assigned to at least one machine"
-                            " type, you can't delete it." % extension_del
+                            "The extension %s is assigned to following %s : %s"
+                            ", you can't delete it."
+                        ) % (
+                            extension_del,
+                            str(e.protected_objects.model._meta.verbose_name_plural),
+                            ",".join(map(lambda x: str(x['name']), e.protected_objects.values('name').iterator()))
                         )
                     ),
                 )
