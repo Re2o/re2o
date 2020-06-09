@@ -1741,6 +1741,7 @@ class User(
                 and OptionalUser.get_cached_value("self_change_pseudo")
             )
             or user_request.has_perm("users.change_user_pseudo")
+            or not self.pk
         ):
             return (
                 False,
