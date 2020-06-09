@@ -2482,8 +2482,7 @@ def machinetype_post_save(**kwargs):
     parent IP type).
     """
     machinetype = kwargs["instance"]
-    for interface in machinetype.all_interfaces():
-        interface.update_type()
+    Domain.objects.filter(interface_parent__machine_type=machinetype).update(extension=machinetype.ip_type.extension)
 
 
 @receiver(post_save, sender=Domain)
