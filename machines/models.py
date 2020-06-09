@@ -353,9 +353,6 @@ class MachineType(RevMixin, AclMixin, models.Model):
         """Get all interfaces of the current machine type (self)."""
         return Interface.objects.filter(machine_type=self)
 
-    def save(self, *args, **kwargs):
-        super(MachineType, self).save(*args, **kwargs)
-
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
         """Check if an user can use all machine types.
