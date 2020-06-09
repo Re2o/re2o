@@ -35,6 +35,7 @@ from __future__ import unicode_literals
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError, F
+from django.db import IntegrityError
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -506,8 +507,11 @@ def edit_iptype(request, iptype_instance, **_kwargs):
     iptype = EditIpTypeForm(request.POST or None, instance=iptype_instance)
     if iptype.is_valid():
         if iptype.changed_data:
-            iptype.save()
-            messages.success(request, _("The IP type was edited."))
+            try:
+                iptype.save()
+                messages.success(request, _("The IP type was edited."))
+            except IntegrityError as e:
+                messages.success(request, _("This IP type change would create duplicated domains"))
         return redirect(reverse("machines:index-iptype"))
     return form(
         {"iptypeform": iptype, "action_name": _("Edit")},
@@ -572,8 +576,11 @@ def edit_machinetype(request, machinetype_instance, **_kwargs):
     machinetype = MachineTypeForm(request.POST or None, instance=machinetype_instance)
     if machinetype.is_valid():
         if machinetype.changed_data:
-            machinetype.save()
-            messages.success(request, _("The machine type was edited."))
+            try:
+                machinetype.save()
+                messages.success(request, _("The machine type was edited."))
+            except IntegrityError as e:
+                messages.error(request, _("This machine type change would create duplicated domains"))
         return redirect(reverse("machines:index-machinetype"))
     return form(
         {"machinetypeform": machinetype, "action_name": _("Edit")},
