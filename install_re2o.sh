@@ -137,6 +137,7 @@ install_database() {
     #     * db_name: The name of the database itself
     #     * username: The username to access the database
     #     * password: The password of the user to access the database
+    #     * local_hostname: The hostname of local machine
     ###
 
     echo "Setting up the database ..."
@@ -146,6 +147,7 @@ install_database() {
     db_name="$3"
     username="$4"
     password="$5"
+    local_hostname="$6"
 
     if [ "$engine_type" == 1 ]; then
 
@@ -154,8 +156,8 @@ install_database() {
         echo "Installing MySQL client: Done"
 
         mysql_command="CREATE DATABASE $db_name collate='utf8_general_ci';
-            CREATE USER '$username'@'localhost' IDENTIFIED BY '$password';
-            GRANT ALL PRIVILEGES ON $db_name.* TO '$username'@'localhost';
+            CREATE USER '$username'@'$local_hostname' IDENTIFIED BY '$password';
+            GRANT ALL PRIVILEGES ON $db_name.* TO '$username'@'$local_hostname';
             FLUSH PRIVILEGES;SET GLOBAL SQL_MODE=ANSI_QUOTES;"
 
         if [ "$local_setup" == 1 ]; then
@@ -552,12 +554,24 @@ interactive_guide() {
         sql_login="$(dialog --clear --backtitle "$BACKTITLE" \
             --title "$TITLE" --inputbox "$INPUTBOX" \
             $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+
+        # Prompt to enter the local hostname, used to know from where allow connection (if mysql)
+        if [ $sql_bdd_type == 1 ]; then
+            TITLE="Local hostname"
+            INPUTBOX="The hostname of SQL client (this machine)"
+            local_hostname="$(dialog --clear --backtitle "$BACKTITLE" \
+                --title "$TITLE" --inputbox "$INPUTBOX" \
+                $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+        else
+            local_hostname="localhost"
+        fi
         clear
     else
         # Use of default values for local setup
         sql_name="re2o"
         sql_login="re2o"
         sql_host="localhost"
+        local_hostname="localhost"
     fi
 
     # Prompt to enter the database password
@@ -729,7 +743,7 @@ interactive_guide() {
 
     install_requirements
 
-    install_database "$sql_bdd_type" "$sql_is_local" "$sql_name" "$sql_login" "$sql_password"
+    install_database "$sql_bdd_type" "$sql_is_local" "$sql_name" "$sql_login" "$sql_password" "$local_hostname"
 
     install_ldap "$ldap_is_local" "$ldap_password" "$ldap_dn"
 
@@ -850,11 +864,23 @@ interactive_radius_guide() {
             --title "$TITLE" --inputbox "$INPUTBOX" \
             $HEIGHT $WIDTH 2>&1 >/dev/tty)"
         clear
+
+        # Prompt to enter the local hostname, used to know from where allow connection (if mysql)
+        if [ $sql_bdd_type == 1 ]; then
+            TITLE="Local hostname"
+            INPUTBOX="The hostname of SQL client (this machine)"
+            local_hostname="$(dialog --clear --backtitle "$BACKTITLE" \
+                --title "$TITLE" --inputbox "$INPUTBOX" \
+                $HEIGHT $WIDTH 2>&1 >/dev/tty)"
+        else
+            local_hostname="localhost"
+        fi
     else
         # Use of default values for local setup
         sql_name="re2o"
         sql_login="re2o"
         sql_host="localhost"
+        local_hostname="localhost"
     fi
 
     # Prompt to enter the database password
@@ -993,7 +1019,7 @@ interactive_radius_guide() {
 
     configure_radius
 
-    install_database "$sql_bdd_type" "$sql_is_local" "$sql_name" "$sql_login" "$sql_password"
+    install_database "$sql_bdd_type" "$sql_is_local" "$sql_name" "$sql_login" "$sql_password" "$local_hostname"
 
     install_ldap "$ldap_is_local" "$ldap_password" "$ldap_dn"
 
