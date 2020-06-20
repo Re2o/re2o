@@ -150,7 +150,6 @@ class AssoOptionSerializer(NamespacedHMSerializer):
             "adresse2",
             "contact",
             "telephone",
-            "profile_image",
             "pseudo",
             "utilisateur_asso",
             "description",
