@@ -1365,11 +1365,11 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         DHCPv6).
         """
         if preferences.models.OptionalMachine.get_cached_value("ipv6_mode") == "SLAAC":
-            return self.ipv6list.all()
+            return self.ipv6list.filter(active=True)
         elif (
             preferences.models.OptionalMachine.get_cached_value("ipv6_mode") == "DHCPV6"
         ):
-            return self.ipv6list.filter(slaac_ip=False)
+            return self.ipv6list.filter(active=True).filter(slaac_ip=False)
         else:
             return []
 
