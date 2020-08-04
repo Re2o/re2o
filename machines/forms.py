@@ -308,7 +308,7 @@ class Ipv6ListForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
     class Meta:
         model = Ipv6List
-        fields = ["ipv6", "slaac_ip"]
+        fields = ["ipv6", "slaac_ip", "active"]
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
