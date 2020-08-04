@@ -377,7 +377,7 @@ class Switch(Machine):
         def return_ips_dict(interfaces):
             return {
                 "ipv4": [str(interface.ipv4) for interface in interfaces],
-                "ipv6": Ipv6List.objects.filter(interface__in=interfaces).values_list(
+                "ipv6": Ipv6List.objects.filter(interface__in=interfaces).filter(active=True).values_list(
                     "ipv6", flat=True
                 ),
             }
