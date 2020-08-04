@@ -1645,6 +1645,7 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         ipv6: the IPv6 address of the list.
         interface: the interface related to the list.
         slaac_ip: whether SLAAC mode is enabled.
+        active: whether the ip is to be used.
     """
 
     ipv6 = models.GenericIPAddressField(protocol="IPv6")
@@ -1652,6 +1653,10 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         "Interface", on_delete=models.CASCADE, related_name="ipv6list"
     )
     slaac_ip = models.BooleanField(default=False)
+    active = models.BooleanField(
+        default=True,
+        help_text=_("If false,the DNS will not provide this ip.")
+    )
 
     class Meta:
         permissions = (
