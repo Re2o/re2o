@@ -206,7 +206,7 @@ class Ipv6ListSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = machines.Ipv6List
-        fields = ("ipv6", "interface", "slaac_ip", "api_url")
+        fields = ("ipv6", "interface", "slaac_ip", "active", "api_url")
 
 
 class DomainSerializer(NamespacedHMSerializer):
