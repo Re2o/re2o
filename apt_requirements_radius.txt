@@ -5,6 +5,7 @@ texlive-fonts-recommended
 python3-djangorestframework
 python3-django-reversion
 python3-pip
+python3-pil
 libsasl2-dev libldap2-dev
 libssl-dev
 python3-crypto
