@@ -272,6 +272,7 @@ class CommentTicket(AclMixin, models.Model):
             template.render(context),
             GeneralOption.get_cached_value("email_from"),
             [to_addr, self.parent_ticket.get_mail],
+            reply_to=[to_addr, self.parent_ticket.get_mail],
         )
         send_mail_object(mail_to_send, self.request)
 
