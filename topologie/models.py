@@ -366,6 +366,11 @@ class Switch(Machine):
 
     @cached_property
     def get_radius_servers_objects(self):
+        """Return radius servers objects for Switchs provisioning, via REST API.
+        
+        Returns :
+            Interfaces objects query_set for the Role type radius-server
+        """
         return Role.all_interfaces_for_roletype("radius-server").filter(
             machine_type__in=MachineType.objects.filter(
                 interface__in=self.interface_set.all()
@@ -374,6 +379,12 @@ class Switch(Machine):
 
     @cached_property
     def get_radius_servers(self):
+        """Return radius servers string, ipv4 and ipv6 for Switchs provisioning,
+        via REST API.
+        
+        Returns :
+            Ip dict of interfaces for the Role type radius-server
+        """
         def return_ips_dict(interfaces):
             return {
                 "ipv4": [str(interface.ipv4) for interface in interfaces],
