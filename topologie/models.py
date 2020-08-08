@@ -859,14 +859,14 @@ class Port(AclMixin, RevMixin, models.Model):
             return Switch.nothing_profile()
 
     @classmethod
-    def get_instance(cls, portid, *_args, **kwargs):
+    def get_instance(cls, port_id, *_args, **kwargs):
         return (
             cls.objects.select_related("machine_interface__domain__extension")
             .select_related("machine_interface__machine__switch")
             .select_related("room")
             .select_related("related")
             .prefetch_related("switch__interface_set__domain__extension")
-            .get(pk=portid)
+            .get(pk=port_id)
         )
 
     def make_port_related(self):
