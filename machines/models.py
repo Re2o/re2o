@@ -1830,11 +1830,12 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                         " with the machine."
                     )
                 )
+        self.validate_unique()
         super(Ipv6List, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         """Force the call to clean before saving."""
-        self.full_clean()
+        self.clean()
         super(Ipv6List, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -1937,7 +1938,7 @@ class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         """
         if not self.get_extension():
             raise ValidationError(_("Invalid extension."))
-        self.full_clean()
+        self.clean()
         super(Domain, self).save(*args, **kwargs)
 
     @cached_property
