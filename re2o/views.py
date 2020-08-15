@@ -115,13 +115,18 @@ def about_page(request):
 
     dependencies = settings.INSTALLED_APPS + settings.MIDDLEWARE_CLASSES
 
+    try:
+        president = Mandate.get_mandate().president.get_full_name()
+    except:
+        president = _("Unable to get the information.")
+
     return render(
         request,
         "re2o/about.html",
         {
             "option": option,
             "gtu": general.GTU,
-            "president": Mandate.get_mandate().president.get_full_name(),
+            "president": president,
             "git_info_contributors": git_info_contributors,
             "git_info_remote": git_info_remote,
             "git_info_branch": git_info_branch,
