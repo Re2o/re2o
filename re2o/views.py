@@ -117,7 +117,7 @@ def about_page(request):
 
     try:
         president = Mandate.get_mandate().president.get_full_name()
-    except:
+    except Mandate.DoesNotExist:
         president = _("Unable to get the information.")
 
     return render(
