@@ -43,8 +43,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h4>{% trans "Publication manager" %}</h4>
     <p>{{ president }} - {% trans "President of " %} {{ option.pseudo }}</p>
 
+    {% if gtu %}
     <h4>{% trans "General Terms of Use" %}</h4>
     <p><a href='{{ gtu.url }}' download='CGU'>{{ gtu }}</a></p>
+    {% endif %}
 
     {% if option.description %}
     <h4>{% trans "Additional information" %}</h4>
