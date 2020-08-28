@@ -269,8 +269,6 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         """
         user = super(PassForm, self).save(commit=False)
         user.set_password(self.cleaned_data.get("passwd1"))
-        user.state = User.STATE_NOT_YET_ACTIVE
-        user.set_active()
         user.save()
 
 
