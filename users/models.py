@@ -2190,7 +2190,7 @@ def user_post_save(**kwargs):
 
     if is_created:
         user.notif_inscription(user.request)
-
+        user.set_active()
     user.state_sync()
     user.ldap_sync(
         base=True, access_refresh=True, mac_refresh=False, group_refresh=True
