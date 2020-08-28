@@ -56,7 +56,7 @@ def _create_api_permission():
 _create_api_permission()
 
 
-def can_view(user):
+def can_view(user, *args, **kwargs):
     """Check if an user can view the application.
 
     Args:
