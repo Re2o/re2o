@@ -98,7 +98,13 @@ from re2o.utils import (
     all_active_interfaces_count,
 )
 from re2o.base import re2o_paginator, SortTable
-from re2o.acl import can_view_all, can_view_app, can_edit_history, can_view
+from re2o.acl import (
+    can_view_all,
+    can_view_app,
+    can_edit_history,
+    can_view,
+    acl_error_message,
+)
 
 from .models import (
     ActionsSearch,
@@ -108,6 +114,8 @@ from .models import (
 )
 
 from .forms import ActionsSearchForm, MachineHistorySearchForm
+
+from .acl import can_view as can_view_logs
 
 
 @login_required
@@ -536,12 +544,11 @@ def get_history_object(request, model, object_name, object_id):
         instance = None
 
     if instance is None:
-        # TODO : THIS IS A DECORATOR, YOU CANNOT USE IT LIKE THIS. AS IT, IT
-        # WILL ALLOW ANYONE TO SEE THE HISTORY OF A DELETED OBJECT.
-        authorized = can_view_app("logs")
-        msg = None
+        authorized, msg, permissions = can_view_logs(request.user)
     else:
-        authorized, msg, _permissions = instance.can_view(request.user)
+        authorized, msg, permissions = instance.can_view(request.user)
+
+    msg = acl_error_message(msg, permissions)
 
     if not authorized:
         messages.error(
