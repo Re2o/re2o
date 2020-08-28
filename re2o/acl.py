@@ -57,6 +57,9 @@ def acl_error_message(msg, permissions):
         )
 
 
+# This is the function of main interest of this file. Almost all the decorators
+# use it, and it is a fairly complicated piece of code. Let me guide you through
+# this ! 🌈😸
 def acl_base_decorator(method_name, *targets, on_instance=True):
     """Base decorator for acl. It checks if the `request.user` has the
     permission by calling model.method_name. If the flag on_instance is True,
@@ -128,22 +131,43 @@ ModelC)
         where `*args` and `**kwargs` are the original view arguments.
     """
 
+    # First we define a utilitary functions. This is what parses the input of
+    #  the decorator. It will group a target (i.e. a model class) with a list
+    # of associated fields (possibly empty).
+
     def group_targets():
         """This generator parses the targets of the decorator, yielding
         2-tuples of (model, [fields]).
         """
         current_target = None
         current_fields = []
+        # We iterate over all the possible target passed in argument of the
+        # decorator. Let's call the `target` variable a target candidate.
+        # We basically want to discriminate the valid targets over the field
+        # names.
         for target in targets:
+            # We enter this conditional block if the current target is not
+            # a string, i.e. if it is not a field name, i.e. it is a model
+            # name.
             if not isinstance(target, str):
+                # if the current target is defined, this means we already
+                # encountered a valid target and we have been storing field
+                # names ever since. This group is ready and we can `yield` it.
                 if current_target:
                     yield (current_target, current_fields)
+                # Then we define the current target and reset its fields.
                 current_target = target
                 current_fields = []
             else:
+                # When we encounter a string, this is not valid target and is
+                # thus a field name. We store it for later.
                 current_fields.append(target)
+        # We need to yield the last pair of target and fields.
         yield (current_target, current_fields)
 
+    # Now to the main topic ! if you are not sure why we need to use a function
+    # `wrapper` inside the `decorator` function, you need to read some
+    #  documentation on decorators !
     def decorator(view):
         """The decorator to use on a specific view
         """
@@ -158,43 +182,74 @@ ModelC)
                 stores the instances of models in order to avoid duplicate DB
                 calls for the view.
                 """
+                # When working on instances, retrieve the associated instance
+                # and store it to pass it to the view.
                 if on_instance:
                     try:
                         target = target.get_instance(target_id, *args, **kwargs)
                         instances.append(target)
                     except target.DoesNotExist:
+                        # A non existing instance is a valid reason to deny
+                        # access to the view.
                         yield False, _("Nonexistent entry."), []
                         return
+                # Now we can actually make the ACL test, using the right ACL
+                # method.
                 if hasattr(target, method_name):
                     can_fct = getattr(target, method_name)
                     yield can_fct(request.user, *args, **kwargs)
+
+                # If working on fields, iterate through the concerned ones
+                # and check that the user can change this field. (this is
+                # the only available ACL for fields)
                 for field in fields:
                     can_change_fct = getattr(target, "can_change_" + field)
                     yield can_change_fct(request.user, *args, **kwargs)
 
+            # Now to the main loop. We are going iterate through the targets
+            # pairs (remember the `group_targets` function) and the keyword
+            # arguments of the view to retrieve the associated model instances
+            # and check that the user making the request is authorized to do it
+            # as well as storing the the associated error and warning messages.
             error_messages = []
             warning_messages = []
-            for arg_key, (target, fields) in zip(kwargs.keys(), group_targets()):
+
+            if on_instance:
+                iterator = zip(kwargs.keys(), group_targets())
+            else:
+                iterator = group_targets()
+
+            for it in iterator:
+                # If the decorator must work on instances, retrieve the
+                # associated instance.
                 if on_instance:
+                    arg_key, (target, fields) = it
                     target_id = int(kwargs[arg_key])
                 else:
+                    target, fields = it
                     target_id = None
+
+                # Store the messages at the right place.
                 for can, msg, permissions in process_target(target, fields, target_id):
                     if not can:
                         error_messages.append(acl_error_message(msg, permissions))
                     elif msg:
                         warning_messages.append(acl_error_message(msg, permissions))
 
+            # Display the warning messages
             if warning_messages:
                 for msg in warning_messages:
                     messages.warning(request, msg)
 
+            # If there is any error message, then the request must be denied.
             if error_messages:
+                # We display the message
                 for msg in error_messages:
                     messages.error(
                         request,
                         msg or _("You don't have the right to access this menu."),
                     )
+                # And redirect the user to the right place.
                 if request.user.id is not None:
                     return redirect(
                         reverse("users:profil", kwargs={"userid": str(request.user.id)})

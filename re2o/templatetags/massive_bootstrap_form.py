@@ -31,6 +31,7 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.forms import TextInput
 from django.forms.widgets import Select
+from django.utils.translation import ugettext_lazy as _
 from bootstrap3.utils import render_tag
 from bootstrap3.forms import render_field
 
@@ -244,6 +245,7 @@ class MBFForm:
                     self.html += mbf_field.render()
 
                 else:
+                    f = field.get_bound_field(self.form, name), self.args, self.kwargs
                     self.html += render_field(
                         field.get_bound_field(self.form, name),
                         *self.args,
@@ -406,7 +408,10 @@ class MBFField:
             self.html += render_field(self.bound, *self.args, **self.kwargs)
 
         self.field.widget = TextInput(
-            attrs={"name": "mbf_" + self.name, "placeholder": self.field.empty_label}
+            attrs={
+                "name": "mbf_" + self.name,
+                "placeholder": getattr(self.field, "empty_label", _("Nothing")),
+            }
         )
         self.replace_input = render_field(self.bound, *self.args, **self.kwargs)
 
