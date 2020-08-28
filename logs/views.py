@@ -536,6 +536,8 @@ def get_history_object(request, model, object_name, object_id):
         instance = None
 
     if instance is None:
+        # TODO : THIS IS A DECORATOR, YOU CANNOT USE IT LIKE THIS. AS IT, IT
+        # WILL ALLOW ANYONE TO SEE THE HISTORY OF A DELETED OBJECT.
         authorized = can_view_app("logs")
         msg = None
     else:
@@ -581,7 +583,7 @@ def history(request, application, object_name, object_id):
         raise Http404(_("No model found."))
 
     authorized, instance = get_history_object(request, model, object_name, object_id)
-    if not can_view:
+    if not authorized:
         return instance
 
     history = get_history_class(model)
