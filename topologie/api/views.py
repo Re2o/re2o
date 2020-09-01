@@ -114,6 +114,13 @@ class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = topologie.Room.objects.all()
     serializer_class = serializers.RoomSerializer
 
+class DormitoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """Exposes list and details of `topologie.models.Dormitory`
+       objects.
+    """
+
+    queryset = topologie.Dormitory.objects.all()
+    serializer_class = serializers.DormitorySerializer
 
 class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `topologie.models.PortProfile` objects.

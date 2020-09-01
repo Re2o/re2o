@@ -30,6 +30,7 @@ urls_viewset = [
     (r"topologie/constructorswitch", views.ConstructorSwitchViewSet, None),
     (r"topologie/switchbay", views.SwitchBayViewSet, None),
     (r"topologie/building", views.BuildingViewSet, None),
+    (r"topologie/dormitory", views.DormitoryViewSet, None),
     (r"topologie/switchport", views.SwitchPortViewSet, "switchport"),
     (r"topologie/portprofile", views.PortProfileViewSet, "portprofile"),
     (r"topologie/room", views.RoomViewSet, None)
