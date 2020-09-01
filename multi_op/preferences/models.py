@@ -28,7 +28,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-class Preferences(models.Model):
+class MultiopOption(models.Model):
     """Definition of the settings of multi_op."""
 
     enabled_dorm = models.ManyToManyField(

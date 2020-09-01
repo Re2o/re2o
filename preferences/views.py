@@ -128,6 +128,8 @@ def edit_options_template_function(request, section, forms, models):
 )
 def display_options(request):
     """View used to display preferences sorted by model."""
+
+    # The mandatory options are loaded manually
     useroptions, _created = OptionalUser.objects.get_or_create()
     machineoptions, _created = OptionalMachine.objects.get_or_create()
     topologieoptions, _created = OptionalTopologie.objects.get_or_create()
@@ -146,6 +148,7 @@ def display_options(request):
     cotisationsoptions, _created = CotisationsOption.objects.get_or_create()
     document_template_list = DocumentTemplate.objects.order_by("name")
 
+    # Then all the optionnal options (from optionnal apps) are loaded if they exists
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
     optionnal_templates_list = [
         app.preferences.views.aff_preferences(request)
