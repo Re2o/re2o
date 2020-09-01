@@ -119,7 +119,7 @@ class DormitoryViewSet(viewsets.ReadOnlyModelViewSet):
        objects.
     """
 
-    queryset = topologie.Room.objects.all()
+    queryset = topologie.Dormitory.objects.all()
     serializer_class = serializers.DormitorySerializer
 
 class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
