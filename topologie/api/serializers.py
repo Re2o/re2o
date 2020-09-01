@@ -176,7 +176,7 @@ class RoomSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = topologie.Room
-        fields = ("name", "details", "api_url")
+        fields = ("name", "building", "details", "api_url")
 
 
 class PortProfileSerializer(NamespacedHMSerializer):
