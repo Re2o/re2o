@@ -115,8 +115,14 @@ class BuildingSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = topologie.Building
-        fields = ("name", "api_url")
+        fields = ("name", "dormitory", "api_url")
 
+class DormitorySerializer(NamespaceHMSerializer):
+    """Serialize `topologie.models.Dormitory` objects
+    """
+    class Meta:
+        model = topologie.Dormitory
+        fields = ("name", "api_url")
 
 class SwitchPortSerializer(NamespacedHMSerializer):
     """Serialize `topologie.models.Port` objects
@@ -176,7 +182,7 @@ class RoomSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = topologie.Room
-        fields = ("name", "details", "api_url")
+        fields = ("name", "building", "details", "api_url")
 
 
 class PortProfileSerializer(NamespacedHMSerializer):
