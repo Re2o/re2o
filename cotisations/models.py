@@ -778,7 +778,7 @@ class Article(RevMixin, AclMixin, models.Model):
 
         Args:
             user: The user requesting articles.
-            target_user: The user to sell articles
+            target_user: The user to sell articles to
         """
         if target_user is None:
             objects_pool = cls.objects.all()
@@ -790,7 +790,9 @@ class Article(RevMixin, AclMixin, models.Model):
             )
         if target_user is not None and not target_user.is_adherent():
             objects_pool = objects_pool.filter(
-                Q(type_cotisation="All") | Q(type_cotisation="Adhesion")
+                Q(type_cotisation="All")
+                | Q(type_cotisation="Adhesion")
+                | Q(type_cotisation__isnull=True)
             )
         if user.has_perm("cotisations.buy_every_article"):
             return objects_pool
