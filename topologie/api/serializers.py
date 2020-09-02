@@ -299,31 +299,3 @@ class PortsSerializer(NamespacedHMSerializer):
     class Meta:
         model = topologie.Port
         fields = ("state", "port", "pretty_name", "get_port_profile")
-
-
-class SwitchPortSerializer(serializers.ModelSerializer):
-    """Serialize the data about the switches"""
-
-    ports = PortsSerializer(many=True, read_only=True)
-    model = ModelSwitchSerializer(read_only=True)
-    switchbay = SwitchBaySerializer(read_only=True)
-
-    class Meta:
-        model = topologie.Switch
-        fields = (
-            "short_name",
-            "model",
-            "switchbay",
-            "ports",
-            "ipv4",
-            "ipv6",
-            "interfaces_subnet",
-            "interfaces6_subnet",
-            "automatic_provision",
-            "rest_enabled",
-            "web_management_enabled",
-            "get_radius_key_value",
-            "get_management_cred_value",
-            "get_radius_servers",
-            "list_modules",
-        )
