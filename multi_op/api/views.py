@@ -34,6 +34,6 @@ class PendingConnectionViewSet(viewsets.ReadOnlyModelViewSet):
         topologie.Room.objects.select_related("building__dormitory")
         .filter(port__isnull=True)
         .filter(adherent__in=all_has_access())
-        .order_by("building_dormitory", "port")
+        .order_by("building__dormitory", "port")
     )
     serializer_class = serializers.RoomSerializer
