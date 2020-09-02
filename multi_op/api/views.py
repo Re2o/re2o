@@ -25,7 +25,7 @@ from re2o.utils import all_has_access
 from . import serializers
 import topologie.models as topologie
 
-class PendinfConnectionViewSet(viewsets.ReadOnlyModelViewSet):
+class PendingConnectionViewSet(viewsets.ReadOnlyModelViewSet):
     """Expose list and detail of `topologie.models.Room` object
        waiting to be connected.
     """

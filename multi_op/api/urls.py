@@ -22,5 +22,5 @@
 from . import views
 
 urls_viewset = [
-    (r"multi_op/pending-connection", PendinfConnectionViewSet, None)
+    (r"multi_op/pending-connection", views.PendingConnectionViewSet, None)
 ]
