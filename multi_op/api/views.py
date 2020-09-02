@@ -21,6 +21,7 @@
 
 from rest_framework import viewsets
 
+from re2o.utils import all_has_access
 from . import serializers
 import topologie.models as topologie
 
