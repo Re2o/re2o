@@ -45,11 +45,9 @@ from preferences.models import GeneralOption, AssoOption
 
 from .forms import DormitoryForm
 
-from .preferences.models import Preferences
+from .preferences.models import MultiopOption
 
 from topologie.models import Room, Dormitory
-
-from .preferences.forms import EditPreferencesForm
 
 
 def display_rooms_connection(request, dormitory=None):
@@ -60,9 +58,9 @@ def display_rooms_connection(request, dormitory=None):
         dormitory: Dormitory, the dormitory used to filter rooms. If no
             dormitory is given, all rooms are displayed (default: None).
     """
-    room_list = Room.objects.select_related("building__dormitory").order_by(
-        "building_dormitory", "port"
-    )
+    room_list = Room.objects.select_related("building__dormitory").filter(
+        building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all()
+    ).order_by("building_dormitory", "port")
     if dormitory:
         room_list = room_list.filter(building__dormitory=dormitory)
     room_list = SortTable.sort(
@@ -115,6 +113,7 @@ def aff_pending_connection(request):
         Room.objects.select_related("building__dormitory")
         .filter(port__isnull=True)
         .filter(adherent__in=all_has_access())
+        .filter(building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all())
         .order_by("building_dormitory", "port")
     )
     dormitory_form = DormitoryForm(request.POST or None)
@@ -152,6 +151,7 @@ def aff_pending_disconnection(request):
         Room.objects.select_related("building__dormitory")
         .filter(port__isnull=False)
         .exclude(Q(adherent__in=all_has_access()) | Q(adherent__in=all_adherent()))
+        .filter(building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all())
         .order_by("building_dormitory", "port")
     )
     dormitory_form = DormitoryForm(request.POST or None)

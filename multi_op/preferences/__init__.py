@@ -3,10 +3,8 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Goulven Kermarec
-# Copyright © 2017  Augustin Lemesle
-# Copyright © 2017  Maël Kervella
+# Copyright © 2020  Gabriel Détraz
+# Copyright © 2019 Arthur Grisel-Davy 
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,30 +19,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""multi_op
+The app in charge of managing the operator of the dormitories
 """
-Select a dorm
-"""
-
-
-from django import forms
-from django.forms import ModelForm, Form
-from re2o.field_permissions import FieldPermissionFormMixin
-from re2o.mixins import FormRevMixin
-from django.utils.translation import ugettext_lazy as _
-
-from topologie.models import Dormitory
-
-from .preferences.models import MultiopOption
-
-class DormitoryForm(FormRevMixin, Form):
-    """Form used to select dormitories."""
-
-    dormitory = forms.ModelMultipleChoiceField(
-        queryset=MultiopOption.get_cached_value("enabled_dorm").all(),
-        label=_("Dormitory"),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-    )
-
-    def __init__(self, *args, **kwargs):
-        super(DormitoryForm, self).__init__(*args, **kwargs)

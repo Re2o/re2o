@@ -1,0 +1,27 @@
+{% load design %}
+{% load i18n %}
+
+<div  class="panel panel-default" id="multiop">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_multiop">
+        <h4 class="panel-title">
+            <a><i class="fa fa-plug"></i>   {% trans "Multi Op" %}</a>
+        </h4>
+    </div>
+
+    <div id="collapse_multiop" class="panel-collapse panel-body collapse">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'multi_op:edit-options' 'MultiopOption' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
+	<p></p>
+      
+        <div class="table-responsive">
+        <table class="table">
+	<tr>
+            <th><p>{% trans "Enabled Dorm" %}</p></th>
+            <td><p>{{ preferences.enabled_dorm.all|join:", " }}</p></td>
+	</tr>
+	</table>
+	</div>
+    </div>
+</div>
