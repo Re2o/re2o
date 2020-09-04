@@ -38,7 +38,7 @@ urlpatterns = [
         name="aff-state-dormitory",
     ),
     url(
-        r"^edit_options/(?P<section>MultiopOption)$",
+        r"^edit_options/(?P<section>Preferences)$",
         edit_options,
         name="edit-options",
     ),

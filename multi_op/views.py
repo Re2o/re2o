@@ -45,7 +45,7 @@ from preferences.models import GeneralOption, AssoOption
 
 from .forms import DormitoryForm
 
-from .preferences.models import MultiopOption
+from .preferences.models import Preferences
 
 from topologie.models import Room, Dormitory
 
