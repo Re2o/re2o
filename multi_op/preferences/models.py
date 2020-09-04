@@ -27,13 +27,15 @@ with multiple operators.
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from re2o.mixins import AclMixin, RevMixin
+from preferences.models import PreferencesModel
 
-class Preferences(models.Model):
+class MultiopOption(AclMixin, PreferencesModel):
     """Definition of the settings of multi_op."""
 
     enabled_dorm = models.ManyToManyField(
         "topologie.Dormitory",
-        related_name="vlan_tagged",
+        related_name="enabled_dorm_multiop",
         blank=True,
         verbose_name=_("enabled dorm"),
     )

@@ -8,23 +8,20 @@
         </h4>
     </div>
     
-	<div id="collapse_multiop" class="panel-collapse panel-body collapse">
-        {% comment %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'tickets:edit-options' 'TicketOption' %}">
+    <div id="collapse_multiop" class="panel-collapse panel-body collapse">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'multi_op:edit-options' 'MultiopOption' %}">
             <i class="fa fa-edit"></i>
             {% trans "Edit" %}
         </a>
-        <p></p>
-        {% endcomment %}
+	<p></p>
             
         <div class="table-responsive">
         <table class="table">
-			<tr>
-                <th><p>{% trans "Enabled Dorm" %}</p></th>
-			    <td><p>{{ preferences.enabled_dorm | tick}}</p></td>
-			</tr>
-  		<table class="table">
-  		</table>
+	<tr>
+            <th><p>{% trans "Enabled Dorm" %}</p></th>
+            <td><p>{{ preferences.enabled_dorm.all|join:", " }}</p></td>
+	</tr>
+	</table>
 	</div>
     </div>
 </div>
