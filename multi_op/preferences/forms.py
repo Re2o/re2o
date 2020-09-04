@@ -30,12 +30,12 @@ from django import forms
 from django.forms import ModelForm, Form
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Preferences
+from .models import MultiopOption
 
 
-class EditPreferencesForm(ModelForm):
+class EditMultiopOptionForm(ModelForm):
     """Form used to edit the settings of multi_op."""
 
     class Meta:
-        model = Preferences
+        model = MultiopOption
         fields = "__all__"

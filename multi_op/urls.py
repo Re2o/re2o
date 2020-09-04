@@ -28,6 +28,7 @@ each.
 from django.conf.urls import url
 
 from . import views
+from .preferences.views import edit_options
 
 urlpatterns = [
     url(r"^$", views.aff_state_global, name="aff-state-global"),
@@ -35,6 +36,11 @@ urlpatterns = [
         r"^(?P<dormitoryid>[0-9]+)$",
         views.aff_state_dormitory,
         name="aff-state-dormitory",
+    ),
+    url(
+        r"^edit_options/(?P<section>MultiopOption)$",
+        edit_options,
+        name="edit-options",
     ),
     url(
         r"^pending-connection$",

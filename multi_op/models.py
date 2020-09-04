@@ -3,7 +3,8 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2019  Gabriel Détraz
+# Copyright © 2019  Arthur Grisel-Davy
+# Copyright © 2020  Gabriel Détraz
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,27 +20,26 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-multi_op preferences model. The settings are used when managing dormitories
-with multiple operators.
+Multi_op model
 """
 
+from __future__ import absolute_import
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.template import loader
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.functional import cached_property
 
-from re2o.mixins import AclMixin, RevMixin
-from preferences.models import PreferencesModel
+from reversion.models import Version
 
+from re2o.mixins import AclMixin
+from re2o.mail_utils import send_mail_object
+from django.core.mail import EmailMessage
 
-class MultiopOption(AclMixin, PreferencesModel):
-    """Definition of the settings of multi_op."""
+from preferences.models import GeneralOption
 
-    enabled_dorm = models.ManyToManyField(
-        "topologie.Dormitory",
-        related_name="enabled_dorm_multiop",
-        blank=True,
-        verbose_name=_("enabled dorm"),
-    )
+import users.models
 
-    class Meta:
-        verbose_name = _("dormitories preferences")
+from .preferences.models import MultiopOption
