@@ -34,12 +34,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from topologie.models import Dormitory
 
+from .preferences.models import MultiopOption
 
 class DormitoryForm(FormRevMixin, Form):
     """Form used to select dormitories."""
 
     dormitory = forms.ModelMultipleChoiceField(
-        queryset=Dormitory.objects.all(),
+        queryset=MultiopOption.get_cached_value("enabled_dorm").all(),
         label=_("Dormitory"),
         widget=forms.CheckboxSelectMultiple,
         required=False,
