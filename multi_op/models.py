@@ -3,7 +3,8 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2019  Gabriel Détraz
+# Copyright © 2019  Arthur Grisel-Davy
+# Copyright © 2020  Gabriel Détraz
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,23 +20,26 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-The database models for the 'preference' app of re2o.
-
-For further details on each of those models, see the documentation details for
-each.
+Multi_op model
 """
 
+from __future__ import absolute_import
 
-from django import forms
-from django.forms import ModelForm, Form
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.template import loader
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.functional import cached_property
 
-from .models import Preferences
+from reversion.models import Version
 
+from re2o.mixins import AclMixin
+from re2o.mail_utils import send_mail_object
+from django.core.mail import EmailMessage
 
-class EditMultiopOptionForm(ModelForm):
-    """Form used to edit the settings of multi_op."""
+from preferences.models import GeneralOption
 
-    class Meta:
-        model = Preferences
-        fields = "__all__"
+import users.models
+
+from .preferences.models import MultiopOption

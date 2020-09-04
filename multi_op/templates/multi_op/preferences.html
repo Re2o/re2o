@@ -1,0 +1,30 @@
+{% load design %}
+{% load i18n %}
+
+<div  class="panel panel-default" id="multiop">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_multiop">
+        <h4 class="panel-title">
+            <a><i class="fa fa-plug"></i>   {% trans "Multi Op" %}</a>
+        </h4>
+    </div>
+    
+	<div id="collapse_multiop" class="panel-collapse panel-body collapse">
+        {% comment %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'tickets:edit-options' 'TicketOption' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
+        <p></p>
+        {% endcomment %}
+            
+        <div class="table-responsive">
+        <table class="table">
+			<tr>
+                <th><p>{% trans "Enabled Dorm" %}</p></th>
+			    <td><p>{{ preferences.enabled_dorm | tick}}</p></td>
+			</tr>
+  		<table class="table">
+  		</table>
+	</div>
+    </div>
+</div>

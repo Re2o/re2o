@@ -3,7 +3,8 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2019  Gabriel Détraz
+# Copyright © 2020  Gabriel Détraz
+# Copyright © 2019 Arthur Grisel-Davy 
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,24 +19,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""multi_op
+The app in charge of managing the operator of the dormitories
 """
-The database models for the 'preference' app of re2o.
-
-For further details on each of those models, see the documentation details for
-each.
-"""
-
-
-from django import forms
-from django.forms import ModelForm, Form
-from django.utils.translation import ugettext_lazy as _
-
-from .models import Preferences
-
-
-class EditMultiopOptionForm(ModelForm):
-    """Form used to edit the settings of multi_op."""
-
-    class Meta:
-        model = Preferences
-        fields = "__all__"

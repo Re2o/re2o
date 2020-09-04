@@ -49,8 +49,6 @@ from .preferences.models import Preferences
 
 from topologie.models import Room, Dormitory
 
-from .preferences.forms import EditPreferencesForm
-
 
 def display_rooms_connection(request, dormitory=None):
     """View used to display an overview of the rooms' connection state.
