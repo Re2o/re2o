@@ -95,6 +95,14 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             Vente.objects.filter(facture=self).values_list("name", flat=True)
         )
         return name
+    
+    def name_detailled(self):
+        """
+        Return: a string with the name of the article and the number 
+        of article sold.
+        """
+        vente = Vente.objects.filter(facture=self).get()
+        return str(vente.number) + " x " +  str(vente.name)
 
 
 # TODO : change facture to invoice
