@@ -713,6 +713,10 @@ class Dormitory(AclMixin, RevMixin, models.Model):
     """
 
     name = models.CharField(max_length=255)
+    street = models.CharField(max_length=64, blank=True, null=True)
+    city = models.CharField(max_length=64, blank=True, null=True)
+    zipcode = models.CharField(max_length=64, blank=True, null=True)
+    country = models.CharField(max_length=64, blank=True, null=True)
 
     class Meta:
         permissions = (("view_dormitory", _("Can view a dormitory object")),)
@@ -946,6 +950,9 @@ class Room(AclMixin, RevMixin, models.Model):
 
     def __str__(self):
         return self.building.cached_name + " " + self.name
+
+    def full_address(self):
+        return "Appartement " + self.name + ", Batiment " + self.building.name + ", " + "Residence " +  self.building.dormitory.name + ", " + str(self.building.dormitory.address)
 
 
 class PortProfile(AclMixin, RevMixin, models.Model):

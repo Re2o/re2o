@@ -315,7 +315,6 @@ def facture_pdf(request, facture, **_kwargs):
             "fid": facture.id,
             "DATE": facture.date,
             "recipient_name": "{} {}".format(facture.user.name, facture.user.surname),
-            "address": facture.user.room,
             "article": purchases_info,
             "total": facture.prix_total(),
             "asso_name": AssoOption.get_cached_value("name"),

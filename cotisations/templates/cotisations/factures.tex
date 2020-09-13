@@ -73,7 +73,7 @@
 
     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l r}
         {\bf Pour :} {{recipient_name|safe}} & {\bf Date :} {{DATE}} \\
-        {\bf Adresse :} {% if address is None %}Aucune adresse renseignée{% else %}{{address}}{% endif %} & \\
+        {\bf Adresse :} {% if address is None %}Aucune adresse renseignée{% else %}{{addresse1 \\ addresse2 \\addresse3 \\ addresse4}}{% endif %} & \\
         {% if fid is not None %}
         {% if is_estimate %}
         {\bf Devis n\textsuperscript{o} :} {{ fid }} & \\
