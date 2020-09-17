@@ -178,7 +178,6 @@ class EditAssoOptionForm(ModelForm):
         self.fields["adresse2"].label = _("Address (line 2)")
         self.fields["contact"].label = _("Contact email address")
         self.fields["telephone"].label = _("Telephone number")
-        self.fields["profile_image"].label = _("Profile image")
         self.fields["pseudo"].label = _("Usual name")
         self.fields["utilisateur_asso"].label = _(
             "Account used for editing from /admin"
