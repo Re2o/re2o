@@ -124,32 +124,6 @@ class DormitorySerializer(NamespacedHMSerializer):
         model = topologie.Dormitory
         fields = ("name", "api_url")
 
-class SwitchPortSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.Port` objects
-    """
-
-    get_port_profile = NamespacedHIField(view_name="portprofile-detail", read_only=True)
-
-    class Meta:
-        model = topologie.Port
-        fields = (
-            "switch",
-            "port",
-            "room",
-            "machine_interface",
-            "related",
-            "custom_profile",
-            "state",
-            "get_port_profile",
-            "details",
-            "api_url",
-        )
-        extra_kwargs = {
-            "related": {"view_name": "switchport-detail"},
-            "api_url": {"view_name": "switchport-detail"},
-        }
-
-
 class PortProfileSerializer(NamespacedHMSerializer):
     """Serialize `topologie.models.Room` objects
     """
@@ -299,3 +273,33 @@ class PortsSerializer(NamespacedHMSerializer):
     class Meta:
         model = topologie.Port
         fields = ("state", "port", "pretty_name", "get_port_profile")
+
+
+class SwitchPortSerializer(serializers.ModelSerializer):
+    """Serialize the data about the switches"""
+
+    ports = PortsSerializer(many=True, read_only=True)
+    model = ModelSwitchSerializer(read_only=True)
+    switchbay = SwitchBaySerializer(read_only=True)
+
+    class Meta:
+        model = topologie.Switch
+        fields = (
+            "short_name",
+            "model",
+            "switchbay",
+            "ports",
+            "ipv4",
+            "ipv6",
+            "interfaces_subnet",
+            "interfaces6_subnet",
+            "automatic_provision",
+            "rest_enabled",
+            "web_management_enabled",
+            "get_radius_key_value",
+            "get_management_cred_value",
+            "get_radius_servers",
+            "list_modules",
+        )
+
+
