@@ -54,7 +54,9 @@ class PreferencesModel(models.Model):
     @classmethod
     def set_in_cache(cls):
         """Save the preferences in a server-side cache."""
-        instance, _created = cls.objects.get_or_create()
+        instance = cls.objects.first()
+        if not instance:
+            instance, _created = cls.objects.get_or_create()
         cache.set(cls().__class__.__name__.lower(), instance, None)
         return instance
 
