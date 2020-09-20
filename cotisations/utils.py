@@ -105,8 +105,8 @@ def send_mail_voucher(invoice, request=None):
         "lastname": invoice.user.surname,
         "email": invoice.user.email,
         "phone": invoice.user.telephone,
-        "date_end": invoice.get_subscription().latest("date_end").date_end,
-        "date_begin": invoice.get_subscription().earliest("date_start").date_start,
+        "date_end": invoice.get_subscription().latest("date_end").date_end_memb,
+        "date_begin": invoice.get_subscription().earliest("date_start").date_start_memb,
     }
     templatename = CotisationsOption.get_cached_value(
         "voucher_template"
@@ -118,7 +118,7 @@ def send_mail_voucher(invoice, request=None):
         "name": "{} {}".format(invoice.user.name, invoice.user.surname),
         "asso_email": AssoOption.get_cached_value("contact"),
         "asso_name": AssoOption.get_cached_value("name"),
-        "date_end": invoice.get_subscription().latest("date_end").date_end,
+        "date_end": invoice.get_subscription().latest("date_end_memb").date_end_memb,
     }
 
     mail = EmailMessage(
