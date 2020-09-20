@@ -130,11 +130,12 @@ def new_facture(request, user, userid):
                         facture=new_invoice_instance,
                         name=article.name,
                         prix=article.prix,
-                        type_cotisation=article.type_cotisation,
-                        duration=article.duration,
-                        duration_days=article.duration_days,
+                        duration_connection=article.duration_connection,
+                        duration_days_connection=article.duration_days_connection,
+                        duration_membership=article.duration_membership,
+                        duration_days_membership=article.duration_days_membership,
                         number=quantity,
-                    )
+                    ) 
                     purchases.append(new_purchase)
             p = find_payment_method(new_invoice_instance.paiement)
             if hasattr(p, "check_price"):
@@ -262,8 +263,10 @@ def new_custom_invoice(request):
                     facture=new_invoice_instance,
                     name=article.name,
                     prix=article.prix,
-                    type_cotisation=article.type_cotisation,
-                    duration=article.duration,
+                    duration_membership=article.duration_membership,
+                    duration_days_membership=article.duration_membership,
+                    duration_connection=article.duration_connection,
+                    duration_days_connection=article.duration_days_connection,
                     number=quantity,
                 )
         discount_form.apply_to_invoice(new_invoice_instance)
