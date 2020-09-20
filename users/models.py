@@ -703,8 +703,7 @@ class User(
                     facture__in=Facture.objects.filter(user=self).exclude(valid=False)
                 )
             )
-            .filter(Q(type_cotisation="All") | Q(type_cotisation="Adhesion"))
-            .aggregate(models.Max("date_end"))["date_end__max"]
+            .aggregate(models.Max("date_end_memb"))["date_end_memb__max"]
         )
         return date_max
 
@@ -724,8 +723,7 @@ class User(
                     facture__in=Facture.objects.filter(user=self).exclude(valid=False)
                 )
             )
-            .filter(Q(type_cotisation="All") | Q(type_cotisation="Connexion"))
-            .aggregate(models.Max("date_end"))["date_end__max"]
+            .aggregate(models.Max("date_end_con"))["date_end_con__max"]
         )
         return date_max
 
@@ -746,6 +744,10 @@ class User(
             return False
         else:
             return True
+        # it looks wrong, we should check if there is a cotisation where 
+        # were date_start_memb < timezone.now() < date_end_memb, 
+        # in case the user purshased a cotisation starting in the futur
+        # somehow
 
     def is_connected(self):
         """Methods, calculate and returns if the user has a valid membership AND a
@@ -765,6 +767,10 @@ class User(
             return False
         else:
             return self.is_adherent()
+        # it looks wrong, we should check if there is a cotisation where 
+        # were date_start_con < timezone.now() < date_end_con, 
+        # in case the user purshased a cotisation starting in the futur
+        # somehow
 
     def end_ban(self):
         """Methods, calculate and returns the end of a ban value date
@@ -926,7 +932,8 @@ class User(
         """
         if self.state == self.STATE_NOT_YET_ACTIVE:
             if self.facture_set.filter(valid=True).filter(
-                Q(vente__type_cotisation="All") | Q(vente__type_cotisation="Adhesion")
+                ~(Q(vente__duration_membership__isnull=True) | Q(vente__duration_membership=0)) | \
+                ~(Q(vente__duration_days_membership__isnull=True) | Q(vente__duration_days_membership=0))
             ).exists() or OptionalUser.get_cached_value("all_users_active"):
                 self.state = self.STATE_ACTIVE
                 self.save()

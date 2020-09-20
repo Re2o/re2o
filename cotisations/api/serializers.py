@@ -64,8 +64,10 @@ class VenteSerializer(NamespacedHMSerializer):
             "number",
             "name",
             "prix",
-            "duration",
-            "type_cotisation",
+            "duration_connection",
+            "duration_days_connection",
+            "duration_membership",
+            "duration_days_membership",
             "prix_total",
             "api_url",
         )
@@ -77,7 +79,7 @@ class ArticleSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = cotisations.Article
-        fields = ("name", "prix", "duration", "type_user", "type_cotisation", "api_url")
+        fields = ("name", "prix", "duration_membership", "duration_days_membership", "duration_connection", "duration_days_connection", "type_user", "api_url")
 
 
 class BanqueSerializer(NamespacedHMSerializer):
@@ -104,7 +106,7 @@ class CotisationSerializer(NamespacedHMSerializer):
 
     class Meta:
         model = cotisations.Cotisation
-        fields = ("vente", "type_cotisation", "date_start", "date_end", "api_url")
+        fields = ("vente", "type_cotisation", "date_start_con", "date_end_con", "date_start_memb", "date_end_memb", "api_url")
 
 
 class ReminderUsersSerializer(UserSerializer):
