@@ -283,7 +283,8 @@ class Facture(BaseInvoice):
         """Returns every subscription associated with this invoice."""
         return Cotisation.objects.filter(
             vente__in=self.vente_set.filter(
-                Q(type_cotisation="All") | Q(type_cotisation="Adhesion")
+                ~(Q(duration_membership__isnull=True) | Q(duration_membership=0)) |\
+                ~(Q(duration_days_membership__isnull=True) | Q(duration_days_membership=0))
             )
         )
 
@@ -297,33 +298,18 @@ class Facture(BaseInvoice):
         for purchase in self.vente_set.all():
             if hasattr(purchase, "cotisation"):
                 cotisation = purchase.cotisation
-                if cotisation.type_cotisation == "Connexion":
-                    cotisation.date_start = date_con
-                    date_con += relativedelta(
-                        months=(purchase.duration or 0) * purchase.number,
-                        days=(purchase.duration_days or 0) * purchase.number,
-                    )
-                    cotisation.date_end = date_con
-                elif cotisation.type_cotisation == "Adhesion":
-                    cotisation.date_start = date_adh
-                    date_adh += relativedelta(
-                        months=(purchase.duration or 0) * purchase.number,
-                        days=(purchase.duration_days or 0) * purchase.number,
-                    )
-                    cotisation.date_end = date_adh
-                else:  # it is assumed that adhesion is required for a connexion
-                    date = min(date_adh, date_con)
-                    cotisation.date_start = date
-                    date_adh += relativedelta(
-                        months=(purchase.duration or 0) * purchase.number,
-                        days=(purchase.duration_days or 0) * purchase.number,
-                    )
-                    date_con += relativedelta(
-                        months=(purchase.duration or 0) * purchase.number,
-                        days=(purchase.duration_days or 0) * purchase.number,
-                    )
-                    date = max(date_adh, date_con)
-                    cotisation.date_end = date
+                cotisation.date_start_con = date_con
+                date_con += relativedelta(
+                    months=(purchase.duration_connection or 0) * purchase.number,
+                    days=(purchase.duration_days_connection or 0) * purchase.number,
+                )
+                cotisation.date_end_con = date_con
+                cotisation.date_start_memb = date_adh
+                date_adh += relativedelta(
+                    months=(purchase.duration_membership or 0) * purchase.number,
+                    days=(purchase.duration_days_membership or 0) * purchase.number,
+                )
+                cotisation.date_end_memb = date_adh
                 cotisation.save()
                 purchase.facture = self
                 purchase.save()
@@ -450,13 +436,6 @@ class Vente(RevMixin, AclMixin, models.Model):
             the effect of the purchase on the time agreed for this user)
     """
 
-    # TODO : change this to English
-    COTISATION_TYPE = (
-        ("Connexion", _("Connection")),
-        ("Adhesion", _("Membership")),
-        ("All", _("Both of them")),
-    )
-
     # TODO : change facture to invoice
     facture = models.ForeignKey(
         "BaseInvoice", on_delete=models.CASCADE, verbose_name=_("invoice")
@@ -465,28 +444,31 @@ class Vente(RevMixin, AclMixin, models.Model):
     number = models.IntegerField(
         validators=[MinValueValidator(1)], verbose_name=_("amount")
     )
-    # TODO : change this field for a ForeinKey to Article
+    # TODO : change this field for a ForeinKey to Article 
+    # Note: With a foreign key, modifing an Article modifis the Purchase, wich is bad.
+    # To use a foreign key, you need to make Article read only
     name = models.CharField(max_length=255, verbose_name=_("article"))
     # TODO : change prix to price
     # TODO : this field is not needed if you use Article ForeignKey
     prix = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("price"))
     # TODO : this field is not needed if you use Article ForeignKey
-    duration = models.PositiveIntegerField(
-        blank=True, null=True, verbose_name=_("duration (in months)")
+    duration_connection = models.PositiveIntegerField(
+        blank=True, null=True, verbose_name=_("duration of the connection (in months)")
     )
-    duration_days = models.PositiveIntegerField(
+    duration_days_connection = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        verbose_name=_("duration (in days, will be added to duration in months)"),
+        verbose_name=_("duration of the connection (in days, will be added to duration in months)"),
     )
-    # TODO : this field is not needed if you use Article ForeignKey
-    type_cotisation = models.CharField(
-        choices=COTISATION_TYPE,
+    duration_membership = models.PositiveIntegerField(
+        blank=True, null=True, verbose_name=_("duration of the membership (in months)")
+    )
+    duration_days_membership = models.PositiveIntegerField(
         blank=True,
         null=True,
-        max_length=255,
-        verbose_name=_("subscription type"),
+        validators=[MinValueValidator(0)],
+        verbose_name=_("duration of the membership (in days, will be added to duration in months)"),
     )
 
     class Meta:
@@ -511,13 +493,17 @@ class Vente(RevMixin, AclMixin, models.Model):
         """
         if hasattr(self, "cotisation"):
             cotisation = self.cotisation
-            cotisation.date_end = cotisation.date_start + relativedelta(
-                months=(self.duration or 0) * self.number,
-                days=(self.duration_days or 0) * self.number,
+            cotisation.date_end_memb = cotisation.date_start_memb + relativedelta(
+                months=(self.duration_membership or 0) * self.number,
+                days=(self.duration_days_membership or 0) * self.number,
+            )
+            cotisation.date_end_con = cotisation.date_start_con + relativedelta(
+                months=(self.duration_connection or 0) * self.number,
+                days=(self.duration_days_connection or 0) * self.number,
             )
         return
 
-    def create_cotis(self, date_start=False):
+    def create_cotis(self, date_start_con=False, date_start_memb=False):
         """
         Creates a cotisation without initializing the dates (start and end ar set to self.facture.facture.date) and without saving it. You should use Facture.reorder_purchases to set the right dates.
         """
@@ -525,20 +511,29 @@ class Vente(RevMixin, AclMixin, models.Model):
             invoice = self.facture.facture
         except Facture.DoesNotExist:
             return
-        if not hasattr(self, "cotisation") and self.type_cotisation:
+        if not hasattr(self, "cotisation") and (self.duration_membership or self.duration_days_membership):
             cotisation = Cotisation(vente=self)
-            cotisation.type_cotisation = self.type_cotisation
-            if date_start:
-                cotisation.date_start = date_start
-                cotisation.date_end = cotisation.date_start + relativedelta(
-                    months=(self.duration or 0) * self.number,
-                    days=(self.duration_days or 0) * self.number,
+            if date_start_con:
+                cotisation.date_start_con = date_start_con
+                cotisation.date_end_con = cotisation.date_start_con + relativedelta(
+                    months=(self.duration_connection or 0) * self.number,
+                    days=(self.duration_days_connection or 0) * self.number,
+                )
+                self.save()
+                cotisation.save()
+            if date_start_memb:
+                cotisation.date_start_memb = date_start_memb
+                cotisation.date_end_memb = cotisation.date_start_memb + relativedelta(
+                    months=(self.duration_membership or 0) * self.number,
+                    days=(self.duration_days_membership or 0) * self.number,
                 )
                 self.save()
                 cotisation.save()
             else:
-                cotisation.date_start = invoice.date
-                cotisation.date_end = invoice.date
+                cotisation.date_start_con = invoice.date
+                cotisation.date_start_memb = invoice.date
+                cotisation.date_end_con = invoice.date
+                cotisation.date_end_memb = invoice.date
 
     def save(self, *args, **kwargs):
         """
@@ -546,9 +541,6 @@ class Vente(RevMixin, AclMixin, models.Model):
         It also update the associated cotisation in the changes have some
         effect on the user's cotisation
         """
-        # Checking that if a cotisation is specified, there is also a duration
-        if self.type_cotisation and not (self.duration or self.duration_days):
-            raise ValidationError(_("Duration must be specified for a subscription."))
         self.update_cotisation()
         super(Vente, self).save(*args, **kwargs)
 
@@ -629,6 +621,13 @@ class Vente(RevMixin, AclMixin, models.Model):
     def __str__(self):
         return str(self.name) + " " + str(self.facture)
 
+    def test_membership_or_connection(self):
+        """ Test if the purchase include membership or connecton
+        """
+        return self.duration_membership or \
+               self.duration_days_membership or \
+               self.duration_connection or \
+               self.duration_days_connection
 
 # TODO : change vente to purchase
 @receiver(post_save, sender=Vente)
@@ -645,7 +644,7 @@ def vente_post_save(**kwargs):
     if hasattr(purchase, "cotisation"):
         purchase.cotisation.vente = purchase
         purchase.cotisation.save()
-    if purchase.type_cotisation:
+    if purchase.test_membership_or_connection():
         purchase.create_cotis()
         purchase.cotisation.save()
         user = purchase.facture.facture.user
@@ -664,7 +663,7 @@ def vente_post_delete(**kwargs):
         invoice = purchase.facture.facture
     except Facture.DoesNotExist:
         return
-    if purchase.type_cotisation:
+    if purchase.test_membership_or_connection():
         user = invoice.user
         user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
 
@@ -677,22 +676,14 @@ class Article(RevMixin, AclMixin, models.Model):
     It's represented by:
         * a name
         * a price
-        * a cotisation type (indicating if this article reprensents a
-            cotisation or not)
-        * a duration (if it is a cotisation)
+        * a duration for the membership
+        * a duration for the connection
         * a type of user (indicating what kind of user can buy this article)
     """
 
-    # TODO : Either use TYPE or TYPES in both choices but not both
     USER_TYPES = (
         ("Adherent", _("Member")),
         ("Club", _("Club")),
-        ("All", _("Both of them")),
-    )
-
-    COTISATION_TYPE = (
-        ("Connexion", _("Connection")),
-        ("Adhesion", _("Membership")),
         ("All", _("Both of them")),
     )
 
@@ -701,31 +692,37 @@ class Article(RevMixin, AclMixin, models.Model):
     prix = models.DecimalField(
         max_digits=5, decimal_places=2, verbose_name=_("unit price")
     )
-    duration = models.PositiveIntegerField(
+
+    duration_membership = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        verbose_name=_("duration (in months)"),
+        verbose_name=_("duration of the membership (in months)")
     )
-    duration_days = models.PositiveIntegerField(
+    duration_days_membership = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        verbose_name=_("duration (in days, will be added to duration in months)"),
+        verbose_name=_("duration of the membership (in days, will be added to duration in months)"),
     )
+    duration_connection = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        verbose_name=_("duration of the connection (in months)")
+    )
+    duration_days_connection = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        verbose_name=_("duration of the connection (in days, will be added to duration in months)"),
+    )
+
     type_user = models.CharField(
         choices=USER_TYPES,
         default="All",
         max_length=255,
         verbose_name=_("type of users concerned"),
-    )
-    type_cotisation = models.CharField(
-        choices=COTISATION_TYPE,
-        default=None,
-        blank=True,
-        null=True,
-        max_length=255,
-        verbose_name=_("subscription type"),
     )
     available_for_everyone = models.BooleanField(
         default=False, verbose_name=_("is available for every user")
@@ -744,8 +741,6 @@ class Article(RevMixin, AclMixin, models.Model):
     def clean(self):
         if self.name.lower() == "solde":
             raise ValidationError(_("Solde is a reserved article name."))
-        if self.type_cotisation and not (self.duration or self.duration_days):
-            raise ValidationError(_("Duration must be specified for a subscription."))
 
     def __str__(self):
         return self.name
@@ -790,9 +785,11 @@ class Article(RevMixin, AclMixin, models.Model):
             )
         if target_user is not None and not target_user.is_adherent():
             objects_pool = objects_pool.filter(
-                Q(type_cotisation="All")
-                | Q(type_cotisation="Adhesion")
-                | Q(type_cotisation__isnull=True)
+                Q(duration_membership__gt=0)
+                |Q(duration_days_membership__gt=0)
+                |~(Q(duration_connection__gt=0) # BAD nonstandard hardcoded comportmant
+                   |Q(duration_days_connection__gt=0)
+                 )
             )
         if user.has_perm("cotisations.buy_every_article"):
             return objects_pool
@@ -882,7 +879,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
-        if any(sell.type_cotisation for sell in invoice.vente_set.all()):
+        if any(sell.test_membership_or_connection() for sell in invoice.vente_set.all()):
             messages.success(
                 request,
                 _(
@@ -943,31 +940,21 @@ class Cotisation(RevMixin, AclMixin, models.Model):
     The model defining a cotisation. It holds information about the time a user
     is allowed when he has paid something.
     It characterised by :
-        * a date_start (the date when the cotisaiton begins/began
-        * a date_end (the date when the cotisation ends/ended
-        * a type of cotisation (which indicates the implication of such
-            cotisation)
+        * a date_start_memb (the date when the membership begins/began
+        * a date_end_memb (the date when the membership ends/ended
+        * a date_start_con (the date when the connection begins/began)
+        * a date_end_con (the date when the connection ends/ended)
         * a purchase (the related objects this cotisation is linked to)
     """
-
-    COTISATION_TYPE = (
-        ("Connexion", _("Connection")),
-        ("Adhesion", _("Membership")),
-        ("All", _("Both of them")),
-    )
 
     # TODO : change vente to purchase
     vente = models.OneToOneField(
         "Vente", on_delete=models.CASCADE, null=True, verbose_name=_("purchase")
     )
-    type_cotisation = models.CharField(
-        choices=COTISATION_TYPE,
-        max_length=255,
-        default="All",
-        verbose_name=_("subscription type"),
-    )
-    date_start = models.DateTimeField(verbose_name=_("start date"))
-    date_end = models.DateTimeField(verbose_name=_("end date"))
+    date_start_con = models.DateTimeField(verbose_name=_("start date for the connection"))
+    date_end_con = models.DateTimeField(verbose_name=_("end date for the connection"))
+    date_start_memb = models.DateTimeField(verbose_name=_("start date for the membership"))
+    date_end_memb = models.DateTimeField(verbose_name=_("end date for the membership"))
 
     class Meta:
         permissions = (
@@ -1037,9 +1024,14 @@ class Cotisation(RevMixin, AclMixin, models.Model):
         return (
             str(self.vente)
             + "from "
-            + str(self.date_start)
+            + str(self.date_start_memb)
             + " to "
-            + str(self.date_end)
+            + str(self.date_end_memb)
+            + " for membership, "
+            + str(self.date_start_con)
+            + " to "
+            + str(self.date_end_con)
+            + " for the connection."
         )
 
 
