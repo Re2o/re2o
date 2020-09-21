@@ -96,7 +96,7 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         )
         return name
     
-    def name_detailled(self):
+    def name_detailed(self):
         """
         Return: a string with the name of the article and the number 
         of article sold.
