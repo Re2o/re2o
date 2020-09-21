@@ -59,7 +59,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% for facture in facture_list %}
         <tr>
             <td><a href="{% url 'users:profil' userid=facture.user.id %}">{{ facture.user }}</a></td>
-            <td>{{ facture.name_detailled }}</td>
+            <td>{{ facture.name_detailed }}</td>
             <td>{{ facture.prix_total }}</td>
             <td>{{ facture.paiement }}</td>
             <td>{{ facture.date }}</td>
