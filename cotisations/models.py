@@ -678,6 +678,7 @@ class Article(RevMixin, AclMixin, models.Model):
         * a price
         * a duration for the membership
         * a duration for the connection
+        * if the article can be purchased without membership
         * a type of user (indicating what kind of user can buy this article)
     """
 
@@ -716,6 +717,11 @@ class Article(RevMixin, AclMixin, models.Model):
         null=True,
         validators=[MinValueValidator(0)],
         verbose_name=_("duration of the connection (in days, will be added to duration in months)"),
+    )
+
+    need_membership = models.BooleanField(
+        default=True,
+        verbose_name=_("need membership to be purchased"),
     )
 
     type_user = models.CharField(
@@ -785,9 +791,9 @@ class Article(RevMixin, AclMixin, models.Model):
             )
         if target_user is not None and not target_user.is_adherent():
             objects_pool = objects_pool.filter(
-                Q(type_cotisation="All")
-                | Q(type_cotisation="Adhesion")
-                | Q(type_cotisation__isnull=True)
+                Q(duration_membership__gt=0)
+                |Q(duration_days_membership__gt=0)
+                |Q(need_membership=False)
             )
         if user.has_perm("cotisations.buy_every_article"):
             return objects_pool
