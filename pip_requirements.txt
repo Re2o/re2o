@@ -1,2 +1,2 @@
 django-bootstrap3==11.1.0
-django-macaddress
+django-macaddress==1.6.0
