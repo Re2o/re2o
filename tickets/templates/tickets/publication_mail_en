@@ -4,7 +4,7 @@ Profile: {{site_url}}{% url 'users:profil' ticket.user.id%}
 {% else %}  
 An anonymous user (not authenticated) opened a ticket 
 {% endif %}
-Answer to the address: {{{ticket.get_mail}}.
+Answer to the address: {{ticket.get_mail}}.
 
 Title: {{ ticket.title | safe }}
 
