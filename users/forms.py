@@ -330,7 +330,8 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         self.fields["email"].label = _("Email address")
         self.fields["school"].label = _("School")
         self.fields["comment"].label = _("Comment")
-        self.fields["profile_image"].label = _("Profile Image")
+        if "profile_image" in self.fields:
+            self.fields["profile_image"].label = _("Profile Image")
         if "room" in self.fields:
             self.fields["room"].label = _("Room")
             self.fields["room"].empty_label = _("No room")
@@ -470,7 +471,6 @@ class AdherentCreationForm(AdherentForm):
             "school",
             "comment",
             "telephone",
-            "profile_image",
             "room",
             "state",
         ]
