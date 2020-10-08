@@ -93,13 +93,10 @@ def all_adherent(search_time=None, including_asso=True):
         search_time = timezone.now()
     filter_user = Q(
         facture__in=Facture.objects.filter(
-            vente__in=Vente.objects.filter(
-                Q(type_cotisation="All") | Q(type_cotisation="Adhesion"),
-                cotisation__in=Cotisation.objects.filter(
-                    vente__in=Vente.objects.filter(
-                        facture__in=Facture.objects.all().exclude(valid=False)
-                    )
-                ).filter(Q(date_start__lt=search_time) & Q(date_end__gt=search_time)),
+            vente__cotisation__in=Cotisation.objects.filter(
+                    Q(vente__facture__facture__valid=True) &
+                    Q(date_start_memb__lt=search_time) &
+                    Q(date_end_memb__gt=search_time)
             )
         )
     )
@@ -186,15 +183,12 @@ def all_has_access(search_time=None, including_asso=True):
             )
             | Q(
                 facture__in=Facture.objects.filter(
-                    vente__in=Vente.objects.filter(
-                        cotisation__in=Cotisation.objects.filter(
-                            Q(type_cotisation="All") | Q(type_cotisation="Connexion"),
-                            vente__in=Vente.objects.filter(
-                                facture__in=Facture.objects.all().exclude(valid=False)
-                            ),
-                        ).filter(
-                            Q(date_start__lt=search_time) & Q(date_end__gt=search_time)
-                        )
+                    vente__cotisation__in=Cotisation.objects.filter(
+                            Q(vente__facture__facture__valid=True) &
+                            Q(date_start_con__lt=search_time) &
+                            Q(date_end_con__gt=search_time) &
+                            Q(date_start_memb__lt=search_time) &
+                            Q(date_end_memb__gt=search_time)
                     )
                 )
             )
