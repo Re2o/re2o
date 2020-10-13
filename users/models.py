@@ -931,9 +931,9 @@ class User(
 
         """
         if self.state == self.STATE_NOT_YET_ACTIVE:
-            if self.facture_set.filter(valid=True).filter(
-                ~(Q(vente__duration_membership__isnull=True) | Q(vente__duration_membership=0)))\
-                .filter(~(Q(vente__duration_days_membership__isnull=True) | Q(vente__duration_days_membership=0))
+            if not self.facture_set.filter(valid=True).filter(
+                (Q(vente__duration_membership__isnull=True) | Q(vente__duration_membership=0))\
+                ).filter(Q(vente__duration_days_membership__isnull=True) | Q(vente__duration_days_membership=0)
             ).exists() or OptionalUser.get_cached_value("all_users_active"):
                 self.state = self.STATE_ACTIVE
                 self.save()
