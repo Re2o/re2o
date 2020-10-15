@@ -939,7 +939,7 @@ class User(
             # if any vente is found, activate the user
             if(not_null or not_zero or days_not_null or days_not_zero \
                     or OptionalUser.get_cached_value("all_users_active")):
-                self.state = self.STATE_ACTIVE
+               self.state = self.STATE_ACTIVE
                 self.save()
         if self.state == self.STATE_ARCHIVE or self.state == self.STATE_FULL_ARCHIVE:
             self.state = self.STATE_ACTIVE
