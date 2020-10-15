@@ -931,10 +931,14 @@ class User(
 
         """
         if self.state == self.STATE_NOT_YET_ACTIVE:
-            if not self.facture_set.filter(valid=True).filter(
-                (Q(vente__duration_membership__isnull=True) | Q(vente__duration_membership=0))\
-                ).filter(Q(vente__duration_days_membership__isnull=True) | Q(vente__duration_days_membership=0)
-            ).exists() or OptionalUser.get_cached_value("all_users_active"):
+            # Look for ventes with non 0 and non null subscription duration in the invoices set
+            not_null = self.facture_set.filter(valid=True).exclude(Q(vente__duration_membership__isnull=True)).exists()
+            not_zero = self.facture_set.filter(valid=True).exclude(Q(vente__duration_membership=0)).exists()
+            days_not_null = self.facture_set.filter(valid=True).exclude(Q(vente__duration_days_membership__isnull=True)).exists()
+            days_not_zero = self.facture_set.filter(valid=True).exclude(Q(vente__duration_days_membership=0)).exists()
+            # if any vente is found, activate the user
+            if(not_null or not_zero or days_not_null or days_not_zero \
+                    or OptionalUser.get_cached_value("all_users_active")):
                 self.state = self.STATE_ACTIVE
                 self.save()
         if self.state == self.STATE_ARCHIVE or self.state == self.STATE_FULL_ARCHIVE:
