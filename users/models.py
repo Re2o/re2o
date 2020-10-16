@@ -939,8 +939,8 @@ class User(
                self.state = self.STATE_ACTIVE
                self.save()
         if self.state == self.STATE_ARCHIVE or self.state == self.STATE_FULL_ARCHIVE:
-            self.state = self.STATE_ACTIVE
             self.unarchive()
+            self.state = self.STATE_ACTIVE
             self.save()
 
     def set_password(self, password):
