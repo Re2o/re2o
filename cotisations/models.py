@@ -283,8 +283,8 @@ class Facture(BaseInvoice):
         """Returns every subscription associated with this invoice."""
         return Cotisation.objects.filter(
             vente__in=self.vente_set.filter(
-                ~(Q(duration_membership__isnull=True) | Q(duration_membership=0)) |\
-                ~(Q(duration_days_membership__isnull=True) | Q(duration_days_membership=0))
+                ~(Q(duration_membership=0)) |\
+                ~(Q(duration_days_membership=0))
             )
         )
 
@@ -453,20 +453,18 @@ class Vente(RevMixin, AclMixin, models.Model):
     prix = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("price"))
     # TODO : this field is not needed if you use Article ForeignKey
     duration_connection = models.PositiveIntegerField(
-        blank=True, null=True, verbose_name=_("duration of the connection (in months)")
+        default=0, verbose_name=_("duration of the connection (in months)")
     )
     duration_days_connection = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+        default=0,
         validators=[MinValueValidator(0)],
         verbose_name=_("duration of the connection (in days, will be added to duration in months)"),
     )
     duration_membership = models.PositiveIntegerField(
-        blank=True, null=True, verbose_name=_("duration of the membership (in months)")
+        default=0, verbose_name=_("duration of the membership (in months)")
     )
     duration_days_membership = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+        default=0,
         validators=[MinValueValidator(0)],
         verbose_name=_("duration of the membership (in days, will be added to duration in months)"),
     )
