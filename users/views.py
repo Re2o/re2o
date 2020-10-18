@@ -1357,14 +1357,7 @@ def profil(request, users, **_kwargs):
     ]
 
     nb_machines = users.user_interfaces().count()
-
-    factures = Facture.objects.filter(user=users)
-    factures = SortTable.sort(
-        factures,
-        request.GET.get("col"),
-        request.GET.get("order"),
-        SortTable.COTISATIONS_INDEX,
-    )
+    
     bans = Ban.objects.filter(user=users)
     bans = SortTable.sort(
         bans,
@@ -1392,7 +1385,6 @@ def profil(request, users, **_kwargs):
             "users": users,
             "nb_machines":nb_machines,
             "apps_templates_list": apps_templates_list,
-            "facture_list": factures,
             "ban_list": bans,
             "white_list": whitelists,
             "user_solde": user_solde,
