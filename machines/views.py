@@ -1312,11 +1312,11 @@ def index(request):
     machines_list = re2o_paginator(request, machines_list, pagination_large_number)
     return render(request, "machines/index.html", {"machines_list": machines_list})
 
-# Canonic vie for displaying machines in users's profil
-def profil(request, user):
+# Canonic view for displaying machines in users's profil
+def aff_profil(request, user):
     """View used to display the machines on a user's profile."""
-        machines = (
-        Machine.objects.filter(user=users)
+    machines = (
+    Machine.objects.filter(user=user)
         .select_related("user")
         .prefetch_related("interface_set__domain__extension")
         .prefetch_related("interface_set__ipv4__ip_type__extension")
@@ -1329,17 +1329,18 @@ def profil(request, user):
         request.GET.get("order"),
         SortTable.MACHINES_INDEX,
     )
+    nb_machines = machines.count()
     pagination_large_number = GeneralOption.get_cached_value("pagination_large_number")
     machines = re2o_paginator(request, machines, pagination_large_number)
-    nb_machines = machines.count()
 
     context = {
-        "machines_list" = machines,
-        "nb_machines" = nb_machines,
+            "users":user,
+            "machines_list": machines,
+            "nb_machines":nb_machines,
     }
 
     return render_to_string(
-            "machines/profil.html",context=context,request=request,using=None
+            "machines/aff_profil.html",context=context,request=request,using=None
     )
 
 
