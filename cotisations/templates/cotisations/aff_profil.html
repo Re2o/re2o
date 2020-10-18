@@ -85,7 +85,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% for facture in facture_list %}
                 <tr>
                     <td><a href="{% url 'users:profil' userid=facture.user.id %}">{{ facture.user }}</a></td>
-                    <td>{{ facture.name }}</td>
+                    <td>
+                        <table class="table-striped">
+                            {% for article in facture.name_detailed %}
+                            <tr>
+                                <td>
+                                    {{ article }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
                     <td>{{ facture.prix_total }}</td>
                     <td>{{ facture.paiement }}</td>
                     <td>{{ facture.date }}</td>
@@ -115,7 +125,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </a>
                         {% endif %}
                     </td>
-                </tr>
+                </tr> 
                 {% endfor %}
             </table>
 
