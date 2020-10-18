@@ -96,6 +96,16 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         )
         return name
 
+    def name_detailed(self):
+        """
+        Return: 
+         - a list of strings with the name of all article in the invoice
+        and their quantity.
+        """
+        ventes = self.vente_set.all()
+        strings = ["{} x {}".format(v.number, v.name) for v in ventes]
+        return strings
+
 
 # TODO : change facture to invoice
 class Facture(BaseInvoice):
