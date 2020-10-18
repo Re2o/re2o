@@ -77,7 +77,7 @@ from machines.models import Machine
 from preferences.models import OptionalUser, GeneralOption, AssoOption
 from importlib import import_module
 from django.conf import settings
-from re2o.settings_local import OPTIONNAL_APPS_RE2O
+from re2o.settings import LOCAL_APPS, OPTIONNAL_APPS_RE2O
 from re2o.views import form
 from re2o.utils import all_has_access, permission_tree
 from re2o.base import re2o_paginator, SortTable
@@ -1314,8 +1314,8 @@ def index_serviceusers(request):
 def mon_profil(request):
     """Shortcuts view to profil view, with correct arguments.
     Returns the view profil with users argument, users is set to
-    default request.user.
-    
+    default request.user. 
+
     Parameters:
         request (django request): Standard django request.
 
@@ -1346,33 +1346,18 @@ def profil(request, users, **_kwargs):
 
     Returns:
         Django User Profil Form.
-
     """
-    machines = (
-        Machine.objects.filter(user=users)
-        .select_related("user")
-        .prefetch_related("interface_set__domain__extension")
-        .prefetch_related("interface_set__ipv4__ip_type__extension")
-        .prefetch_related("interface_set__machine_type")
-        .prefetch_related("interface_set__domain__related_domain__extension")
-    )
-    machines = SortTable.sort(
-        machines,
-        request.GET.get("col"),
-        request.GET.get("order"),
-        SortTable.MACHINES_INDEX,
-    )
 
-    optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
-    optionnal_templates_list = [
-        app.views.profil(request, users)
-        for app in optionnal_apps
-        if hasattr(app.views, "profil")
+    # Generate the template list for all apps of re2o if relevant
+    apps = [import_module(app) for app in LOCAL_APPS + OPTIONNAL_APPS_RE2O]
+    apps_templates_list = [
+        app.views.aff_profil(request, users)
+        for app in apps
+        if hasattr(app.views, "aff_profil")
     ]
 
-    pagination_large_number = GeneralOption.get_cached_value("pagination_large_number")
-    nb_machines = machines.count()
-    machines = re2o_paginator(request, machines, pagination_large_number)
+    nb_machines = users.user_interfaces().count()
+
     factures = Facture.objects.filter(user=users)
     factures = SortTable.sort(
         factures,
@@ -1405,9 +1390,8 @@ def profil(request, users, **_kwargs):
         "users/profil.html",
         {
             "users": users,
-            "machines_list": machines,
-            "nb_machines": nb_machines,
-            "optionnal_templates_list": optionnal_templates_list,
+            "nb_machines":nb_machines,
+            "apps_templates_list": apps_templates_list,
             "facture_list": factures,
             "ban_list": bans,
             "white_list": whitelists,

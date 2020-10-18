@@ -193,7 +193,7 @@ def aff_tickets(request):
 
 
 # Canonic views for optional apps
-def profil(request, user):
+def aff_profil(request, user):
     """View used to display the tickets on a user's profile."""
     tickets_list = Ticket.objects.filter(user=user).all().order_by("-date")
     nbr_tickets = tickets_list.count()
@@ -214,7 +214,7 @@ def profil(request, user):
         "nbr_tickets_unsolved": nbr_tickets_unsolved,
     }
     return render_to_string(
-        "tickets/profil.html", context=context, request=request, using=None
+        "tickets/aff_profil.html", context=context, request=request, using=None
     )
 
 
