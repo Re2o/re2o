@@ -33,6 +33,7 @@ import os
 
 from django.urls import reverse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import ProtectedError
@@ -1060,3 +1061,26 @@ def voucher_pdf(request, invoice, **_kwargs):
             "date_begin": invoice.date,
         },
     )
+
+def aff_profil(request,user):
+    """View used to display the cotisations on a user's profil."""
+
+    factures = Facture.objects.filter(user=user)
+    factures = SortTable.sort(
+        factures,
+        request.GET.get("col"),
+        request.GET.get("order"),
+        SortTable.COTISATIONS_INDEX,
+    ) 
+    
+    pagination_large_number = GeneralOption.get_cached_value("pagination_large_number")
+    factures = re2o_paginator(request, factures,pagination_large_number)
+
+    context = {
+        "users":user,
+        "facture_list": factures,
+    }    
+
+    return render_to_string(
+            "cotisations/aff_profil.html",context=context,request=request,using=None
+    )  

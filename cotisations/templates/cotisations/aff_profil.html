@@ -1,0 +1,141 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Lara Kermarec
+Copyright © 2017  Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load acl %}
+{% load i18n %}
+{% load logs_extra %}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
+         data-target="#subscriptions">
+        <h3 class="panel-title pull-left">
+            <i class="fa fa-eur"></i>
+    {% trans "Subscriptions" %}
+        </h3>
+    </div>
+    <div id="subscriptions" class="panel-collapse collapse">
+        <div class="panel-body">
+            {% can_create Facture %}
+            <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                <i class="fa fa-eur"></i>
+        {% trans "Add a subscription" %}
+            </a>
+            {% if user_solde %}
+            <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
+                <i class="fa fa-eur"></i>
+        {% trans "Edit the balance" %}
+            </a>
+            {% endif%}
+            {% acl_end %}
+        </div>
+        <div class="panel-body">
+            {% if facture_list %}
+        <div class="table-responsive">
+        {% if facture_list.paginator %}
+            {% include 'pagination.html' with list=facture_list %}
+        {% endif %}
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            {% trans "User" as tr_user %}
+                            {% include 'buttons/sort.html' with prefix='cotis' col='user' text=tr_user %}
+                        </th>
+                        <th>{% trans "Designation" %}</th>
+                        <th>{% trans "Total price" %}</th>
+                        <th>
+                            {% trans "Payment method" as tr_payment_method %}
+                            {% include 'buttons/sort.html' with prefix='cotis' col='paiement' text=tr_payment_method %}
+                        </th>
+                        <th>
+                            {% trans "Date" as tr_date %}
+                            {% include 'buttons/sort.html' with prefix='cotis' col='date' text=tr_date %}
+                        </th>
+                        <th>
+                            {% trans "Invoice ID" as tr_invoice_id %}
+                            {% include 'buttons/sort.html' with prefix='cotis' col='id' text=tr_invoice_id %}
+                        </th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                {% for facture in facture_list %}
+                <tr>
+                    <td><a href="{% url 'users:profil' userid=facture.user.id %}">{{ facture.user }}</a></td>
+                    <td>
+                        <table class="table-striped">
+                            {% for article in facture.name_detailed %}
+                            <tr>
+                                <td>
+                                    {{ article }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    <td>{{ facture.prix_total }}</td>
+                    <td>{{ facture.paiement }}</td>
+                    <td>{{ facture.date }}</td>
+                    <td>{{ facture.id }}</td>
+                    <td>
+                        {% can_edit facture %}
+                        {% include 'buttons/edit.html' with href='cotisations:edit-facture' id=facture.id %}
+                        {% acl_else %}
+                        {% trans "Controlled invoice" %}
+                        {% acl_end %}
+                        {% can_delete facture %}
+                        {% include 'buttons/suppr.html' with href='cotisations:del-facture' id=facture.id %}
+                        {% acl_end %}
+                        {% history_button facture %}
+                    </td>
+                    <td>
+                        {% if facture.valid %}
+                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:facture-pdf' facture.id %}">
+                            <i class="fa fa-file-pdf-o"></i> {% trans "PDF" %}
+                        </a>
+                        {% else %}
+                        <i class="text-danger">{% trans "Invalidated invoice" %}</i>
+                        {% endif %}
+                        {% if facture.control and facture.is_subscription %}
+                        <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:voucher-pdf' facture.id %}">
+                            <i class="fa fa-file-pdf-o"></i> {% trans "Voucher" %}
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr> 
+                {% endfor %}
+            </table>
+
+            {% if facture_list.paginator %}
+            {% include 'pagination.html' with list=facture_list %}
+            {% endif %}
+        </div>
+        {% else %}
+    <p>{% trans "No invoice" %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>

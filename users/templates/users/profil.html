@@ -407,63 +407,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     {% endif %}
-    <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
-             data-target="#machines">
-            <h3 class="panel-title pull-left">
-                <i class="fa fa-desktop"></i>
-		{% trans "Machines" %}
-                <span class="badge">{{ nb_machines }}</span>
-            </h3>
-        </div>
-        <div id="machines" class="panel-collapse collapse">
-            <div class="panel-body">
-               <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
-                   <i class="fa fa-desktop"></i>
-		   {% trans "Add a machine" %}
-                </a>
-            </div>
-            <div class="panel-body">
-                {% if machines_list %}
-                {% include 'machines/aff_machines.html' with machines_list=machines_list %}
-                {% else %}
-		<p>{% trans "No machine" %}</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
-             data-target="#subscriptions">
-            <h3 class="panel-title pull-left">
-                <i class="fa fa-eur"></i>
-		{% trans "Subscriptions" %}
-            </h3>
-        </div>
-        <div id="subscriptions" class="panel-collapse collapse">
-            <div class="panel-body">
-                {% can_create Facture %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
-                    <i class="fa fa-eur"></i>
-		    {% trans "Add a subscription" %}
-                </a>
-                {% if user_solde %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                    <i class="fa fa-eur"></i>
-		    {% trans "Edit the balance" %}
-                </a>
-                {% endif%}
-                {% acl_end %}
-            </div>
-            <div class="panel-body">
-                {% if facture_list %}
-                {% include 'cotisations/aff_cotisations.html' with facture_list=facture_list %}
-                {% else %}
-		<p>{% trans "No invoice" %}</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    
+    
+    {% for template in apps_templates_list %}
+        {{ template }}
+    {% endfor %}
+    
     <div class="panel panel-default">
         <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#bans">
             <h3 class="panel-title pull-left">
@@ -569,9 +518,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
 
-    {% for template in optionnal_templates_list %}
-        {{ template }}
-    {% endfor %}
 
 </div>
 {% endblock %}
