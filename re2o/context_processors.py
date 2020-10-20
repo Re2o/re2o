@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 import datetime
 
 from django.contrib import messages
+from django.contrib.messages import get_messages
 from django.http import HttpRequest
 from preferences.models import GeneralOption, OptionalMachine
 from django.utils.translation import get_language
@@ -47,9 +48,11 @@ def context_user(request):
         global_message = GeneralOption.get_cached_value("general_message_en")
     if global_message:
         if isinstance(request, HttpRequest):
-            messages.warning(request, global_message)
+            if global_message not in [msg.message for msg in get_messages(request)]:
+                messages.warning(request, global_message)
         else:
-            messages.warning(request._request, global_message)
+            if global_message not in [msg.message for msg in get_messages(request._request)]:
+                messages.warning(request._request, global_message)
     if user.is_authenticated():
         interfaces = user.user_interfaces()
     else:
