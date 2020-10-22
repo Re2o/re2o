@@ -277,11 +277,6 @@ def edit_info(request, user, userid):
     if user_form.is_valid():
         if user_form.changed_data:
             user = user_form.save(commit=False)
-            former_user = Adherent.objects.get(pseudo=user.pseudo)
-            if former_user.profile_image:
-                if (user.profile_image and user.profile_image.url != former_user.profile_image.url) or (not user.profile_image):
-                        former_image = settings.BASE_DIR+former_user.profile_image.url
-                        os.remove(former_image)
             user = user_form.save()
             messages.success(request, _("The user was edited."))
 
