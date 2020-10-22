@@ -222,7 +222,7 @@ class AdherentAdmin(VersionAdmin, BaseUserAdmin):
         (None, {"fields": ("pseudo",)}),
         (
             "Personal info",
-            {"fields": ("surname", "name", "email", "school", "shell", "uid_number", "profile_image", "password1", "password2")},
+            {"fields": ("surname", "name", "email", "school", "shell", "uid_number", "password1", "password2")},
         ),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -240,7 +240,6 @@ class AdherentAdmin(VersionAdmin, BaseUserAdmin):
                     "school",
                     "password1",
                     "password2",
-                    "profile_image",
                     "is_superuser",
                 ),
             },
@@ -279,7 +278,7 @@ class ClubAdmin(VersionAdmin, BaseUserAdmin):
         (None, {"fields": ("pseudo",)}),
         (
             "Personal info",
-            {"fields": ("surname", "email", "school", "shell", "uid_number", "profile_image", "password1", "password2")},
+            {"fields": ("surname", "email", "school", "shell", "uid_number", "password1", "password2")},
         ),
     )
 
@@ -295,7 +294,6 @@ class ClubAdmin(VersionAdmin, BaseUserAdmin):
                     "school",
                     "password1",
                     "password2",
-                    "profile_image",
                     "is_superuser",
                 ),
             },
