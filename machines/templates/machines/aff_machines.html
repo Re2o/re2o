@@ -32,13 +32,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
 
     <table class="table" id="machines_table">
-        <colgroup>
-            <col>
-            <col>
-            <col>
-            <col width="{% if ipv6_enabled %}300{% else %}150{% endif %}px">
-            <col width="144px">
-        </colgroup>
         <thead>
             {% trans "DNS name" as tr_dns_name %}
             <th>{% include 'buttons/sort.html' with prefix='machine' col='name' text=tr_dns_name %}</th>
@@ -106,17 +99,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
                                     data-target="#collapseIpv6_{{ interface.id }}" aria-expanded="true"
                                     aria-controls="collapseIpv6_{{ interface.id }}">
-                                {% trans "Display the IPv6 address" %}
+                                {% trans "Display IPv6" %}
                             </button>
                         {% endif %}
                     </td>
                     <td class="text-right">
-                        <div style="width: 128px;">
                             <div class="btn-group" role="group">
                                 <button class="btn btn-primary btn-sm dropdown-toggle" type="button"
                                         id="editioninterface" data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="true">
-                                    <i class="fa fa-edit"></i> <span class="caret"></span>
+                                    <i class="fa fa-edit"></i><span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="editioninterface">
                                     {% can_edit interface %}
@@ -161,11 +153,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                                     {% acl_end %}
                                 </ul>
                             </div>
-                            {% history_button interface %}
-                            {% can_delete interface %}
-                            {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
-                            {% acl_end %}
-                        </div>
+                                {% history_button interface %}
+                        {% can_delete interface %}
+                        {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
+                        {% acl_end %}
                     </td>
                 </tr>
                     <tr>
