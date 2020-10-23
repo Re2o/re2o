@@ -26,45 +26,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 {% load i18n %}
 
-<div class="table-responsive">
-    {% if switch_list.paginator %}
-        {% include 'pagination.html' with list=switch_list %}
-    {% endif %}
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                {% trans "DNS name" as tr_dns %}
-                <th>{% include 'buttons/sort.html' with prefix='switch' col='dns' text=tr_dns %}</th>
-                {% trans "IPv4 address" as tr_ip %}
-                <th>{% include 'buttons/sort.html' with prefix='switch' col='ip' text=tr_ip %}</th>
-                {% trans "Switch bay" as tr_bay %}
-                <th>{% include 'buttons/sort.html' with prefix='switch' col='loc' text=tr_bay %}</th>
-	        {% trans "Ports" as tr_ports %}
-                <th>{% include 'buttons/sort.html' with prefix='switch' col='ports' text=tr_ports %}</th>
-                {% trans "Stack" as tr_stack %}
-                <th>{% include 'buttons/sort.html' with prefix='switch' col='stack' text=tr_stack %}</th>
-                <th>{% trans "Stack member ID" %}</th>
-                <th>{% trans "Switch model" %}</th>
-                <th>{% trans "Details" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for switch in switch_list %}
-            <tr>
-                <td>
-                    <a href="{% url 'topologie:index-port' switch.id %}">
-                    {{ switch }}
+{% for switch in switch_list %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-3">
+                    <a href="{%url 'topologie:index-port' switch.id %}">
+                        {{ switch }}
                     </a>
-                </td>
-                <td>{{ switch.interface_set.first.ipv4 }}</td>
-                <td>{{ switch.switchbay }}</td>
-                <td>{{ switch.number }}</td>
-                <td>{{ switch.stack.name }}</td>
-                <td>{{ switch.stack_member_id }}</td>
-                <td>{{ switch.model }}</td>
-                <td>{{ switch.interface_set.first.details }}</td>
-                <td class="text-right">
+                </div>
+                <div class="col-sm-3">
+                    {% trans "Switch bay" as tr_bay %} {{switch.switchbay}}
+                </div>
+                <div class="col-sm-26 text-right">
                     {% can_edit switch %}
                     {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.id %}
                     {% acl_end %}
@@ -75,14 +50,38 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% can_create Port %}
                     {% trans "Creation of ports" as tr_creation %}
                     {% include 'buttons/add.html' with href='topologie:create-ports' id=switch.id desc=tr_creation %}
-                    {% acl_end %}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-
-    {% if switch_list.paginator %}
-    {% include 'pagination.html' with list=switch_list %}
+                    {% acl_end %}                   
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="table-repsonsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans "IPv4 address"%}</th>
+                        <th>{% trans "Ports"%}</th>
+                        <th>{% trans "Stack"%}</th>
+                        <th>{% trans "Stack member ID" %}</th>
+                        <th>{% trans "Switch model" %}</th>
+                    </tr>
+                </thead>
+                <tr>
+                <td>{{ switch.interface_set.first.ipv4 }}</td>
+                <td>{{ switch.number }}</td>
+                <td>{{ switch.stack.name }}</td>
+                <td>{{ switch.stack_member_id }}</td>
+                <td>{{ switch.model }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% if switch.interface_set.first.details  %}
+    <div class="panel-footer">
+        <span><b>{% trans "Details: " %}</b>{{ switch.interface_set.first.details }}</span>
+    </div>
     {% endif %}
 </div>
+{% endfor %}
 
