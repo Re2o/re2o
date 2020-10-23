@@ -28,10 +28,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 {% load i18n %}
 
+{% if iptype_list.paginator %}
+{% include 'pagination.html' with list=iptype_list %}
+{% endif %}
+
+
 {% for type in iptype_list %}
 <div class="panel panel-default">
     <div class="panel-heading">
-        <div class="containeri-fluid">
+        <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-3">
                     <h4>{{ type.name }}</h4>
