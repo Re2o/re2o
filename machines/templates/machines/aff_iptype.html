@@ -29,9 +29,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% if iptype_list.paginator %}
-{% include 'pagination.html' with list=iptype_list %}
+    {% include 'pagination.html' with list=iptype_list %}
 {% endif %}
-
 
 {% for type in iptype_list %}
 <div class="panel panel-default">
@@ -59,8 +58,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </div>
             </div>
         </div>
-  </div>
-  <div class="panel-body">
+    </div>
+    <div class="panel-body">
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
@@ -83,9 +82,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     </tr>
             </table>
         </div>
-  </div>
+    </div>
 </div>
 {% endfor %}
 
-
-
+{% if iptype_list.paginator %}
+    {% include 'pagination.html' with list=iptype_list %}
+{% endif %}

@@ -26,6 +26,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 {% load i18n %}
 
+{% if switch_list.paginator %}
+    {% include 'pagination.html' with list=switch_list %}
+{% endif %}
+
 {% for switch in switch_list %}
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -84,4 +88,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
 </div>
 {% endfor %}
+
+{% if switch_list.paginator %}
+    {% include 'pagination.html' with list=switch_list %}
+{% endif %}
 
