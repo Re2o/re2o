@@ -1351,11 +1351,13 @@ def aff_profil(request, user):
 @can_view_all(IpType)
 def index_iptype(request):
     """View used to display the list of existing types of IP."""
+    pagination_large_number = GeneralOption.get_cached_value("pagination_large_number")
     iptype_list = (
         IpType.objects.select_related("extension")
         .select_related("vlan")
         .order_by("name")
     )
+    iptype_list = re2o_paginator(request, iptype_list, pagination_large_number)
     return render(request, "machines/index_iptype.html", {"iptype_list": iptype_list})
 
 

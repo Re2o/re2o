@@ -26,36 +26,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 {% load i18n %}
 
-<div class="table-responsive">
-    {% if machines_list.paginator %}
-        {% include 'pagination.html' with list=machines_list go_to_id="machines" %}
-    {% endif %}
+{% if machines_list.paginator %}  
+    {% include 'pagination.html' with list=machines_list %}  
+{% endif %}
 
-    <table class="table" id="machines_table">
-        <thead>
-            {% trans "DNS name" as tr_dns_name %}
-            <th>{% include 'buttons/sort.html' with prefix='machine' col='name' text=tr_dns_name %}</th>
-            <th>{% trans "Type" %}</th>
-            <th>{% trans "MAC address" %}</th>
-            <th>{% trans "IP address" %}</th>
-            <th>{% trans "Actions" %}</th>
-            <tbody>
-            {% for machine in machines_list %}
-                <tr class="info">
-                    <td colspan="4">
-                        {% trans "No name" as tr_no_name %}
-                        {% trans "View the profile" as tr_view_the_profile %}
-                        {% if machine.active %}
-                        <span class="text-success">
-                        {% else %}
-                        <span class="text-warning">{% trans "Deactivated" %}: 
-                        {% endif %}
-                        <b>{{ machine.get_name|default:tr_no_name }}</b> </span><i class="fa fa-angle-right"></i>
-                        <a href="{% url 'users:profil' userid=machine.user.id %}" title=tr_view_the_profile>
-                            <i class="fa fa-user"></i> {{ machine.user }}
-                        </a>
-                    </td>
-                    <td class="text-right">
+{% for machine in machines_list %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    {% trans "No name" as tr_no_name %}
+                    <i class="fa fa-user"></i> {{ machine.user }}
+                    <i class="fa fa-angle-right"></i>
+                    <b>{{ machine.get_name|default:tr_no_name }}</b>
+                </div>
+                <div class="col-sm-6 text-right">
                     {% can_create Interface machine.id %}
                     {% trans "Create an interface" as tr_create_an_interface %}
                     {% include 'buttons/add.html' with href='machines:new-interface' id=machine.id desc=tr_create_an_interface %}
@@ -64,8 +50,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% can_delete machine %}
                     {% include 'buttons/suppr.html' with href='machines:del-machine' id=machine.id %}
                     {% acl_end %}
-                </td>
-            </tr>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>{% trans "DNS name"%}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "MAC address" %}</th>
+                    <th>{% trans "IP address" %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
+            </thead>
             {% for interface in machine.interface_set.all %}
                 <tr>
                     <td>
@@ -74,7 +74,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
                                     data-target="#collapseDomain_{{ interface.id }}" aria-expanded="true"
                                     aria-controls="collapseDomain_{{ interface.id }}">
-                                {% trans "Display the aliases" %}
+                                {% trans "Show aliases" %}
                             </button>
                         {% else %}
                             {{ interface.domain }}
@@ -159,59 +159,64 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         {% acl_end %}
                     </td>
                 </tr>
-                    <tr>
-                        <td colspan=5 style="border-top: none; padding: 1px;">
-                            <div class="collapse in" id="collapseVendor_{{ interface.id }}">
-                                <ul class="list-group" style="margin-bottom: 0;">
-                                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
-                                            {{ interface.get_vendor }}
-                                        </li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                {% if ipv6_enabled and interface.ipv6 != 'None' %}
-                    <tr>
-                        <td colspan=5 style="border-top: none; padding: 1px;">
-                            <div class="collapse in" id="collapseIpv6_{{ interface.id }}">
-                                <ul class="list-group" style="margin-bottom: 0;">
-                                    {% for ipv6 in interface.ipv6.all %}
-                                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
-                                            {{ ipv6 }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                {% endif %}
-                {% if interface.domain.related_domain.all %}
-                    <tr>
-                        <td colspan=5 style="border-top: none; padding: 1px;">
-                            <div class="collapse in" id="collapseDomain_{{ interface.id }}">
-                                <ul class="list-group" style="margin-bottom: 0;">
-                                    {% for al in interface.domain.related_domain.all %}
-                                        <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
-                                            <a href="http://{{ al }}">
-                                                {{ al }}
-                                                <i class="fa fa-share"></i>
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                {% endif %}
-            {% endfor %}
-            <tr>
-                <td colspan="8"></td>
-            </tr>
+                <tr>
+                    <td colspan=5 style="border-top: none; padding: 1px;">
+                        <div class="collapse in" id="collapseVendor_{{ interface.id }}">
+                            <ul class="list-group" style="margin-bottom: 0;">
+                                    <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
+                                        {{ interface.get_vendor }}
+                                    </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% if ipv6_enabled and interface.ipv6 != 'None' %}
+                <tr>
+                    <td colspan=5 style="border-top: none; padding: 1px;">
+                        <div class="collapse in" id="collapseIpv6_{{ interface.id }}">
+                            <ul class="list-group" style="margin-bottom: 0;">
+                                {% for ipv6 in interface.ipv6.all %}
+                                    <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
+                                        {{ ipv6 }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+            {% if interface.domain.related_domain.all %}
+                <tr>
+                    <td colspan=5 style="border-top: none; padding: 1px;">
+                        <div class="collapse in" id="collapseDomain_{{ interface.id }}">
+                            <ul class="list-group" style="margin-bottom: 0;">
+                                {% for al in interface.domain.related_domain.all %}
+                                    <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
+                                        <a href="http://{{ al }}">
+                                            {{ al }}
+                                            <i class="fa fa-share"></i>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
         {% endfor %}
-        </tbody>
-    </table>
+        </table>
+    </div>
+</div>
+</div>
+{% endfor %}
 
-    <script>
+
+{% if machines_list.paginator %}  
+    {% include 'pagination.html' with list=machines_list %}  
+{% endif %}
+
+
+<script>
         $("#machines_table").ready(function () {
             var alias_div = [{% for machine in machines_list %}{% for interface in machine.interface_set.all %}{% if interface.domain.related_domain.all %}$("#collapseDomain_{{ interface.id }}"), {% endif %}{% endfor %}{% endfor %}];
             for (var i = 0; i < alias_div.length; i++) {
@@ -232,7 +237,3 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         });
     </script>
 
-    {% if machines_list.paginator %}
-        {% include 'pagination.html' with list=machines_list go_to_id="machines" %}
-    {% endif %}
-</div>
