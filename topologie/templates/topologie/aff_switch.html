@@ -39,7 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 <div class="col-sm-3">
                     {% trans "Switch bay" as tr_bay %} {{switch.switchbay}}
                 </div>
-                <div class="col-sm-26 text-right">
+                <div class="col-sm-6 text-right">
                     {% can_edit switch %}
                     {% include 'buttons/edit.html' with href='topologie:edit-switch' id=switch.id %}
                     {% acl_end %}

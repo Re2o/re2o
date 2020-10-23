@@ -3,7 +3,7 @@ Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2018  Gabriel Détraz
+Copyleft © 2018  Gabriel Détraz
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,64 +24,95 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 {% load logs_extra %}
 
-<div class="table-responsive">
 
-    {% if port_profile_list.paginator %}
-        {% include 'pagination.html' with list=port_profile_list %}
-    {% endif %}
-
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>{% trans "Name" %}</th>
-                <th>{% trans "Default for" %}</th>
-                <th>{% trans "VLANs" %}</th>
-                <th>{% trans "RADIUS settings" %}</th>
-                <th>{% trans "Speed limit" %}</th>
-                <th>{% trans "MAC address limit" %}</th>
-                <th>{% trans "Security" %}</th>
-                <th></th>
-            </tr>
-        </thead>
-        {% for port_profile in port_profile_list %}
-        <tr>
-            <td>{{ port_profile.name }}</td>
-	    <td>{{ port_profile.profil_default }} {% if port_profile.profil_default%}<b> - {% if port_profile.on_dormitory %}{% blocktrans with dorm=port_profile.on_dormitory %} on {{ dorm }}{% endblocktrans %}{% else %}{% trans "Everywhere" %}{% endif %}</b>{% endif %}</td>
-            <td>
-                {% if port_profile.vlan_untagged %}
-                <b>{% trans "Untagged: " %}</b>{{ port_profile.vlan_untagged }}
-                <br>
-                {% endif %}
-                {% if port_profile.vlan_tagged.all %}
-                <b>{% trans "Tagged: " %}</b>{{ port_profile.vlan_tagged.all|join:", " }}
-                {% endif %}
-            </td>
-            <td>
-                <b>{% trans "RADIUS type: " %}</b>{{ port_profile.radius_type }}
-                {% if port_profile.radius_type == "MAC-radius" %}
-                <br>
-                <b>{% trans "RADIUS mode: " %}</b>{{ port_profile.radius_mode }}</td>
-            {% endif %}
-            <td>{{ port_profile.speed }}</td>
-            <td>{{ port_profile.mac_limit }}</td>
-            <td>{{ port_profile.security_parameters_enabled|join:"<br>" }}</td>
-            <td class="text-right">
-                {% can_edit port_profile %}
-                {% include 'buttons/edit.html' with href='topologie:edit-port-profile' id=port_profile.id %}
-                {% acl_end %}
-                {% history_button port_profile %}
-                {% can_delete port_profile %}
-		{% include 'buttons/suppr.html' with href='topologie:del-port-profile' id=port_profile.id %}
-                {% acl_end %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    {% if port_profile_list.paginator %}
-        {% include 'pagination.html' with list=port_profile_list %}
-    {% endif %}
-
+{% for port_profile in port_profile_list %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-3">
+                    <h4>{{ port_profile.name }}</h4>
+                </div>
+                <div class="col-sm-9 text-right">
+                    {% can_edit port_profile %}
+                    {% include 'buttons/edit.html' with href='topologie:edit-port-profile' id=port_profile.id %}
+                    {% acl_end %}
+                    {% history_button port_profile %}
+                    {% can_delete port_profile %}
+                    {% include 'buttons/suppr.html' with href='topologie:del-port-profile' id=port_profile.id %}
+                    {% acl_end %}               
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="table-repsonsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans "Default for" %}</th>
+                        <th>{% trans "RADIUS settings" %}</th>
+                        <th>{% trans "Speed limit" %}</th>
+                        <th>{% trans "MAC address limit" %}</th>
+                        <th>{% trans "Security" %}</th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>
+                        {{ port_profile.profil_default }} 
+                        {% if port_profile.profil_default%}
+                            <b> - {% if port_profile.on_dormitory %}{% blocktrans with dorm=port_profile.on_dormitory %} on {{ dorm }}{% endblocktrans %}{% else %}{% trans "Everywhere" %}{% endif %}</b>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <b>{% trans "RADIUS type: " %}</b>{{ port_profile.radius_type }}
+                        {% if port_profile.radius_type == "MAC-radius" %}
+                        <br>
+                        <b>{% trans "RADIUS mode: " %}</b>{{ port_profile.radius_mode }}</td>
+                    {% endif %}
+                    <td>{{ port_profile.speed }}</td>
+                    <td>{{ port_profile.mac_limit }}</td>
+                    <td>{{ port_profile.security_parameters_enabled|join:"<br>" }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-2">
+                    <h4>{% trans "VLANs" %}</h4>
+                </div>
+                <div class="col-sm-10">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-3 text-left">
+                                <b>{% trans "Untagged: " %}</b>
+                            </div>
+                            <div class="col-sm-9 text-rit">
+                                {%if port_profile.vlan_untagged %}
+                                {{ port_profile.vlan_untagged }}
+                                {% else %}
+                                {% trans "None" %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3 text-left">
+                                <b>{% trans "Tagged: " %}</b>
+                            </div>
+                            <div class="col-sm-9 text-left">
+                                {%if port_profile.vlan_tagged.all %}
+                                {{ port_profile.vlan_tagged.all|join:", " }}
+                                {% else %}
+                                {% trans "None" %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
+{% endfor %}
