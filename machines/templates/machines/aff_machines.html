@@ -55,162 +55,154 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel-body">
-        <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>{% trans "DNS name"%}</th>
-                    <th>{% trans "Type" %}</th>
-                    <th>{% trans "MAC address" %}</th>
-                    <th>{% trans "IP address" %}</th>
-                    <th>{% trans "Actions" %}</th>
-                </tr>
-            </thead>
-            {% for interface in machine.interface_set.all %}
-                <tr>
-                    <td>
-                        {% if interface.domain.related_domain.all %}
-                            {{ interface.domain }}
-                            <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
-                                    data-target="#collapseDomain_{{ interface.id }}" aria-expanded="true"
-                                    aria-controls="collapseDomain_{{ interface.id }}">
-                                {% trans "Show aliases" %}
-                            </button>
-                        {% else %}
-                            {{ interface.domain }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {{ interface.machine_type }}
-                    </td>
-                    <td>
-                        {{ interface.mac_address }}
-                            <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
-                                    data-target="#collapseVendor_{{ interface.id }}" aria-expanded="true"
-                                    aria-controls="collapseVendor_{{ interface.id }}">
-                                {% trans "Display the vendor" %}
-                            </button>
-                    </td>
-                    <td>
-                        <b>IPv4</b> {{ interface.ipv4 }}
-                        <br>
-                        {% if ipv6_enabled and interface.ipv6 != 'None' %}
-                            <b>IPv6</b>
-                            <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
-                                    data-target="#collapseIpv6_{{ interface.id }}" aria-expanded="true"
-                                    aria-controls="collapseIpv6_{{ interface.id }}">
-                                {% trans "Display IPv6" %}
-                            </button>
-                        {% endif %}
-                    </td>
-                    <td class="text-right">
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-primary btn-sm dropdown-toggle" type="button"
-                                        id="editioninterface" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="true">
-                                    <i class="fa fa-edit"></i><span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" aria-labelledby="editioninterface">
-                                    {% can_edit interface %}
-                                        <li>
-                                            <a href="{% url 'machines:edit-interface' interface.id %}">
-                                                <i class="fa fa-edit"></i>
-                                                {% trans "Edit" %}
-                                            </a>
-                                        </li>
-                                    {% acl_end %}
-                                    {% can_create Domain interface.id %}
-                                        <li>
-                                            <a href="{% url 'machines:index-alias' interface.id %}">
-                                                <i class="fa fa-edit"></i>
-                                                {% trans "Manage the aliases" %}
-                                            </a>
-                                        </li>
-                                    {% acl_end %}
-                                    {% can_create Ipv6List interface.id %}
-                                        <li>
-                                            <a href="{% url 'machines:index-ipv6' interface.id %}">
-                                                <i class="fa fa-edit"></i>
-                                                {% trans "Manage the IPv6 addresses" %}
-                                            </a>
-                                        </li>
-                                    {% acl_end %}
-                                    {% can_create SshFp interface.machine.id %}
-                                        <li>
-                                            <a href="{% url 'machines:index-sshfp' interface.machine.id %}">
-                                                <i class="fa fa-edit"></i>
-                                                {% trans "Manage the SSH fingerprints" %}
-                                            </a>
-                                        </li>
-                                    {% acl_end %}
-                                    {% can_create OuverturePortList %}
-                                        <li>
-                                            <a href="{% url 'machines:port-config' interface.id %}">
-                                                <i class="fa fa-edit"></i>
-                                                {% trans "Manage the ports configuration" %}
-                                            </a>
-                                        </li>
-                                    {% acl_end %}
-                                </ul>
-                            </div>
-                                {% history_button interface %}
-                        {% can_delete interface %}
-                        {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
-                        {% acl_end %}
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan=5 style="border-top: none; padding: 1px;">
-                        <div class="collapse in" id="collapseVendor_{{ interface.id }}">
-                            <ul class="list-group" style="margin-bottom: 0;">
-                                    <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
-                                        {{ interface.get_vendor }}
-                                    </li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
+        {% for interface in machine.interface_set.all %}
+        <div class="conatiner-fluid">
+            <div class="row">
+                <div class="col-sm-3">
+                    <b>{% trans "DNS name"%}:</b>
+                    </br>
+                    {% if interface.domain.related_domain.all %}
+                        {{ interface.domain }}
+                        <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
+                                data-target="#collapseDomain_{{ interface.id }}" aria-expanded="true"
+                                aria-controls="collapseDomain_{{ interface.id }}">
+                            {% trans "Show aliases" %}
+                        </button>
+                    {% else %}
+                        {{ interface.domain }}
+                    {% endif %}
+                </div>
+                <div class="col-sm-2">
+                    <b>{% trans "Type" %}:</b>
+                    </br>
+                    {{ interface.machine_type }}
+                </div>
+                <div class="col-sm-3">
+                    <b>{% trans "MAC address" %}:</b>
+                    </br>
+                    {{ interface.mac_address }}
+                    <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
+                            data-target="#collapseVendor_{{ interface.id }}" aria-expanded="true"
+                            aria-controls="collapseVendor_{{ interface.id }}">
+                        {% trans "Display the vendor" %}
+                    </button>
+                </div>
+                <div class="col-sm-2">
+                    <b>IPv4</b> {{ interface.ipv4 }}
+                    <br>
+                    {% if interface.ipv6.count > 0 %}
+                    <b>IPv6</b>
+                        <button class="btn btn-default btn-xs" type="button" data-toggle="collapse"
+                                data-target="#collapseIpv6_{{ interface.id }}" aria-expanded="true"
+                                aria-controls="collapseIpv6_{{ interface.id }}">
+                            {% trans "Display IPv6" %}
+                        </button>
+                    {% else %}
+                    <b>{% trans "No IPv6" %}</b>
+                    {% endif %}
+                </div>
+                <div class="col-sm-2 text-right">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-primary btn-sm dropdown-toggle" type="button"
+                                id="editioninterface" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="true">
+                            <i class="fa fa-edit"></i><span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="editioninterface">
+                            {% can_edit interface %}
+                                <li>
+                                    <a href="{% url 'machines:edit-interface' interface.id %}">
+                                        <i class="fa fa-edit"></i>
+                                        {% trans "Edit" %}
+                                    </a>
+                                </li>
+                            {% acl_end %}
+                            {% can_create Domain interface.id %}
+                                <li>
+                                    <a href="{% url 'machines:index-alias' interface.id %}">
+                                        <i class="fa fa-edit"></i>
+                                        {% trans "Manage the aliases" %}
+                                    </a>
+                                </li>
+                            {% acl_end %}
+                            {% can_create Ipv6List interface.id %}
+                                <li>
+                                    <a href="{% url 'machines:index-ipv6' interface.id %}">
+                                        <i class="fa fa-edit"></i>
+                                        {% trans "Manage the IPv6 addresses" %}
+                                    </a>
+                                </li>
+                            {% acl_end %}
+                            {% can_create SshFp interface.machine.id %}
+                                <li>
+                                    <a href="{% url 'machines:index-sshfp' interface.machine.id %}">
+                                        <i class="fa fa-edit"></i>
+                                        {% trans "Manage the SSH fingerprints" %}
+                                    </a>
+                                </li>
+                            {% acl_end %}
+                            {% can_create OuverturePortList %}
+                                <li>
+                                    <a href="{% url 'machines:port-config' interface.id %}">
+                                        <i class="fa fa-edit"></i>
+                                        {% trans "Manage the ports configuration" %}
+                                    </a>
+                                </li>
+                            {% acl_end %}
+                        </ul>
+                    </div>
+                    {% history_button interface %}
+                    {% can_delete interface %}
+                    {% include 'buttons/suppr.html' with href='machines:del-interface' id=interface.id %}
+                    {% acl_end %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+            <div class="collapse in" id="collapseVendor_{{ interface.id }}">
+                <ul class="list-group" style="margin-bottom: 0;">
+                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
+                            {{ interface.get_vendor }}
+                        </li>
+                </ul>
+            </div>
             {% if ipv6_enabled and interface.ipv6 != 'None' %}
-                <tr>
-                    <td colspan=5 style="border-top: none; padding: 1px;">
-                        <div class="collapse in" id="collapseIpv6_{{ interface.id }}">
-                            <ul class="list-group" style="margin-bottom: 0;">
-                                {% for ipv6 in interface.ipv6.all %}
-                                    <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
-                                        {{ ipv6 }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
+            <div class="collapse in" id="collapseIpv6_{{ interface.id }}">
+                <ul class="list-group" style="margin-bottom: 0;">
+                    {% for ipv6 in interface.ipv6.all %}
+                        <li class="list-group-item col-xs-6 col-sm-6 col-md-6" style="border: none;">
+                            {{ ipv6 }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endif %}
             {% if interface.domain.related_domain.all %}
-                <tr>
-                    <td colspan=5 style="border-top: none; padding: 1px;">
-                        <div class="collapse in" id="collapseDomain_{{ interface.id }}">
-                            <ul class="list-group" style="margin-bottom: 0;">
-                                {% for al in interface.domain.related_domain.all %}
-                                    <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
-                                        <a href="http://{{ al }}">
-                                            {{ al }}
-                                            <i class="fa fa-share"></i>
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
+            <div class="collapse in" id="collapseDomain_{{ interface.id }}">
+                <ul class="list-group" style="margin-bottom: 0;">
+                    {% for al in interface.domain.related_domain.all %}
+                        <li class="list-group-item col-xs-6 col-sm-4 col-md-3" style="border: none;">
+                            <a href="http://{{ al }}">
+                                {{ al }}
+                                <i class="fa fa-share"></i>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endif %}
+            </div>
+        </div>
+        {%if machine.interface_set.count > 1 %}
+        <hr/>
+        {% endif %}
         {% endfor %}
-        </table>
     </div>
 </div>
-</div>
+
 {% endfor %}
-
-
+    
 {% if machines_list.paginator %}  
     {% include 'pagination.html' with list=machines_list %}  
 {% endif %}
