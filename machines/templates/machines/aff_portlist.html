@@ -37,10 +37,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div class="panel-heading">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-sm-3">
+                <div class="col-sm-9">
                     <h4>{{ ports.name }}</h4>
                 </div>
-                <div class="col-sm-9 text-right">
+                <div class="col-sm-3 text-right">
                     {% can_edit ports %}
                     {% include 'buttons/edit.html' with href='machines:edit-portlist' id=ports.id %}
                     {% acl_end %}
@@ -52,23 +52,29 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel-body">
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>{% trans "TCP (input)" %}</th>
-                        <th>{% trans "TCP (output)" %}</th>
-                        <th>{% trans "UDP (input)" %}</th>
-                        <th>{% trans "UDP (output)" %}</th>
-                    </tr>
-                </thead>
-                    <tr>
-                        <td>{% for p in ports.tcp_ports_in %}{{ p.show_port }}, {% endfor %}</td>
-                        <td>{% for p in ports.tcp_ports_out %}{{ p.show_port }}, {% endfor %}</td>
-                        <td>{% for p in ports.udp_ports_in %}{{ p.show_port }}, {% endfor %}</td>
-                        <td>{% for p in ports.udp_ports_out %}{{ p.show_port }}, {% endfor %}</td>
-                    </tr>
-            </table>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-3">
+                    <b>{% trans "TCP (input)" %}</b>
+                    </br>
+                    {% for p in ports.tcp_ports_in %}{{ p.show_port }}, {% endfor %}
+                </div>
+                <div class="col-sm-3">
+                    <b>{% trans "TCP (output)" %}</b>
+                    </br>
+                    {% for p in ports.tcp_ports_out %}{{ p.show_port }}, {% endfor %}
+                </div>
+                <div class="col-sm-3">
+                    <b>{% trans "UDP (input)" %}</b>
+                    </br>
+                    {% for p in ports.udp_ports_in %}{{ p.show_port }}, {% endfor %}
+                </div>
+                <div class="col-sm-3">
+                    <b>{% trans "UDP (output)" %}</b>
+                    </br>
+                    {% for p in ports.udp_ports_out %}{{ p.show_port }}, {% endfor %}
+                </div>
+            </div>            
         </div>
     </div>
     <div class="panel-footer">
