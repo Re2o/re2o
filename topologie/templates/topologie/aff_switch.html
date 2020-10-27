@@ -60,25 +60,34 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     <div class="panel-body">
-        <div class="table-repsonsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>{% trans "IPv4 address"%}</th>
-                        <th>{% trans "Ports"%}</th>
-                        <th>{% trans "Stack"%}</th>
-                        <th>{% trans "Stack member ID" %}</th>
-                        <th>{% trans "Switch model" %}</th>
-                    </tr>
-                </thead>
-                <tr>
-                <td>{{ switch.interface_set.first.ipv4 }}</td>
-                <td>{{ switch.number }}</td>
-                <td>{{ switch.stack.name }}</td>
-                <td>{{ switch.stack_member_id }}</td>
-                <td>{{ switch.model }}</td>
-                </tr>
-            </table>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-3">
+                    <b>{% trans "IPv4 address"%}</b>
+                    </br>
+                    {{ switch.interface_set.first.ipv4 }}
+                </div>
+                <div class="col-sm-2">
+                    <b>{% trans "Ports"%}</b>
+                    </br>
+                    {{ switch.number }}
+                </div>
+                <div class="col-sm-2">
+                    <b>{% trans "Stack"%}</b>
+                    </br>
+                    {{ switch.stack.name }}
+                </div>
+                <div class="col-sm-2">
+                    <b>{% trans "Stack member ID" %}</b>
+                    </br>
+                    {{ switch.stack_member_id }}
+                </div>
+                <div class="col-sm-3">
+                    <b>{% trans "Switch model" %}</b>
+                    </br>
+                    {{ switch.model }}
+                </div>
+            </div>
         </div>
     </div>
     {% if switch.interface_set.first.details  %}
