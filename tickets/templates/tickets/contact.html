@@ -1,13 +1,19 @@
 {% load i18n %}
 
 <div class="panel panel-info">
-	<div class="panel-heading"><h4>{% trans "Tickets" %}</h4></div>
+	<div class="panel-heading">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h4>{% trans "Tickets" %}</h4>
+                </div>
+                <div class="col-sm-6 text-right">
+                    <a class="btn btn-primary" href="{% url 'tickets:new-ticket' %}"><i class="fa fa-ticket"></i> {% trans "Open a ticket" %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="panel-body">
-        <div class="row">
-        <div class="col-sm-9">
         {% blocktrans %}If you are experiencing issues with the services offered by {{asso_name}}, you can open a ticket that will be taken care of. If you want to contact us on any other topic, please choose one address below.{% endblocktrans %}
-		</div>
-        <div class="col-sm-3"><a class="btn btn-primary" href="{% url 'tickets:new-ticket' %}"><i class="fa fa-ticket"></i> {% trans "Open a ticket" %}</a></div>
-    </div> 
     </div>
 </div>
