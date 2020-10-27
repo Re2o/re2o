@@ -54,14 +54,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <th>{% trans "RADIUS settings" %}</th>
                         <th>{% trans "Speed limit" %}</th>
                         <th>{% trans "MAC address limit" %}</th>
-                        <th>{% trans "Security" %}</th>
                     </tr>
                 </thead>
                 <tr>
                     <td>
                         {{ port_profile.profil_default }} 
                         {% if port_profile.profil_default%}
-                            <b> - {% if port_profile.on_dormitory %}{% blocktrans with dorm=port_profile.on_dormitory %} on {{ dorm }}{% endblocktrans %}{% else %}{% trans "Everywhere" %}{% endif %}</b>
+                        {% if port_profile.on_dormitory %}{% blocktrans with dorm=port_profile.on_dormitory %}<b> on</b> {{ dorm }}{% endblocktrans %}{% else %}{% trans "Everywhere" %}{% endif %}
                         {% endif %}
                     </td>
                     <td>
@@ -72,11 +71,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% endif %}
                     <td>{{ port_profile.speed }}</td>
                     <td>{{ port_profile.mac_limit }}</td>
-                    <td>{{ port_profile.security_parameters_enabled|join:"<br>" }}</td>
                 </tr>
             </table>
         </div>
     </div>
+    {% if port_profile.security_parameters_enabled %}
+    <div class="panel-footer">
+        <p class="text-warning"><b>{% trans "Security" %}: </b>{{ port_profile.security_parameters_enabled|join:", " }}
+    </div>
+    {% endif %}
     <div class="panel-footer">
         <div class="container-fluid">
             <div class="row">
