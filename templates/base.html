@@ -305,8 +305,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </div>
                         <ul class="list-group">
                         {% for interface in interfaces|slice:":5" %}
-                            <div class="list-group-item visible-xs visible-lg">{{ interface }}</div>
-                            <div class="list-group-item visible-sm visible-md">{{ interface.splited_name}}</div>
+                        <div class="list-group-item" style="word-break: break-all">{{ interface }}</div>
                         {% endfor %}
                         {% if interfaces|length > 5 %}
                             <a class="list-group-item list-group-item-info" role="button" href="{% url 'users:mon-profil' %}">
