@@ -1626,9 +1626,6 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             )
         return True, None, None
 
-    def splited_name(self):
-        return str(self).replace('.',' .')
-
     def __init__(self, *args, **kwargs):
         super(Interface, self).__init__(*args, **kwargs)
         self.field_permissions = {"machine": self.can_change_machine}
