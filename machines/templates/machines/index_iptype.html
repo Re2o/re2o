@@ -30,6 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "Machines" %}{% endblock %}
 
 {% block content %}
+    <div class="mt-20 md-20">
     <h2>{% trans "List of IP types" %}</h2>
     {% can_create IpType %}
         <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:add-iptype' %}">
@@ -39,5 +40,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'machines:del-iptype' %}">
         <i class="fa fa-trash"></i> {% trans "Delete one or several IP types" %}
     </a>
+    </div>
     {% include 'machines/aff_iptype.html' with  iptype_list=iptype_list %}
 {% endblock %}

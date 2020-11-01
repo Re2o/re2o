@@ -28,39 +28,75 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 {% load i18n %}
 
-<div class="table-responsive">
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>{% trans "IP type" %}</th>
-            <th>{% trans "Extension" %}</th>
-	    <th>{% blocktrans %}"infra" right required{% endblocktrans %}</th>
-            <th>{% trans "IPv4 range" %}</th>
-            <th>{% trans "v6 prefix" %}</th>
-            <th>{% trans "DNSSEC reverse v4/v6" %}</th>
-            <th>{% trans "On VLAN(s)" %}</th>
-            <th>{% trans "Default ports opening" %}</th>
-            <th></th>
-        </tr>
-        </thead>
-        {% for type in iptype_list %}
-            <tr>
-                <td>{{ type.name }}</td>
-                <td>{{ type.extension }}</td>
-                <td>{{ type.need_infra|tick }}</td>
-                <td>{{ type.domaine_ip_start }}-{{ type.domaine_ip_stop }}{% if type.ip_network %}<b><u> on </u></b>
-                    {{ type.ip_network }}{% endif %}</td>
-                <td>{{ type.prefix_v6 }}/{{ type.prefix_v6_length }}</td>
-                <td>{{ type.reverse_v4|tick }}/{{ type.reverse_v6|tick }}</td>
-                <td>{{ type.vlan }}</td>
-                <td>{{ type.ouverture_ports }}</td>
-                <td class="text-right">
+{% if iptype_list.paginator %}
+    {% include 'pagination.html' with list=iptype_list %}
+{% endif %}
+
+{% for type in iptype_list %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-3">
+                    <h4>{{ type.name }}</h4>
+                </div>
+                <div class="col-sm-3">
+                    <h4>{{ type.extension }}</h4>
+                </div>
+                <div class="col-sm-4 text-center">
+                    {% if type.need_infra %}
+                        <span class="label label-success">{% trans "Infra right required" %}
+                    {% else %}
+                        <span class="label label-danger">{% trans "Infra right not required" %}
+                    {% endif %}
+                </div>
+                <div class="col-sm-2 text-right">
                     {% can_edit type %}
                     {% include 'buttons/edit.html' with href='machines:edit-iptype' id=type.id %}
                     {% acl_end %}
                     {% history_button type %}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-8">
+                    <b>{% trans "IPv4 range" %}</b>
+                    {{ type.domaine_ip_start }} - {{ type.domaine_ip_stop }}
+                    {% if type.ip_network %}
+                    <b><u> on </u></b>
+                    {{ type.ip_network }}{% endif %}
+                </div>
+                <div class="col-sm-4">
+                    <b>{% trans "v6 prefix" %}</b>
+                    {{ type.prefix_v6 }} /{{ type.prefix_v6_length }}
+                </div>
+            </div>
+            </br>
+            <div class="row">
+                <div class="col-sm-4">
+                    <b>{% trans "DNSSEC reverse v4/v6" %}</b>
+                    </br>
+                    {{ type.reverse_v4|tick }}/{{ type.reverse_v6|tick }}
+                </div>
+                <div class="col-sm-4">
+                    <b>{% trans "On VLAN(s)" %}</b>
+                    </br>
+                    {{ type.vlan }}
+                </div>
+                <div class="col-sm-4">
+                    <b>{% trans "Default ports opening" %}</b>
+                    </br>
+                    {{ type.ouverture_ports }}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endfor %}
+
+{% if iptype_list.paginator %}
+    {% include 'pagination.html' with list=iptype_list %}
+{% endif %}

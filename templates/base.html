@@ -217,7 +217,46 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <div class="panel-heading">
                             <h4>{{ request_user.name }} {{ request_user.surname }}</h4>
                         </div>
-                        <table class="table">
+                        <table class="table visible-sm visible-md">
+                            <tr>
+                                <td>
+                                    <b>{% trans "Username" %}</b>
+                                    <br>
+                                    {{ request_user.pseudo }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>{% trans "Room" %}</b>
+                                    <br>
+                                    {{ request_user.room }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>{% trans "Internet access" %}</b>
+                                    <br>
+                                    {% if request_user.has_access %}
+                                        <i class="text-success">{% blocktrans with end_access_date=request.user.end_access|date:"d b Y" %}Until {{ end_access_date }}{% endblocktrans %}</i>
+                                    {% else %}
+                                        <i class="text-danger">{% trans "Disabled" %}</i>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                <b>{% trans "Membership" %}</b>
+                                <br>
+                                    {% if request_user.is_adherent %}
+                                        <i class="text-success">{% blocktrans with end_adhesion_date=request_user.end_adhesion|date:"d b Y" %}Until {{ end_adhesion_date }}{% endblocktrans %}</i>
+                                    {% else %}
+                                        <i class="text-danger">{% trans "Non member" %}</i>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table class="table visible-xs visible-lg">
                             <tr>
                                 <th scope="row">{% trans "Username" %}</th>
                                 <td class="text-right">{{ request_user.pseudo }}</td>
@@ -266,7 +305,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         </div>
                         <ul class="list-group">
                         {% for interface in interfaces|slice:":5" %}
-                            <div class="list-group-item">{{ interface }}</div>
+                        <div class="list-group-item" style="word-break: break-all">{{ interface }}</div>
                         {% endfor %}
                         {% if interfaces|length > 5 %}
                             <a class="list-group-item list-group-item-info" role="button" href="{% url 'users:mon-profil' %}">
