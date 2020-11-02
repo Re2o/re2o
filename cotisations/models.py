@@ -704,26 +704,18 @@ class Article(RevMixin, AclMixin, models.Model):
     )
 
     duration_membership = models.PositiveIntegerField(
-        blank=True,
-        null=True,
         validators=[MinValueValidator(0)],
         verbose_name=_("duration of the membership (in months)")
     )
     duration_days_membership = models.PositiveIntegerField(
-        blank=True,
-        null=True,
         validators=[MinValueValidator(0)],
         verbose_name=_("duration of the membership (in days, will be added to duration in months)"),
     )
     duration_connection = models.PositiveIntegerField(
-        blank=True,
-        null=True,
         validators=[MinValueValidator(0)],
         verbose_name=_("duration of the connection (in months)")
     )
     duration_days_connection = models.PositiveIntegerField(
-        blank=True,
-        null=True,
         validators=[MinValueValidator(0)],
         verbose_name=_("duration of the connection (in days, will be added to duration in months)"),
     )
