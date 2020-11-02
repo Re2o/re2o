@@ -13,38 +13,14 @@ class Migration(migrations.Migration):
     ]
 
 
-def set_value_to_0(apps, schema_editor):
-    ventes = apps.get_model("cotisations", "Vente")
-    ventes.filter(duration_connection__isnull=True).update(duration_connection=0)
-    ventes.filter(duration_days_connection__isnull=True).update(duration_days_connection=0)
-    ventes.filter(duration_membership__isnull=True).update(duration_membership=0)
-    ventes.filter(duration_days_membership__isnull=True).update(duration_days_membership=0)
+    def set_value_to_zero(apps, schema_editor):
+        db_alias = schema_editor.connection.alias
+        Vente = apps.get_model("cotisations", "Vente")
+        Vente.objects.using(db_alias).filter(duration_connection__isnull=True).update(duration_connection=0)
+        Vente.objects.using(db_alias).filter(duration_days_connection__isnull=True).update(duration_days_connection=0)
+        Vente.objects.using(db_alias).filter(duration_membership__isnull=True).update(duration_membership=0)
+        Vente.objects.using(db_alias).filter(duration_days_membership__isnull=True).update(duration_days_membership=0)
 
     operations = [
-        migrations.RunPython(set_value_to_0),
-        migrations.AlterField(
-            model_name='article',
-            name='need_membership',
-            field=models.BooleanField(default=True, verbose_name='need membership to be purchased'),
-        ),
-        migrations.AlterField(
-            model_name='vente',
-            name='duration_connection',
-            field=models.PositiveIntegerField(default=0, verbose_name='duration of the connection (in months)'),
-        ),
-        migrations.AlterField(
-            model_name='vente',
-            name='duration_days_connection',
-            field=models.PositiveIntegerField(default=0, validators=[django.core.validators.MinValueValidator(0)], verbose_name='duration of the connection (in days, will be added to duration in months)'),
-        ),
-        migrations.AlterField(
-            model_name='vente',
-            name='duration_days_membership',
-            field=models.PositiveIntegerField(default=0, validators=[django.core.validators.MinValueValidator(0)], verbose_name='duration of the membership (in days, will be added to duration in months)'),
-        ),
-        migrations.AlterField(
-            model_name='vente',
-            name='duration_membership',
-            field=models.PositiveIntegerField(default=0, verbose_name='duration of the membership (in months)'),
-        ),
+        migrations.RunPython(set_value_to_zero),
     ]
