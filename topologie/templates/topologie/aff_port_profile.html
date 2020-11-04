@@ -25,6 +25,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 
 
+{% if port_profile_list.paginator %}
+    {% include 'pagination.html' with list=port_profile_list %}
+{% endif %}
+
 {% for port_profile in port_profile_list %}
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -119,3 +123,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </div>
 </div>
 {% endfor %}
+
+
+{% if port_profile_list.paginator %}
+    {% include 'pagination.html' with list=port_profile_list %}
+{% endif %}
