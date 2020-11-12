@@ -373,15 +373,26 @@ class HistoryEvent:
         edits = []
 
         for field in self.edited_fields:
+            old_value = None
+            new_value = None
             if field in hide:
-                # Don't show sensitive information
-                edits.append((field, None, None))
+                # Don't show sensitive information, so leave values at None
+                pass
             else:
-                edits.append((
-                    field,
-                    self._repr(field, self.previous_version.field_dict[field]),
-                    self._repr(field, self.version.field_dict[field])
-                ))
+                # Take into account keys that may exist in only one dict
+                if field in self.previous_version.field_dict:
+                    old_value = self._repr(
+                        field,
+                        self.previous_version.field_dict[field]
+                    )
+
+                if field in self.version.field_dict:
+                    new_value = self._repr(
+                        field,
+                        self.version.field_dict[field]
+                    )
+
+            edits.append((field, old_value, new_value))
 
         return edits
 
@@ -438,9 +449,15 @@ class History:
             v2.
         """
         fields = []
+        v1_keys = set([k for k in v1.field_dict.keys() if k not in ignoring])
+        v2_keys = set([k for k in v2.field_dict.keys() if k not in ignoring])
 
-        for key in v1.field_dict.keys():
-            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
+        common_keys = v1_keys.intersection(v2_keys)
+        fields += list(v2_keys - v1_keys)
+        fields += list(v1_keys - v2_keys)
+
+        for key in common_keys:
+            if v1.field_dict[key] != v2.field_dict[key]:
                 fields.append(key)
 
         return fields
@@ -541,9 +558,15 @@ class VersionAction(HistoryEvent):
             v2.
         """
         fields = []
+        v1_keys = set([k for k in v1.field_dict.keys() if k not in ignoring])
+        v2_keys = set([k for k in v2.field_dict.keys() if k not in ignoring])
 
-        for key in v1.field_dict.keys():
-            if key not in ignoring and v1.field_dict[key] != v2.field_dict[key]:
+        common_keys = v1_keys.intersection(v2_keys)
+        fields += list(v2_keys - v1_keys)
+        fields += list(v1_keys - v2_keys)
+
+        for key in common_keys:
+            if v1.field_dict[key] != v2.field_dict[key]:
                 fields.append(key)
 
         return fields
