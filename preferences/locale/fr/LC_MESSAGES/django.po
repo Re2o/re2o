@@ -88,7 +88,7 @@ msgstr "Suppression des utilisateurs n'ayant jamais adhéré après"
 
 #: preferences/forms.py:77
 msgid "Disabled email not yet confirmed"
-msgstr "%(disable_emailnotyetconfirmed)s jours"
+msgstr "Désactivation sans confirmation de l'adresse mail"
 
 #: preferences/forms.py:78
 #: preferences/templates/preferences/display_preferences.html:121
