@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'topologie/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -23,9 +23,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
+{% load bootstrap3 %}
 {% load acl %}
 {% load i18n %}
 
-{% block sidebar %}
+{% block title %}{% trans "Topology" %}{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Dormitories" %}</h2>
+    {% can_create Dormitory %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'topologie:new-dormitory' %}">
+	<i class="fa fa-plus"></i> {% trans "Add a dormitory" %}
+    </a>
+    <hr>
+    {% acl_end %}
+    {% include 'topologie/aff_dormitory.html' with dormitory_list=dormitory_list %}
 {% endblock %}
 

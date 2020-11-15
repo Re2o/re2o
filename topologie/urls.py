@@ -49,9 +49,24 @@ urlpatterns = [
     url(r"^edit_switch/(?P<switchid>[0-9]+)$", views.edit_switch, name="edit-switch"),
     url(r"^new_stack/$", views.new_stack, name="new-stack"),
     url(
-        r"^index_physical_grouping/$",
-        views.index_physical_grouping,
-        name="index-physical-grouping",
+        r"^index_stack/$",
+        views.index_stack,
+        name="index-stack",
+    ),
+    url(
+        r"^index_switch_bay/$",
+        views.index_switch_bay,
+        name="index-switch-bay",
+    ),
+    url(
+        r"^index_building/$",
+        views.index_building,
+        name="index-building",
+    ),
+    url(
+        r"^index_dormitory/$",
+        views.index_dormitory,
+        name="index-dormitory",
     ),
     url(r"^edit_stack/(?P<stackid>[0-9]+)$", views.edit_stack, name="edit-stack"),
     url(r"^del_stack/(?P<stackid>[0-9]+)$", views.del_stack, name="del-stack"),
