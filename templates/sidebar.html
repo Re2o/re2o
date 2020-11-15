@@ -1,0 +1,136 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017 Lara Kermarec
+Copyright © 2017 Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load i18n %}
+
+<div class="panel panel-default">
+    {% if request_user.is_authenticated %}
+    <div class="panel-heading">
+        <h4>{{ request_user.name }} {{ request_user.surname }}</h4>
+    </div>
+    <table class="table visible-sm visible-md">
+        <tr>
+            <td>
+                <b>{% trans "Username" %}</b>
+                <br>
+                {{ request_user.pseudo }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>{% trans "Room" %}</b>
+                <br>
+                {{ request_user.room }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>{% trans "Internet access" %}</b>
+                <br>
+                {% if request_user.has_access %}
+                <i class="text-success">{% blocktrans with end_access_date=request.user.end_access|date:"d b Y" %}Until
+                    {{ end_access_date }}{% endblocktrans %}</i>
+                {% else %}
+                <i class="text-danger">{% trans "Disabled" %}</i>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>{% trans "Membership" %}</b>
+                <br>
+                {% if request_user.is_adherent %}
+                <i class="text-success">{% blocktrans with end_adhesion_date=request_user.end_adhesion|date:"d b Y" %}Until
+                    {{ end_adhesion_date }}{% endblocktrans %}</i>
+                {% else %}
+                <i class="text-danger">{% trans "Non member" %}</i>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <table class="table visible-xs visible-lg">
+        <tr>
+            <th scope="row">{% trans "Username" %}</th>
+            <td class="text-right">{{ request_user.pseudo }}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Room" %}</th>
+            <td class="text-right">{{ request_user.room }}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Internet access" %}</th>
+            <td class="text-right">
+                {% if request_user.has_access %}
+                <i class="text-success">{% blocktrans with end_access_date=request.user.end_access|date:"d b Y" %}Until
+                    {{ end_access_date }}{% endblocktrans %}</i>
+                {% else %}
+                <i class="text-danger">{% trans "Disabled" %}</i>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Membership" %}</th>
+            <td class="text-right">
+                {% if request_user.is_adherent %}
+                <i class="text-success">{% blocktrans with end_adhesion_date=request_user.end_adhesion|date:"d b Y" %}Until
+                    {{ end_adhesion_date }}{% endblocktrans %}</i>
+                {% else %}
+                <i class="text-danger">{% trans "Non member" %}</i>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    <div class="list-group">
+        <a class="list-group-item list-group-item-info" role="button"
+            href="{% url 'users:mon-profil' %}">
+            <i class="fa fa-user-circle"></i>
+            {% trans "View my profile" %}
+        </a>
+    </div>
+    {% else %}
+    <div class="panel-body">
+        <p>{% trans "You are not logged in." %}</p>
+    </div>
+    {% endif %}
+</div>
+{% if request_user.is_authenticated %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4>{% blocktrans count interfaces|length as nb %}{{ nb }} active machine{% plural %}{{ nb }}
+            active machines{% endblocktrans %}</h4>
+    </div>
+    <ul class="list-group">
+        {% for interface in interfaces|slice:":5" %}
+        <div class="list-group-item" style="word-break: break-all">{{ interface }}</div>
+        {% endfor %}
+        {% if interfaces|length > 5 %}
+        <a class="list-group-item list-group-item-info" role="button"
+            href="{% url 'users:mon-profil' %}">
+            <i class="fa fa-plus"></i>
+            {% trans "View my machines" %}
+        </a>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}

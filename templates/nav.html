@@ -1,0 +1,322 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017 Lara Kermarec
+Copyright © 2017 Augustin Lemesle
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load static %}
+{% load acl %}
+{% load i18n %}
+<nav class="navbar navbar-inverse navbar-fixed-top" id="navbar-header">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">
+                <img src="{% static 'images/logo_re2o_navbar.svg' %}" height=32>
+                {{ name_website }}
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                {% can_view_any_app users machines %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-users"></i>
+                        {% trans "Users" %}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        {% can_view_app users %}
+                        <li><a class="dropdown-item" href="#"><i class="fa fa-users"></i>
+                                {% trans "Users and clubs" %} &raquo </a>
+                            <ul class="submenu dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'users:index' %}"><i class="fa fa-user"></i>
+                                        {% trans "Users" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'users:index-clubs' %}"><i
+                                            class="fa fa-users"></i>
+                                        {% trans "Clubs" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'users:index-white' %}"><i
+                                            class="fa fa-user-plus"></i>
+                                        {% trans "Whitelists" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'users:index-ban' %}"><i
+                                            class="fa fa-user-times"></i>
+                                        {% trans "Bans" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'users:mass-archive' %}"><i
+                                            class="fa fa-archive"></i>
+                                        {% trans "Massively archive" %}</a></li>
+                            </ul>
+                        </li>
+                        {% acl_end %}
+                        {% can_view_app machines %}
+                        <li><a class="dropdown-item" href="{% url 'machines:index' %}"><i class="fa fa-laptop"></i>
+                                {% trans "Machines" %}</a></li>
+                        {% acl_end %}
+                        {% can_view_app users %}
+                        <li><a class="dropdown-item" href="{% url 'users:index-listright' %}"><i
+                                    class="fa fa-object-group"></i>
+                                {% trans "Groups" %}</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fa fa-plus"></i> {% trans "Advanced" %}
+                                &raquo </a>
+                            <ul class="submenu dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'users:index-school' %}"><i
+                                            class="fa fa-graduation-cap"></i>
+                                        {% trans "Schools" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'users:index-shell' %}"><i
+                                            class="fa fa-terminal"></i>
+                                        {% trans "Shells" %}</a></li>
+                            </ul>
+                        </li>
+                        {% acl_end %}
+                        {% for app, template in optionnal_templates_navbar_user_list %}
+                        {% if app != 'cotisations' and app != 'topologie' and app != 'logs' %}
+                        {{ template }}
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% acl_end %}
+                {% can_view_app cotisations %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-eur"></i>
+                        {% trans "Treasury" %}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fa fa-file"></i>
+                                {% trans "Invoices" %} &raquo </a>
+                            <ul class="submenu dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'cotisations:control' %}"><i
+                                            class="fa fa-eye"></i>
+                                        {% trans "Control invoices" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'cotisations:index' %}"><i
+                                            class="fa fa-file"></i>
+                                        {% trans "Invoices" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'cotisations:index-custom-invoice' %}"><i
+                                            class="fa fa-file-text"></i>
+                                        {% trans "Cutsom invoices" %}</a></li>
+                            </ul>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'cotisations:index-cost-estimate' %}"><i
+                                    class="fa fa-files-o"></i>
+                                {% trans "Cost estimates" %}</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fa fa-money"></i>
+                                {% trans "Advanced" %}
+                                &raquo </a>
+                            <ul class="submenu dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'cotisations:index-banque' %}"><i
+                                            class="fa fa-bank"></i>
+                                        {% trans "Banks" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'cotisations:index-article' %}"><i
+                                            class="fa fa-barcode"></i>
+                                        {% trans "Articles" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'cotisations:index-paiement' %}"><i
+                                            class="fa fa-credit-card"></i>
+                                        {% trans "Payment methods" %}</a></li>
+                            </ul>
+                        </li>
+                        {% for app, template in optionnal_templates_navbar_user_list %}
+                        {% if app == 'cotisations' %}
+                        {{ template }}
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% acl_end %}
+                {% can_view_app topologie %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-sitemap"></i>
+                        {% trans "Topology" %}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fa fa-microchip"></i>
+                                {% trans "Switches" %} &raquo </a>
+                            <ul class="submenu dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'topologie:index' %}"><i
+                                            class="fa fa-microchip"></i>
+                                        {% trans "Switches" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'topologie:index-model-switch' %}"><i
+                                            class="fa fa-object-group"></i>
+                                        {% trans "Switch models" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'topologie:index-module' %}"><i
+                                            class="fa fa-puzzle-piece"></i>
+                                        {% trans "Switch modules" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'topologie:index-switch-bay' %}"><i class="fa fa-wrench"></i>
+                                        {% trans "Switch bays" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'topologie:index-stack' %}"><i class="fa fa-server"></i>
+                                        {% trans "Stacks" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'topologie:index-port-profile' %}"><i
+                                            class="fa fa-cog"></i>
+                                        {% trans "Port profiles" %}</a></li>
+                            </ul>
+                        </li>
+                        <li><a class="dropdown-item" href="#"><i class="fa fa-building"></i>
+                                {% trans "Infrastructure" %}
+                                &raquo </a>
+                            <ul class="submenu dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'topologie:index-dormitory' %}"><i class="fa fa-bank"></i>
+                                        {% trans "Dormitories" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'topologie:index-building' %}"><i class="fa fa-home"></i>
+                                        {% trans "Buildings" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'topologie:index-room' %}"><i
+                                            class="fa fa-bed"></i>
+                                        {% trans "Rooms" %}</a></li>
+                            </ul>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'topologie:index-ap' %}"><i class="fa fa-wifi"></i>
+                                {% trans "Access points" %}</a></li>
+
+                        {% for app, template in optionnal_templates_navbar_user_list %}
+                        {% if app == 'topologie' %}
+                        {{ template }}
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% acl_end %}
+                {% can_view_app logs %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-area-chart"></i>
+                        {% trans "Statistics" %}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'logs:index' %}"><i class="fa fa-clipboard"></i>
+                                {% trans "Summary" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logs:stats-logs' %}"><i class="fa fa-calendar"></i>
+                                {% trans "Events" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logs:stats-general' %}"><i class="fa fa-area-chart"></i>
+                                {% trans "General" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logs:stats-models' %}"><i class="fa fa-database"></i>
+                                {% trans "Database" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logs:stats-users' %}"><i class="fa fa-plug"></i>
+                                {% trans "Wiring actions" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logs:stats-actions' %}"><i class="fa fa-users"></i>
+                                {% trans "Users" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logs:stats-search-machine' %}"><i class="fa fa-laptop"></i>
+                                {% trans "Machine history" %}</a></li>
+                        {% for app, template in optionnal_templates_navbar_user_list %}
+                        {% if app == 'logs' %}
+                        {{ template }}
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% acl_end %}
+                {% can_view_any_app preferences users machines %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cogs"></i>
+                        {% trans "Administration" %}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        {% can_view_app preferences %}
+                        <li><a class="dropdown-item" href="{% url 'preferences:display-options' %}"><i
+                                    class="fa fa-cogs"></i>
+                                {% trans "General" %}</a></li>
+                        {% acl_end %}
+                        {% can_view_app users %}
+                        <li><a class="dropdown-item" href="{% url 'users:index-serviceusers' %}"><i
+                                    class="fa fa-address-book"></i>
+                                {% trans "LDAP service users" %}</a></li>
+                        {% acl_end %}
+                        {% can_view_app machines %}
+                        <li><a class="dropdown-item" href="{% url 'machines:index-service' %}"><i
+                                    class="fa fa-wrench"></i>
+                                {% trans "Services" %}</a></li>
+                        <li><a class="dropdown-item" href="{% url 'machines:index-machinetype' %}"><i
+                                    class="fa fa-laptop"></i>
+                                {% trans "Machine types" %}</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fa fa-globe"></i>
+                                {% trans "Network" %} &raquo </a>
+                            <ul class="submenu dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'machines:index-iptype' %}"><i
+                                            class="fa fa-ellipsis-h"></i>
+                                        {% trans "IP ranges" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'machines:index-vlan' %}"><i
+                                            class="fa fa-object-group"></i>
+                                        {% trans "VLANs" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'machines:index-extension' %}"><i
+                                            class="fa fa-wrench"></i>
+                                        {% trans "Extensions and zones" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'machines:index-nas' %}"><i
+                                            class="fa fa-certificate"></i>
+                                        {% trans "NAS" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'machines:index-role' %}"><i
+                                            class="fa fa-server"></i>
+                                        {% trans "Server roles" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'machines:index-portlist' %}"><i
+                                            class="fa fa-cog"></i>
+                                        {% trans "Ports openings" %}</a></li>
+                            </ul>
+                        </li>
+                        {% acl_end %}
+                    </ul>
+                </li>
+                {% acl_end %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="{% url 'contact' %}"><i class="fa fa-at"></i> {% trans "Contact" %}</a>
+                    {% if not request.user.is_authenticated %}
+                    {% for template in optionnal_templates_navbar_logout_list %}
+                    {{ template }}
+                    {% endfor %}
+                    {% if var_sa %}
+                <li>
+                    <a href="{% url 'users:new-user' %}">
+                        <i class="fa fa-user-plus"></i> {% trans "Sign up" %}
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    <a id="toggle_login" href="{% url 'login' %}">
+                        <i class="fa fa-sign-in"></i> {% trans "Log in" %}
+                    </a>
+                </li>
+                {% else %}
+                {% can_view_any_app users machines cotisations %}
+                <li>
+                    <form action="{% url 'search:search' %}" class="navbar-form" role="search">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="{% trans "Search" %}" name="q"
+                                id="search-term" {% if search_term %}value="{{ search_term }}" {% endif %}>
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                                <a href="{% url 'search:searchp' %}" class="btn btn-default" role="button"><i
+                                        class="fa fa-plus"></i></a>
+                            </div>
+                        </div>
+                    </form>
+                </li>
+                {% acl_end %}
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                        aria-expanded="false"><i class="fa fa-user-circle"></i>
+                        {{ request.user.pseudo|slice:":15" }} <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'users:mon-profil' %}"><i class="fa fa-user"></i>
+                                {% trans "My profile" %}</a></li>
+                        <li><a id="toggle_login" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i>
+                                {% trans "Log out" %}</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+                <li>
+                    {% include 'buttons/setlang.html' %}
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
