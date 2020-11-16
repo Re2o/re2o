@@ -1,2 +1,15 @@
 {% load i18n %}
-<li><a href="{% url 'multi_op:aff-state-global' %}"><i class="fa fa-random"></i> {% trans "Manage the operators" %}</a></li>
+<li><a class="dropdown-item" href="#"><i class="fa fa-random"></i>
+    {% trans "Multi op" %} &raquo </a>
+<ul class="submenu dropdown-menu">
+    <li><a class="dropdown-item" href="{% url 'multi_op:aff-state-global' %}"><i
+                class="fa fa-random"></i>
+            {% trans "Room connections state" %}</a></li>
+    <li><a class="dropdown-item" href="{% url 'multi_op:aff-pending-connection' %}"><i
+                class="fa fa-compress"></i>
+            {% trans "Sockets to connect" %}</a></li>
+    <li><a class="dropdown-item" href="{% url 'multi_op:aff-pending-disconnection' %}"><i
+                class="fa fa-expand"></i>
+            {% trans "Sockets to disconnect" %}</a></li>
+</ul>
+</li>
