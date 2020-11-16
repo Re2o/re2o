@@ -85,10 +85,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 {% block sidebar %}
                 {% endblock %}
             </div>
-            <div class="col-sm-offset-2 col-sm-10 text-left pt4">
+            <div class="col-sm-offset-2 col-sm-10 col-lg-8 text-left pt4">
                 {# Display django.contrib.messages as Bootstrap alerts #}
                 {% bootstrap_messages %}
                 {% block content %}{% endblock %}
+            </div>
+            <div class="col-lg-2 pt4">
             </div>
         </div>
     </div>

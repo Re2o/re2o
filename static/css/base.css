@@ -1,3 +1,6 @@
+.navbar-collapse {
+    overflow-x: hidden;
+}
 /* For the footer to be at the bottom*/
 body {
     padding-top: 50px;
@@ -84,11 +87,15 @@ a > i.fa {
         position: fixed;
         top:50px;
         right:0;
+        overflow-y: auto;
+        bottom:0px;
     }
     .sidenav-left {
         position: fixed;
         top:50px;
         left:0;
+        overflow-y: auto;
+        bottom:0px;
     }
     .dropdown-menu .dropdown-toggle:after {
         border-top: .3em solid transparent;
