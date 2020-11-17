@@ -88,14 +88,14 @@ a > i.fa {
         top:50px;
         right:0;
         overflow-y: auto;
-        bottom:0px;
+        bottom:50px;
     }
     .sidenav-left {
         position: fixed;
         top:50px;
         left:0;
         overflow-y: auto;
-        bottom:0px;
+        bottom:50px;
     }
     .dropdown-menu .dropdown-toggle:after {
         border-top: .3em solid transparent;
