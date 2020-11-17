@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-17 12:49+0200\n"
+"POT-Creation-Date: 2020-11-17 21:07+0100\n"
 "PO-Revision-Date: 2019-11-16 00:35+0100\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -34,61 +34,61 @@ msgstr ""
 msgid "comment"
 msgstr "commentaire"
 
-#: tickets/models.py:59
+#: tickets/models.py:75
 msgid "Title of the ticket."
 msgstr "Titre du ticket."
 
-#: tickets/models.py:68
+#: tickets/models.py:84
 msgid "An email address to get back to you."
 msgstr "Une adresse mail pour vous recontacter."
 
-#: tickets/models.py:72
+#: tickets/models.py:88
 msgid "Language of the ticket."
 msgstr "Langue des tickets"
 
-#: tickets/models.py:77 tickets/models.py:174
+#: tickets/models.py:93 tickets/models.py:204
 msgid "Can view a ticket object"
 msgstr "Peut voir un objet ticket"
 
-#: tickets/models.py:78 tickets/models.py:175
+#: tickets/models.py:94 tickets/models.py:205
 msgid "ticket"
 msgstr "ticket"
 
-#: tickets/models.py:79 tickets/models.py:176
+#: tickets/models.py:95 tickets/models.py:206
 msgid "tickets"
 msgstr "tickets"
 
-#: tickets/models.py:83
+#: tickets/models.py:99
 #, python-brace-format
 msgid "Ticket from {name}. Date: {date}."
 msgstr "Ticket de {name}. Date : {date}."
 
-#: tickets/models.py:85
+#: tickets/models.py:101
 #, python-format
 msgid "Anonymous ticket. Date: %s."
 msgstr "Ticket anonyme. Date : %s."
 
-#: tickets/models.py:93 tickets/templates/tickets/aff_ticket.html:52
+#: tickets/models.py:109 tickets/templates/tickets/aff_ticket.html:52
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tickets/models.py:131
+#: tickets/models.py:150
 msgid "You don't have the right to view other tickets than yours."
 msgstr "Vous n'avez pas le droit de voir d'autres tickets que les vôtres."
 
-#: tickets/models.py:143 tickets/models.py:218
+#: tickets/models.py:162 tickets/models.py:248
 msgid "You don't have the right to view the list of tickets."
 msgstr "Vous n'avez pas le droit de voir la liste des tickets."
 
-#: tickets/models.py:191
+#: tickets/models.py:221
 msgid "You don't have the right to view other tickets comments than yours."
 msgstr "Vous n'avez pas le droit de voir d'autres tickets que les vôtres."
 
-#: tickets/models.py:206
+#: tickets/models.py:236
 msgid "You don't have the right to edit other tickets comments than yours."
 msgstr "Vous n'avez pas le droit d'éditer d'autres tickets que les vôtres."
 
-#: tickets/models.py:237
+#: tickets/models.py:269
 msgid "Update of your ticket"
 msgstr "Mise à jour de votre ticket"
 
@@ -111,13 +111,23 @@ msgstr "Options des tickets"
 msgid "Can view tickets options"
 msgstr "Peut voir les options des tickets"
 
+#: tickets/templates/tickets/aff_profil.html:6
 #: tickets/templates/tickets/aff_ticket.html:32
-#: tickets/templates/tickets/contact.html:4
+#: tickets/templates/tickets/contact.html:8
 #: tickets/templates/tickets/index.html:29
 #: tickets/templates/tickets/preferences.html:6
-#: tickets/templates/tickets/profil.html:6
 msgid "Tickets"
 msgstr "Tickets"
+
+#: tickets/templates/tickets/aff_profil.html:12
+#: tickets/templates/tickets/contact.html:11
+#: tickets/templates/tickets/navbar_logout.html:4
+msgid "Open a ticket"
+msgstr "Ouvrir un ticket"
+
+#: tickets/templates/tickets/aff_profil.html:19
+msgid "No tickets"
+msgstr "Pas de tickets"
 
 #: tickets/templates/tickets/aff_ticket.html:36
 #, python-format
@@ -150,7 +160,7 @@ msgid "Add a comment "
 msgstr "Ajouter un commentaire"
 
 #: tickets/templates/tickets/aff_ticket.html:64
-#: tickets/templates/tickets/preferences.html:14 tickets/views.py:153
+#: tickets/templates/tickets/preferences.html:14 tickets/views.py:149
 msgid "Edit"
 msgstr "Modifier"
 
@@ -228,7 +238,7 @@ msgstr "Date"
 msgid "Anonymous"
 msgstr "Anonyme"
 
-#: tickets/templates/tickets/contact.html:8
+#: tickets/templates/tickets/contact.html:17
 #, python-format
 msgid ""
 "If you are experiencing issues with the services offered by %(asso_name)s, "
@@ -240,12 +250,6 @@ msgstr ""
 "voulez nous contacter pour n'importe quel autre sujet, veuillez choisir une "
 "adresse ci-dessous."
 
-#: tickets/templates/tickets/contact.html:10
-#: tickets/templates/tickets/navbar_logout.html:4
-#: tickets/templates/tickets/profil.html:12
-msgid "Open a ticket"
-msgstr "Ouvrir un ticket"
-
 #: tickets/templates/tickets/delete.html:29
 msgid "Deletion of tickets"
 msgstr "Suppression de tickets"
@@ -256,6 +260,8 @@ msgid ""
 "Warning: are you sure you want to delete this %(objet_name)s object "
 "( %(objet)s )?"
 msgstr ""
+"Attention: êtes-vous sûr de vouloir supprimer l'objet %(object_name)s  "
+"( %(objet)s )?"
 
 #: tickets/templates/tickets/delete.html:36
 msgid "Confirm"
@@ -311,42 +317,38 @@ msgstr "Adresse mail de publication"
 msgid "No email address, the tickets will not be published."
 msgstr "Pas d'adresse mail, les tickets ne seront pas publiés."
 
-#: tickets/templates/tickets/profil.html:19
-msgid "No tickets"
-msgstr "Pas de tickets"
-
-#: tickets/views.py:62
+#: tickets/views.py:58
 msgid ""
 "Your ticket has been succesfully opened. We will take care of it as soon as "
 "possible."
 msgstr ""
 "Votre ticket a bien été ouvert. Nous nous en occuperons dès que possible."
 
-#: tickets/views.py:109
+#: tickets/views.py:105
 msgid "Ticket has been updated successfully"
 msgstr "Le ticket a été mis à jour"
 
-#: tickets/views.py:130
+#: tickets/views.py:126
 msgid "This comment was added."
 msgstr "Le commentaire a été ajouté"
 
-#: tickets/views.py:135
+#: tickets/views.py:131
 msgid "Add a comment"
 msgstr "Ajouter un commentaire"
 
-#: tickets/views.py:148
+#: tickets/views.py:144
 msgid "This comment was edited."
 msgstr "Le commentaire a été édité"
 
-#: tickets/views.py:164
+#: tickets/views.py:160
 msgid "The comment was deleted."
 msgstr "Le commentaire a été supprimé"
 
-#: tickets/views.py:169
+#: tickets/views.py:165
 msgid "Ticket Comment"
 msgstr "Commentaire de ticket"
 
-#: tickets/views.py:183 tickets/views.py:208
+#: tickets/views.py:179 tickets/views.py:204
 msgid "Never"
 msgstr "Jamais"
 
