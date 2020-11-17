@@ -128,6 +128,7 @@ from .forms import (
     ClubAdminandMembersForm,
     GroupForm,
     InitialRegisterForm,
+    ThemeForm
 )
 
 import os
@@ -1593,3 +1594,27 @@ def initial_register(request):
         request,
     )
 
+@login_required
+@can_edit(User)
+def edit_theme(request, user, userid):
+    """View for editing base user informations.
+    Perform an acl check on user instance.
+
+    Parameters:
+        request (django request): Standard django request.
+        user: User instance to edit
+
+    Returns:
+        Django User form.
+
+    """
+    theme_form = ThemeForm(request.POST or None, initial={'theme':user.theme})
+    if theme_form.is_valid():
+        user.theme = theme_form.cleaned_data["theme"]
+        user.save()
+        messages.success(request, _("The theme was edited."))
+
+        return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
+    return form(
+        {"userform": theme_form, "action_name": _("Edit")}, "users/user.html", request,
+    )

@@ -127,4 +127,5 @@ urlpatterns = [
     url(r"^$", views.index, name="index"),
     url(r"^index_clubs/$", views.index_clubs, name="index-clubs"),
     url(r"^initial_register/$", views.initial_register, name="initial-register"),
+    url(r"^edit_theme/(?P<userid>[0-9]+)$", views.edit_theme, name="edit-theme"),
 ]
