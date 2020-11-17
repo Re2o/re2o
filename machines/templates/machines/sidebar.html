@@ -27,59 +27,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% block sidebar %}
-    {% can_view_all Machine %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index' %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "Machines" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all MachineType %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index-machinetype' %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "Machine types" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all Extension %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index-extension' %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "Extensions and zones" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all IpType %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index-iptype' %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "IP ranges" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all Vlan %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index-vlan' %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "VLANs" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all Nas %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index-nas' %}">
-        <i class="fa fa-list-ul"></i>
-	{% trans "NAS devices" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all machines.Service %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index-service' %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "Services (DHCP, DNS, ...)" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all Role %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index-role' %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "Server roles" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all OuverturePortList %}
-    <a class="list-group-item list-group-item-info" href="{% url 'machines:index-portlist' %}">
-        <i class="fa fa-list-ul"></i>
-        {% trans "Ports openings" %}
-    </a>
-    {% acl_end %}
 {% endblock %}
 

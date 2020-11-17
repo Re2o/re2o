@@ -23,36 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load i18n %}
 
 {% block sidebar %}
-    <a class="list-group-item list-group-item-info" href="{% url 'topologie:index-room' %}">
-        <i class="fa fa-home"></i>
-	{% trans "Rooms and premises" %}
-    </a>
-     <a class="list-group-item list-group-item-info" href="{% url 'topologie:index' %}">
-        <i class="fa fa-microchip"></i>
-	{% trans "Switches" %}
-    </a>
-     <a class="list-group-item list-group-item-info" href="{% url 'topologie:index-module' %}">
-        <i class="fa fa-microchip"></i>
-	{% trans "Switch modules" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'topologie:index-port-profile' %}">
-        <i class="fa fa-cogs"></i>
-	{% trans "Port profiles" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'topologie:index-ap' %}">
-        <i class="fa fa-wifi"></i>
-	{% trans "Access points" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'topologie:index-physical-grouping' %}">
-        <i class="fa fa-list-ul"></i>
-	{% trans "Physical grouping" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'topologie:index-model-switch' %}">
-        <i class="fa fa-list-ul"></i>
-	{% trans "Switch models and constructors" %}
-    </a>
 {% endblock %}
-

@@ -21,9 +21,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-17 12:49+0200\n"
+"POT-Creation-Date: 2020-11-17 22:00+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
-"Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
+"Last-Translator: Yoann Piétri <me@nanoy.fr>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
@@ -44,32 +44,32 @@ msgstr "Vous devez être membre de l'un de ces groupes : %s."
 msgid "No group has the %s permission(s)!"
 msgstr "Aucun groupe ne possède la ou les permissions %s !"
 
-#: re2o/acl.py:166
+#: re2o/acl.py:194
 msgid "Nonexistent entry."
 msgstr "Entrée inexistante."
 
-#: re2o/acl.py:196 re2o/acl.py:267
+#: re2o/acl.py:250 re2o/acl.py:322
 msgid "You don't have the right to access this menu."
 msgstr "Vous n'avez pas le droit d'accéder à ce menu."
 
-#: re2o/acl.py:317
+#: re2o/acl.py:372
 msgid "You don't have the right to edit the history."
 msgstr "Vous n'avez pas le droit de modifier l'historique."
 
-#: re2o/base.py:76
+#: re2o/base.py:74
 msgid "This domain is already taken."
 msgstr "Ce domaine est déjà pris."
 
-#: re2o/base.py:78
+#: re2o/base.py:76
 msgid "SMTP unreachable."
 msgstr "SMTP injoignable."
 
-#: re2o/base.py:99
+#: re2o/base.py:97
 #, python-brace-format
 msgid "Format: {main} {more}"
 msgstr "Format : {main} {more}"
 
-#: re2o/base.py:101
+#: re2o/base.py:99
 #, python-brace-format
 msgid "Format: {main}"
 msgstr "Format : {main}"
@@ -79,40 +79,40 @@ msgstr "Format : {main}"
 msgid "Failed to send email: %(error)s."
 msgstr "Échec de l'envoi du mail : %(error)s."
 
-#: re2o/mixins.py:110
+#: re2o/mixins.py:121
 #, python-format
 msgid "You don't have the right to create a %s object."
 msgstr "Vous n'avez pas le droit de créer un objet %s."
 
-#: re2o/mixins.py:126
+#: re2o/mixins.py:142
 #, python-format
 msgid "You don't have the right to edit a %s object."
 msgstr "Vous n'avez pas le droit de modifier un objet %s."
 
-#: re2o/mixins.py:142
+#: re2o/mixins.py:163
 #, python-format
 msgid "You don't have the right to delete a %s object."
 msgstr "Vous n'avez pas le droit de supprimer un objet %s."
 
-#: re2o/mixins.py:158
+#: re2o/mixins.py:184
 #, python-format
 msgid "You don't have the right to view every %s object."
 msgstr "Vous n'avez pas le droit de voir tous les objets %s."
 
-#: re2o/mixins.py:174
+#: re2o/mixins.py:205
 #, python-format
 msgid "You don't have the right to view a %s object."
 msgstr "Vous n'avez pas le droit de voir un objet %s."
 
-#: re2o/settings.py:150
+#: re2o/settings.py:154
 msgid "English"
 msgstr "Anglais"
 
-#: re2o/settings.py:150
+#: re2o/settings.py:154
 msgid "French"
 msgstr "Français"
 
-#: re2o/templates/re2o/about.html:29 re2o/templates/re2o/about.html:54
+#: re2o/templates/re2o/about.html:29 re2o/templates/re2o/about.html:56
 msgid "About Re2o"
 msgstr "À propos de Re2o"
 
@@ -140,15 +140,15 @@ msgstr "Gestionnaire de publication"
 msgid "President of "
 msgstr "Président de "
 
-#: re2o/templates/re2o/about.html:46
+#: re2o/templates/re2o/about.html:47
 msgid "General Terms of Use"
 msgstr "Conditions Générales d'Utilisation"
 
-#: re2o/templates/re2o/about.html:50
+#: re2o/templates/re2o/about.html:52
 msgid "Additional information"
 msgstr "Informations supplémentaires"
 
-#: re2o/templates/re2o/about.html:55
+#: re2o/templates/re2o/about.html:57
 msgid ""
 "Re2o is an administration tool initiated by <a href=\"https://rezometz.org/"
 "\">Rezo Metz</a> and a few members of other <a href=\"https://federez.net"
@@ -175,35 +175,35 @@ msgstr ""
 "développement, nous serons heureux de vous accueillir donc n'hésitez pas à "
 "nous contacter et à venir nous aider à construire le futur de Re2o."
 
-#: re2o/templates/re2o/about.html:74
+#: re2o/templates/re2o/about.html:76
 msgid "Contributors list"
 msgstr "Liste des contributeurs"
 
-#: re2o/templates/re2o/about.html:83
+#: re2o/templates/re2o/about.html:85
 msgid "Version information"
 msgstr "Informations de versions"
 
-#: re2o/templates/re2o/about.html:85
+#: re2o/templates/re2o/about.html:87
 #, python-format
 msgid "<b>Remote URL</b>: %(git_info_remote)s"
 msgstr "<b>URL distante</b> : %(git_info_remote)s"
 
-#: re2o/templates/re2o/about.html:88
+#: re2o/templates/re2o/about.html:90
 #, python-format
 msgid "<b>Branch</b>: %(git_info_branch)s"
 msgstr "<b>Branche</b> : %(git_info_branch)s"
 
-#: re2o/templates/re2o/about.html:91
+#: re2o/templates/re2o/about.html:93
 #, python-format
 msgid "<b>Commit</b>: %(git_info_commit)s"
 msgstr "<b>Commit</b> : %(git_info_commit)s"
 
-#: re2o/templates/re2o/about.html:94
+#: re2o/templates/re2o/about.html:96
 #, python-format
 msgid "<b>Commit date</b>: %(git_info_commit_date)s"
 msgstr "<b>Date du commit</b> : %(git_info_commit_date)s"
 
-#: re2o/templates/re2o/about.html:99
+#: re2o/templates/re2o/about.html:101
 msgid "Dependencies"
 msgstr "Dépendances"
 
@@ -217,7 +217,7 @@ msgstr "Effectuée par"
 
 #: re2o/templates/re2o/aff_history.html:35
 msgid "Edited"
-msgstr ""
+msgstr "Modifié"
 
 #: re2o/templates/re2o/aff_history.html:36
 msgid "Comment"
@@ -225,15 +225,15 @@ msgstr "Commentaire"
 
 #: re2o/templates/re2o/aff_history.html:48
 msgid "Unknown"
-msgstr ""
+msgstr "Inconnu"
 
 #: re2o/templates/re2o/aff_history.html:71
 msgid "No event"
-msgstr ""
+msgstr "Pas d'évènement"
 
 #: re2o/templates/re2o/aff_history.html:76
 msgid "Related elements"
-msgstr ""
+msgstr "Éléments liés"
 
 #: re2o/templates/re2o/aff_history.html:82 re2o/templates/re2o/history.html:30
 msgid "History"
@@ -249,10 +249,9 @@ msgid "Contact the organisation %(asso_name)s"
 msgstr "Contacter l'association %(asso_name)s"
 
 #: re2o/templates/re2o/history.html:33
-#, fuzzy, python-format
-#| msgid "History of %(object)s"
+#, python-format
 msgid "History of %(title)s"
-msgstr "Historique de %(object)s"
+msgstr "Historique de %(title)s"
 
 #: re2o/templates/re2o/index.html:30
 msgid "Home"
@@ -329,16 +328,14 @@ msgstr "Tweets de @%(twitter_account_name)s"
 msgid "Follow @%(twitter_account_name)s"
 msgstr "Suivre @%(twitter_account_name)s"
 
+#: re2o/templatetags/massive_bootstrap_form.py:413
+msgid "Nothing"
+msgstr "Rien"
+
 #: re2o/urls.py:57
 msgid "Homepage"
 msgstr "Page d'accueil"
 
-#: re2o/views.py:96
+#: re2o/views.py:110 re2o/views.py:121
 msgid "Unable to get the information."
 msgstr "Impossible d'obtenir l'information."
-
-#~ msgid "Next"
-#~ msgstr "Suivant"
-
-#~ msgid "Previous"
-#~ msgstr "Précédent"

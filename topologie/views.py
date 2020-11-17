@@ -242,35 +242,12 @@ def index_ap(request):
 
 
 @login_required
-@can_view_all(Stack, Building, Dormitory, SwitchBay)
-def index_physical_grouping(request):
-    """View used to display the list of stacks (display all switches)."""
-    stack_list = Stack.objects.prefetch_related(
-        "switch_set__interface_set__domain__extension"
-    )
-    building_list = Building.objects.all().select_related("dormitory")
-    dormitory_list = Dormitory.objects.all().prefetch_related("building_set")
+@can_view_all(SwitchBay)
+def index_switch_bay(request):
+    """View used to display the list of switch bays."""
     switch_bay_list = SwitchBay.objects.select_related(
         "building__dormitory"
     ).prefetch_related("switch_set__interface_set__domain")
-    stack_list = SortTable.sort(
-        stack_list,
-        request.GET.get("col"),
-        request.GET.get("order"),
-        SortTable.TOPOLOGIE_INDEX_STACK,
-    )
-    building_list = SortTable.sort(
-        building_list,
-        request.GET.get("col"),
-        request.GET.get("order"),
-        SortTable.TOPOLOGIE_INDEX_BUILDING,
-    )
-    dormitory_list = SortTable.sort(
-        dormitory_list,
-        request.GET.get("col"),
-        request.GET.get("order"),
-        SortTable.TOPOLOGIE_INDEX_DORMITORY,
-    )
     switch_bay_list = SortTable.sort(
         switch_bay_list,
         request.GET.get("col"),
@@ -279,15 +256,64 @@ def index_physical_grouping(request):
     )
     return render(
         request,
-        "topologie/index_physical_grouping.html",
+        "topologie/index_switch_bay.html",
         {
-            "stack_list": stack_list,
             "switch_bay_list": switch_bay_list,
-            "building_list": building_list,
-            "dormitory_list": dormitory_list,
         },
     )
 
+@login_required
+@can_view_all(Stack)
+def index_stack(request):
+    """View used to display the list of stacks (display all switches)."""
+    stack_list = Stack.objects.prefetch_related(
+        "switch_set__interface_set__domain__extension"
+    )
+    return render(
+        request,
+        "topologie/index_stack.html",
+        {
+            "stack_list": stack_list,
+        },
+    )
+
+@login_required
+@can_view_all(Building)
+def index_building(request):
+    """View used to display the list of buildings"""
+    building_list = Building.objects.all().select_related("dormitory")
+    building_list = SortTable.sort(
+        building_list,
+        request.GET.get("col"),
+        request.GET.get("order"),
+        SortTable.TOPOLOGIE_INDEX_BUILDING,
+    )
+    return render(
+        request,
+        "topologie/index_building.html",
+        {
+            "building_list": building_list,
+        },
+    )
+
+@login_required
+@can_view_all(Dormitory)
+def index_dormitory(request):
+    """View used to display the list of dormitories."""
+    dormitory_list = Dormitory.objects.all().prefetch_related("building_set")
+    dormitory_list = SortTable.sort(
+        dormitory_list,
+        request.GET.get("col"),
+        request.GET.get("order"),
+        SortTable.TOPOLOGIE_INDEX_DORMITORY,
+    )
+    return render(
+        request,
+        "topologie/index_dormitory.html",
+        {
+            "dormitory_list": dormitory_list,
+        },
+    )
 
 @login_required
 @can_view_all(ModelSwitch, ConstructorSwitch)
@@ -440,7 +466,7 @@ def new_stack(request):
     if stack.is_valid():
         stack.save()
         messages.success(request, _("The stack was created."))
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-stack"))
     return form(
         {"topoform": stack, "action_name": _("Add")}, "topologie/topo.html", request
     )
@@ -455,7 +481,7 @@ def edit_stack(request, stack, **_kwargs):
         if stack.changed_data:
             stack.save()
             messages.success(request, _("The stack was edited."))
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-stack"))
     return form(
         {"topoform": stack, "action_name": _("Edit")}, "topologie/topo.html", request
     )
@@ -480,7 +506,7 @@ def del_stack(request, stack, **_kwargs):
                     % stack
                 ),
             )
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-stack"))
     return form({"objet": stack}, "topologie/delete.html", request)
 
 
@@ -847,7 +873,7 @@ def new_switch_bay(request):
     if switch_bay.is_valid():
         switch_bay.save()
         messages.success(request, _("The switch bay was created."))
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-switch-bay"))
     return form(
         {"topoform": switch_bay, "action_name": _("Add")},
         "topologie/topo.html",
@@ -864,7 +890,7 @@ def edit_switch_bay(request, switch_bay, **_kwargs):
         if switch_bay.changed_data:
             switch_bay.save()
             messages.success(request, _("The switch bay was edited."))
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-switch-bay"))
     return form(
         {"topoform": switch_bay, "action_name": _("Edit")},
         "topologie/topo.html",
@@ -891,7 +917,7 @@ def del_switch_bay(request, switch_bay, **_kwargs):
                     % switch_bay
                 ),
             )
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-switch-bay"))
     return form(
         {"objet": switch_bay, "objet_name": _("switch bay")},
         "topologie/delete.html",
@@ -907,7 +933,7 @@ def new_building(request):
     if building.is_valid():
         building.save()
         messages.success(request, _("The building was created."))
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-building"))
     return form(
         {"topoform": building, "action_name": _("Add")},
         "topologie/topo.html",
@@ -924,7 +950,7 @@ def edit_building(request, building, **_kwargs):
         if building.changed_data:
             building.save()
             messages.success(request, _("The building was edited."))
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-building"))
     return form(
         {"topoform": building, "action_name": _("Edit")}, "topologie/topo.html", request
     )
@@ -949,7 +975,7 @@ def del_building(request, building, **_kwargs):
                     % building
                 ),
             )
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-building"))
     return form(
         {"objet": building, "objet_name": _("building")},
         "topologie/delete.html",
@@ -965,7 +991,7 @@ def new_dormitory(request):
     if dormitory.is_valid():
         dormitory.save()
         messages.success(request, _("The dormitory was created."))
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-dormitory"))
     return form(
         {"topoform": dormitory, "action_name": _("Add")},
         "topologie/topo.html",
@@ -982,7 +1008,7 @@ def edit_dormitory(request, dormitory, **_kwargs):
         if dormitory.changed_data:
             dormitory.save()
             messages.success(request, _("The dormitory was edited."))
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-dormitory"))
     return form(
         {"topoform": dormitory, "action_name": _("Edit")},
         "topologie/topo.html",
@@ -1009,7 +1035,7 @@ def del_dormitory(request, dormitory, **_kwargs):
                     % dormitory
                 ),
             )
-        return redirect(reverse("topologie:index-physical-grouping"))
+        return redirect(reverse("topologie:index-dormitory"))
     return form(
         {"objet": dormitory, "objet_name": _("dormitory")},
         "topologie/delete.html",
