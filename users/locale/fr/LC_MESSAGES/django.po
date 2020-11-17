@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-17 21:07+0100\n"
+"POT-Creation-Date: 2020-11-17 22:00+0100\n"
 "PO-Revision-Date: 2018-06-27 23:35+0200\n"
 "Last-Translator: Yoann Piétri <me@nanoy.fr>\n"
 "Language-Team: \n"
@@ -834,9 +834,9 @@ msgstr[1] "Total: %(perm_count)s permissions"
 
 #: users/templates/users/aff_listright.html:150
 #: users/templates/users/edit_listright.html:29
-#: users/templates/users/index.html:29 users/templates/users/index.html:32
+#: users/templates/users/index.html:30 users/templates/users/index.html:33
 #: users/templates/users/index_ban.html:29
-#: users/templates/users/index_clubs.html:29
+#: users/templates/users/index_clubs.html:30
 #: users/templates/users/index_emailaddress.html:29
 #: users/templates/users/index_listright.html:30
 #: users/templates/users/index_rights.html:29
@@ -899,14 +899,26 @@ msgstr ""
 "Attention : voulez-vous vraiment supprimer cet objet %(objet_name)s "
 "( %(objet)s ) ?"
 
+#: users/templates/users/index.html:35
+#, fuzzy
+#| msgid "Add a shell"
+msgid "Add a user"
+msgstr "Ajouter une interface en ligne de commande"
+
 #: users/templates/users/index_ban.html:32
 #: users/templates/users/profil.html:428
 msgid "Bans"
 msgstr "Bannissements"
 
-#: users/templates/users/index_clubs.html:32
+#: users/templates/users/index_clubs.html:33
 msgid "Clubs"
 msgstr "Clubs"
+
+#: users/templates/users/index_clubs.html:35
+#, fuzzy
+#| msgid "Add a ban"
+msgid "Add a club"
+msgstr "Ajouter un bannissement"
 
 #: users/templates/users/index_emailaddress.html:32
 msgid "Local email accounts"
