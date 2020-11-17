@@ -260,7 +260,7 @@ msgid ""
 "Warning: are you sure you want to delete this %(objet_name)s object "
 "( %(objet)s )?"
 msgstr ""
-"Attention: êtes-vous sûr de vouloir supprimer l'objet %(object_name)s  "
+"Attention: êtes-vous sûr de vouloir supprimer l'objet %(objet_name)s  "
 "( %(objet)s )?"
 
 #: tickets/templates/tickets/delete.html:36
