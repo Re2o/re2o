@@ -56,6 +56,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <link href="{% static 'css/typeaheadjs.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap-tokenfield.css' %}" rel="stylesheet">
     <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+    {# load theme #}
+    {% if request.user.is_authenticated %}
+    <link href="{% static 'css/themes/' %}{{request.user.theme}}" rel="stylesheet">
+    {% else %}
+    <link href="{% static 'css/themes/default.css' %}" rel="stylesheet">
+    {% endif %}
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
 
     {# Favicon with iOS, Android, touchbar support #}

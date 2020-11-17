@@ -47,3 +47,7 @@ settings_local.py
 local_routers.py
 re2o.png
 media/
+
+# themes
+static/css/themes/*
+!static/css/themes/default.css
