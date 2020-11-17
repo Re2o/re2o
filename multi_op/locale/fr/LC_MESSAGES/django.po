@@ -21,78 +21,66 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-17 12:49+0200\n"
+"POT-Creation-Date: 2020-11-17 21:07+0100\n"
 "PO-Revision-Date: 2019-11-16 00:22+0100\n"
-"Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
+"Last-Translator: Yoann Piétri <me@nanoy.fr>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: multi_op/forms.py:43
+#: multi_op/forms.py:44
 msgid "Dormitory"
 msgstr "Résidence"
 
-#: multi_op/preferences/models.py:37
+#: multi_op/preferences/models.py:41
 msgid "enabled dorm"
 msgstr "résidence activée"
 
-#: multi_op/preferences/models.py:41
+#: multi_op/preferences/models.py:45
 msgid "dormitories preferences"
 msgstr "préférences de résidences"
 
-#: multi_op/templates/multi_op/aff_room_state.html:36
-msgid "Room"
-msgstr "Chambre"
-
-#: multi_op/templates/multi_op/aff_room_state.html:37
-msgid "Building"
-msgstr "Bâtiment"
-
-#: multi_op/templates/multi_op/aff_room_state.html:40
-msgid "Connnected to"
-msgstr "Connectée à"
-
-#: multi_op/templates/multi_op/aff_room_state.html:41
+#: multi_op/templates/multi_op/aff_room_state.html:54
 msgid "User"
 msgstr "Utilisateur"
 
-#: multi_op/templates/multi_op/aff_room_state.html:42
-msgid "Details"
-msgstr "Détails"
+#: multi_op/templates/multi_op/aff_room_state.html:55
+msgid "Connected to"
+msgstr "Connectée à"
 
-#: multi_op/templates/multi_op/aff_room_state.html:43
+#: multi_op/templates/multi_op/aff_room_state.html:56
 msgid "End of subscription on"
 msgstr "Fin de cotisation le"
 
-#: multi_op/templates/multi_op/aff_room_state.html:44
+#: multi_op/templates/multi_op/aff_room_state.html:57
 msgid "Internet access"
 msgstr "Accès Internet"
 
-#: multi_op/templates/multi_op/aff_room_state.html:45
-msgid "Action"
-msgstr "Action"
-
-#: multi_op/templates/multi_op/aff_room_state.html:52
-msgid "Other operator"
-msgstr "Autre opérateur"
-
-#: multi_op/templates/multi_op/aff_room_state.html:53
+#: multi_op/templates/multi_op/aff_room_state.html:65
 msgid "None"
 msgstr "Aucun"
 
-#: multi_op/templates/multi_op/aff_room_state.html:55
+#: multi_op/templates/multi_op/aff_room_state.html:72
+msgid "Other operator"
+msgstr "Autre opérateur"
+
+#: multi_op/templates/multi_op/aff_room_state.html:84
 msgid "Non member"
 msgstr "Non adhérent"
 
-#: multi_op/templates/multi_op/aff_room_state.html:58
+#: multi_op/templates/multi_op/aff_room_state.html:90
 msgid "Active"
 msgstr "Actif"
 
-#: multi_op/templates/multi_op/aff_room_state.html:60
+#: multi_op/templates/multi_op/aff_room_state.html:92
 msgid "Disabled"
 msgstr "Désactivé"
+
+#: multi_op/templates/multi_op/aff_room_state.html:101
+msgid "Details: "
+msgstr "Détails :"
 
 #: multi_op/templates/multi_op/index_room_state.html:30
 msgid "Multiple operators"
@@ -106,23 +94,36 @@ msgstr "Connexions de chambre"
 msgid "Select dormitory"
 msgstr "Sélectionnez la résidence"
 
-#: multi_op/templates/multi_op/navbar.html:2
-msgid "Manage the operators"
-msgstr "Gérer les opérateurs"
+#: multi_op/templates/multi_op/navbar.html:3
+msgid "Multi op"
+msgstr "Opérateurs multiples"
 
-#: multi_op/templates/multi_op/sidebar.html:31
+#: multi_op/templates/multi_op/navbar.html:7
 msgid "Room connections state"
 msgstr "État des connexions de chambre"
 
-#: multi_op/templates/multi_op/sidebar.html:35
+#: multi_op/templates/multi_op/navbar.html:10
 msgid "Sockets to connect"
 msgstr "Prises à connecter"
 
-#: multi_op/templates/multi_op/sidebar.html:39
+#: multi_op/templates/multi_op/navbar.html:13
 msgid "Sockets to disconnect"
 msgstr "Prises à déconnecter"
 
-#: multi_op/views.py:169
+#: multi_op/templates/multi_op/preferences.html:7
+msgid "Multi Op"
+msgstr "Opérateurs Multiples"
+
+#: multi_op/templates/multi_op/preferences.html:14
+msgid "Edit"
+msgstr "Modifier"
+
+#: multi_op/templates/multi_op/preferences.html:21
+msgid "Enabled Dorm"
+msgstr "Résidence Activée"
+
+#: multi_op/views.py:194
 #, python-format
 msgid "The room %s was disconnected."
 msgstr "La chambre %s a été déconnectée."
+
