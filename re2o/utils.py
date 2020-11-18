@@ -225,7 +225,6 @@ def all_has_access(search_time=None, including_asso=True, dormitory=None, user_t
         Q(state=User.STATE_ACTIVE)
         & ~Q(email_state=User.EMAIL_STATE_UNVERIFIED)
     )
-    filter_user = filter_results(filter_user, dormitory, user_type)
     if including_asso:
         asso_user = AssoOption.get_cached_value("utilisateur_asso")
         if asso_user:
