@@ -4,6 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2018 Mael Kervella
+# Copyright © 2020 Corentin Canebier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,6 +42,7 @@ class AllViewsRouter(DefaultRouter):
 
     def __init__(self, *args, **kwargs):
         self.view_registry = []
+        self.functional_view_registry = []
         super(AllViewsRouter, self).__init__(*args, **kwargs)
 
     def register_viewset(self, *args, **kwargs):
@@ -63,6 +65,19 @@ class AllViewsRouter(DefaultRouter):
         if name is None:
             name = self.get_default_name(pattern)
         self.view_registry.append((pattern, view, name))
+
+    def register_functional_view(self, pattern, view, name=None):
+        """Register a functional view in the router.
+
+        Args:
+            pattern: The URL pattern to use for this view.
+            view: The functional view to register.
+            name: An optional name for the route generated. Defaults is
+                based on the pattern last section (delimited by '/').
+        """
+        if name is None:
+            name = self.get_default_name(pattern)
+        self.functional_view_registry.append((pattern, view, name))
 
     @staticmethod
     def get_default_name(pattern):
@@ -154,5 +169,8 @@ class AllViewsRouter(DefaultRouter):
 
         for pattern, view, name in self.view_registry:
             urls.append(url(pattern, view.as_view(), name=name))
+
+        for pattern, view, name in self.functional_view_registry:
+            urls.append(url(pattern, view, name=name))
 
         return urls

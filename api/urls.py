@@ -4,6 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2018 Maël Kervella
+# Copyright © 2020 Corentin Canebier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,12 +39,14 @@ router = AllViewsRouter()
 
 urls_viewset = []
 urls_view = []
+urls_functional_view = []
 
 for app in settings.INSTALLED_APPS:
     try:
         module = import_module(".api.urls", package=app)
         urls_viewset += getattr(module, "urls_viewset", [])
         urls_view += getattr(module, "urls_view", [])
+        urls_functional_view += getattr(module, "urls_functional_view", [])
     except ImportError:
         continue
 
@@ -56,6 +59,8 @@ for _url, viewset, name in urls_viewset:
 for _url, view in urls_view:
     router.register_view(_url, view)
 
+for _url, view, name in urls_functional_view:
+    router.register_functional_view(_url, view, name)
 
 # TOKEN AUTHENTICATION
 router.register_view(r"token-auth", views.ObtainExpiringAuthToken)
