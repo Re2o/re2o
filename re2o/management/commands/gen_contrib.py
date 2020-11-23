@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #

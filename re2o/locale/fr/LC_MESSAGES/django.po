@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -150,7 +150,7 @@ msgstr "Informations supplémentaires"
 
 #: re2o/templates/re2o/about.html:57
 msgid ""
-"Re2o is an administration tool initiated by <a href=\"https://rezometz.org/"
+"Re2o is an administration tool initiated by <a href=\"https://Rézo Metz.org/"
 "\">Rezo Metz</a> and a few members of other <a href=\"https://federez.net"
 "\">FedeRez</a> associations around the summer 2016.<br /> It is intended to "
 "be a tool independent from any network infrastructure so it can be setup in "
@@ -161,7 +161,7 @@ msgid ""
 "process, we will be glad to welcome you so do not hesitate to contact us and "
 "come help us build the future of Re2o."
 msgstr ""
-"Re2o est un outil d'administration initié par <a href=\"https://rezometz.org/"
+"Re2o est un outil d'administration initié par <a href=\"https://Rézo Metz.org/"
 "\">Rézo Metz</a> et quelques membres d'autres associations de <a href="
 "\"https://federez.net\">FedeRez</a> autour de l'été 2016.<br /> Il se veut "
 "être un outil indépendant de toute infrastructure réseau pour pouvoir être "
