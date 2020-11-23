@@ -6,7 +6,7 @@ GNU public license v2.0
 
 ## Avant propos 
 
-Re2o est un logiciel d'administration développé initialement au [rezometz](https://www.rezometz.org/). Il
+Re2o est un logiciel d'administration développé initialement au [Rézo Metz](https://www.rezometz.org/). Il
 se veut agnostique au réseau considéré, de manière à être installable et configurable facilement.
 
 Il utilise le framework django avec python3. Il permet de gérer les adhérents, 
@@ -40,7 +40,7 @@ GNU Public license v2.0
 
 ## Foreword
 
-Re2o is a management software initially developed at [rezometz](https://www.rezometz.org/). It is now in use in several student organizations. It aims to remain agnostic of the organization that uses it and be easy to setup.
+Re2o is a management software initially developed at [Rézo Metz](https://www.rezometz.org/). It is now in use in several student organizations. It aims to remain agnostic of the organization that uses it and be easy to setup.
 
 Re2o is based on the Django framework and Python3. Its core functionalities include managing the members, their machines, their invoices and their rights to the network but also the topology of the network and its devices.
 On top of this, it is possible to plug services to enhance the possibilities and fit the need of each organization.

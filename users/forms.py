@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -41,11 +41,14 @@ of each of the method.
 
 from __future__ import unicode_literals
 
+from os import walk, path
+
 from django import forms
 from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.password_validation import validate_password, password_validators_help_text_html
 from django.core.validators import MinLengthValidator
+from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import lazy
 from django.contrib.auth.models import Group, Permission
@@ -1040,3 +1043,17 @@ class InitialRegisterForm(forms.Form):
         if self.cleaned_data["register_machine"]:
             if self.mac_address and self.nas_type:
                 self.user.autoregister_machine(self.mac_address, self.nas_type)
+
+
+class ThemeForm(FormRevMixin, forms.Form):
+    """Form to change the theme of a user.
+    """
+
+    theme = forms.ChoiceField(widget=forms.Select())
+
+    def __init__(self, *args, **kwargs):
+        _, _ ,themes = next(walk(path.join(settings.STATIC_ROOT, "css/themes")))
+        if not themes:
+            themes = ["default.css"]
+        super(ThemeForm, self).__init__(*args, **kwargs)
+        self.fields['theme'].choices = [(theme, theme) for theme in themes]

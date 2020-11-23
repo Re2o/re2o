@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -27,35 +27,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% block sidebar %}
-    {% can_view_app logs %}
-    <a class="list-group-item list-group-item-info" href="{% url 'logs:index' %}">
-        <i class="fa fa-clipboard"></i>
-        {% trans "Summary" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'logs:stats-logs' %}">
-        <i class="fa fa-calendar"></i>
-        {% trans "Events" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'logs:stats-general' %}">
-        <i class="fa fa-area-chart"></i>
-        {% trans "General" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'logs:stats-models' %}">
-        <i class="fa fa-database"></i>
-        {% trans "Database" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'logs:stats-actions' %}">
-        <i class="fa fa-plug"></i>
-        {% trans "Wiring actions" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'logs:stats-users' %}">
-        <i class="fa fa-users"></i>
-        {% trans "Users" %}
-    </a>
-    <a class="list-group-item list-group-item-info" href="{% url 'logs:stats-search-machine' %}">
-        <i class="fa fa-desktop"></i>
-        {% trans "Machine history" %}
-    </a>
-    {% acl_end %}
 {% endblock %}
 

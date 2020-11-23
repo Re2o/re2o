@@ -1,6 +1,6 @@
 {% extends 'users/sidebar.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -176,6 +176,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% trans "Edit the groups" %}
                 </a>
                 {% acl_end %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-theme' users.id %}">
+                    <i class="fa fa-paint-brush"></i>
+                    {% trans "Change theme" %}
+                </a>
                 {% history_button users text=True %}
                 </ul>
             </div>
@@ -344,6 +348,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     <div class="col-md-6 col-xs-12">
                         <dt>{% trans "Shortcuts enabled" %}</dt>
                         <dd>{{ users.shortcuts_enabled | tick }}</dd>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <dt>{% trans "Theme" %}</dt>
+                        <dd>{{ request.user.theme_name }}</dd>
                     </div>
                 </dl>
             </div>

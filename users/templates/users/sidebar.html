@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -26,73 +26,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% block sidebar %}
-   {% if request.user.is_authenticated%}
-   {% can_create Club %}
-        <a class="list-group-item list-group-item-success" href="{% url 'users:new-club' %}">
-            <i class="fa fa-plus"></i>
-	    {% trans "Create a club or organisation" %}
-        </a>
-   {% acl_end %}
-   {% can_create Adherent %}
-        <a class="list-group-item list-group-item-success" href="{% url 'users:new-user' %}">
-            <i class="fa fa-user-plus"></i>
-	    {% trans "Create a user" %}
-        </a>
-    {% acl_end %}
-    {% endif %}
-    {% can_view_all Club %}
-	<a class="list-group-item list-group-item-info" href="{% url 'users:index-clubs' %}">
-            <i class="fa fa-list-ul"></i>
-	    {% trans "Clubs and organisations" %}
-        </a>
-    {% acl_end %}
-    {% can_view_all Adherent %}
-	<a class="list-group-item list-group-item-info" href="{% url 'users:index' %}">
-            <i class="fa fa-list-ul"></i>
-	    {% trans "Users" %}
-        </a>
-    {% acl_end %}
-    {% can_view_all Ban %}
-	<a class="list-group-item list-group-item-info" href="{% url 'users:index-ban' %}">
-            <i class="fa fa-list-ul"></i>
-	    {% trans "Bans" %}
-        </a>
-    {% acl_end %}
-    {% can_view_all Whitelist %}
-        <a class="list-group-item list-group-item-info" href="{% url 'users:index-white' %}">
-            <i class="fa fa-list-ul"></i>
-	    {% trans "Whitelists" %}
-        </a>
-    {% acl_end %}
-    {% can_view_all School %}
-        <a class="list-group-item list-group-item-info" href="{% url 'users:index-school' %}">
-            <i class="fa fa-list-ul"></i>
-	    {% trans "Schools" %}
-        </a>
-    {% acl_end %}
-    {% can_view_all ListShell %}
-        <a class="list-group-item list-group-item-info" href="{% url 'users:index-shell' %}">
-            <i class="fa fa-list-ul"></i>
-	    {% trans "Shells" %}
-        </a>
-    {% acl_end %}
-    {% can_view_all ListRight %}
-        <a class="list-group-item list-group-item-info" href="{% url 'users:index-listright' %}">
-            <i class="fa fa-list-ul"></i>
-	    {% trans "Groups of rights" %}
-        </a>
-    {% acl_end %}
-    {% can_view_all ServiceUser %}
-        <a class="list-group-item list-group-item-info" href="{% url 'users:index-serviceusers' %}">
-            <i class="fa fa-list-ul"></i>
-	    {% trans "Service users" %}
-	</a>
-    {% acl_end %}
-    {% can_change User state %}
-        <a class="list-group-item list-group-item-danger" href="{% url 'users:mass-archive' %}">
-            <i class="fa fa-archive"></i>
-	    {% trans "Massively archive" %}
-        </a>
-    {% acl_end %}
 {% endblock %}
 

@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,20 +21,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-17 12:49+0200\n"
+"POT-Creation-Date: 2020-11-17 22:00+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
-"Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
+"Last-Translator: Yoann Piétri <me@nanoy.fr>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: templates/admin/base_site.html:65 templates/base.html:293
+#: templates/admin/base_site.html:65 templates/footer.html:28
 msgid "powered by"
 msgstr "propulsé par"
 
-#: templates/admin/base_site.html:69 templates/base.html:301
+#: templates/admin/base_site.html:69 templates/footer.html:45
 msgid ""
 "This software is under the terms of the <a href=\"http://www.gnu.org/"
 "licenses/gpl-2.0.txt\" target=\"_blank\" rel=\"nofollow\">GPLv2</a> License."
@@ -70,17 +70,17 @@ msgstr "Mon compte"
 
 #: templates/admin/custom_index.html:29
 msgid "Recent actions"
-msgstr ""
+msgstr "Actions récentes"
 
 #: templates/admin/custom_index.html:33
 msgid "None available"
-msgstr ""
+msgstr "Non disponible"
 
 #: templates/admin/custom_index.html:48
 msgid "Unknown content"
-msgstr ""
+msgstr "Contenu incconu"
 
-#: templates/base.html:72 templates/registration/logged_out.html:11
+#: templates/base.html:79 templates/registration/logged_out.html:11
 #: templates/registration/password_change_done.html:11
 #: templates/registration/password_change_form.html:11
 #: templates/registration/password_reset_complete.html:11
@@ -88,153 +88,11 @@ msgstr ""
 #: templates/registration/password_reset_done.html:11
 #: templates/registration/password_reset_form.html:11
 msgid "Home"
-msgstr ""
-
-#: templates/base.html:93
-msgid "Users"
-msgstr "Utilisateurs"
-
-#: templates/base.html:96
-msgid "Manage the users"
-msgstr "Gérer les utilisateurs"
-
-#: templates/base.html:97
-msgid "Manage the clubs"
-msgstr "Gérer les clubs"
-
-#: templates/base.html:100
-msgid "Manage the machines"
-msgstr "Gérer les machines"
-
-#: templates/base.html:103
-msgid "Manage the subscriptions"
-msgstr "Gérer les cotisations"
-
-#: templates/base.html:116
-msgid "Topology"
-msgstr "Topologie"
-
-#: templates/base.html:118
-msgid "Switches"
-msgstr "Commutateurs réseau"
-
-#: templates/base.html:119
-msgid "Access points"
-msgstr "Points d'accès sans fil"
-
-#: templates/base.html:120
-msgid "Rooms"
-msgstr "Chambres"
-
-#: templates/base.html:130
-msgid "Statistics"
-msgstr "Statistiques"
-
-#: templates/base.html:135
-msgid "Administration"
-msgstr ""
-
-#: templates/base.html:142
-msgid "Information and contact"
-msgstr "Informations et contact"
-
-#: templates/base.html:144
-msgid "About"
-msgstr "À propos"
-
-#: templates/base.html:145
-msgid "Contact"
-msgstr "Contact"
-
-#: templates/base.html:159
-msgid "Sign up"
-msgstr "S'inscrire"
-
-#: templates/base.html:165 templates/registration/login.html:29
-#: templates/registration/login.html:36
-msgid "Log in"
-msgstr ""
-
-#: templates/base.html:173
-msgid "Search"
-msgstr ""
-
-#: templates/base.html:187
-msgid "My profile"
-msgstr "Mon profil"
-
-#: templates/base.html:188
-msgid "Log out"
-msgstr ""
-
-#: templates/base.html:226
-msgid "Username"
-msgstr "Pseudo"
-
-#: templates/base.html:230
-msgid "Room"
-msgstr "Chambre"
-
-#: templates/base.html:234
-msgid "Internet access"
-msgstr "Accès Internet"
-
-#: templates/base.html:237
-#, python-format
-msgid "Until %(end_access_date)s"
-msgstr "Jusqu'au %(end_access_date)s"
-
-#: templates/base.html:239
-msgid "Disabled"
-msgstr "Désactivé"
-
-#: templates/base.html:244
-msgid "Membership"
-msgstr "Adhésion"
-
-#: templates/base.html:247
-#, python-format
-msgid "Until %(end_adhesion_date)s"
-msgstr "Jusqu'au %(end_adhesion_date)s"
-
-#: templates/base.html:249
-msgid "Non member"
-msgstr "Non adhérent"
-
-#: templates/base.html:257
-msgid "View my profile"
-msgstr "Voir mon profil"
-
-#: templates/base.html:262
-msgid "You are not logged in."
-msgstr "Vous n'êtes pas connecté."
-
-#: templates/base.html:269
-#, python-format
-msgid "%(nb)s active machine"
-msgid_plural "%(nb)s active machines"
-msgstr[0] "%(nb)s machine active"
-msgstr[1] "%(nb)s machines actives"
-
-#: templates/base.html:278
-msgid "View my machines"
-msgstr "Voir mes machines"
-
-#: templates/base.html:291
-msgid "Back to top"
-msgstr "Retour en haut"
-
-#: templates/base.html:295
-msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
-msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
-
-#: templates/base.html:298
-msgid "About this website"
-msgstr "À propos de ce site"
+msgstr "Acceuil"
 
 #: templates/buttons/add.html:27
 msgid "Add"
-msgstr ""
+msgstr "Ajouter"
 
 #: templates/buttons/edit.html:27
 msgid "Edit"
@@ -242,7 +100,7 @@ msgstr "Modifier"
 
 #: templates/buttons/history.html:27 templates/buttons/history.html:28
 msgid "History"
-msgstr ""
+msgstr "Historique"
 
 #: templates/buttons/setlang.html:34
 msgid "Translation in development"
@@ -258,7 +116,11 @@ msgstr "Tri décroissant"
 
 #: templates/buttons/suppr.html:27
 msgid "Delete"
-msgstr ""
+msgstr "Supprimer"
+
+#: templates/buttons/view.html:25
+msgid "View"
+msgstr "Voir"
 
 #: templates/errors/404.html:39
 msgid "404 error: page not found"
@@ -339,6 +201,239 @@ msgstr "Si vous n'avez aucune idée de ce que vous avez fait :"
 msgid "Go back to a safe page"
 msgstr "Retourner à une page sécurisée"
 
+#: templates/footer.html:29
+msgid "Brought to you with <i class=\"fa fa-heart text-danger\"></i>."
+msgstr "Codé avec <i class=\"fa fa-heart text-danger\"></i>."
+
+#: templates/footer.html:35
+msgid "About"
+msgstr "À propos"
+
+#: templates/footer.html:42
+msgid "Top"
+msgstr "En haut"
+
+#: templates/nav.html:45 templates/nav.html:52 templates/nav.html:207
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: templates/nav.html:49
+msgid "Users and clubs"
+msgstr "Utilisateurs et Clubs"
+
+#: templates/nav.html:55
+msgid "Clubs"
+msgstr "Clubs"
+
+#: templates/nav.html:58
+msgid "Whitelists"
+msgstr "Accès gracieux"
+
+#: templates/nav.html:61
+msgid "Bans"
+msgstr "Banissements"
+
+#: templates/nav.html:64
+msgid "Massively archive"
+msgstr "Archivage de masse"
+
+#: templates/nav.html:70
+msgid "Machines"
+msgstr "Machines"
+
+#: templates/nav.html:75
+msgid "Groups"
+msgstr "Groupes"
+
+#: templates/nav.html:76 templates/nav.html:119
+msgid "Advanced"
+msgstr "Avancé"
+
+#: templates/nav.html:81
+msgid "Schools"
+msgstr "Écoles"
+
+#: templates/nav.html:84
+msgid "Shells"
+msgstr "Interfaces en ligne de commande"
+
+#: templates/nav.html:99
+msgid "Treasury"
+msgstr "Trésorerie"
+
+#: templates/nav.html:102 templates/nav.html:109
+msgid "Invoices"
+msgstr "Factures"
+
+#: templates/nav.html:106
+msgid "Control invoices"
+msgstr "Contrôler les factures"
+
+#: templates/nav.html:112
+msgid "Cutsom invoices"
+msgstr "Facture personnalisée"
+
+#: templates/nav.html:117
+msgid "Cost estimates"
+msgstr "Devis"
+
+#: templates/nav.html:124
+msgid "Banks"
+msgstr "Banques"
+
+#: templates/nav.html:127
+msgid "Articles"
+msgstr "Articles"
+
+#: templates/nav.html:130
+msgid "Payment methods"
+msgstr "Moyens de paiement"
+
+#: templates/nav.html:144
+msgid "Topology"
+msgstr "Topologie"
+
+#: templates/nav.html:147 templates/nav.html:151
+msgid "Switches"
+msgstr "Commutateurs réseau"
+
+#: templates/nav.html:154
+msgid "Switch models"
+msgstr "Modèles de commutateurs réseau"
+
+#: templates/nav.html:157
+msgid "Switch modules"
+msgstr "Modules de commutateurs réseau"
+
+#: templates/nav.html:159
+msgid "Switch bays"
+msgstr "Baies de commutateurs réseau"
+
+#: templates/nav.html:161
+msgid "Stacks"
+msgstr "Pile de commutateurs réseau"
+
+#: templates/nav.html:164
+msgid "Port profiles"
+msgstr "Profils de port"
+
+#: templates/nav.html:168
+msgid "Infrastructure"
+msgstr "Infrastructure"
+
+#: templates/nav.html:172
+msgid "Dormitories"
+msgstr "Résidences"
+
+#: templates/nav.html:174
+msgid "Buildings"
+msgstr "Bâtiments"
+
+#: templates/nav.html:177
+msgid "Rooms"
+msgstr "Chambres"
+
+#: templates/nav.html:181
+msgid "Access points"
+msgstr "Points d'accès sans fil"
+
+#: templates/nav.html:194
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: templates/nav.html:197
+msgid "Summary"
+msgstr "Résumé"
+
+#: templates/nav.html:199
+msgid "Events"
+msgstr "Évènements"
+
+#: templates/nav.html:201 templates/nav.html:226
+msgid "General"
+msgstr "Général"
+
+#: templates/nav.html:203
+msgid "Database"
+msgstr "Base de données"
+
+#: templates/nav.html:205
+msgid "Wiring actions"
+msgstr "Actions de cablage"
+
+#: templates/nav.html:209
+msgid "Machine history"
+msgstr "Historique machine"
+
+#: templates/nav.html:221
+msgid "Administration"
+msgstr "Administration"
+
+#: templates/nav.html:231
+msgid "LDAP service users"
+msgstr "Utilisateurs service LDAP"
+
+#: templates/nav.html:236
+msgid "Services"
+msgstr "Services"
+
+#: templates/nav.html:239
+msgid "Machine types"
+msgstr "Types de machines"
+
+#: templates/nav.html:241
+msgid "Network"
+msgstr "Réseau"
+
+#: templates/nav.html:245
+msgid "IP ranges"
+msgstr "Blocs IP"
+
+#: templates/nav.html:248
+msgid "VLANs"
+msgstr "VLANs"
+
+#: templates/nav.html:251
+msgid "Extensions and zones"
+msgstr "Zones et extensions"
+
+#: templates/nav.html:254
+msgid "NAS"
+msgstr "NAS"
+
+#: templates/nav.html:257
+msgid "Server roles"
+msgstr "Roles de serveurs"
+
+#: templates/nav.html:260
+msgid "Ports openings"
+msgstr "Ouvertures de ports"
+
+#: templates/nav.html:269
+msgid "Contact"
+msgstr "Contact"
+
+#: templates/nav.html:277
+msgid "Sign up"
+msgstr "S'inscrire"
+
+#: templates/nav.html:283 templates/registration/login.html:29
+#: templates/registration/login.html:36
+msgid "Log in"
+msgstr "Se connecter"
+
+#: templates/nav.html:291
+msgid "Search"
+msgstr "Chercher"
+
+#: templates/nav.html:310
+msgid "My profile"
+msgstr "Mon profil"
+
+#: templates/nav.html:312
+msgid "Log out"
+msgstr "Se déconnecter"
+
 #: templates/pagination.html:35
 msgid "First"
 msgstr "Première page"
@@ -357,11 +452,11 @@ msgstr "Dernière page"
 
 #: templates/registration/logged_out.html:16
 msgid "Thanks for spending some quality time with the Web site today."
-msgstr ""
+msgstr "Merci pour avoir passé un moment de qualite sur notre site aujourd'hui."
 
 #: templates/registration/logged_out.html:17
 msgid "Log in again"
-msgstr ""
+msgstr "Se reconnecter"
 
 #: templates/registration/login.html:40
 msgid "Forgotten password?"
@@ -370,17 +465,17 @@ msgstr "Mot de passe oublié ?"
 #: templates/registration/password_change_done.html:11
 #: templates/registration/password_change_form.html:11
 msgid "Password change"
-msgstr ""
+msgstr "Modification du mot de passe"
 
 #: templates/registration/password_reset_complete.html:11
 #: templates/registration/password_reset_done.html:11
 #: templates/registration/password_reset_form.html:11
 msgid "Password reset"
-msgstr ""
+msgstr "Réinitialisation du mot de passe"
 
 #: templates/registration/password_reset_confirm.html:11
 msgid "Password reset confirmation"
-msgstr ""
+msgstr "Confirmation de la réinitialisation du mot de passe"
 
 #: templates/registration/password_reset_email.html:2
 #, python-format
@@ -388,16 +483,74 @@ msgid ""
 "You're receiving this email because you requested a password reset for your "
 "user account at %(site_name)s."
 msgstr ""
+"Vous recevez cet email car vous avez demandé une réinitialisation du mot de passe "
+"de votre compte sur %(site_name)s."
 
 #: templates/registration/password_reset_email.html:4
 msgid "Please go to the following page and choose a new password:"
-msgstr ""
+msgstr "Merci de vous rendre sur la page suivante et de choisir un nouveau mot de passe : "
 
 #: templates/registration/password_reset_email.html:9
 msgid "Thanks for using our site!"
-msgstr ""
+msgstr "Merci d'utiliser notre site !"
 
 #: templates/registration/password_reset_email.html:11
 #, python-format
 msgid "The %(site_name)s team"
-msgstr ""
+msgstr "L'équipe de %(site_name)s"
+
+#: templates/sidebar.html:34 templates/sidebar.html:74
+msgid "Username"
+msgstr "Pseudo"
+
+#: templates/sidebar.html:41 templates/sidebar.html:78
+msgid "Room"
+msgstr "Chambre"
+
+#: templates/sidebar.html:48 templates/sidebar.html:82
+msgid "Internet access"
+msgstr "Accès Internet"
+
+#: templates/sidebar.html:51 templates/sidebar.html:85
+msgid ""
+"Until\n"
+"                    %(end_access_date)s"
+msgstr "Jusqu'au %(end_access_date)s"
+
+#: templates/sidebar.html:54 templates/sidebar.html:88
+msgid "Disabled"
+msgstr "Désactivé"
+
+#: templates/sidebar.html:60 templates/sidebar.html:93
+msgid "Membership"
+msgstr "Adhésion"
+
+#: templates/sidebar.html:63 templates/sidebar.html:96
+msgid ""
+"Until\n"
+"                    %(end_adhesion_date)s"
+msgstr "Jusqu'au %(end_adhesion_date)s"
+
+#: templates/sidebar.html:66 templates/sidebar.html:99
+msgid "Non member"
+msgstr "Non adhérent"
+
+#: templates/sidebar.html:108
+msgid "View my profile"
+msgstr "Voir mon profil"
+
+#: templates/sidebar.html:113
+msgid "You are not logged in."
+msgstr "Vous n'êtes pas connecté."
+
+#: templates/sidebar.html:120
+msgid "%(nb)s active machine"
+msgid_plural ""
+"%(nb)s\n"
+"            active machines"
+msgstr[0] "%(nb)s machine active"
+msgstr[1] "%(nb)s machines actives"
+
+#: templates/sidebar.html:131
+msgid "View my machines"
+msgstr "Voir mes machines"

@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz.
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz.
 # Il  se veut agnostique au réseau considéré, de manière à être installable
 # en quelques clics.
 #
@@ -305,6 +305,7 @@ class User(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
     )
     email_change_date = models.DateTimeField(auto_now_add=True)
+    theme = models.CharField(max_length=255, default="default.css")
 
     USERNAME_FIELD = "pseudo"
     REQUIRED_FIELDS = ["surname", "email"]
@@ -1963,6 +1964,14 @@ class User(
     def __str__(self):
         return self.pseudo
 
+    @property
+    def theme_name(self):
+        """Return the theme without the extension
+
+        Returns:
+            str: name of theme
+        """
+        return self.theme.split(".")[0]
 
 class Adherent(User):
     """Base re2o Adherent model, inherit from User. Add other attributes.

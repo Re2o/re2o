@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -27,43 +27,5 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load i18n %}
 
 {% block sidebar %}
-    {% can_create CustomInvoice %}
-    <a class="list-group-item list-group-item-success" href="{% url 'cotisations:new-custom-invoice' %}">
-        <i class="fa fa-plus"></i> {% trans "Create an invoice" %}
-    </a>
-    <a class="list-group-item list-group-item-warning" href="{% url 'cotisations:control' %}">
-        <i class="fa fa-eye"></i> {% trans "Control the invoices" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all Facture %}
-    <a class="list-group-item list-group-item-info" href="{% url 'cotisations:index' %}">
-        <i class="fa fa-list-ul"></i> {% trans "Invoices" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all CustomInvoice %}
-    <a class="list-group-item list-group-item-info" href="{% url 'cotisations:index-custom-invoice' %}">
-        <i class="fa fa-list-ul"></i> {% trans "Custom invoices" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all CostEstimate %}
-    <a class="list-group-item list-group-item-info" href="{% url 'cotisations:index-cost-estimate' %}">
-        <i class="fa fa-list-ul"></i> {% trans "Cost estimates" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all Article %}
-    <a class="list-group-item list-group-item-info" href="{% url 'cotisations:index-article' %}">
-        <i class="fa fa-list-ul"></i> {% trans "Articles" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all Banque %}
-    <a class="list-group-item list-group-item-info" href="{% url 'cotisations:index-banque' %}">
-        <i class="fa fa-list-ul"></i> {% trans "Banks" %}
-    </a>
-    {% acl_end %}
-    {% can_view_all Paiement %}
-    <a class="list-group-item list-group-item-info" href="{% url 'cotisations:index-paiement' %}">
-        <i class="fa fa-list-ul"></i> {% trans "Payment methods" %}
-    </a>
-    {% acl_end %}
 {% endblock %}
 
