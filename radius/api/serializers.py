@@ -70,6 +70,7 @@ class VlanSerializer(Serializer):
 class PortProfileSerializer(Serializer):
     vlan_untagged = VlanSerializer()
     radius_type = serializers.CharField()
+    radius_mode = serializers.CharField()
 
 
 class SwitchSerializer(Serializer):

@@ -195,14 +195,14 @@ def post_auth(data):
         sw_name = switch["name"] or "?"
         room = "Unknown port"
         if port:
-            room = port.room or "Unknown room"
+            room = port["room"] or "Unknown room"
 
         out = decide_vlan_switch(data_from_api, mac, nas_port)
         reason, vlan_id, decision, attributes = out
 
         if decision:
             log_message = "(wired) %s -> %s [%s%s]" % (
-                sw_name + ":" + port + "/" + str(room),
+                sw_name + ":" + nas_port + "/" + str(room),
                 mac,
                 vlan_id,
                 (reason and ": " + reason),
@@ -221,8 +221,8 @@ def post_auth(data):
                 (),
             )
         else:
-            log_message = "(fil) %s -> %s [Reject %s]" % (
-                sw_name + ":" + port + "/" + str(room),
+            log_message = "(wired) %s -> %s [Reject %s]" % (
+                sw_name + ":" + nas_port + "/" + str(room),
                 mac,
                 (reason and ": " + reason),
             )
@@ -272,7 +272,7 @@ def check_user_machine_and_register(nas_type, user, user_interface):
 
 def set_radius_attributes_values(attributes, values):
     return (
-        (str(attribute.attribute), str(attribute.value % values))
+        (str(attribute["attribute"]), str(attribute["value"] % values))
         for attribute in attributes
     )
 
@@ -325,7 +325,7 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
     attributes_kwargs = {
         "client_mac": str(user_mac),
         "switch_port": str(nas_port.split(".")[0].split("/")[-1][-2:]),
-        "switch_ip": str(switch.ipv4)
+        "switch_ip": str(switch["ipv4"])
     }
 
     # Get port from switch and port number
@@ -445,7 +445,7 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
         # else: user OK, so we check MAC now
 
     # If we are authenticating with mac, we look for the interfaces and its mac address
-    if port_profile.radius_mode == "COMMON" or port_profile.radius_mode == "STRICT":
+    if port_profile["radius_mode"] == "COMMON" or port_profile["radius_mode"] == "STRICT":
         # If mac is unknown,
         if not user_interface:
             # We try to register mac, if autocapture is enabled
