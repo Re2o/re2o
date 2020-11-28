@@ -1,3 +1,24 @@
+# -*- mode: python; coding: utf-8 -*-
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2020 Corentin Canebier
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 from rest_framework import serializers
 
 import machines.models as machines
@@ -6,13 +27,15 @@ from api.serializers import NamespacedHMSerializer
 from rest_framework.serializers import Serializer
 
 
+class Ipv4Serializer(Serializer):
+    ipv4 = serializers.CharField()
+
+
 class InterfaceSerializer(Serializer):
     mac_address = serializers.CharField()
-    ipv4 = serializers.CharField(source="ipv4.ipv4")
+    ipv4 = Ipv4Serializer()
     active = serializers.BooleanField(source="is_active")
     user_pk = serializers.CharField(source="machine.user.pk")
-    # machine_type_pk = serializers.CharField(source="machine_type.pk")
-    # switch_stack = serializers.CharField(source="machine.switch.stack")
     machine_short_name = serializers.CharField(source="machine.short_name")
     is_ban = serializers.BooleanField(source="machine.user.is_ban")
     vlan_id = serializers.IntegerField(
@@ -96,3 +119,4 @@ class PostAuthResponseSerializer(Serializer):
     radius_option = RadiusOptionSerializer()
     EMAIL_STATE_UNVERIFIED = serializers.IntegerField()
     RADIUS_OPTION_REJECT = serializers.CharField()
+    USER_STATE_ACTIVE = serializers.CharField()

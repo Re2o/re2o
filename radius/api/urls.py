@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,15 +21,9 @@
 
 from . import views
 
-urls_view = [
-    # (r"radius/nas-interface-from-id/(?P<nas_id>.+)$", views.nas_from_id_view),
-    # (r"radius/nas-from-machine-type/(?P<machine_type>.+)$", views.NasFromMachineTypeView),
-    # (r"radius/user-from-username/(?P<username>.+)$", views.UserFromUsernameView),
-    # (r"radius/interface-from-mac-address/(?P<mac_address>.+)$", views.InterfaceFromMacAddressView),
-]
 urls_functional_view = [
-    (r"radius/authorize/(?P<nas_id>[^/]+)/(?P<username>.+)/(?P<mac_address>[0-9a-fA-F:\-]{17})$",
+    (r"radius/authorize/(?P<nas_id>[^/]+)/(?P<username>.+)/(?P<mac_address>[0-9a-fA-F\:\-]{17})$",
      views.authorize, None),
-    (r"radius/post_auth/(?P<nas_id>[^/]+)/(?P<nas_port>.+)/(?P<user_mac>[0-9a-fA-F:\-]{17})$",
+    (r"radius/post_auth/(?P<nas_id>[^/]+)/(?P<nas_port>.+)/(?P<user_mac>[0-9a-fA-F\:\-]{17})$",
      views.post_auth, None),
 ]

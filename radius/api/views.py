@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -62,7 +62,7 @@ def authorize(request, nas_id, username, mac_address):
 
 
 class PostAuthResponse:
-    def __init__(self, nas, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT):
+    def __init__(self, nas, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT, USER_STATE_ACTIVE):
         self.nas = nas
         self.room_users = room_users
         self.port = port
@@ -72,6 +72,7 @@ class PostAuthResponse:
         self.radius_option = radius_option
         self.EMAIL_STATE_UNVERIFIED = EMAIL_STATE_UNVERIFIED
         self.RADIUS_OPTION_REJECT = RADIUS_OPTION_REJECT
+        self.USER_STATE_ACTIVE = USER_STATE_ACTIVE
 
     def can_view(self, user):
         return [True]
@@ -84,29 +85,33 @@ def post_auth(request, nas_id, nas_port, user_mac):
         Q(domain=Domain.objects.filter(name=nas_id))
         | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
     ).first()
-    print(nas_id)
     nas_type = None
     if nas_interface:
         nas_type = Nas.objects.filter(
             nas_type=nas_interface.machine_type).first()
 
     # get switch
-    switch = Switch.objects.filter(machine_ptr=nas_interface.machine).first()
-    if hasattr(nas_interface.machine, "switch"):
-        stack = nas_interface.machine.switch.stack
-        if stack:
-            id_stack_member = nas_port.split("-")[1].split("/")[0]
-            switch = (
-                Switch.objects.filter(stack=stack)
-                .filter(stack_member_id=id_stack_member)
-                .first()
-            )
+    switch = None
+    if nas_interface:
+        switch = Switch.objects.filter(
+            machine_ptr=nas_interface.machine).first()
+        if hasattr(nas_interface.machine, "switch"):
+            stack = nas_interface.machine.switch.stack
+            if stack:
+                id_stack_member = nas_port.split("-")[1].split("/")[0]
+                switch = (
+                    Switch.objects.filter(stack=stack)
+                    .filter(stack_member_id=id_stack_member)
+                    .first()
+                )
 
     # get port
     port_number = nas_port.split(".")[0].split("/")[-1][-2:]
     port = Port.objects.filter(switch=switch, port=port_number).first()
 
-    port_profile = port.get_port_profile
+    port_profile = None
+    if port:
+        port_profile = port.get_port_profile
 
     # get user_interface
     user_interface = (
@@ -117,9 +122,11 @@ def post_auth(request, nas_id, nas_port, user_mac):
     )
 
     # get room users
-    room_users = User.objects.filter(
-        Q(club__room=port.room) | Q(adherent__room=port.room)
-    )
+    room_users = []
+    if port:
+        room_users = User.objects.filter(
+            Q(club__room=port.room) | Q(adherent__room=port.room)
+        )
 
     # get radius options
     radius_option = RadiusOption.objects.first()
@@ -127,7 +134,8 @@ def post_auth(request, nas_id, nas_port, user_mac):
 
     EMAIL_STATE_UNVERIFIED = User.EMAIL_STATE_UNVERIFIED
     RADIUS_OPTION_REJECT = RadiusOption.REJECT
+    USER_STATE_ACTIVE = User.STATE_ACTIVE
     serialized = serializers.PostAuthResponseSerializer(
-        PostAuthResponse(nas_type, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT))
+        PostAuthResponse(nas_type, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT, USER_STATE_ACTIVE))
 
     return Response(data=serialized.data)
