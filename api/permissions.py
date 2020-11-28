@@ -62,7 +62,7 @@ def _get_param_in_view(view, param_name):
         "cannot apply {} on a view that does not set "
         "`.{}` or have a `.get_{}()` method."
     ).format(
-        self.__class__.__name__, param_name, param_name
+        view.__class__.__name__, param_name, param_name
     )
 
     if hasattr(view, "get_" + param_name):
@@ -212,7 +212,7 @@ class AutodetectACLPermission(permissions.BasePermission):
 
         return [perm(obj) for perm in self.perms_obj_map[method]]
 
-    @staticmethod
+    @ staticmethod
     def _queryset(view):
         return _get_param_in_view(view, "queryset")
 
@@ -237,6 +237,9 @@ class AutodetectACLPermission(permissions.BasePermission):
         # Workaround to ensure ACLPermissions are not applied
         # to the root view when using DefaultRouter.
         if getattr(view, "_ignore_model_permissions", False):
+            return True
+
+        if not getattr(view, "queryset", None):
             return True
 
         if not request.user or not request.user.is_authenticated:
@@ -273,7 +276,8 @@ class AutodetectACLPermission(permissions.BasePermission):
             # they have read permissions to see 403, or not, and simply see
             # a 404 response.
 
-            SAFE_METHODS = ("GET", "OPTIONS", "HEAD", "POST", "PUT", "PATCH", "DELETE")
+            SAFE_METHODS = ("GET", "OPTIONS", "HEAD",
+                            "POST", "PUT", "PATCH", "DELETE")
 
             if request.method in SAFE_METHODS:
                 # Read permissions already checked and failed, no need
