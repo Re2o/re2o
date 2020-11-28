@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -45,9 +45,21 @@ import subprocess
 import logging
 import traceback
 import radiusd
+from requests import HTTPError
 import urllib.parse
 
-api_client = None
+path = (os.path.dirname(os.path.abspath(__file__)))
+
+config = ConfigParser()
+config.read(path+'/config.ini')
+
+api_hostname = config.get('Re2o', 'hostname')
+api_password = config.get('Re2o', 'password')
+api_username = config.get('Re2o', 'username')
+
+global api_client
+api_client = Re2oAPIClient(
+    api_hostname, api_username, api_password, use_tls=True)
 
 
 class RadiusdHandler(logging.Handler):
@@ -61,7 +73,7 @@ class RadiusdHandler(logging.Handler):
             rad_sig = radiusd.L_INFO
         else:
             rad_sig = radiusd.L_DBG
-        radiusd.radlog(rad_sig, record.msg.encode("utf-8"))
+        radiusd.radlog(rad_sig, str(record.msg))
 
 
 # Initialisation d'un logger (pour logguer unifi  )
@@ -116,30 +128,22 @@ def instantiate(*_):
     """Usefull for instantiate ldap connexions otherwise,
     do nothing"""
     logger.info("Instantiation")
-    path = (os.path.dirname(os.path.abspath(__file__)))
-
-    config = ConfigParser()
-    config.read(path+'/config.ini')
-
-    api_hostname = config.get('Re2o', 'hostname')
-    api_password = config.get('Re2o', 'password')
-    api_username = config.get('Re2o', 'username')
-
-    global api_client
-    api_client = Re2oAPIClient(
-        api_hostname, api_username, api_password, use_tls=True)
 
 
 @radius_event
 def authorize(data):
     # Pour les requetes proxifiees, on split
     nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
-    user = data.get("User-Name", "").decode("utf-8", errors="replace")
-    user = user.split("@", 1)[0]
+    username = data.get("User-Name", "")
+    username = username.split("@", 1)[0]
     mac = data.get("Calling-Station-Id", "")
 
     data_from_api = api_client.view(
-        "radius/authorize/{0}/{1}/{2}".format(nas, user, mac))
+        "radius/authorize/{0}/{1}/{2}".format(
+            urllib.parse.quote(nas or "None", safe=""),
+            urllib.parse.quote(username or "None", safe=""),
+            urllib.parse.quote(mac or "None", safe="")
+        ))
 
     nas_type = data_from_api["nas"]
     user = data_from_api["user"]
@@ -147,9 +151,9 @@ def authorize(data):
 
     if nas_type and nas_type["port_access_mode"] == "802.1X":
         result, log, password = check_user_machine_and_register(
-            nas_type, user, user_interface)
+            nas_type, user, user_interface, nas, username, mac)
         logger.info(log.encode("utf-8"))
-        logger.info(user.encode("utf-8"))
+        logger.info(username.encode("utf-8"))
 
         if not result:
             return radiusd.RLM_MODULE_REJECT
@@ -175,9 +179,9 @@ def post_auth(data):
 
     data_from_api = api_client.view(
         "radius/post_auth/{0}/{1}/{2}".format(
-            urllib.parse.quote(nas),
-            urllib.parse.quote(nas_port),
-            urllib.parse.quote(mac)
+            urllib.parse.quote(nas or "None", safe=""),
+            urllib.parse.quote(nas_port or "None", safe=""),
+            urllib.parse.quote(mac or "None", safe="")
         ))
 
     nas_type = data_from_api["nas"]
@@ -232,7 +236,7 @@ def post_auth(data):
         return radiusd.RLM_MODULE_OK
 
 
-def check_user_machine_and_register(nas_type, user, user_interface):
+def check_user_machine_and_register(nas_type, user, user_interface, nas_id, username, mac_address):
     """Check if username and mac are registered. Register it if unknown.
     Return the user ntlm password if everything is ok.
     Used for 802.1X auth"""
@@ -250,17 +254,28 @@ def check_user_machine_and_register(nas_type, user, user_interface):
         elif not user_interface["active"]:
             return (False, "Interface/Machine disabled", "")
         elif not user_interface["ipv4"]:
-            # interface.assign_ipv4()
-            return (True, "Ok, new ipv4 assignement...", user.get("pwd_ntlm", ""))
+            try:
+                api_client.view(
+                    "radius/assign_ip/{0}".format(
+                        urllib.parse.quote(mac_address or "None", safe="")
+                    ))
+                return (True, "Ok, new ipv4 assignement...", user.get("pwd_ntlm", ""))
+            except HTTPError as err:
+                return (False, "Error during ip assignement %s" % err.response.text, "")
         else:
             return (True, "Access ok", user.get("pwd_ntlm", ""))
     elif nas_type:
         if nas_type["autocapture_mac"]:
-            # result, reason = user.autoregister_machine(mac_address, nas_type)
-            # if result:
-            #     return (True, "Access Ok, Registering mac...", user.pwd_ntlm)
-            # else:
-            #     return (False, "Error during mac register %s" % reason, "")
+            try:
+                api_client.view(
+                    "radius/autoregister/{0}/{1}/{2}".format(
+                        urllib.parse.quote(nas_id or "None", safe=""),
+                        urllib.parse.quote(username or "None", safe=""),
+                        urllib.parse.quote(mac_address or "None", safe="")
+                    ))
+                return (True, "Access Ok, Registering mac...", user["pwd_ntlm"])
+            except HTTPError as err:
+                return (False, "Error during mac register %s" % err.response.text, "")
             return (False, "L'auto capture est désactivée", "")
         else:
             return (False, "Unknown interface/machine", "")
@@ -402,7 +417,7 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
         for user in room_users:
             if not user["is_ban"] and user["state"] == USER_STATE_ACTIVE:
                 all_user_ban = False
-            elif user["email_state"] != EMAIL_STATE_UNVERIFIED and (user["is_connected"] or user["is_whitelisted"]):
+            if user["email_state"] != EMAIL_STATE_UNVERIFIED and (user["is_connected"] or user["is_whitelisted"]):
                 at_least_one_active_user = True
 
         if all_user_ban:
@@ -470,13 +485,25 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
             if radius_option["radius_general_policy"] == "MACHINE":
                 DECISION_VLAN = user_interface["vlan_id"]
             if not user_interface["ipv4"]:
-                # interface.assign_ipv4()
-                return (
-                    "Ok, assigning new ipv4" + extra_log,
-                    DECISION_VLAN,
-                    True,
-                    attributes,
-                )
+                try:
+                    api_client.view(
+                        "radius/assign_ip/{0}".format(
+                            urllib.parse.quote(user_mac or "None", safe="")
+                        ))
+                    return (
+                        "Ok, assigning new ipv4" + extra_log,
+                        DECISION_VLAN,
+                        True,
+                        attributes,
+                    )
+                except HTTPError as err:
+                    return (
+                        "Error during ip assignement %s" % err.response.text + extra_log,
+                        DECISION_VLAN,
+                        True,
+                        attributes,
+                    )
+
             else:
                 return (
                     "Interface OK" + extra_log,

@@ -22,6 +22,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Q
+from django.http import HttpResponse
+from django.forms import ValidationError
 
 from . import serializers
 from machines.models import Domain, IpList, Interface, Nas
@@ -42,6 +44,16 @@ class AuthorizeResponse:
 
 @api_view(['GET'])
 def authorize(request, nas_id, username, mac_address):
+    """Return objects the radius need for the Authorize step
+
+    Parameters:
+        nas_id (string): NAS name or ipv4
+        username (string): username of the user who is trying to connect
+        mac_address (string): mac address of the device which is trying to connect
+
+    Return:
+        AuthorizeResponse: contains all the informations
+    """
 
     nas_interface = Interface.objects.filter(
         Q(domain=Domain.objects.filter(name=nas_id))
@@ -106,8 +118,10 @@ def post_auth(request, nas_id, nas_port, user_mac):
                 )
 
     # get port
-    port_number = nas_port.split(".")[0].split("/")[-1][-2:]
-    port = Port.objects.filter(switch=switch, port=port_number).first()
+    port = None
+    if nas_port and nas_port != "None":
+        port_number = nas_port.split(".")[0].split("/")[-1][-2:]
+        port = Port.objects.filter(switch=switch, port=port_number).first()
 
     port_profile = None
     if port:
@@ -139,3 +153,36 @@ def post_auth(request, nas_id, nas_port, user_mac):
         PostAuthResponse(nas_type, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT, USER_STATE_ACTIVE))
 
     return Response(data=serialized.data)
+
+
+@api_view(['GET'])
+def autoregister_machine(request, nas_id, username, mac_address):
+    nas_interface = Interface.objects.filter(
+        Q(domain=Domain.objects.filter(name=nas_id))
+        | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
+    ).first()
+    nas_type = None
+    if nas_interface:
+        nas_type = Nas.objects.filter(
+            nas_type=nas_interface.machine_type).first()
+
+    user = User.objects.filter(pseudo__iexact=username).first()
+
+    result, reason = user.autoregister_machine(mac_address, nas_type)
+    if result:
+        return Response(data=reason)
+    return Response(reason, status=400)
+
+
+@api_view(['GET'])
+def assign_ip(request, mac_address):
+    interface = (
+        Interface.objects.filter(mac_address=mac_address)
+        .first()
+    )
+
+    try:
+        interface.assign_ipv4()
+        return Response()
+    except ValidationError as err:
+        return Response(err.message, status=400)
