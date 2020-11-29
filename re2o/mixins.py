@@ -61,7 +61,8 @@ class FormRevMixin(object):
             )
         elif self.changed_data:
             reversion.set_comment(
-                "Field(s) edited: %s" % ", ".join(field for field in self.changed_data)
+                "Field(s) edited: %s" % ", ".join(
+                    field for field in self.changed_data)
             )
         return super(FormRevMixin, self).save(*args, **kwargs)
 
@@ -182,6 +183,27 @@ class AclMixin(object):
         return (
             can,
             _("You don't have the right to view every %s object.") % cls.get_classname()
+            if not can
+            else None,
+            (permission,),
+        )
+
+    @classmethod
+    def can_edit_all(cls, user_request, *_args, **_kwargs):
+        """Check if a user can edit all instances of an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
+        permission = cls.get_modulename() + ".change_" + cls.get_classname()
+        can = user_request.has_perm(permission)
+        return (
+            can,
+            _("You don't have the right to edit every %s object.") % cls.get_classname()
             if not can
             else None,
             (permission,),
