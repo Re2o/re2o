@@ -35,6 +35,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext as _
+from rest_framework.response import Response
 
 from re2o.utils import get_group_having_permission
 
@@ -43,11 +44,13 @@ def acl_error_message(msg, permissions):
     """Create an error message for msg and permissions."""
     if permissions is None:
         return msg
-    groups = ", ".join([g.name for g in get_group_having_permission(*permissions)])
+    groups = ", ".join(
+        [g.name for g in get_group_having_permission(*permissions)])
     message = msg or _("You don't have the right to edit this option.")
     if groups:
         return (
-            message + _("You need to be a member of one of these groups: %s.") % groups
+            message +
+            _("You need to be a member of one of these groups: %s.") % groups
         )
     else:
         return message + _("No group has the %s permission(s)!") % " or ".join(
@@ -60,7 +63,7 @@ def acl_error_message(msg, permissions):
 # This is the function of main interest of this file. Almost all the decorators
 # use it, and it is a fairly complicated piece of code. Let me guide you through
 # this ! 🌈😸
-def acl_base_decorator(method_name, *targets, on_instance=True):
+def acl_base_decorator(method_name, *targets, on_instance=True, api=False):
     """Base decorator for acl. It checks if the `request.user` has the
     permission by calling model.method_name. If the flag on_instance is True,
     tries to get an instance of the model by calling
@@ -114,6 +117,9 @@ on_instance=False)
             instance need to fetched, it is done calling the assumed existing
             method `get_instance` of the model, with the arguments originally
             passed to the view.
+
+        api: when set to True, errors will no longer trigger redirection and
+            messages but will send a 403 with errors in JSON
 
     Returns:
         The user is either redirected to their own page with an explanation
@@ -186,7 +192,8 @@ ModelC)
                 # and store it to pass it to the view.
                 if on_instance:
                     try:
-                        target = target.get_instance(target_id, *args, **kwargs)
+                        target = target.get_instance(
+                            target_id, *args, **kwargs)
                         instances.append(target)
                     except target.DoesNotExist:
                         # A non existing instance is a valid reason to deny
@@ -232,28 +239,37 @@ ModelC)
                 # Store the messages at the right place.
                 for can, msg, permissions in process_target(target, fields, target_id):
                     if not can:
-                        error_messages.append(acl_error_message(msg, permissions))
+                        error_messages.append(
+                            acl_error_message(msg, permissions))
                     elif msg:
-                        warning_messages.append(acl_error_message(msg, permissions))
+                        warning_messages.append(
+                            acl_error_message(msg, permissions))
 
             # Display the warning messages
-            if warning_messages:
-                for msg in warning_messages:
-                    messages.warning(request, msg)
+            if not api:
+                if warning_messages:
+                    for msg in warning_messages:
+                        messages.warning(request, msg)
 
             # If there is any error message, then the request must be denied.
             if error_messages:
                 # We display the message
-                for msg in error_messages:
-                    messages.error(
-                        request,
-                        msg or _("You don't have the right to access this menu."),
-                    )
+                if not api:
+                    for msg in error_messages:
+                        messages.error(
+                            request,
+                            msg or _(
+                                "You don't have the right to access this menu."),
+                        )
                 # And redirect the user to the right place.
                 if request.user.id is not None:
-                    return redirect(
-                        reverse("users:profil", kwargs={"userid": str(request.user.id)})
-                    )
+                    if not api:
+                        return redirect(
+                            reverse("users:profil", kwargs={
+                                    "userid": str(request.user.id)})
+                        )
+                    else:
+                        return Response(data={"errors": error_messages, "warning": warning_messages}, status=403)
                 else:
                     return redirect(reverse("index"))
             return view(request, *chain(instances, args), **kwargs)
@@ -322,7 +338,8 @@ def can_delete_set(model):
                     request, _("You don't have the right to access this menu.")
                 )
                 return redirect(
-                    reverse("users:profil", kwargs={"userid": str(request.user.id)})
+                    reverse("users:profil", kwargs={
+                            "userid": str(request.user.id)})
                 )
             return view(request, instances, *args, **kwargs)
 
@@ -369,9 +386,36 @@ def can_edit_history(view):
         """
         if request.user.has_perm("admin.change_logentry"):
             return view(request, *args, **kwargs)
-        messages.error(request, _("You don't have the right to edit the history."))
+        messages.error(request, _(
+            "You don't have the right to edit the history."))
         return redirect(
             reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )
 
     return wrapper
+
+
+def can_view_all_api(*models):
+    """Decorator to check if an user can see an api page
+    Only used on functionnal api views (class-based api views ACL are checked
+    in api/permissions.py)
+    """
+    return acl_base_decorator("can_view_all", *models, on_instance=False, api=True)
+
+
+def can_edit_all_api(*models):
+    """Decorator to check if an user can edit via the api
+    We do not always know which instances will be edited, so we may need to know
+    if the user can edit any instance.
+    Only used on functionnal api views (class-based api views ACL are checked
+    in api/permissions.py)
+    """
+    return acl_base_decorator("can_edit_all", *models, on_instance=False, api=True)
+
+
+def can_create_api(*models):
+    """Decorator to check if an user can create the given models. via the api
+    Only used on functionnal api views (class-based api views ACL are checked
+    in api/permissions.py)
+    """
+    return acl_base_decorator("can_create", *models, on_instance=False, api=True)
