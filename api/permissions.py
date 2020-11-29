@@ -239,6 +239,9 @@ class AutodetectACLPermission(permissions.BasePermission):
         if getattr(view, "_ignore_model_permissions", False):
             return True
 
+        if not getattr(view, "queryset", getattr(view, "get_queryset", None)):
+            return True
+
         if not request.user or not request.user.is_authenticated:
             return False
 
@@ -273,7 +276,8 @@ class AutodetectACLPermission(permissions.BasePermission):
             # they have read permissions to see 403, or not, and simply see
             # a 404 response.
 
-            SAFE_METHODS = ("GET", "OPTIONS", "HEAD", "POST", "PUT", "PATCH", "DELETE")
+            SAFE_METHODS = ("GET", "OPTIONS", "HEAD",
+                            "POST", "PUT", "PATCH", "DELETE")
 
             if request.method in SAFE_METHODS:
                 # Read permissions already checked and failed, no need
