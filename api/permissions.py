@@ -239,7 +239,7 @@ class AutodetectACLPermission(permissions.BasePermission):
         if getattr(view, "_ignore_model_permissions", False):
             return True
 
-        if not getattr(view, "queryset", None):
+        if not getattr(view, "queryset", getattr(view, "get_queryset", None)):
             return True
 
         if not request.user or not request.user.is_authenticated:
