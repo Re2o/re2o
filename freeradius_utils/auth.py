@@ -203,9 +203,7 @@ def post_auth(data):
     if switch:
         # For logging
         sw_name = switch["name"] or "?"
-        room = "Unknown port"
-        if port:
-            room = port["room"] or "Unknown room"
+        room = port["room"] or "Unknown room" if port else "Unknown port"
 
         out = decide_vlan_switch(data_from_api, mac, nas_port)
         reason, vlan_id, decision, attributes = out
@@ -379,7 +377,7 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
     # If a vlan is precised in port config, we use it in place of VLAN_OK
     if port_profile["vlan_untagged"]:
         DECISION_VLAN = int(port_profile["vlan_untagged"]["vlan_id"])
-        extra_log = "Force sur vlan " + str(DECISION_VLAN)
+        extra_log = "Force sur vlan %s" % str(DECISION_VLAN)
         attributes = ()
     else:
         DECISION_VLAN = radius_option["vlan_decision_ok"]["vlan_id"]
