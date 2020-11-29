@@ -5,6 +5,7 @@
 #
 # Copyright © 2018  Gabriel Détraz
 # Copyright © 2017  Charlie Jacomme
+# Copyright © 2020  Corentin Canebier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
