@@ -105,12 +105,18 @@ class RadiusOptionSerializer(Serializer):
 
 
 class AuthorizeResponseSerializer(Serializer):
+    """Serializer for AuthorizeResponse objects
+    See views.py for the declaration of AuthorizeResponse
+    """
     nas = NasSerializer(read_only=True)
     user = UserSerializer(read_only=True)
     user_interface = InterfaceSerializer(read_only=True)
 
 
 class PostAuthResponseSerializer(Serializer):
+    """Serializer for PostAuthResponse objects
+    See views.py for the declaration of PostAuthResponse
+    """
     nas = NasSerializer(read_only=True)
     room_users = UserSerializer(many=True)
     port = PortSerializer()
