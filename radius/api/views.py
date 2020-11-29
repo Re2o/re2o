@@ -24,12 +24,14 @@ from rest_framework.response import Response
 from django.db.models import Q
 from django.http import HttpResponse
 from django.forms import ValidationError
+from django.contrib.auth.decorators import login_required
 
 from . import serializers
-from machines.models import Domain, IpList, Interface, Nas
+from machines.models import Domain, IpList, Interface, Nas, Machine
 from users.models import User
 from preferences.models import RadiusOption
 from topologie.models import Port, Switch
+from re2o.acl import can_view_all_api, can_edit_all_api, can_create_api
 
 
 class AuthorizeResponse:
@@ -48,6 +50,8 @@ class AuthorizeResponse:
 
 
 @api_view(['GET'])
+@login_required
+@can_view_all_api(Interface, Domain, IpList, Nas, User)
 def authorize(request, nas_id, username, mac_address):
     """Return objects the radius needs for the Authorize step
 
@@ -104,6 +108,8 @@ class PostAuthResponse:
 
 
 @api_view(['GET'])
+@login_required
+@can_view_all_api(Interface, Domain, IpList, Nas, Switch, Port, User)
 def post_auth(request, nas_id, nas_port, user_mac):
     """Return objects the radius needs for the Post-Auth step
 
@@ -186,6 +192,9 @@ def post_auth(request, nas_id, nas_port, user_mac):
 
 
 @api_view(['GET'])
+@login_required
+@can_view_all_api(Interface, Domain, IpList, Nas, User)
+@can_edit_all_api(User, Domain, Machine, Interface)
 def autoregister_machine(request, nas_id, username, mac_address):
     """Autoregister machine in the Authorize step of the radius
 
@@ -216,6 +225,8 @@ def autoregister_machine(request, nas_id, username, mac_address):
 
 
 @api_view(['GET'])
+@can_view_all_api(Interface)
+@can_edit_all_api(Interface)
 def assign_ip(request, mac_address):
     """Autoassign ip in the Authorize and Post-Auth steps of the Radius
 
