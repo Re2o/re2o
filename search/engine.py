@@ -564,4 +564,9 @@ def create_queries(query):
 
         queries.append(current_query)
 
+    # Make sure there is at least one query, even if it's empty
+    # Otherwise, display filters (for advanced search) won't work
+    # when the search text field is empty
+    queries = queries or [Query()]
+
     return queries
