@@ -25,13 +25,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load staticfiles%}
-{% load massive_bootstrap_form %}
 {% load i18n %}
 
 {% block title %}{% trans "Creation and editing of invoices" %}{% endblock %}
 
 {% block content %}
 {% bootstrap_form_errors factureform %}
+{{ factureform.media }}
 
 <form class="form" method="post">
     {% csrf_token %}
@@ -40,7 +40,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% else %}
     <h3>{% trans "Edit invoice" %}</h3>
     {% endif %}
-    {% massive_bootstrap_form factureform 'user' %}
+    {% bootstrap_form factureform  %}
     {{ venteform.management_form }}
     <h3>{% trans "Articles" %}</h3>
     <table class="table table-striped">

@@ -45,7 +45,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 
 from re2o.field_permissions import FieldPermissionFormMixin
-from re2o.mixins import FormRevMixin
+from re2o.mixins import FormRevMixin, AutocompleteModelMixin, AutocompleteMultipleModelMixin
 from .models import (
     Article,
     Paiement,
@@ -79,6 +79,14 @@ class FactureForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     class Meta:
         model = Facture
         fields = "__all__"
+        widgets = {
+            "user": AutocompleteModelMixin(
+                url="/users/user-autocomplete",
+            ),
+            "banque": AutocompleteModelMixin(
+                url="/cotisations/banque-autocomplete",
+            ),
+        }
 
     def clean(self):
         cleaned_data = super(FactureForm, self).clean()
