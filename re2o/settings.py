@@ -59,6 +59,8 @@ LOGIN_URL = "/login/"  # The URL for login page
 LOGIN_REDIRECT_URL = "/"  # The URL for redirecting after login
 
 # Application definition
+# dal_legacy_static only needed for Django < 2.0 (https://django-autocomplete-light.readthedocs.io/en/master/install.html#django-versions-earlier-than-2-0)
+EARLY_EXTERNAL_CONTRIB_APPS = ("dal", "dal_select2", "dal_legacy_static")  # Need to be added before django.contrib.admin (https://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration)
 DJANGO_CONTRIB_APPS = (
     "django.contrib.admin",
     "django.contrib.auth",
@@ -80,7 +82,7 @@ LOCAL_APPS = (
     "logs",
 )
 INSTALLED_APPS = (
-    DJANGO_CONTRIB_APPS + EXTERNAL_CONTRIB_APPS + LOCAL_APPS + OPTIONNAL_APPS
+    EARLY_EXTERNAL_CONTRIB_APPS + DJANGO_CONTRIB_APPS + EXTERNAL_CONTRIB_APPS + LOCAL_APPS + OPTIONNAL_APPS 
 )
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
