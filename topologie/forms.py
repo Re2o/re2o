@@ -316,7 +316,10 @@ class EditPortProfileForm(FormRevMixin, ModelForm):
         fields = "__all__"
         widgets = {
             "vlan_tagged": AutocompleteMultipleModelMixin(
-                url="/machine/vlan-autocomplete",
+                url="/machines/vlan-autocomplete",
+            ),
+            "vlan_untagged": AutocompleteModelMixin(
+                url="/machines/vlan-autocomplete",
             ),
         }
 
