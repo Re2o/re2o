@@ -44,13 +44,11 @@ def acl_error_message(msg, permissions):
     """Create an error message for msg and permissions."""
     if permissions is None:
         return msg
-    groups = ", ".join(
-        [g.name for g in get_group_having_permission(*permissions)])
+    groups = ", ".join([g.name for g in get_group_having_permission(*permissions)])
     message = msg or _("You don't have the right to edit this option.")
     if groups:
         return (
-            message +
-            _("You need to be a member of one of these groups: %s.") % groups
+            message + _("You need to be a member of one of these groups: %s.") % groups
         )
     else:
         return message + _("No group has the %s permission(s)!") % " or ".join(
@@ -181,8 +179,7 @@ ModelC)
     # `wrapper` inside the `decorator` function, you need to read some
     #  documentation on decorators !
     def decorator(view):
-        """The decorator to use on a specific view
-        """
+        """The decorator to use on a specific view"""
 
         def wrapper(request, *args, **kwargs):
             """The wrapper used for a specific request"""
@@ -198,8 +195,7 @@ ModelC)
                 # and store it to pass it to the view.
                 if on_instance:
                     try:
-                        target = target.get_instance(
-                            target_id, *args, **kwargs)
+                        target = target.get_instance(target_id, *args, **kwargs)
                         instances.append(target)
                     except target.DoesNotExist:
                         # A non existing instance is a valid reason to deny
@@ -245,11 +241,9 @@ ModelC)
                 # Store the messages at the right place.
                 for can, msg, permissions in process_target(target, fields, target_id):
                     if not can:
-                        error_messages.append(
-                            acl_error_message(msg, permissions))
+                        error_messages.append(acl_error_message(msg, permissions))
                     elif msg:
-                        warning_messages.append(
-                            acl_error_message(msg, permissions))
+                        warning_messages.append(acl_error_message(msg, permissions))
 
             # Display the warning messages
             if not api:
@@ -264,18 +258,24 @@ ModelC)
                     for msg in error_messages:
                         messages.error(
                             request,
-                            msg or _(
-                                "You don't have the right to access this menu."),
+                            msg or _("You don't have the right to access this menu."),
                         )
                 # And redirect the user to the right place.
                 if request.user.id is not None:
                     if not api:
                         return redirect(
-                            reverse("users:profil", kwargs={
-                                    "userid": str(request.user.id)})
+                            reverse(
+                                "users:profil", kwargs={"userid": str(request.user.id)}
+                            )
                         )
                     else:
-                        return Response(data={"errors": error_messages, "warning": warning_messages}, status=403)
+                        return Response(
+                            data={
+                                "errors": error_messages,
+                                "warning": warning_messages,
+                            },
+                            status=403,
+                        )
                 else:
                     return redirect(reverse("index"))
             return view(request, *chain(instances, args), **kwargs)
@@ -326,12 +326,10 @@ def can_delete_set(model):
     If none of them, return an error"""
 
     def decorator(view):
-        """The decorator to use on a specific view
-        """
+        """The decorator to use on a specific view"""
 
         def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
+            """The wrapper used for a specific request"""
             all_objects = model.objects.all()
             instances_id = []
             for instance in all_objects:
@@ -344,8 +342,7 @@ def can_delete_set(model):
                     request, _("You don't have the right to access this menu.")
                 )
                 return redirect(
-                    reverse("users:profil", kwargs={
-                            "userid": str(request.user.id)})
+                    reverse("users:profil", kwargs={"userid": str(request.user.id)})
                 )
             return view(request, instances, *args, **kwargs)
 
@@ -373,8 +370,7 @@ def can_view_all(*targets):
 
 
 def can_view_app(*apps_name):
-    """Decorator to check if an user can view the applications.
-    """
+    """Decorator to check if an user can view the applications."""
     for app_name in apps_name:
         assert app_name in sys.modules.keys()
     return acl_base_decorator(
@@ -388,12 +384,10 @@ def can_edit_history(view):
     """Decorator to check if an user can edit history."""
 
     def wrapper(request, *args, **kwargs):
-        """The wrapper used for a specific request
-        """
+        """The wrapper used for a specific request"""
         if request.user.has_perm("admin.change_logentry"):
             return view(request, *args, **kwargs)
-        messages.error(request, _(
-            "You don't have the right to edit the history."))
+        messages.error(request, _("You don't have the right to edit the history."))
         return redirect(
             reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )

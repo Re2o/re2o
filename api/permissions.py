@@ -278,8 +278,7 @@ class AutodetectACLPermission(permissions.BasePermission):
             # they have read permissions to see 403, or not, and simply see
             # a 404 response.
 
-            SAFE_METHODS = ("GET", "OPTIONS", "HEAD",
-                            "POST", "PUT", "PATCH", "DELETE")
+            SAFE_METHODS = ("GET", "OPTIONS", "HEAD", "POST", "PUT", "PATCH", "DELETE")
 
             if request.method in SAFE_METHODS:
                 # Read permissions already checked and failed, no need
