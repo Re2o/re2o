@@ -124,91 +124,6 @@ from .models import (
 )
 
 
-
-def f_type_id(is_type_tt):
-    """ The id that will be used in HTML to store the value of the field
-    type. Depends on the fact that type is generate using typeahead or not
-    """
-    return (
-        "id_Interface-machine_type_hidden"
-        if is_type_tt
-        else "id_Interface-machine_type"
-    )
-
-
-def generate_ipv4_choices(form_obj):
-    """ Generate the parameter choices for the massive_bootstrap_form tag
-    """
-    f_ipv4 = form_obj.fields["ipv4"]
-    used_mtype_id = []
-    choices = '{"":[{key:"",value:"' + _("Select a machine type first.") + '"}'
-    mtype_id = -1
-
-    for ip in f_ipv4.queryset.annotate(mtype_id=F("ip_type__machinetype__id")).order_by(
-        "mtype_id", "id"
-    ):
-        if mtype_id != ip.mtype_id:
-            mtype_id = ip.mtype_id
-            used_mtype_id.append(mtype_id)
-            choices += '],"{t}":[{{key:"",value:"{v}"}},'.format(
-                t=mtype_id, v=f_ipv4.empty_label or '""'
-            )
-        choices += '{{key:{k},value:"{v}"}},'.format(k=ip.id, v=ip.ipv4)
-
-    for t in form_obj.fields["machine_type"].queryset.exclude(id__in=used_mtype_id):
-        choices += '], "' + str(t.id) + '": ['
-        choices += '{key: "", value: "' + str(f_ipv4.empty_label) + '"},'
-    choices += "]}"
-    return choices
-
-
-def generate_ipv4_engine(is_type_tt):
-    """ Generate the parameter engine for the massive_bootstrap_form tag
-    """
-    return (
-        "new Bloodhound( {{"
-        'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
-        "queryTokenizer: Bloodhound.tokenizers.whitespace,"
-        'local: choices_ipv4[ $( "#{machine_type_id}" ).val() ],'
-        "identify: function( obj ) {{ return obj.key; }}"
-        "}} )"
-    ).format(machine_type_id=f_type_id(is_type_tt))
-
-
-def generate_ipv4_match_func(is_type_tt):
-    """ Generate the parameter match_func for the massive_bootstrap_form tag
-    """
-    return (
-        "function(q, sync) {{"
-        'if (q === "") {{'
-        'var first = choices_ipv4[$("#{machine_type_id}").val()].slice(0, 5);'
-        "first = first.map( function (obj) {{ return obj.key; }} );"
-        "sync(engine_ipv4.get(first));"
-        "}} else {{"
-        "engine_ipv4.search(q, sync);"
-        "}}"
-        "}}"
-    ).format(machine_type_id=f_type_id(is_type_tt))
-
-
-def generate_ipv4_mbf_param(form_obj, is_type_tt):
-    """ Generate all the parameters to use with the massive_bootstrap_form
-    tag """
-    i_choices = {"ipv4": generate_ipv4_choices(form_obj)}
-    i_engine = {"ipv4": generate_ipv4_engine(is_type_tt)}
-    i_match_func = {"ipv4": generate_ipv4_match_func(is_type_tt)}
-    i_update_on = {"ipv4": [f_type_id(is_type_tt)]}
-    i_gen_select = {"ipv4": False}
-    i_mbf_param = {
-        "choices": i_choices,
-        "engine": i_engine,
-        "match_func": i_match_func,
-        "update_on": i_update_on,
-        "gen_select": i_gen_select,
-    }
-    return i_mbf_param
-
-
 @login_required
 @can_create(Machine)
 @can_edit(User)
@@ -235,13 +150,11 @@ def new_machine(request, user, **_kwargs):
             new_domain.save()
             messages.success(request, _("The machine was created."))
             return redirect(reverse("users:profil", kwargs={"userid": str(user.id)}))
-    i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form(
         {
             "machineform": machine,
             "interfaceform": interface,
             "domainform": domain,
-            "i_mbf_param": i_mbf_param,
             "action_name": _("Add"),
         },
         "machines/machine.html",
@@ -281,13 +194,11 @@ def edit_interface(request, interface_instance, **_kwargs):
                 kwargs={"userid": str(interface_instance.machine.user.id)},
             )
         )
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form(
         {
             "machineform": machine_form,
             "interfaceform": interface_form,
             "domainform": domain_form,
-            "i_mbf_param": i_mbf_param,
             "action_name": _("Edit"),
         },
         "machines/machine.html",
@@ -332,12 +243,10 @@ def new_interface(request, machine, **_kwargs):
             return redirect(
                 reverse("users:profil", kwargs={"userid": str(machine.user.id)})
             )
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form(
         {
             "interfaceform": interface_form,
             "domainform": domain_form,
-            "i_mbf_param": i_mbf_param,
             "action_name": _("Add"),
         },
         "machines/machine.html",
