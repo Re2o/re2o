@@ -150,7 +150,8 @@ def display_options(request):
     optionnal_templates_list = [
         app.preferences.views.aff_preferences(request)
         for app in optionnal_apps
-        if hasattr(app.preferences.views, "aff_preferences")
+        if hasattr(app, "preferences")
+        and hasattr(app.preferences.views, "aff_preferences")
     ]
 
     return form(
@@ -347,7 +348,10 @@ def add_switchmanagementcred(request):
         messages.success(request, _("The switch management credentials were added."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": switchmanagementcred, "action_name": _("Add"),},
+        {
+            "preferenceform": switchmanagementcred,
+            "action_name": _("Add"),
+        },
         "preferences/preferences.html",
         request,
     )
@@ -410,7 +414,10 @@ def add_mailcontact(request):
         messages.success(request, _("The contact email address was created."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": mailcontact, "action_name": _("Add"),},
+        {
+            "preferenceform": mailcontact,
+            "action_name": _("Add"),
+        },
         "preferences/preferences.html",
         request,
     )

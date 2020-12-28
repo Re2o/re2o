@@ -29,9 +29,9 @@ from django.utils.translation import ugettext as _
 
 
 class RevMixin(object):
-    """ A mixin to subclass the save and delete function of a model
+    """A mixin to subclass the save and delete function of a model
     to enforce the versioning of the object before those actions
-    really happen """
+    really happen"""
 
     def save(self, *args, **kwargs):
         """ Creates a version of this object and save it to database """
@@ -49,8 +49,8 @@ class RevMixin(object):
 
 
 class FormRevMixin(object):
-    """ A mixin to subclass the save function of a form
-    to enforce the versionning of the object before it is really edited """
+    """A mixin to subclass the save function of a form
+    to enforce the versionning of the object before it is really edited"""
 
     def save(self, *args, **kwargs):
         """ Create a version of this object and save it to database """
@@ -129,7 +129,7 @@ class AclMixin(object):
 
         Parameters:
             user_request: User calling for this action
-            self: Instance to edit 
+            self: Instance to edit
 
         Returns:
             Boolean: True if user_request has the right access to do it, else
@@ -150,7 +150,7 @@ class AclMixin(object):
 
         Parameters:
             user_request: User calling for this action
-            self: Instance to delete 
+            self: Instance to delete
 
         Returns:
             Boolean: True if user_request has the right access to do it, else
@@ -187,12 +187,33 @@ class AclMixin(object):
             (permission,),
         )
 
+    @classmethod
+    def can_edit_all(cls, user_request, *_args, **_kwargs):
+        """Check if a user can edit all instances of an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
+        permission = cls.get_modulename() + ".change_" + cls.get_classname()
+        can = user_request.has_perm(permission)
+        return (
+            can,
+            _("You don't have the right to edit every %s object.") % cls.get_classname()
+            if not can
+            else None,
+            (permission,),
+        )
+
     def can_view(self, user_request, *_args, **_kwargs):
         """Check if a user can view an instance of an object
 
         Parameters:
             user_request: User calling for this action
-            self: Instance to view 
+            self: Instance to view
 
         Returns:
             Boolean: True if user_request has the right access to do it, else
