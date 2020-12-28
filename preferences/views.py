@@ -96,8 +96,7 @@ def edit_options_template_function(request, section, forms, models):
         return redirect(reverse("preferences:display-options"))
 
     options_instance, _created = model.objects.get_or_create()
-    _is_allowed_to_edit, msg, permissions = options_instance.can_edit(
-        request.user)
+    _is_allowed_to_edit, msg, permissions = options_instance.can_edit(request.user)
     if not _is_allowed_to_edit:
         messages.error(request, acl_error_message(msg, permissions))
         return redirect(reverse("index"))
@@ -151,7 +150,8 @@ def display_options(request):
     optionnal_templates_list = [
         app.preferences.views.aff_preferences(request)
         for app in optionnal_apps
-        if hasattr(app, "preferences") and hasattr(app.preferences.views, "aff_preferences")
+        if hasattr(app, "preferences")
+        and hasattr(app.preferences.views, "aff_preferences")
     ]
 
     return form(
@@ -302,8 +302,7 @@ def add_radiuskey(request):
 @can_edit(RadiusKey)
 def edit_radiuskey(request, radiuskey_instance, **_kwargs):
     """View used to edit RADIUS keys."""
-    radiuskey = RadiusKeyForm(request.POST or None,
-                              instance=radiuskey_instance)
+    radiuskey = RadiusKeyForm(request.POST or None, instance=radiuskey_instance)
     if radiuskey.is_valid():
         radiuskey.save()
         messages.success(request, _("The RADIUS key was edited."))
@@ -346,11 +345,13 @@ def add_switchmanagementcred(request):
     switchmanagementcred = SwitchManagementCredForm(request.POST or None)
     if switchmanagementcred.is_valid():
         switchmanagementcred.save()
-        messages.success(request, _(
-            "The switch management credentials were added."))
+        messages.success(request, _("The switch management credentials were added."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": switchmanagementcred, "action_name": _("Add"), },
+        {
+            "preferenceform": switchmanagementcred,
+            "action_name": _("Add"),
+        },
         "preferences/preferences.html",
         request,
     )
@@ -364,8 +365,7 @@ def edit_switchmanagementcred(request, switchmanagementcred_instance, **_kwargs)
     )
     if switchmanagementcred.is_valid():
         switchmanagementcred.save()
-        messages.success(request, _(
-            "The switch management credentials were edited."))
+        messages.success(request, _("The switch management credentials were edited."))
         return redirect(reverse("preferences:display-options"))
     return form(
         {"preferenceform": switchmanagementcred, "action_name": _("Edit")},
@@ -414,7 +414,10 @@ def add_mailcontact(request):
         messages.success(request, _("The contact email address was created."))
         return redirect(reverse("preferences:display-options"))
     return form(
-        {"preferenceform": mailcontact, "action_name": _("Add"), },
+        {
+            "preferenceform": mailcontact,
+            "action_name": _("Add"),
+        },
         "preferences/preferences.html",
         request,
     )
@@ -442,14 +445,12 @@ def edit_mailcontact(request, mailcontact_instance, **_kwargs):
 @can_delete_set(MailContact)
 def del_mailcontact(request, instances):
     """View used to delete one or several contact email addresses."""
-    mailcontacts = DelMailContactForm(
-        request.POST or None, instances=instances)
+    mailcontacts = DelMailContactForm(request.POST or None, instances=instances)
     if mailcontacts.is_valid():
         mailcontacts_dels = mailcontacts.cleaned_data["mailcontacts"]
         for mailcontacts_del in mailcontacts_dels:
             mailcontacts_del.delete()
-            messages.success(request, _(
-                "The contact email adress was deleted."))
+            messages.success(request, _("The contact email adress was deleted."))
         return redirect(reverse("preferences:display-options"))
     return form(
         {"preferenceform": mailcontacts, "action_name": _("Delete")},

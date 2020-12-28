@@ -29,9 +29,9 @@ from django.utils.translation import ugettext as _
 
 
 class RevMixin(object):
-    """ A mixin to subclass the save and delete function of a model
+    """A mixin to subclass the save and delete function of a model
     to enforce the versioning of the object before those actions
-    really happen """
+    really happen"""
 
     def save(self, *args, **kwargs):
         """ Creates a version of this object and save it to database """
@@ -49,8 +49,8 @@ class RevMixin(object):
 
 
 class FormRevMixin(object):
-    """ A mixin to subclass the save function of a form
-    to enforce the versionning of the object before it is really edited """
+    """A mixin to subclass the save function of a form
+    to enforce the versionning of the object before it is really edited"""
 
     def save(self, *args, **kwargs):
         """ Create a version of this object and save it to database """
@@ -61,8 +61,7 @@ class FormRevMixin(object):
             )
         elif self.changed_data:
             reversion.set_comment(
-                "Field(s) edited: %s" % ", ".join(
-                    field for field in self.changed_data)
+                "Field(s) edited: %s" % ", ".join(field for field in self.changed_data)
             )
         return super(FormRevMixin, self).save(*args, **kwargs)
 
@@ -130,7 +129,7 @@ class AclMixin(object):
 
         Parameters:
             user_request: User calling for this action
-            self: Instance to edit 
+            self: Instance to edit
 
         Returns:
             Boolean: True if user_request has the right access to do it, else
@@ -151,7 +150,7 @@ class AclMixin(object):
 
         Parameters:
             user_request: User calling for this action
-            self: Instance to delete 
+            self: Instance to delete
 
         Returns:
             Boolean: True if user_request has the right access to do it, else
@@ -214,7 +213,7 @@ class AclMixin(object):
 
         Parameters:
             user_request: User calling for this action
-            self: Instance to view 
+            self: Instance to view
 
         Returns:
             Boolean: True if user_request has the right access to do it, else
