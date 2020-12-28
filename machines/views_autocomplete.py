@@ -41,7 +41,8 @@ from .models import (
     MachineType,
     Extension,
     Domain,
-    OuverturePortList
+    OuverturePortList,
+    IpList
 )
 
 from re2o.mixins import AutocompleteViewMixin
@@ -85,6 +86,22 @@ class InterfaceAutocomplete(AutocompleteViewMixin):
             qs = qs.filter(
                 Q(domain__name__icontains=self.q)
                 | Q(machine__name__icontains=self.q)
+            )
+
+        return qs
+
+
+class IpListAutocomplete(AutocompleteViewMixin):
+    obj_type = IpList
+
+    def get_queryset(self):
+        machine_type = self.forwarded.get('machine_type', None)
+        qs = self.obj_type.objects.filter(interface__isnull=True)
+        if machine_type:
+            qs = qs.filter(ip_type__machinetype__id=machine_type)
+        if self.q:
+            qs = qs.filter(
+                Q(ipv4__startswith=self.q)
             )
 
         return qs

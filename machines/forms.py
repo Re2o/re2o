@@ -104,7 +104,10 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
                 url="/machines/machinetype-autocomplete",
             ),
             "ipv4": AutocompleteModelMixin(
-                url="/machines/ipv4-autocomplete",
+                url="/machines/iplist-autocomplete", forward=['machine_type'],
+                attrs={
+                'data-placeholder': 'Automatic assigment. Type to choose specific ip.',
+                }
             ),
         }
 
