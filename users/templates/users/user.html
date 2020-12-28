@@ -24,7 +24,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load massive_bootstrap_form %}
 {% load static %}
 {% load i18n %}
 {% block title %}{% trans "Users" %}{% endblock %}
@@ -34,7 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <form class="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {% massive_bootstrap_form userform 'room,school,administrators,members' %}
+    {%  bootstrap_form userform  %}
     {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
 </form>
 {% if load_js_file %}
@@ -48,5 +47,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <br/>
 <br/>
 <br/>
+
+{{ userform.media }}
+
 {% endblock %}
 

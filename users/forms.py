@@ -60,7 +60,7 @@ from topologie.models import Port
 from preferences.models import OptionalUser
 from re2o.utils import remove_user_room
 from re2o.base import get_input_formats_help_text
-from re2o.mixins import FormRevMixin
+from re2o.mixins import FormRevMixin, AutocompleteModelMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
 from preferences.models import GeneralOption
@@ -350,6 +350,17 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             "telephone",
             "room",
         ]
+        widgets = {
+            "school": AutocompleteModelMixin(
+                url="/users/school-autocomplete",
+            ),
+            "room": AutocompleteModelMixin(
+                url="/topologie/room-autocomplete",
+            ),
+            "shell": AutocompleteModelMixin(
+                url="/users/shell-autocomplete",
+            )
+        }
 
     force = forms.BooleanField(
         label=_("Force the move?"), initial=False, required=False
@@ -461,7 +472,7 @@ class AdherentCreationForm(AdherentForm):
     # Checkbox for GTU
     gtu_check = forms.BooleanField(required=True)
 
-    class Meta:
+    class Meta(AdherentForm.Meta):
         model = Adherent
         fields = [
             "name",
@@ -556,7 +567,7 @@ class AdherentEditForm(AdherentForm):
         if "shell" in self.fields:
             self.fields["shell"].empty_label = _("Default shell")
 
-    class Meta:
+    class Meta(AdherentForm.Meta):
         model = Adherent
         fields = [
             "name",
@@ -609,6 +620,17 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             "shell",
             "mailing",
         ]
+        widgets = {
+            "school": AutocompleteModelMixin(
+                url="/users/school-autocomplete",
+            ),
+            "room": AutocompleteModelMixin(
+                url="/topologie/room-autocomplete",
+            ),
+            "shell": AutocompleteModelMixin(
+                url="/users/shell-autocomplete",
+            )
+        }
 
     def clean_telephone(self):
         """Clean telephone, check if telephone is made mandatory, and
