@@ -47,6 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% endif %}
     {% if machinetypeform %}
         {% bootstrap_form_errors machinetypeform %}
+	{{ machinetypeform.media }}
     {% endif %}
     {% if extensionform %}
         {% bootstrap_form_errors extensionform %}

@@ -159,6 +159,7 @@ urlpatterns = [
     url(r'^interface-autocomplete/$', views_autocomplete.InterfaceAutocomplete.as_view(), name='interface-autocomplete',),
     url(r'^machine-autocomplete/$', views_autocomplete.MachineAutocomplete.as_view(), name='machine-autocomplete',),
     url(r'^machinetype-autocomplete/$', views_autocomplete.MachineTypeAutocomplete.as_view(), name='machinetype-autocomplete',),
+    url(r'^iptype-autocomplete/$', views_autocomplete.IpTypeAutocomplete.as_view(), name='iptype-autocomplete',),
     url(r'^extension-autocomplete/$', views_autocomplete.ExtensionAutocomplete.as_view(), name='extension-autocomplete',),
     url(r'^domain-autocomplete/$', views_autocomplete.DomainAutocomplete.as_view(), name='domain-autocomplete',),
     url(r'^ouvertureportlist-autocomplete/$', views_autocomplete.OuverturePortListAutocomplete.as_view(), name='ouvertureportlist-autocomplete',),

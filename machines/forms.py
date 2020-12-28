@@ -212,6 +212,11 @@ class MachineTypeForm(FormRevMixin, ModelForm):
     class Meta:
         model = MachineType
         fields = ["name", "ip_type"]
+        widgets = {
+            "ip_type": AutocompleteModelMixin(
+                url="/machines/iptype-autocomplete",
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
