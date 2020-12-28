@@ -162,4 +162,5 @@ urlpatterns = [
     url(r'^extension-autocomplete/$', views_autocomplete.ExtensionAutocomplete.as_view(), name='extension-autocomplete',),
     url(r'^domain-autocomplete/$', views_autocomplete.DomainAutocomplete.as_view(), name='domain-autocomplete',),
     url(r'^ouvertureportlist-autocomplete/$', views_autocomplete.OuverturePortListAutocomplete.as_view(), name='ouvertureportlist-autocomplete',),
+    url(r'^iplist-autocomplete/$', views_autocomplete.IpListAutocomplete.as_view(), name='iplist-autocomplete',),
 ]
