@@ -39,6 +39,7 @@ from .models import (
     Machine,
     Vlan,
     MachineType,
+    IpType,
     Extension,
     Domain,
     OuverturePortList,
@@ -62,6 +63,10 @@ class MachineAutocomplete(AutocompleteViewMixin):
 
 class MachineTypeAutocomplete(AutocompleteViewMixin):
     obj_type = MachineType
+
+
+class IpTypeAutocomplete(AutocompleteViewMixin):
+    obj_type = IpType
 
 
 class ExtensionAutocomplete(AutocompleteViewMixin):
