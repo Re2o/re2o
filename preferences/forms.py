@@ -108,12 +108,19 @@ class EditOptionalTopologieForm(ModelForm):
     """Form used to edit the configuration of switches."""
 
     automatic_provision_switchs = forms.ModelMultipleChoiceField(
-        Switch.objects.all(), required=False
+        Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelMixin(url="/topologie/switch-autocomplete"),
     )
 
     class Meta:
         model = OptionalTopologie
         fields = "__all__"
+        widgets = {
+            "switchs_ip_type": AutocompleteModelMixin(
+                url="/machines/iptype-autocomplete",
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
