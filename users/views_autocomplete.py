@@ -31,7 +31,7 @@ Here are defined the autocomplete class based view.
 """
 from __future__ import unicode_literals
 
-from .models import (
+from .models import ( 
     User,
     Ban,
     Whitelist,
@@ -51,6 +51,9 @@ from re2o.acl import (
     can_view_all,
 )
 
+from django.db.models import Q, Value, CharField
+from django.db.models.functions import Concat
+
 #@can_view_all(School)
 class SchoolAutocomplete(AutocompleteViewMixin):
     obj_type = School
@@ -58,6 +61,22 @@ class SchoolAutocomplete(AutocompleteViewMixin):
 #@can_view_all(User)
 class UserAutocomplete(AutocompleteViewMixin):
     obj_type = User
+    # Override get_queryset to add annotations so search behaves more like users expect it to
+    def get_queryset(self):
+        # Comments explain what we try to match
+        qs = self.obj_type.objects.annotate(
+            full_name=Concat("adherent__name", Value(" "), "surname"),  # Match when the user searches "Toto Passoir"
+            full_name_reverse=Concat("surname", Value(" "), "adherent__name"),  # Match when the user searches "Passoir Toto"
+        ).all()
+
+        if self.q:
+            qs = qs.filter(
+                Q(pseudo__icontains=self.q)
+                | Q(full_name__icontains=self.q)
+                | Q(full_name_reverse__icontains=self.q)
+            )
+
+        return qs
 
 #@can_view_all(Adherent)
 class AdherentAutocomplete(AutocompleteViewMixin):
