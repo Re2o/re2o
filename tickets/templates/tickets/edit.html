@@ -25,7 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load massive_bootstrap_form %}
 {% load i18n %}
 
 {% block title %}{% trans "Ticket" %}{% endblock %}
@@ -34,6 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <h2>{% trans "Ticket opening" %}</h2>
 
 {% bootstrap_form_errors ticketform %}
+{{ ticketform.media }}
 
 <form class="form" method="post">
     {% csrf_token %}
