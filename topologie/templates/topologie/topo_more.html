@@ -31,9 +31,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 {% if topoform %}
 {% bootstrap_form_errors topoform %}
+ {{ topoform.media }}
 {% endif %}
 {% if machineform %}
 {% bootstrap_form_errors machineform %}
+{{ machineform.media }}
 {% endif %}
 {% if domainform %}
 {% bootstrap_form_errors domainform %}

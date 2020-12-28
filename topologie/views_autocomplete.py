@@ -41,6 +41,7 @@ from .models import (
     Switch,
     PortProfile,
     Port,
+    SwitchBay,
 )
 
 from re2o.mixins import AutocompleteViewMixin
@@ -127,6 +128,26 @@ class PortAutocomplete(AutocompleteViewMixin):
 
         return qs
 
+
+class SwitchBayAutocomplete(AutocompleteViewMixin):
+    obj_type = SwitchBay
+
+    def get_queryset(self):
+        # Comments explain what we try to match
+        qs = self.obj_type.objects.annotate(
+            full_name=Concat("building__name", Value(" "), "name"),  # Match when the user searches ""
+            dorm_name=Concat("building__dormitory__name", Value(" "), "name"),  # Match "Dorm Local Sud"
+            dorm_full_name=Concat("building__dormitory__name", Value(" "), "building__name", Value(" "), "name"),  # Match "Dorm J Local Sud"
+        ).all()
+
+        if self.q:
+            qs = qs.filter(
+                Q(full_name__icontains=self.q)
+                | Q(dorm_name__icontains=self.q)
+                | Q(dorm_full_name__icontains=self.q)
+            )
+
+        return qs
 
 
 class PortProfileAutocomplete(AutocompleteViewMixin):
