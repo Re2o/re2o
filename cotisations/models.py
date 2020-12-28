@@ -98,7 +98,7 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     def name_detailed(self):
         """
-        Return: 
+        Return:
          - a list of strings with the name of all article in the invoice
         and their quantity.
         """
@@ -248,8 +248,8 @@ class Facture(BaseInvoice):
 
     @staticmethod
     def can_change_control(user_request, *_args, **_kwargs):
-        """ Returns True if the user can change the 'controlled' status of
-        this invoice """
+        """Returns True if the user can change the 'controlled' status of
+        this invoice"""
         can = user_request.has_perm("cotisations.change_facture_control")
         return (
             can,
@@ -293,8 +293,7 @@ class Facture(BaseInvoice):
         """Returns every subscription associated with this invoice."""
         return Cotisation.objects.filter(
             vente__in=self.vente_set.filter(
-                ~(Q(duration_membership=0)) |\
-                ~(Q(duration_days_membership=0))
+                ~(Q(duration_membership=0)) | ~(Q(duration_days_membership=0))
             )
         )
 
@@ -454,7 +453,7 @@ class Vente(RevMixin, AclMixin, models.Model):
     number = models.IntegerField(
         validators=[MinValueValidator(1)], verbose_name=_("amount")
     )
-    # TODO : change this field for a ForeinKey to Article 
+    # TODO : change this field for a ForeinKey to Article
     # Note: With a foreign key, modifing an Article modifis the Purchase, wich is bad.
     # To use a foreign key, you need to make Article read only
     name = models.CharField(max_length=255, verbose_name=_("article"))
@@ -467,16 +466,18 @@ class Vente(RevMixin, AclMixin, models.Model):
     )
     duration_days_connection = models.PositiveIntegerField(
         default=0,
-        validators=[MinValueValidator(0)],
-        verbose_name=_("duration of the connection (in days, will be added to duration in months)"),
+        verbose_name=_(
+            "duration of the connection (in days, will be added to duration in months)"
+        ),
     )
     duration_membership = models.PositiveIntegerField(
         default=0, verbose_name=_("duration of the membership (in months)")
     )
     duration_days_membership = models.PositiveIntegerField(
         default=0,
-        validators=[MinValueValidator(0)],
-        verbose_name=_("duration of the membership (in days, will be added to duration in months)"),
+        verbose_name=_(
+            "duration of the membership (in days, will be added to duration in months)"
+        ),
     )
 
     class Meta:
@@ -513,7 +514,7 @@ class Vente(RevMixin, AclMixin, models.Model):
 
     def create_cotis(self, date_start_con=False, date_start_memb=False):
         """
-        Creates a cotisation without initializing the dates (start and end ar set to self.facture.facture.date) 
+        Creates a cotisation without initializing the dates (start and end ar set to self.facture.facture.date)
         and without saving it. You should use Facture.reorder_purchases to set the right dates.
         """
         try:
@@ -631,12 +632,14 @@ class Vente(RevMixin, AclMixin, models.Model):
         return str(self.name) + " " + str(self.facture)
 
     def test_membership_or_connection(self):
-        """ Test if the purchase include membership or connecton
-        """
-        return self.duration_membership or \
-               self.duration_days_membership or \
-               self.duration_connection or \
-               self.duration_days_connection
+        """Test if the purchase include membership or connecton"""
+        return (
+            self.duration_membership
+            or self.duration_days_membership
+            or self.duration_connection
+            or self.duration_days_connection
+        )
+
 
 # TODO : change vente to purchase
 @receiver(post_save, sender=Vente)
@@ -704,20 +707,20 @@ class Article(RevMixin, AclMixin, models.Model):
     )
 
     duration_membership = models.PositiveIntegerField(
-        validators=[MinValueValidator(0)],
         verbose_name=_("duration of the membership (in months)")
     )
     duration_days_membership = models.PositiveIntegerField(
-        validators=[MinValueValidator(0)],
-        verbose_name=_("duration of the membership (in days, will be added to duration in months)"),
+        verbose_name=_(
+            "duration of the membership (in days, will be added to duration in months)"
+        ),
     )
     duration_connection = models.PositiveIntegerField(
-        validators=[MinValueValidator(0)],
         verbose_name=_("duration of the connection (in months)")
     )
     duration_days_connection = models.PositiveIntegerField(
-        validators=[MinValueValidator(0)],
-        verbose_name=_("duration of the connection (in days, will be added to duration in months)"),
+        verbose_name=_(
+            "duration of the connection (in days, will be added to duration in months)"
+        ),
     )
 
     need_membership = models.BooleanField(
@@ -793,8 +796,8 @@ class Article(RevMixin, AclMixin, models.Model):
         if target_user is not None and not target_user.is_adherent():
             objects_pool = objects_pool.filter(
                 Q(duration_membership__gt=0)
-                |Q(duration_days_membership__gt=0)
-                |Q(need_membership=False)
+                | Q(duration_days_membership__gt=0)
+                | Q(need_membership=False)
             )
         if user.has_perm("cotisations.buy_every_article"):
             return objects_pool
@@ -884,7 +887,9 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
-        if any(sell.test_membership_or_connection() for sell in invoice.vente_set.all()):
+        if any(
+            sell.test_membership_or_connection() for sell in invoice.vente_set.all()
+        ):
             messages.success(
                 request,
                 _(
@@ -956,9 +961,13 @@ class Cotisation(RevMixin, AclMixin, models.Model):
     vente = models.OneToOneField(
         "Vente", on_delete=models.CASCADE, null=True, verbose_name=_("purchase")
     )
-    date_start_con = models.DateTimeField(verbose_name=_("start date for the connection"))
+    date_start_con = models.DateTimeField(
+        verbose_name=_("start date for the connection")
+    )
     date_end_con = models.DateTimeField(verbose_name=_("end date for the connection"))
-    date_start_memb = models.DateTimeField(verbose_name=_("start date for the membership"))
+    date_start_memb = models.DateTimeField(
+        verbose_name=_("start date for the membership")
+    )
     date_end_memb = models.DateTimeField(verbose_name=_("end date for the membership"))
 
     class Meta:
