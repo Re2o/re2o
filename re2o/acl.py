@@ -64,11 +64,17 @@ def acl_base_decorator(method_name, *targets, on_instance=True):
     """Base decorator for acl. It checks if the `request.user` has the
     permission by calling model.method_name. If the flag on_instance is True,
     tries to get an instance of the model by calling
-    `model.get_instance(*args, **kwargs)` and runs `instance.mehod_name`
+    `model.get_instance(obj_id, *args, **kwargs)` and runs `instance.mehod_name`
     rather than model.method_name.
 
     It is not intended to be used as is. It is a base for others ACL
-    decorators.
+    decorators. Beware, if you redefine the `get_instance` method for your 
+    model, give it a signature such as 
+    `def get_instance(cls, object_id, *_args, **_kwargs)`, because you will
+    likely have an url with a named parameter "userid" if *e.g.* your model
+    is an user. Otherwise, if the parameter name in `get_instance` was also
+    `userid`, then `get_instance` would end up having two identical parameter
+    passed on, and this would result in a `TypeError` exception.
 
     Args:
         method_name: The name of the method which is to to be used for ACL.
