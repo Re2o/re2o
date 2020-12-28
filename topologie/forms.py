@@ -171,7 +171,7 @@ class AddAccessPointForm(NewMachineForm):
 class EditAccessPointForm(EditMachineForm):
     """Form used to edit access points."""
 
-    class Meta:
+    class Meta(EditMachineForm.Meta):
         model = AccessPoint
         fields = "__all__"
 
@@ -179,9 +179,17 @@ class EditAccessPointForm(EditMachineForm):
 class EditSwitchForm(EditMachineForm):
     """Form used to edit switches."""
 
-    class Meta:
+    class Meta(EditMachineForm.Meta):
         model = Switch
         fields = "__all__"
+        widgets = {
+            "switchbay": AutocompleteModelMixin(
+                url="/topologie/switchbay-autocomplete",
+            ),
+            "user": AutocompleteModelMixin(
+                url="/users/user-autocomplete",
+            ),
+        }
 
 
 class NewSwitchForm(NewMachineForm):

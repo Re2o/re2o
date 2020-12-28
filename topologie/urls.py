@@ -177,4 +177,5 @@ urlpatterns = [
     url(r'^switch-autocomplete/$', views_autocomplete.SwitchAutocomplete.as_view(), name='switch-autocomplete',),
     url(r'^port-autocomplete/$', views_autocomplete.PortAutocomplete.as_view(), name='profile-autocomplete',),
     url(r'^portprofile-autocomplete/$', views_autocomplete.PortProfileAutocomplete.as_view(), name='portprofile-autocomplete',),
+    url(r'^switchbay-autocomplete/$', views_autocomplete.SwitchBayAutocomplete.as_view(), name='switchbay-autocomplete',),
 ]
