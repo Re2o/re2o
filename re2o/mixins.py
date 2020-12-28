@@ -26,6 +26,7 @@ A set of mixins used all over the project to avoid duplicating code
 from reversion import revisions as reversion
 from django.db import transaction
 from django.utils.translation import ugettext as _
+from dal import autocomplete
 
 
 class RevMixin(object):
@@ -228,3 +229,56 @@ class AclMixin(object):
             else None,
             (permission,),
         )
+
+
+class AutocompleteModelMixin(autocomplete.ModelSelect2):
+    """ A mixin subclassing django-autocomplete-light's Select2 model to pass default options
+    See https://django-autocomplete-light.readthedocs.io/en/master/tutorial.html#passing-options-to-select2
+    """
+    def __init__(self, *args, **kwargs):
+        select2_attrs = kwargs.get("attrs", {})
+        kwargs["attrs"] = self.fill_default_select2_attrs(select2_attrs)
+
+        super().__init__(*args, **kwargs)
+
+    def fill_default_select2_attrs(self, attrs):
+        """
+        See https://select2.org/configuration/options-api
+        """
+        # By default, only trigger autocompletion after 3 characters have been typed
+        #attrs["data-minimum-input-length"] = attrs.get("data-minimum-input-length", 3)
+        # If there are less than 10 results, just show all of them (no need to autocomplete)
+        attrs["data-minimum-results-for-search"] = attrs.get("data-minimum-results-for-search", 10)
+        return attrs
+
+
+class AutocompleteMultipleModelMixin(autocomplete.ModelSelect2Multiple):
+    """ A mixin subclassing django-autocomplete-light's Select2 model to pass default options
+    See https://django-autocomplete-light.readthedocs.io/en/master/tutorial.html#passing-options-to-select2
+    """
+    def __init__(self, *args, **kwargs):
+        select2_attrs = kwargs.get("attrs", {})
+        kwargs["attrs"] = self.fill_default_select2_attrs(select2_attrs)
+
+        super().__init__(*args, **kwargs)
+
+    def fill_default_select2_attrs(self, attrs):
+        """
+        See https://select2.org/configuration/options-api
+        """
+        # By default, only trigger autocompletion after 3 characters have been typed
+        #attrs["data-minimum-input-length"] = attrs.get("data-minimum-input-length", 3)
+        # If there are less than 10 results, just show all of them (no need to autocomplete)
+        attrs["data-minimum-results-for-search"] = attrs.get("data-minimum-results-for-search", 10)
+        return attrs
+
+
+class AutocompleteViewMixin(autocomplete.Select2QuerySetView):
+    obj_type = None  # This MUST be overridden by child class
+    query_filter = "name__icontains"  # Override this if necessary
+
+    def get_queryset(self):
+        query_set = self.obj_type.objects.all()
+        if self.q:
+            query_set = query_set.filter(**{ self.query_filter: self.q})
+        return query_set
