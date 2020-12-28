@@ -1,2 +1,4 @@
 django-bootstrap3==11.1.0
 django-macaddress==1.6.0
+#django-autocomplete-light==3.2.10  # Until Django 2.0+
+django-autocomplete-light
