@@ -253,6 +253,9 @@ class IpTypeForm(FormRevMixin, ModelForm):
             "extension": AutocompleteModelMixin(
                 url="/machines/extension-autocomplete",
             ),
+            "ouverture_ports": AutocompleteModelMixin(
+                url="/machines/ouvertureportlist-autocomplete",
+            ),
         }
 
     def __init__(self, *args, **kwargs):
