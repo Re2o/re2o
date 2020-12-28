@@ -60,7 +60,7 @@ from topologie.models import Port
 from preferences.models import OptionalUser
 from re2o.utils import remove_user_room
 from re2o.base import get_input_formats_help_text
-from re2o.mixins import FormRevMixin, AutocompleteModelMixin
+from re2o.mixins import FormRevMixin, AutocompleteMultipleModelMixin, AutocompleteModelMixin
 from re2o.field_permissions import FieldPermissionFormMixin
 
 from preferences.models import GeneralOption
@@ -356,6 +356,9 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             ),
             "room": AutocompleteModelMixin(
                 url="/topologie/room-autocomplete",
+                attrs = {
+                    "data-minimum-input-length": 3   # Only trigger autocompletion after 3 characters have been typed
+                }
             ),
             "shell": AutocompleteModelMixin(
                 url="/users/shell-autocomplete",
@@ -659,6 +662,14 @@ class ClubAdminandMembersForm(FormRevMixin, ModelForm):
     class Meta:
         model = Club
         fields = ["administrators", "members"]
+        widgets = {
+            "administrators": AutocompleteMultipleModelMixin(
+                url="/users/adherent-autocomplete",
+            ),
+            "members": AutocompleteMultipleModelMixin(
+                url="/users/adherent-autocomplete",
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
