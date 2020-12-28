@@ -2027,10 +2027,10 @@ class Adherent(User):
             self.gpg_fingerprint = gpg_fingerprint
 
     @classmethod
-    def get_instance(cls, adherentid, *_args, **_kwargs):
+    def get_instance(cls, object_id, *_args, **_kwargs):
         """Try to find an instance of `Adherent` with the given id.
 
-        :param adherentid: The id of the adherent we are looking for.
+        :param object_id: The id of the adherent we are looking for.
         :return: An adherent.
 
         """
@@ -2154,13 +2154,13 @@ class Club(User):
         )
 
     @classmethod
-    def get_instance(cls, clubid, *_args, **_kwargs):
+    def get_instance(cls, object_id, *_args, **_kwargs):
         """Try to find an instance of `Club` with the given id.
 
-        :param clubid: The id of the adherent we are looking for.
+        :param object_id: The id of the adherent we are looking for.
         :return: A club.
         """
-        return cls.objects.get(pk=clubid)
+        return cls.objects.get(pk=object_id)
 
 
 @receiver(post_save, sender=Adherent)
