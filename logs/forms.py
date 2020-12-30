@@ -114,28 +114,28 @@ def classes_for_action_type(action_type):
 
 class ActionsSearchForm(Form):
     """Form used to do an advanced search through the logs."""
-    u = forms.ModelChoiceField(
+    user = forms.ModelChoiceField(
         label=_("Performed by"),
         queryset=users.models.User.objects.all(),
         required=False,
     )
-    t = forms.MultipleChoiceField(
+    action_type = forms.MultipleChoiceField(
         label=_("Action type"),
         required=False,
         widget=forms.CheckboxSelectMultiple,
         choices=CHOICES_ACTION_TYPE,
         initial=[i[0] for i in CHOICES_ACTION_TYPE],
     )
-    s = forms.DateField(required=False, label=_("Start date"))
-    e = forms.DateField(required=False, label=_("End date"))
+    start_date = forms.DateField(required=False, label=_("Start date"))
+    end_date = forms.DateField(required=False, label=_("End date"))
 
     def __init__(self, *args, **kwargs):
         super(ActionsSearchForm, self).__init__(*args, **kwargs)
-        self.fields["s"].help_text = get_input_formats_help_text(
-            self.fields["s"].input_formats
+        self.fields["start_date"].help_text = get_input_formats_help_text(
+            self.fields["start_date"].input_formats
         )
-        self.fields["e"].help_text = get_input_formats_help_text(
-            self.fields["e"].input_formats
+        self.fields["end_date"].help_text = get_input_formats_help_text(
+            self.fields["end_date"].input_formats
         )
 
 
