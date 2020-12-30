@@ -141,6 +141,8 @@ def get_callback(tag_name, obj=None):
         return acl_fct(obj.can_view_all, False)
     if tag_name == "cannot_view_all":
         return acl_fct(obj.can_view_all, True)
+    if tag_name == "can_list":
+        return acl_fct(obj.can_list, False)
     if tag_name == "can_view_app":
         return acl_fct(
             lambda x: (
@@ -296,6 +298,7 @@ def acl_change_filter(parser, token):
 @register.tag("cannot_delete_all")
 @register.tag("can_view_all")
 @register.tag("cannot_view_all")
+@register.tag("can_list")
 def acl_model_filter(parser, token):
     """Generic definition of an acl templatetag for acl based on model"""
 

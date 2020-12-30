@@ -44,7 +44,7 @@ from .models import (
     SwitchBay,
 )
 
-from re2o.mixins import AutocompleteViewMixin
+from re2o.views import AutocompleteViewMixin
 
 from re2o.acl import (
     can_view_all,
