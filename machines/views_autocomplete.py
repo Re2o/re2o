@@ -46,7 +46,7 @@ from .models import (
     IpList
 )
 
-from re2o.mixins import AutocompleteViewMixin
+from re2o.views import AutocompleteViewMixin
 
 from re2o.acl import (
     can_view_all,
@@ -84,29 +84,25 @@ class OuverturePortListAutocomplete(AutocompleteViewMixin):
 class InterfaceAutocomplete(AutocompleteViewMixin):
     obj_type = Interface
 
-    def get_queryset(self):
-        qs = self.obj_type.objects.all()
-
+    # Precision on search to add annotations so search behaves more like users expect it to
+    def filter_results(self):
         if self.q:
-            qs = qs.filter(
+            self.query_set = self.query_set.filter(
                 Q(domain__name__icontains=self.q)
                 | Q(machine__name__icontains=self.q)
             )
-
-        return qs
 
 
 class IpListAutocomplete(AutocompleteViewMixin):
     obj_type = IpList
 
-    def get_queryset(self):
+    # Precision on search to add annotations so search behaves more like users expect it to
+    def filter_results(self):
         machine_type = self.forwarded.get('machine_type', None)
-        qs = self.obj_type.objects.filter(interface__isnull=True)
+        self.query_set = self.query_set.filter(interface__isnull=True)
         if machine_type:
-            qs = qs.filter(ip_type__machinetype__id=machine_type)
+            self.query_set = self.query_set.filter(ip_type__machinetype__id=machine_type)
         if self.q:
-            qs = qs.filter(
+            self.query_set = self.query_set.filter(
                 Q(ipv4__startswith=self.q)
             )
-
-        return qs
