@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("machines", "0062_extension_origin_v6"),
-        ("reversion", "0001_squashed_0004_auto_20160611_1202"),
+        #("reversion", "0001_squashed_0004_auto_20160611_1202"),
     ]
 
     operations = [
