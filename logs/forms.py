@@ -25,6 +25,7 @@ from django import forms
 from django.forms import Form
 from django.utils.translation import ugettext_lazy as _
 from re2o.base import get_input_formats_help_text
+from re2o.mixins import AutocompleteModelMixin
 
 import inspect
 
@@ -118,6 +119,7 @@ class ActionsSearchForm(Form):
         label=_("Performed by"),
         queryset=users.models.User.objects.all(),
         required=False,
+        widget=AutocompleteModelMixin(url="/users/user-autocomplete"),
     )
     action_type = forms.MultipleChoiceField(
         label=_("Action type"),
