@@ -61,24 +61,23 @@ class SchoolAutocomplete(AutocompleteViewMixin):
 #@can_view_all(User)
 class UserAutocomplete(AutocompleteViewMixin):
     obj_type = User
-    # Override get_queryset to add annotations so search behaves more like users expect it to
-    def get_queryset(self):
+
+    # Precision on search to add annotations so search behaves more like users expect it to
+    def filter_results(self):
         # Comments explain what we try to match
-        qs = self.obj_type.objects.annotate(
+        self.query_set = self.query_set.annotate(
             full_name=Concat("adherent__name", Value(" "), "surname"),  # Match when the user searches "Toto Passoir"
             full_name_reverse=Concat("surname", Value(" "), "adherent__name"),  # Match when the user searches "Passoir Toto"
         ).all()
 
         if self.q:
-            qs = qs.filter(
+            self.query_set = self.query_set.filter(
                 Q(pseudo__icontains=self.q)
                 | Q(full_name__icontains=self.q)
                 | Q(full_name_reverse__icontains=self.q)
             )
 
-        return qs
-
-#@can_view_all(Adherent)
+#can_view_all(Adherent)
 class AdherentAutocomplete(AutocompleteViewMixin):
     obj_type = Adherent
 

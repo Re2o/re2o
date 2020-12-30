@@ -55,11 +55,11 @@ from re2o.acl import (
 class RoomAutocomplete(AutocompleteViewMixin):
     obj_type = Room
 
-    # Override get_queryset to add annotations so search behaves more like users expect it to
-    def get_queryset(self):
+    # Precision on search to add annotations so search behaves more like users expect it to
+    def filter_results(self):
         # Suppose we have a dorm named Dorm, a building name B, and rooms from 001 - 999
         # Comments explain what we try to match
-        qs = self.obj_type.objects.annotate(
+        self.query_set = self.query_set.annotate(
             full_name=Concat("building__name", Value(" "), "name"),  # Match when the user searches "B 001"
             full_name_stuck=Concat("building__name", "name"),  # Match "B001"
             dorm_name=Concat("building__dormitory__name", Value(" "), "name"),  # Match "Dorm 001"
@@ -68,15 +68,13 @@ class RoomAutocomplete(AutocompleteViewMixin):
         ).all()
 
         if self.q:
-            qs = qs.filter(
+            self.query_set = self.query_set.filter(
                 Q(full_name__icontains=self.q)
                 | Q(full_name_stuck__icontains=self.q)
                 | Q(dorm_name__icontains=self.q)
                 | Q(dorm_full_name__icontains=self.q)
                 | Q(dorm_full_colon_name__icontains=self.q)
             )
-
-        return qs
 
 
 #@can_view_all(Dormitory)
@@ -88,20 +86,20 @@ class DormitoryAutocomplete(AutocompleteViewMixin):
 class BuildingAutocomplete(AutocompleteViewMixin):
     obj_type = Building
 
-    def get_queryset(self):
+    # Precision on search to add annotations so search behaves more like users expect it to
+    def filter_results(self):
         # We want to be able to filter by dorm so it's easier
-        qs = self.obj_type.objects.annotate(
+        self.query_set = self.query_set.annotate(
             full_name=Concat("dormitory__name", Value(" "), "name"),
             full_name_colon=Concat("dormitory__name", Value(" : "), "name"),
         ).all()
 
         if self.q:
-            qs = qs.filter(
+            self.query_set = self.query_set.filter(
                 Q(full_name__icontains=self.q)
                 | Q(full_name_colon__icontains=self.q)
             )
 
-        return qs
 
 class SwitchAutocomplete(AutocompleteViewMixin):
     obj_type = Switch
@@ -110,38 +108,38 @@ class SwitchAutocomplete(AutocompleteViewMixin):
 class PortAutocomplete(AutocompleteViewMixin):
     obj_type = Port
 
-    def get_queryset(self):
+    # Precision on search to add annotations so search behaves more like users expect it to
+    def filter_results(self):
         # We want to enter the switch name, not just the port number
         # Because we're concatenating a CharField and an Integer, we have to sepcify the output_field
-        qs = self.obj_type.objects.annotate(
+        self.query_set = self.query_set.annotate(
             full_name=Concat("switch__name", Value(" "), "port", output_field=CharField()),
             full_name_stuck=Concat("switch__name", "port", output_field=CharField()),
             full_name_dash=Concat("switch__name", Value(" - "), "port", output_field=CharField()),
         ).all()
 
         if self.q:
-            qs = qs.filter(
+            self.query_set = self.query_set.filter(
                 Q(full_name__icontains=self.q)
                 | Q(full_name_stuck__icontains=self.q)
                 | Q(full_name_dash__icontains=self.q)
             )
 
-        return qs
-
 
 class SwitchBayAutocomplete(AutocompleteViewMixin):
     obj_type = SwitchBay
 
-    def get_queryset(self):
+    # Precision on search to add annotations so search behaves more like users expect it to
+    def filter_results(self):
         # Comments explain what we try to match
-        qs = self.obj_type.objects.annotate(
+        self.query_set = self.query_set.annotate(
             full_name=Concat("building__name", Value(" "), "name"),  # Match when the user searches ""
             dorm_name=Concat("building__dormitory__name", Value(" "), "name"),  # Match "Dorm Local Sud"
             dorm_full_name=Concat("building__dormitory__name", Value(" "), "building__name", Value(" "), "name"),  # Match "Dorm J Local Sud"
         ).all()
 
         if self.q:
-            qs = qs.filter(
+            self.query_set = self.query_set.filter(
                 Q(full_name__icontains=self.q)
                 | Q(dorm_name__icontains=self.q)
                 | Q(dorm_full_name__icontains=self.q)
