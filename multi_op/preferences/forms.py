@@ -29,6 +29,7 @@ each.
 from django import forms
 from django.forms import ModelForm, Form
 from django.utils.translation import ugettext_lazy as _
+from re2o.mixins import AutocompleteMultipleModelMixin
 
 from .models import MultiopOption
 
@@ -39,3 +40,8 @@ class EditMultiopOptionForm(ModelForm):
     class Meta:
         model = MultiopOption
         fields = "__all__"
+        widgets = {
+            "enabled_dorm": AutocompleteMultipleModelMixin(
+                url="/topologie/dormitory-autocomplete",
+            ),
+        }
