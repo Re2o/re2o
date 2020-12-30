@@ -445,7 +445,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("date", models.DateTimeField(auto_now_add=True, verbose_name="Date")),
+                ("date", models.DateTimeField(auto_now_add=True, verbose_name="date")),
             ],
             bases=(
                 re2o.mixins.RevMixin,
@@ -506,14 +506,14 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "recipient",
-                    models.CharField(max_length=255, verbose_name="Recipient"),
+                    models.CharField(max_length=255, verbose_name="recipient"),
                 ),
                 (
                     "payment",
-                    models.CharField(max_length=255, verbose_name="Payment type"),
+                    models.CharField(max_length=255, verbose_name="payment type"),
                 ),
-                ("address", models.CharField(max_length=255, verbose_name="Address")),
-                ("paid", models.BooleanField(verbose_name="Paid")),
+                ("address", models.CharField(max_length=255, verbose_name="address")),
+                ("paid", models.BooleanField(default=False, verbose_name="paid")),
                 (
                     "remark",
                     models.TextField(verbose_name="remark", blank=True, null=True),
@@ -521,7 +521,9 @@ class Migration(migrations.Migration):
             ],
             bases=("cotisations.baseinvoice",),
             options={
-                "permissions": (("view_custominvoice", "Can view a custom invoice"),)
+                "permissions": (
+                    ("view_custominvoice", "Can view a custom invoice object"),
+                )
             },
         ),
         migrations.CreateModel(
@@ -541,7 +543,7 @@ class Migration(migrations.Migration):
                 (
                     "validity",
                     models.DurationField(
-                        verbose_name="Period of validity", help_text="DD HH:MM:SS"
+                        verbose_name="period of validity", help_text="DD HH:MM:SS"
                     ),
                 ),
             ],
@@ -588,7 +590,6 @@ class Migration(migrations.Migration):
                     "duration_days_connection",
                     models.PositiveIntegerField(
                         default=0,
-                        validators=[django.core.validators.MinValueValidator(0)],
                         verbose_name="duration of the connection (in days, will be added to duration in months)",
                     ),
                 ),
@@ -602,7 +603,6 @@ class Migration(migrations.Migration):
                     "duration_days_membership",
                     models.PositiveIntegerField(
                         default=0,
-                        validators=[django.core.validators.MinValueValidator(0)],
                         verbose_name="duration of the membership (in days, will be added to duration in months)",
                     ),
                 ),
@@ -651,28 +651,24 @@ class Migration(migrations.Migration):
                 (
                     "duration_connection",
                     models.PositiveIntegerField(
-                        default=0, verbose_name="duration of the connection (in months)"
+                        verbose_name="duration of the connection (in months)"
                     ),
                 ),
                 (
                     "duration_days_connection",
                     models.PositiveIntegerField(
-                        default=0,
-                        validators=[django.core.validators.MinValueValidator(0)],
                         verbose_name="duration of the connection (in days, will be added to duration in months)",
                     ),
                 ),
                 (
                     "duration_membership",
                     models.PositiveIntegerField(
-                        default=0, verbose_name="duration of the membership (in months)"
+                        verbose_name="duration of the membership (in months)"
                     ),
                 ),
                 (
                     "duration_days_membership",
                     models.PositiveIntegerField(
-                        default=0,
-                        validators=[django.core.validators.MinValueValidator(0)],
                         verbose_name="duration of the membership (in days, will be added to duration in months)",
                     ),
                 ),
@@ -866,7 +862,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name", "user balance"},
+            options={"verbose_name": "user balance"},
         ),
         migrations.CreateModel(
             name="ChequePayment",
@@ -882,7 +878,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name", "cheque"},
+            options={"verbose_name": "cheque"},
         ),
         migrations.CreateModel(
             name="ComnpayPayment",
@@ -933,7 +929,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name", "ComNpay"},
+            options={"verbose_name": "ComNpay"},
         ),
         migrations.CreateModel(
             name="FreePayment",
@@ -949,7 +945,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"verbose_name", "Free payment"},
+            options={"verbose_name": "Free payment"},
         ),
         migrations.CreateModel(
             name="NotePayment",
@@ -968,6 +964,6 @@ class Migration(migrations.Migration):
                 ("port", models.PositiveIntegerField(blank=True, null=True)),
                 ("id_note", models.PositiveIntegerField(blank=True, null=True)),
             ],
-            options={"verbose_name", "NoteKfet"},
+            options={"verbose_name": "NoteKfet"},
         ),
     ]

@@ -12,9 +12,9 @@ import users.models
 
 
 class Migration(migrations.Migration):
-    dependencies = []
-    initial=True
-    run_before = [('reversion', '0001_squashed_0004_auto_20160611_1202')]
+    dependencies = [('auth', '0008_alter_user_username_max_length')]
+    initial = True
+    run_before = [("reversion", "0001_squashed_0004_auto_20160611_1202")]
     # We replace everything.
     replaces = [
         ("users", "0001_initial"),
@@ -542,6 +542,28 @@ class Migration(migrations.Migration):
                 ),
                 ("email_change_date", models.DateTimeField(auto_now_add=True)),
                 ("theme", models.CharField(max_length=255, default="default.css")),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "password",
+                    models.CharField(
+                        max_length=128, verbose_name="password"
+                    ),
+                ),
+                ("groups", models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups')),
+                ("user_permissions", models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions'))
             ],
             options={
                 "permissions": (
@@ -646,6 +668,18 @@ class Migration(migrations.Migration):
                     "comment",
                     models.CharField(help_text="Comment.", max_length=255, blank=True),
                 ),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "password",
+                    models.CharField(
+                        max_length=128, verbose_name="password"
+                    ),
+                ),
             ],
             options={
                 "permissions": (
@@ -685,12 +719,12 @@ class Migration(migrations.Migration):
             ),
             fields=[
                 (
-                    "id",
+                    "group_ptr",
                     models.OneToOneField(
-                        auto_created=True,
-                        on_delete=django.db.models.deletion.CASCADE,
                         parent_link=True,
+                        auto_created=True,
                         primary_key=True,
+                        on_delete=django.db.models.deletion.CASCADE,
                         serialize=False,
                         to="auth.Group",
                     ),

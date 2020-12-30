@@ -2,11 +2,16 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import django.db.models.deletion
+import django.core.validators
+import macaddress.fields
 import re2o.mixins
-import re2o.aes_field
+import re2o.field_permissions
+import datetime
 
 
 class Migration(migrations.Migration):
+    initial = True
     dependencies = []
     replaces = [
         ("users", "0001_initial"),
@@ -428,723 +433,914 @@ class Migration(migrations.Migration):
     ]
     operations = [
         migrations.CreateModel(
-            name="OptionalUser",
-            bases=(re2o.mixins.AclMixin, models.Model),
-            options={
-                "permissions": (("view_optionaluser", "Can view the user options"),),
-                "verbose_name": "user options",
-            },
+            name="Machine",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.field_permissions.FieldPermissionModelMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
                     ),
                 ),
-                ("is_tel_mandatory", models.BooleanField(default=True)),
-                ("gpg_fingerprint", models.BooleanField(default=True)),
-                ("all_can_create_club", models.BooleanField(default=False)),
-                ("all_can_create_adherent", models.BooleanField(default=False)),
-                ("self_change_shell", models.BooleanField(default=False)),
-                ("self_change_pseudo", models.BooleanField(default=True)),
                 (
-                    "self_room_policy",
+                    "name",
                     models.CharField(
-                        choices=[
-                            ("DISABLED", "Users can't select their room"),
-                            (
-                                "ONLY_INACTIVE",
-                                "Users can only select a room occupied by a user with a disabled connection.",
-                            ),
-                            ("ALL_ROOM", "Users can select all rooms"),
-                        ],
-                        default="DISABLED",
-                        help_text="Policy on self users room edition",
-                        max_length=32,
+                        max_length=255, help_text="Optional.", blank=True, null=True
                     ),
                 ),
-                ("local_email_accounts_enabled", models.BooleanField(default=False)),
-                (
-                    "local_email_domain",
-                    models.CharField(
-                        default="@example.org",
-                        help_text="Domain to use for local email accounts.",
-                        max_length=32,
-                    ),
-                ),
-                (
-                    "max_email_address",
-                    models.IntegerField(
-                        default=15,
-                        help_text="Maximum number of local email addresses for a standard user.",
-                    ),
-                ),
-                (
-                    "delete_notyetactive",
-                    models.IntegerField(
-                        default=15,
-                        help_text="Not yet active users will be deleted after this number of days.",
-                    ),
-                ),
-                (
-                    "disable_emailnotyetconfirmed",
-                    models.IntegerField(
-                        default=2,
-                        help_text="Users with an email address not yet confirmed will be disabled after this number of days.",
-                    ),
-                ),
-                ("self_adhesion", models.BooleanField(default=False)),
-                ("all_users_active", models.BooleanField(default=False)),
-                (
-                    "allow_set_password_during_user_creation",
-                    models.BooleanField(default=False),
-                ),
-                ("allow_archived_connexion", models.BooleanField(default=False)),
-            ],
-        ),
-        migrations.CreateModel(
-            name="OptionalMachine",
-            bases=(re2o.mixins.AclMixin, models.Model),
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("password_machine", models.BooleanField(default=False)),
-                ("max_lambdauser_interfaces", models.IntegerField(default=10)),
-                (
-                    "ipv6_mode",
-                    models.CharField(
-                        choices=[
-                            ("SLAAC", "Automatic configuration by RA"),
-                            ("DHCPV6", "IP addresses assignment by DHCPv6"),
-                            ("DISABLED", "Disabled"),
-                        ],
-                        default="DISABLED",
-                        max_length=32,
-                    ),
-                ),
-                ("create_machine", models.BooleanField(default=True)),
-                (
-                    "default_dns_ttl",
-                    models.PositiveIntegerField(
-                        default=172800,
-                        verbose_name="default Time To Live (TTL) for CNAME, A and AAAA records",
-                    ),
-                ),
+                ("active", models.BooleanField(default=True)),
             ],
             options={
                 "permissions": (
-                    ("view_optionalmachine", "Can view the machine options"),
+                    ("view_machine", "Can view a machine object"),
+                    ("change_machine_user", "Can change the user of a machine"),
                 ),
-                "verbose_name": "machine options",
+                "verbose_name": "machine",
+                "verbose_name_plural": "machines",
             },
         ),
         migrations.CreateModel(
-            name="OptionalTopologie",
-            bases=(re2o.mixins.AclMixin, models.Model),
-            options={
-                "permissions": (
-                    ("view_optionaltopologie", "Can view the topology options"),
-                ),
-                "verbose_name": "topology options",
-            },
+            name="MachineType",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+            ],
+            options={
+                "permissions": (
+                    ("view_machinetype", "Can view a machine type object"),
+                    ("use_all_machinetype", "Can use all machine types"),
+                ),
+                "verbose_name": "machine type",
+                "verbose_name_plural": "machine types",
+            },
+        ),
+        migrations.CreateModel(
+            name="IpType",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
                         verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
                     ),
                 ),
-                ("switchs_web_management", models.BooleanField(default=False)),
-                ("switchs_web_management_ssl", models.BooleanField(default=False)),
-                ("switchs_rest_management", models.BooleanField(default=False)),
+                ("name", models.CharField(max_length=255)),
+                ("need_infra", models.BooleanField(default=False)),
+                ("domaine_ip_start", models.GenericIPAddressField(protocol="IPv4")),
+                ("domaine_ip_stop", models.GenericIPAddressField(protocol="IPv4")),
                 (
-                    "switchs_provision",
-                    models.CharField(
-                        choices=[("sftp", "SFTP"), ("tftp", "TFTP")],
-                        default="tftp",
-                        help_text="Provision of configuration mode for switches.",
-                        max_length=32,
-                    ),
-                ),
-                (
-                    "sftp_login",
-                    models.CharField(
-                        blank=True,
-                        help_text="SFTP login for switches.",
-                        max_length=32,
+                    "domaine_ip_network",
+                    models.GenericIPAddressField(
+                        protocol="IPv4",
                         null=True,
+                        blank=True,
+                        help_text="Network containing the domain's IPv4 range (optional).",
                     ),
                 ),
                 (
-                    "sftp_pass",
-                    re2o.aes_field.AESEncryptedField(
-                        blank=True, help_text="SFTP password.", max_length=63, null=True
+                    "domaine_ip_netmask",
+                    models.IntegerField(
+                        default=24,
+                        validators=[
+                            django.core.validators.MaxValueValidator(31),
+                            django.core.validators.MinValueValidator(8),
+                        ],
+                        help_text="Netmask for the domain's IPv4 range.",
+                    ),
+                ),
+                (
+                    "reverse_v4",
+                    models.BooleanField(
+                        default=False, help_text="Enable reverse DNS for IPv4."
+                    ),
+                ),
+                (
+                    "prefix_v6",
+                    models.GenericIPAddressField(
+                        protocol="IPv6", null=True, blank=True
+                    ),
+                ),
+                (
+                    "prefix_v6_length",
+                    models.IntegerField(
+                        default=64,
+                        validators=[
+                            django.core.validators.MaxValueValidator(128),
+                            django.core.validators.MinValueValidator(0),
+                        ],
+                    ),
+                ),
+                (
+                    "reverse_v6",
+                    models.BooleanField(
+                        default=False, help_text="Enable reverse DNS for IPv6."
                     ),
                 ),
             ],
+            options={
+                "permissions": (
+                    ("view_iptype", "Can view an IP type object"),
+                    ("use_all_iptype", "Can use all IP types"),
+                ),
+                "verbose_name": "IP type",
+                "verbose_name_plural": "IP types",
+            },
         ),
         migrations.CreateModel(
-            name="RadiusKey",
+            name="Vlan",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
                     ),
                 ),
                 (
-                    "radius_key",
-                    re2o.aes_field.AESEncryptedField(
-                        help_text="Clef radius", max_length=255
+                    "vlan_id",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MaxValueValidator(4095)]
+                    ),
+                ),
+                ("name", models.CharField(max_length=256)),
+                ("comment", models.CharField(max_length=256, blank=True)),
+                ("arp_protect", models.BooleanField(default=False)),
+                ("dhcp_snooping", models.BooleanField(default=False)),
+                ("dhcpv6_snooping", models.BooleanField(default=False)),
+                (
+                    "igmp",
+                    models.BooleanField(
+                        default=False, help_text="v4 multicast management."
+                    ),
+                ),
+                (
+                    "mld",
+                    models.BooleanField(
+                        default=False, help_text="v6 multicast management."
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (("view_vlan", "Can view a VLAN object"),),
+                "verbose_name": "VLAN",
+                "verbose_name_plural": "VLANs",
+            },
+        ),
+        migrations.CreateModel(
+            name="Nas",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                (
+                    "port_access_mode",
+                    models.CharField(
+                        choices=(("802.1X", "802.1X"), ("Mac-address", "MAC-address")),
+                        default="802.1X",
+                        max_length=32,
+                    ),
+                ),
+                ("autocapture_mac", models.BooleanField(default=False)),
+            ],
+            options={
+                "permissions": (("view_nas", "Can view a NAS device object"),),
+                "verbose_name": "NAS device",
+                "verbose_name_plural": "NAS devices",
+            },
+        ),
+        migrations.CreateModel(
+            name="SOA",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                (
+                    "mail",
+                    models.EmailField(help_text="Contact email address for the zone."),
+                ),
+                (
+                    "refresh",
+                    models.PositiveIntegerField(
+                        default=86400,
+                        help_text="Seconds before the secondary DNS have to ask the primary DNS serial to detect a modification.",
+                    ),
+                ),
+                (
+                    "retry",
+                    models.PositiveIntegerField(
+                        default=7200,
+                        help_text="Seconds before the secondary DNS ask the serial again in case of a primary DNS timeout.",
+                    ),
+                ),
+                (
+                    "expire",
+                    models.PositiveIntegerField(
+                        default=3600000,
+                        help_text="Seconds before the secondary DNS stop answering requests in case of primary DNS timeout.",
+                    ),
+                ),
+                (
+                    "ttl",
+                    models.PositiveIntegerField(
+                        default=172800, help_text="Time To Live."
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (("view_soa", "Can view an SOA record object"),),
+                "verbose_name": "SOA record",
+                "verbose_name_plural": "SOA records",
+            },
+        ),
+        migrations.CreateModel(
+            name="Extension",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=255,
+                        unique=True,
+                        help_text="Zone name, must begin with a dot (.example.org).",
+                    ),
+                ),
+                ("need_infra", models.BooleanField(default=False)),
+                (
+                    "origin_v6",
+                    models.GenericIPAddressField(
+                        protocol="IPv6",
+                        null=True,
+                        blank=True,
+                        help_text="AAAA record associated with the zone.",
+                    ),
+                ),
+                (
+                    "dnssec",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Should the zone be signed with DNSSEC.",
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (
+                    ("view_extension", "Can view an extension object"),
+                    ("use_all_extension", "Can use all extensions"),
+                ),
+                "verbose_name": "DNS extension",
+                "verbose_name_plural": "DNS extensions",
+            },
+        ),
+        migrations.CreateModel(
+            name="Mx",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("priority", models.PositiveIntegerField()),
+                (
+                    "ttl",
+                    models.PositiveIntegerField(
+                        verbose_name="Time To Live (TTL)", default=172800
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (("view_mx", "Can view an MX record object"),),
+                "verbose_name": "MX record",
+                "verbose_name_plural": "MX records",
+            },
+        ),
+        migrations.CreateModel(
+            name="Ns",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                (
+                    "ttl",
+                    models.PositiveIntegerField(
+                        verbose_name="Time To Live (TTL)", default=172800
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (("view_ns", "Can view an NS record object"),),
+                "verbose_name": "NS record",
+                "verbose_name_plural": "NS records",
+            },
+        ),
+        migrations.CreateModel(
+            name="Txt",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("field1", models.CharField(max_length=255)),
+                ("field2", models.TextField(max_length=2047)),
+                (
+                    "ttl",
+                    models.PositiveIntegerField(
+                        verbose_name="Time To Live (TTL)", default=172800
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (("view_txt", "Can view a TXT record object"),),
+                "verbose_name": "TXT record",
+                "verbose_name_plural": "TXT records",
+            },
+        ),
+        migrations.CreateModel(
+            name="DName",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("alias", models.CharField(max_length=255)),
+                (
+                    "ttl",
+                    models.PositiveIntegerField(
+                        verbose_name="Time To Live (TTL)", default=172800
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (("view_dname", "Can view a DNAME record object"),),
+                "verbose_name": "DNAME record",
+                "verbose_name_plural": "DNAME records",
+            },
+        ),
+        migrations.CreateModel(
+            name="Srv",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("service", models.CharField(max_length=31)),
+                (
+                    "protocole",
+                    models.CharField(
+                        max_length=3,
+                        choices=(("TCP", "TCP"), ("UDP", "UDP")),
+                        default="TCP",
+                    ),
+                ),
+                (
+                    "ttl",
+                    models.PositiveIntegerField(
+                        default=172800, help_text="Time To Live."
+                    ),
+                ),
+                (
+                    "priority",
+                    models.PositiveIntegerField(
+                        default=0,
+                        validators=[django.core.validators.MaxValueValidator(65535)],
+                        help_text="Priority of the target server (positive integer value, the lower it is, the more the server will be used if available).",
+                    ),
+                ),
+                (
+                    "weight",
+                    models.PositiveIntegerField(
+                        default=0,
+                        validators=[django.core.validators.MaxValueValidator(65535)],
+                        help_text="Relative weight for records with the same priority (integer value between 0 and 65535).",
+                    ),
+                ),
+                (
+                    "port",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MaxValueValidator(65535)],
+                        help_text="TCP/UDP port.",
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (("view_srv", "Can view an SRV record object"),),
+                "verbose_name": "SRV record",
+                "verbose_name_plural": "SRV records",
+            },
+        ),
+        migrations.CreateModel(
+            name="SshFp",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                (
+                    "pub_key_entry",
+                    models.TextField(help_text="SSH public key.", max_length=2048),
+                ),
+                (
+                    "algo",
+                    models.CharField(
+                        choices=(
+                            ("ssh-rsa", "ssh-rsa"),
+                            ("ssh-ed25519", "ssh-ed25519"),
+                            ("ecdsa-sha2-nistp256", "ecdsa-sha2-nistp256"),
+                            ("ecdsa-sha2-nistp384", "ecdsa-sha2-nistp384"),
+                            ("ecdsa-sha2-nistp521", "ecdsa-sha2-nistp521"),
+                        ),
+                        max_length=32,
                     ),
                 ),
                 (
                     "comment",
                     models.CharField(
-                        blank=True,
-                        help_text="Commentaire de cette clef",
-                        max_length=255,
-                        null=True,
-                    ),
-                ),
-                (
-                    "default_switch",
-                    models.BooleanField(
-                        default=True,
-                        help_text="Clef par défaut des switchs",
-                        unique=True,
+                        help_text="Comment.", max_length=255, null=True, blank=True
                     ),
                 ),
             ],
             options={
-                "permissions": (("view_radiuskey", "Can view a RADIUS key object"),),
-                "verbose_name": "RADIUS key",
-                "verbose_name_plural": "RADIUS keys",
+                "permissions": (("view_sshfp", "Can view an SSHFP record object"),),
+                "verbose_name": "SSHFP record",
+                "verbose_name_plural": "SSHFP records",
             },
-            bases=(re2o.mixins.AclMixin, models.Model),
         ),
         migrations.CreateModel(
-            name="SwitchManagementCred",
+            name="Interface",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                re2o.field_permissions.FieldPermissionModelMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
                     ),
                 ),
-                (
-                    "management_id",
-                    models.CharField(help_text="Login du switch", max_length=63),
-                ),
-                (
-                    "management_pass",
-                    re2o.aes_field.AESEncryptedField(
-                        help_text="Mot de passe", max_length=63
-                    ),
-                ),
-                (
-                    "default_switch",
-                    models.BooleanField(
-                        default=True,
-                        help_text="Creds par défaut des switchs",
-                        unique=True,
-                    ),
-                ),
+                ("mac_address", macaddress.fields.MACAddressField(integer=False)),
+                ("details", models.CharField(max_length=255, blank=True)),
             ],
             options={
                 "permissions": (
+                    ("view_interface", "Can view an interface object"),
                     (
-                        "view_switchmanagementcred",
-                        "Can view a switch management credentials object",
+                        "change_interface_machine",
+                        "Can change the owner of an interface",
                     ),
                 ),
-                "verbose_name": "switch management credentials",
+                "verbose_name": "interface",
+                "verbose_name_plural": "interfaces",
             },
-            bases=(re2o.mixins.AclMixin, models.Model),
         ),
         migrations.CreateModel(
-            name="Reminder",
+            name="Ipv6List",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                re2o.field_permissions.FieldPermissionModelMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
                     ),
                 ),
+                ("ipv6", models.GenericIPAddressField(protocol="IPv6")),
+                ("slaac_ip", models.BooleanField(default=False)),
                 (
-                    "days",
-                    models.IntegerField(
-                        default=7,
-                        help_text="Délais entre le mail et la fin d'adhésion",
-                        unique=True,
+                    "active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="If false,the DNS will not provide this ip.",
                     ),
-                ),
-                (
-                    "message",
-                    models.CharField(
-                        blank=True,
-                        default="",
-                        help_text="Message affiché spécifiquement pour ce rappel",
-                        max_length=255,
-                        null=True,
-                    ),
-                ),
-            ],
-            options={
-                "permissions": (("view_reminder", "Can view a reminder object"),),
-                "verbose_name": "reminder",
-                "verbose_name_plural": "reminders",
-            },
-            bases=(re2o.mixins.AclMixin, models.Model),
-        ),
-        migrations.CreateModel(
-            name="GeneralOption",
-            bases=(re2o.mixins.AclMixin, models.Model),
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "general_message_fr",
-                    models.TextField(
-                        blank=True,
-                        default="",
-                        help_text="General message displayed on the French version of the website (e.g. in case of maintenance).",
-                    ),
-                ),
-                (
-                    "general_message_en",
-                    models.TextField(
-                        blank=True,
-                        default="",
-                        help_text="General message displayed on the English version of the website (e.g. in case of maintenance).",
-                    ),
-                ),
-                ("search_display_page", models.IntegerField(default=15)),
-                ("pagination_number", models.IntegerField(default=25)),
-                ("pagination_large_number", models.IntegerField(default=8)),
-                ("req_expire_hrs", models.IntegerField(default=48)),
-                ("site_name", models.CharField(default="Re2o", max_length=32)),
-                (
-                    "email_from",
-                    models.EmailField(default="www-data@example.com", max_length=254),
-                ),
-                (
-                    "main_site_url",
-                    models.URLField(default="http://re2o.example.org", max_length=255),
-                ),
-                ("GTU_sum_up", models.TextField(blank=True, default="")),
-                (
-                    "GTU",
-                    models.FileField(blank=True, default="", null=True, upload_to=""),
                 ),
             ],
             options={
                 "permissions": (
-                    ("view_generaloption", "Can view the general options"),
+                    ("view_ipv6list", "Can view an IPv6 addresses list object"),
+                    (
+                        "change_ipv6list_slaac_ip",
+                        "Can change the SLAAC value of an IPv6 addresses list",
+                    ),
                 ),
-                "verbose_name": "general options",
+                "verbose_name": "IPv6 addresses list",
+                "verbose_name_plural": "IPv6 addresses lists",
+            },
+        ),
+        migrations.CreateModel(
+            name="Domain",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                re2o.field_permissions.FieldPermissionModelMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Mandatory and unique, must not contain dots.",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "cname",
+                    models.ForeignKey(
+                        "self", null=True, blank=True, related_name="related_domain"
+                    ),
+                ),
+                (
+                    "ttl",
+                    models.PositiveIntegerField(
+                        verbose_name="Time To Live (TTL)", default=0
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (
+                    ("view_domain", "Can view a domain object"),
+                    ("change_ttl", "Can change the TTL of a domain object"),
+                ),
+                "verbose_name": "domain",
+                "verbose_name_plural": "domains",
+            },
+        ),
+        migrations.CreateModel(
+            name="IpList",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("ipv4", models.GenericIPAddressField(protocol="IPv4", unique=True)),
+            ],
+            options={
+                "permissions": (
+                    ("view_iplist", "Can view an IPv4 addresses list object"),
+                ),
+                "verbose_name": "IPv4 addresses list",
+                "verbose_name_plural": "IPv4 addresses lists",
+            },
+        ),
+        migrations.CreateModel(
+            name="Role",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
+            fields=[
+                (
+                    "id",
+                    models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
+                        auto_created=True,
+                        primary_key=True,
+                    ),
+                ),
+                ("role_type", models.CharField(max_length=255, unique=True)),
+                (
+                    "specific_role",
+                    models.CharField(
+                        choices=(
+                            ("dhcp-server", "DHCP server"),
+                            ("switch-conf-server", "Switches configuration server"),
+                            ("dns-recursive-server", "Recursive DNS server"),
+                            ("ntp-server", "NTP server"),
+                            ("radius-server", "RADIUS server"),
+                            ("log-server", "Log server"),
+                            ("ldap-master-server", "LDAP master server"),
+                            ("ldap-backup-server", "LDAP backup server"),
+                            ("smtp-server", "SMTP server"),
+                            ("postgresql-server", "postgreSQL server"),
+                            ("mysql-server", "mySQL server"),
+                            ("sql-client", "SQL client"),
+                            ("gateway", "Gateway"),
+                        ),
+                        null=True,
+                        blank=True,
+                        max_length=32,
+                    ),
+                ),
+            ],
+            options={
+                "permissions": (("view_role", "Can view a role object"),),
+                "verbose_name": "server role",
+                "verbose_name_plural": "server roles",
             },
         ),
         migrations.CreateModel(
             name="Service",
-            options={
-                "permissions": (("view_service", "Can view the service options"),),
-                "verbose_name": "service",
-                "verbose_name_plural": "services",
-            },
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
                     ),
                 ),
-                ("name", models.CharField(max_length=32)),
-                ("url", models.URLField()),
-                ("description", models.TextField()),
-                ("image", models.ImageField(upload_to="logo")),
+                (
+                    "service_type",
+                    models.CharField(max_length=255, blank=True, unique=True),
+                ),
+                (
+                    "min_time_regen",
+                    models.DurationField(
+                        default=datetime.timedelta(minutes=1),
+                        help_text="Minimal time before regeneration of the service.",
+                    ),
+                ),
+                (
+                    "regular_time_regen",
+                    models.DurationField(
+                        default=datetime.timedelta(hours=1),
+                        help_text="Maximal time before regeneration of the service.",
+                    ),
+                ),
             ],
+            options={
+                "permissions": (("view_service", "Can view a service object"),),
+                "verbose_name": "service to generate (DHCP, DNS, ...)",
+                "verbose_name_plural": "services to generate (DHCP, DNS, ...)",
+            },
         ),
         migrations.CreateModel(
-            name="MailContact",
+            name="Service_link",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
                     ),
                 ),
-                (
-                    "address",
-                    models.EmailField(
-                        default="contact@example.org",
-                        help_text="Contact email adress",
-                        max_length=254,
-                    ),
-                ),
-                (
-                    "commentary",
-                    models.CharField(
-                        blank=True,
-                        help_text="Description of the associated email adress.",
-                        max_length=256,
-                        null=True,
-                    ),
-                ),
+                ("last_regen", models.DateTimeField(auto_now_add=True)),
+                ("asked_regen", models.BooleanField(default=False)),
             ],
             options={
                 "permissions": (
-                    ("view_mailcontact", "Can view a contact email address object"),
+                    ("view_service_link", "Can view a service server link object"),
                 ),
-                "verbose_name": "contact email address",
-                "verbose_name_plural": "contact email addresses",
+                "verbose_name": "link between service and server",
+                "verbose_name_plural": "links between service and server",
             },
-            bases=(re2o.mixins.AclMixin, models.Model),
         ),
         migrations.CreateModel(
-            name="Mandate",
+            name="OuverturePortList",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("start_date", models.DateTimeField(verbose_name="start date")),
-                (
-                    "end_date",
-                    models.DateTimeField(
-                        blank=True, null=True, verbose_name="end date"
-                    ),
-                ),
-            ],
-            options={
-                "verbose_name": "Mandate",
-                "verbose_name_plural": "Mandates",
-                "permissions": (("view_mandate", "Can view a mandate"),),
-            },
-            bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
-        ),
-        migrations.CreateModel(
-            name="AssoOption",
-            bases=(re2o.mixins.AclMixin, models.Model),
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
                     ),
                 ),
                 (
                     "name",
                     models.CharField(
-                        default="Networking organisation school Something",
-                        max_length=256,
+                        help_text="Name of the ports configuration", max_length=255
                     ),
                 ),
-                ("siret", models.CharField(default="00000000000000", max_length=32)),
-                (
-                    "adresse1",
-                    models.CharField(default="Threadneedle Street", max_length=128),
-                ),
-                (
-                    "adresse2",
-                    models.CharField(default="London EC2R 8AH", max_length=128),
-                ),
-                ("contact", models.EmailField(default="contact@example.org")),
-                ("telephone", models.CharField(max_length=15, default="0000000000")),
-                ("pseudo", models.CharField(default="Organisation", max_length=32)),
-                ("description", models.TextField(null=True, blank=True)),
             ],
-            options={
-                "permissions": (
-                    ("view_assooption", "Can view the organisation preferences"),
-                ),
-                "verbose_name": "organisation preferences",
-            },
-        ),
-        migrations.CreateModel(
-            name="HomeOption",
-            bases=(re2o.mixins.AclMixin, models.Model),
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("facebook_url", models.URLField(null=True, blank=True)),
-                ("twitter_url", models.URLField(null=True, blank=True)),
-                (
-                    "twitter_account_name",
-                    models.CharField(max_length=32, null=True, blank=True),
-                ),
-            ],
-            options={
-                "permissions": (
-                    ("view_homeoption", "Can view the homepage preferences"),
-                ),
-                "verbose_name": "homepage preferences",
-            },
-        ),
-        migrations.CreateModel(
-            name="MailMessageOption",
-            bases=(re2o.mixins.AclMixin, models.Model),
             options={
                 "permissions": (
                     (
-                        "view_mailmessageoption",
-                        "Can view the email message preferences",
+                        "view_ouvertureportlist",
+                        "Can view a ports opening list" " object",
                     ),
                 ),
-                "verbose_name": "email message preferences",
+                "verbose_name": "ports opening list",
+                "verbose_name_plural": "ports opening lists",
             },
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "welcome_mail_fr",
-                    models.TextField(
-                        default="", blank=True, help_text="Welcome email in French."
-                    ),
-                ),
-                (
-                    "welcome_mail_en",
-                    models.TextField(
-                        default="", blank=True, help_text="Welcome email in English."
-                    ),
-                ),
-            ],
         ),
         migrations.CreateModel(
-            name="RadiusAttribute",
-            bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
+            name="OuverturePort",
+            bases=(
+                re2o.mixins.RevMixin,
+                re2o.mixins.AclMixin,
+                models.Model,
+            ),
             fields=[
                 (
                     "id",
                     models.AutoField(
+                        verbose_name="ID",
+                        serialize=False,
                         auto_created=True,
                         primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
                     ),
                 ),
                 (
-                    "attribute",
+                    "begin",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MaxValueValidator(65535)]
+                    ),
+                ),
+                (
+                    "end",
+                    models.PositiveIntegerField(
+                        validators=[django.core.validators.MaxValueValidator(65535)]
+                    ),
+                ),
+                (
+                    "protocole",
                     models.CharField(
-                        max_length=255,
-                        verbose_name="attribute",
-                        help_text="See https://freeradius.org/rfc/attributes.html.",
+                        max_length=1, choices=(("T", "TCP"), ("U", "UDP")), default="T"
                     ),
                 ),
-                ("value", models.CharField(max_length=255, verbose_name="value")),
                 (
-                    "comment",
-                    models.TextField(
-                        verbose_name="comment",
-                        help_text="Use this field to document this attribute.",
-                        blank=True,
-                        default="",
+                    "io",
+                    models.CharField(
+                        max_length=1, choices=(("I", "IN"), ("O", "OUT")), default="O"
                     ),
                 ),
             ],
             options={
-                "verbose_name": "RADIUS attribute",
-                "verbose_name_plural": "RADIUS attributes",
+                "verbose_name": "ports opening",
+                "verbose_name_plural": "ports openings",
             },
-        ),
-        migrations.CreateModel(
-            name="RadiusOption",
-            bases=(re2o.mixins.AclMixin, models.Model),
-            options={
-                "verbose_name": "RADIUS policy",
-                "verbose_name_plural": "RADIUS policies",
-            },
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "radius_general_policy",
-                    models.CharField(
-                        choices=[
-                            ("MACHINE", "On the IP range's VLAN of the machine"),
-                            (
-                                "DEFINED",
-                                'Preset in "VLAN for machines accepted by RADIUS"',
-                            ),
-                        ],
-                        default="DEFINED",
-                        max_length=32,
-                    ),
-                ),
-                (
-                    "unknown_machine",
-                    models.CharField(
-                        choices=[
-                            ("REJECT", "Reject the machine"),
-                            ("SET_VLAN", "Place the machine on the VLAN"),
-                        ],
-                        default="REJECT",
-                        max_length=32,
-                        verbose_name="policy for unknown machines",
-                    ),
-                ),
-                (
-                    "unknown_port",
-                    models.CharField(
-                        choices=[
-                            ("REJECT", "Reject the machine"),
-                            ("SET_VLAN", "Place the machine on the VLAN"),
-                        ],
-                        default="REJECT",
-                        max_length=32,
-                        verbose_name="policy for unknown ports",
-                    ),
-                ),
-                (
-                    "unknown_room",
-                    models.CharField(
-                        choices=[
-                            ("REJECT", "Reject the machine"),
-                            ("SET_VLAN", "Place the machine on the VLAN"),
-                        ],
-                        default="REJECT",
-                        max_length=32,
-                        verbose_name="Policy for machines connecting from unregistered rooms (relevant on ports with STRICT RADIUS mode)",
-                    ),
-                ),
-                (
-                    "non_member",
-                    models.CharField(
-                        choices=[
-                            ("REJECT", "Reject the machine"),
-                            ("SET_VLAN", "Place the machine on the VLAN"),
-                        ],
-                        default="REJECT",
-                        max_length=32,
-                        verbose_name="policy for non members",
-                    ),
-                ),
-                (
-                    "banned",
-                    models.CharField(
-                        choices=[
-                            ("REJECT", "Reject the machine"),
-                            ("SET_VLAN", "Place the machine on the VLAN"),
-                        ],
-                        default="REJECT",
-                        max_length=32,
-                        verbose_name="policy for banned users",
-                    ),
-                ),
-            ],
-        ),
-        migrations.CreateModel(
-            name="CotisationsOption",
-            bases=(re2o.mixins.AclMixin, models.Model),
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "send_voucher_mail",
-                    models.BooleanField(
-                        verbose_name="send voucher by email when the invoice is controlled",
-                        help_text="Be careful, if no mandate is defined on the preferences page, errors will be triggered when generating vouchers.",
-                        default=False,
-                    ),
-                ),
-            ],
-        ),
-        migrations.CreateModel(
-            name="DocumentTemplate",
-            fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "template",
-                    models.FileField(upload_to="templates/", verbose_name="template"),
-                ),
-                (
-                    "name",
-                    models.CharField(max_length=125, unique=True, verbose_name="name"),
-                ),
-            ],
-            options={
-                "verbose_name": "document template",
-                "verbose_name_plural": "document templates",
-            },
-            bases=(re2o.mixins.RevMixin, re2o.mixins.AclMixin, models.Model),
         ),
     ]
