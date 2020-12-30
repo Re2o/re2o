@@ -369,6 +369,15 @@ def can_view_all(*targets):
     return acl_base_decorator("can_view_all", *targets, on_instance=False)
 
 
+def can_list(*targets):
+    """Decorator to check if an user can list a class of model.
+    It runs `acl_base_decorator` with the flag `on_instance=False` and the
+    method 'can_list'. See `acl_base_decorator` documentation for further
+    details.
+    """
+    return acl_base_decorator("can_list", *targets, on_instance=False)
+
+
 def can_view_app(*apps_name):
     """Decorator to check if an user can view the applications."""
     for app_name in apps_name:

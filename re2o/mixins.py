@@ -29,6 +29,7 @@ from django.utils.translation import ugettext as _
 from dal import autocomplete
 
 
+
 class RevMixin(object):
     """A mixin to subclass the save and delete function of a model
     to enforce the versioning of the object before those actions
@@ -80,6 +81,8 @@ class AclMixin(object):
     :can_view: Applied on an instance, return if the user can view the
         instance
     :can_view_all: Applied on a class, return if the user can view all
+        instances
+    :can_list: Applied on a class, return if the user can list all
         instances"""
 
     @classmethod
@@ -209,6 +212,28 @@ class AclMixin(object):
             (permission,),
         )
 
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """Check if a user can list all instances of an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
+        permission = cls.get_modulename() + ".view_" + cls.get_classname()
+        can = user_request.has_perm(permission)
+        return (
+            can,
+            _("You don't have the right to list every %s object.") % cls.get_classname()
+            if not can
+            else None,
+            (permission,),
+            cls.objects.all() if can else None,
+        )
+
     def can_view(self, user_request, *_args, **_kwargs):
         """Check if a user can view an instance of an object
 
@@ -272,13 +297,3 @@ class AutocompleteMultipleModelMixin(autocomplete.ModelSelect2Multiple):
         attrs["data-minimum-results-for-search"] = attrs.get("data-minimum-results-for-search", 10)
         return attrs
 
-
-class AutocompleteViewMixin(autocomplete.Select2QuerySetView):
-    obj_type = None  # This MUST be overridden by child class
-    query_filter = "name__icontains"  # Override this if necessary
-
-    def get_queryset(self):
-        query_set = self.obj_type.objects.all()
-        if self.q:
-            query_set = query_set.filter(**{ self.query_filter: self.q})
-        return query_set

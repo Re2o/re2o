@@ -33,6 +33,10 @@ from django.template.context_processors import csrf
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from dal import autocomplete
 
 from preferences.models import (
     Service,
@@ -43,6 +47,7 @@ from preferences.models import (
     Mandate,
 )
 
+from .acl import can_list
 from .contributors import CONTRIBUTORS
 from importlib import import_module
 from re2o.settings_local import OPTIONNAL_APPS_RE2O
@@ -169,3 +174,21 @@ def handler500(request):
 def handler404(request):
     """The handler view for a 404 error"""
     return render(request, "errors/404.html", status=404)
+
+
+class AutocompleteViewMixin(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    obj_type = None  # This MUST be overridden by child class
+    query_set = None
+    query_filter = "name__icontains"  # Override this if necessary
+
+    def get_queryset(self):
+
+        can, reason, _permission, query_set = self.obj_type.can_list(self.request.user)
+
+        self.query_set = query_set
+        if hasattr(self, "filter_results"):
+            self.filter_results()
+        else:
+            if self.q:
+                self.query_set = self.query_set.filter(**{ self.query_filter: self.q})
+        return self.query_set
