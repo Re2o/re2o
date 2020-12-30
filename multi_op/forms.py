@@ -36,15 +36,17 @@ from topologie.models import Dormitory
 
 from .preferences.models import MultiopOption
 
+
 class DormitoryForm(FormRevMixin, Form):
     """Form used to select dormitories."""
 
     dormitory = forms.ModelMultipleChoiceField(
-        queryset=MultiopOption.get_cached_value("enabled_dorm").all(),
         label=_("Dormitory"),
         widget=forms.CheckboxSelectMultiple,
         required=False,
+        queryset=Dormitory.objects.none(),
     )
 
     def __init__(self, *args, **kwargs):
         super(DormitoryForm, self).__init__(*args, **kwargs)
+        self.fields["dormitory"].queryset = MultiopOption.get_cached_value("enabled_dorm").all()
