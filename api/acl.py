@@ -53,7 +53,7 @@ def _create_api_permission():
         api_permission.save()
 
 
-_create_api_permission()
+#_create_api_permission()
 
 
 def can_view(user, *args, **kwargs):
