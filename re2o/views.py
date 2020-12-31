@@ -184,8 +184,11 @@ class AutocompleteViewMixin(LoginRequiredMixin, autocomplete.Select2QuerySetView
     def get_queryset(self):
 
         can, reason, _permission, query_set = self.obj_type.can_list(self.request.user)
+        if query_set:
+            self.query_set = query_set
+        else:
+            self.query_set = self.obj_type.objects.none()
 
-        self.query_set = query_set
         if hasattr(self, "filter_results"):
             self.filter_results()
         else:
