@@ -2364,6 +2364,22 @@ class School(RevMixin, AclMixin, models.Model):
         verbose_name = _("school")
         verbose_name_plural = _("schools")
 
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list schools
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        return (
+            True,
+            None,
+            None,
+            cls.objects.all()
+        )
+
     def __str__(self):
         return self.name
 
@@ -2486,6 +2502,22 @@ class ListShell(RevMixin, AclMixin, models.Model):
 
         """
         return self.shell.split("/")[-1]
+
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list shells
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        return (
+            True,
+            None,
+            None,
+            cls.objects.all()
+        )
 
     def __str__(self):
         return self.shell
