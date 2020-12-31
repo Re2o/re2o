@@ -193,5 +193,5 @@ class AutocompleteViewMixin(LoginRequiredMixin, autocomplete.Select2QuerySetView
             self.filter_results()
         else:
             if self.q:
-                self.query_set = self.query_set.filter(**{ self.query_filter: self.q})
+                self.query_set = self.query_set.filter(**{self.query_filter: self.q})
         return self.query_set
