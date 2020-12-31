@@ -48,10 +48,6 @@ from .models import (
 
 from re2o.views import AutocompleteViewMixin
 
-from re2o.acl import (
-    can_view_all,
-)
-
 
 class VlanAutocomplete(AutocompleteViewMixin):
     obj_type = Vlan

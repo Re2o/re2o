@@ -33,32 +33,20 @@ from __future__ import unicode_literals
 
 from .models import ( 
     User,
-    Ban,
-    Whitelist,
     School,
-    ListRight,
-    Request,
-    ServiceUser,
     Adherent,
     Club,
     ListShell,
-    EMailAddress,
 )
 
 from re2o.views import AutocompleteViewMixin
 
-from re2o.acl import (
-    can_view_all,
-)
-
 from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 
-#@can_view_all(School)
 class SchoolAutocomplete(AutocompleteViewMixin):
     obj_type = School
 
-#@can_view_all(User)
 class UserAutocomplete(AutocompleteViewMixin):
     obj_type = User
 
@@ -77,7 +65,6 @@ class UserAutocomplete(AutocompleteViewMixin):
                 | Q(full_name_reverse__icontains=self.q)
             )
 
-#can_view_all(Adherent)
 class AdherentAutocomplete(AutocompleteViewMixin):
     obj_type = Adherent
 
@@ -96,7 +83,6 @@ class AdherentAutocomplete(AutocompleteViewMixin):
                 | Q(full_name_reverse__icontains=self.q)
             )
 
-#@can_view_all(Club)
 class ClubAutocomplete(AutocompleteViewMixin):
     obj_type = Club
 
