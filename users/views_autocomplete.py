@@ -81,6 +81,21 @@ class UserAutocomplete(AutocompleteViewMixin):
 class AdherentAutocomplete(AutocompleteViewMixin):
     obj_type = Adherent
 
+    # Precision on search to add annotations so search behaves more like users expect it to
+    def filter_results(self):
+        # Comments explain what we try to match
+        self.query_set = self.query_set.annotate(
+            full_name=Concat("name", Value(" "), "surname"),  # Match when the user searches "Toto Passoir"
+            full_name_reverse=Concat("surname", Value(" "), "name"),  # Match when the user searches "Passoir Toto"
+        ).all()
+
+        if self.q:
+            self.query_set = self.query_set.filter(
+                Q(pseudo__icontains=self.q)
+                | Q(full_name__icontains=self.q)
+                | Q(full_name_reverse__icontains=self.q)
+            )
+
 #@can_view_all(Club)
 class ClubAutocomplete(AutocompleteViewMixin):
     obj_type = Club
