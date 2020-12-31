@@ -43,7 +43,7 @@ from .models import (
     Extension,
     Domain,
     OuverturePortList,
-    IpList
+    IpList,
 )
 
 from re2o.views import AutocompleteViewMixin
@@ -66,15 +66,15 @@ class IpTypeAutocomplete(AutocompleteViewMixin):
 
 
 class ExtensionAutocomplete(AutocompleteViewMixin):
-    obj_type = Extension 
+    obj_type = Extension
 
 
 class DomainAutocomplete(AutocompleteViewMixin):
-    obj_type = Domain 
+    obj_type = Domain
 
 
 class OuverturePortListAutocomplete(AutocompleteViewMixin):
-    obj_type = OuverturePortList 
+    obj_type = OuverturePortList
 
 
 class InterfaceAutocomplete(AutocompleteViewMixin):
@@ -84,8 +84,7 @@ class InterfaceAutocomplete(AutocompleteViewMixin):
     def filter_results(self):
         if self.q:
             self.query_set = self.query_set.filter(
-                Q(domain__name__icontains=self.q)
-                | Q(machine__name__icontains=self.q)
+                Q(domain__name__icontains=self.q) | Q(machine__name__icontains=self.q)
             )
 
 
@@ -94,11 +93,11 @@ class IpListAutocomplete(AutocompleteViewMixin):
 
     # Precision on search to add annotations so search behaves more like users expect it to
     def filter_results(self):
-        machine_type = self.forwarded.get('machine_type', None)
+        machine_type = self.forwarded.get("machine_type", None)
         self.query_set = self.query_set.filter(interface__isnull=True)
         if machine_type:
-            self.query_set = self.query_set.filter(ip_type__machinetype__id=machine_type)
-        if self.q:
             self.query_set = self.query_set.filter(
-                Q(ipv4__startswith=self.q)
+                ip_type__machinetype__id=machine_type
             )
+        if self.q:
+            self.query_set = self.query_set.filter(Q(ipv4__startswith=self.q))

@@ -29,7 +29,6 @@ from django.utils.translation import ugettext as _
 from dal import autocomplete
 
 
-
 class RevMixin(object):
     """A mixin to subclass the save and delete function of a model
     to enforce the versioning of the object before those actions
@@ -260,6 +259,7 @@ class AutocompleteModelMixin(autocomplete.ModelSelect2):
     """ A mixin subclassing django-autocomplete-light's Select2 model to pass default options
     See https://django-autocomplete-light.readthedocs.io/en/master/tutorial.html#passing-options-to-select2
     """
+
     def __init__(self, *args, **kwargs):
         select2_attrs = kwargs.get("attrs", {})
         kwargs["attrs"] = self.fill_default_select2_attrs(select2_attrs)
@@ -271,9 +271,11 @@ class AutocompleteModelMixin(autocomplete.ModelSelect2):
         See https://select2.org/configuration/options-api
         """
         # By default, only trigger autocompletion after 3 characters have been typed
-        #attrs["data-minimum-input-length"] = attrs.get("data-minimum-input-length", 3)
+        # attrs["data-minimum-input-length"] = attrs.get("data-minimum-input-length", 3)
         # If there are less than 10 results, just show all of them (no need to autocomplete)
-        attrs["data-minimum-results-for-search"] = attrs.get("data-minimum-results-for-search", 10)
+        attrs["data-minimum-results-for-search"] = attrs.get(
+            "data-minimum-results-for-search", 10
+        )
         return attrs
 
 
@@ -281,6 +283,7 @@ class AutocompleteMultipleModelMixin(autocomplete.ModelSelect2Multiple):
     """ A mixin subclassing django-autocomplete-light's Select2 model to pass default options
     See https://django-autocomplete-light.readthedocs.io/en/master/tutorial.html#passing-options-to-select2
     """
+
     def __init__(self, *args, **kwargs):
         select2_attrs = kwargs.get("attrs", {})
         kwargs["attrs"] = self.fill_default_select2_attrs(select2_attrs)
@@ -292,8 +295,9 @@ class AutocompleteMultipleModelMixin(autocomplete.ModelSelect2Multiple):
         See https://select2.org/configuration/options-api
         """
         # By default, only trigger autocompletion after 3 characters have been typed
-        #attrs["data-minimum-input-length"] = attrs.get("data-minimum-input-length", 3)
+        # attrs["data-minimum-input-length"] = attrs.get("data-minimum-input-length", 3)
         # If there are less than 10 results, just show all of them (no need to autocomplete)
-        attrs["data-minimum-results-for-search"] = attrs.get("data-minimum-results-for-search", 10)
+        attrs["data-minimum-results-for-search"] = attrs.get(
+            "data-minimum-results-for-search", 10
+        )
         return attrs
-

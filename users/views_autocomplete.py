@@ -31,21 +31,17 @@ Here are defined the autocomplete class based view.
 """
 from __future__ import unicode_literals
 
-from .models import ( 
-    User,
-    School,
-    Adherent,
-    Club,
-    ListShell,
-)
+from .models import User, School, Adherent, Club, ListShell
 
 from re2o.views import AutocompleteViewMixin
 
 from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 
+
 class SchoolAutocomplete(AutocompleteViewMixin):
     obj_type = School
+
 
 class UserAutocomplete(AutocompleteViewMixin):
     obj_type = User
@@ -54,8 +50,12 @@ class UserAutocomplete(AutocompleteViewMixin):
     def filter_results(self):
         # Comments explain what we try to match
         self.query_set = self.query_set.annotate(
-            full_name=Concat("adherent__name", Value(" "), "surname"),  # Match when the user searches "Toto Passoir"
-            full_name_reverse=Concat("surname", Value(" "), "adherent__name"),  # Match when the user searches "Passoir Toto"
+            full_name=Concat(
+                "adherent__name", Value(" "), "surname"
+            ),  # Match when the user searches "Toto Passoir"
+            full_name_reverse=Concat(
+                "surname", Value(" "), "adherent__name"
+            ),  # Match when the user searches "Passoir Toto"
         ).all()
 
         if self.q:
@@ -64,6 +64,7 @@ class UserAutocomplete(AutocompleteViewMixin):
                 | Q(full_name__icontains=self.q)
                 | Q(full_name_reverse__icontains=self.q)
             )
+
 
 class AdherentAutocomplete(AutocompleteViewMixin):
     obj_type = Adherent
@@ -72,8 +73,12 @@ class AdherentAutocomplete(AutocompleteViewMixin):
     def filter_results(self):
         # Comments explain what we try to match
         self.query_set = self.query_set.annotate(
-            full_name=Concat("name", Value(" "), "surname"),  # Match when the user searches "Toto Passoir"
-            full_name_reverse=Concat("surname", Value(" "), "name"),  # Match when the user searches "Passoir Toto"
+            full_name=Concat(
+                "name", Value(" "), "surname"
+            ),  # Match when the user searches "Toto Passoir"
+            full_name_reverse=Concat(
+                "surname", Value(" "), "name"
+            ),  # Match when the user searches "Passoir Toto"
         ).all()
 
         if self.q:
@@ -83,8 +88,10 @@ class AdherentAutocomplete(AutocompleteViewMixin):
                 | Q(full_name_reverse__icontains=self.q)
             )
 
+
 class ClubAutocomplete(AutocompleteViewMixin):
     obj_type = Club
+
 
 class ShellAutocomplete(AutocompleteViewMixin):
     obj_type = ListShell

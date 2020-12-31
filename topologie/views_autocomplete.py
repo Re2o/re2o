@@ -34,15 +34,7 @@ from __future__ import unicode_literals
 from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 
-from .models import (
-    Room,
-    Dormitory,
-    Building,
-    Switch,
-    PortProfile,
-    Port,
-    SwitchBay,
-)
+from .models import Room, Dormitory, Building, Switch, PortProfile, Port, SwitchBay
 
 from re2o.views import AutocompleteViewMixin
 
@@ -55,11 +47,27 @@ class RoomAutocomplete(AutocompleteViewMixin):
         # Suppose we have a dorm named Dorm, a building name B, and rooms from 001 - 999
         # Comments explain what we try to match
         self.query_set = self.query_set.annotate(
-            full_name=Concat("building__name", Value(" "), "name"),  # Match when the user searches "B 001"
+            full_name=Concat(
+                "building__name", Value(" "), "name"
+            ),  # Match when the user searches "B 001"
             full_name_stuck=Concat("building__name", "name"),  # Match "B001"
-            dorm_name=Concat("building__dormitory__name", Value(" "), "name"),  # Match "Dorm 001"
-            dorm_full_name=Concat("building__dormitory__name", Value(" "), "building__name", Value(" "), "name"),  # Match "Dorm B 001"
-            dorm_full_colon_name=Concat("building__dormitory__name", Value(" : "), "building__name", Value(" "), "name"),  # Match "Dorm : B 001" (see Room's full_name property)
+            dorm_name=Concat(
+                "building__dormitory__name", Value(" "), "name"
+            ),  # Match "Dorm 001"
+            dorm_full_name=Concat(
+                "building__dormitory__name",
+                Value(" "),
+                "building__name",
+                Value(" "),
+                "name",
+            ),  # Match "Dorm B 001"
+            dorm_full_colon_name=Concat(
+                "building__dormitory__name",
+                Value(" : "),
+                "building__name",
+                Value(" "),
+                "name",
+            ),  # Match "Dorm : B 001" (see Room's full_name property)
         ).all()
 
         if self.q:
@@ -89,8 +97,7 @@ class BuildingAutocomplete(AutocompleteViewMixin):
 
         if self.q:
             self.query_set = self.query_set.filter(
-                Q(full_name__icontains=self.q)
-                | Q(full_name_colon__icontains=self.q)
+                Q(full_name__icontains=self.q) | Q(full_name_colon__icontains=self.q)
             )
 
 
@@ -106,9 +113,13 @@ class PortAutocomplete(AutocompleteViewMixin):
         # We want to enter the switch name, not just the port number
         # Because we're concatenating a CharField and an Integer, we have to sepcify the output_field
         self.query_set = self.query_set.annotate(
-            full_name=Concat("switch__name", Value(" "), "port", output_field=CharField()),
+            full_name=Concat(
+                "switch__name", Value(" "), "port", output_field=CharField()
+            ),
             full_name_stuck=Concat("switch__name", "port", output_field=CharField()),
-            full_name_dash=Concat("switch__name", Value(" - "), "port", output_field=CharField()),
+            full_name_dash=Concat(
+                "switch__name", Value(" - "), "port", output_field=CharField()
+            ),
         ).all()
 
         if self.q:
@@ -126,9 +137,19 @@ class SwitchBayAutocomplete(AutocompleteViewMixin):
     def filter_results(self):
         # Comments explain what we try to match
         self.query_set = self.query_set.annotate(
-            full_name=Concat("building__name", Value(" "), "name"),  # Match when the user searches ""
-            dorm_name=Concat("building__dormitory__name", Value(" "), "name"),  # Match "Dorm Local Sud"
-            dorm_full_name=Concat("building__dormitory__name", Value(" "), "building__name", Value(" "), "name"),  # Match "Dorm J Local Sud"
+            full_name=Concat(
+                "building__name", Value(" "), "name"
+            ),  # Match when the user searches ""
+            dorm_name=Concat(
+                "building__dormitory__name", Value(" "), "name"
+            ),  # Match "Dorm Local Sud"
+            dorm_full_name=Concat(
+                "building__dormitory__name",
+                Value(" "),
+                "building__name",
+                Value(" "),
+                "name",
+            ),  # Match "Dorm J Local Sud"
         ).all()
 
         if self.q:

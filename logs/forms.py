@@ -47,10 +47,7 @@ CHOICES_ACTION_TYPE = (
     ("all", _("All")),
 )
 
-CHOICES_TYPE = (
-    ("ip", _("IPv4")),
-    ("mac", _("MAC address")),
-)
+CHOICES_TYPE = (("ip", _("IPv4")), ("mac", _("MAC address")))
 
 
 def all_classes(module):
@@ -88,14 +85,11 @@ def classes_for_action_type(action_type):
             users.models.User.__name__,
             users.models.Adherent.__name__,
             users.models.Club.__name__,
-            users.models.EMailAddress.__name__
+            users.models.EMailAddress.__name__,
         ]
 
     if action_type == "machines":
-        return [
-            machines.models.Machine.__name__,
-            machines.models.Interface.__name__
-        ]
+        return [machines.models.Machine.__name__, machines.models.Interface.__name__]
 
     if action_type == "subscriptions":
         return all_classes(cotisations.models)
@@ -115,6 +109,7 @@ def classes_for_action_type(action_type):
 
 class ActionsSearchForm(Form):
     """Form used to do an advanced search through the logs."""
+
     user = forms.ModelChoiceField(
         label=_("Performed by"),
         queryset=users.models.User.objects.all(),
@@ -143,13 +138,10 @@ class ActionsSearchForm(Form):
 
 class MachineHistorySearchForm(Form):
     """Form used to do a search through the machine histories."""
-    q = forms.CharField(
-        label=_("Search"),
-        max_length=100,
-    )
+
+    q = forms.CharField(label=_("Search"), max_length=100)
     t = forms.CharField(
-        label=_("Search type"),
-        widget=forms.Select(choices=CHOICES_TYPE)
+        label=_("Search type"), widget=forms.Select(choices=CHOICES_TYPE)
     )
     s = forms.DateField(required=False, label=_("Start date"))
     e = forms.DateField(required=False, label=_("End date"))
