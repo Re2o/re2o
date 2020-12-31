@@ -46,12 +46,7 @@ from .models import (
 
 from re2o.views import AutocompleteViewMixin
 
-from re2o.acl import (
-    can_view_all,
-)
 
-
-#@can_view_all(School)
 class RoomAutocomplete(AutocompleteViewMixin):
     obj_type = Room
 
@@ -77,12 +72,10 @@ class RoomAutocomplete(AutocompleteViewMixin):
             )
 
 
-#@can_view_all(Dormitory)
 class DormitoryAutocomplete(AutocompleteViewMixin):
     obj_type = Dormitory
 
 
-#@can_view_all(Building)
 class BuildingAutocomplete(AutocompleteViewMixin):
     obj_type = Building
 
