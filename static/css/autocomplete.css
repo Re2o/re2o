@@ -39,7 +39,7 @@ See github.com/yourlabs/django-autocomplete-light/issues/1149
 
 .select2-container--default .select2-selection--multiple .select2-selection__rendered {
   height: 100% !important;
-  display: inline !imoortant;
+  display: inline !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
 }

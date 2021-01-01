@@ -95,9 +95,11 @@ class IpListAutocomplete(AutocompleteViewMixin):
     def filter_results(self):
         machine_type = self.forwarded.get("machine_type", None)
         self.query_set = self.query_set.filter(interface__isnull=True)
+
         if machine_type:
             self.query_set = self.query_set.filter(
                 ip_type__machinetype__id=machine_type
             )
+
         if self.q:
             self.query_set = self.query_set.filter(Q(ipv4__startswith=self.q))
