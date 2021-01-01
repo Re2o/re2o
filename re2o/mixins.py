@@ -270,8 +270,8 @@ class AutocompleteModelMixin(autocomplete.ModelSelect2):
         """
         See https://select2.org/configuration/options-api
         """
-        # By default, only trigger autocompletion after 3 characters have been typed
-        # attrs["data-minimum-input-length"] = attrs.get("data-minimum-input-length", 3)
+        # Display the "x" button to clear the input by default
+        attrs["data-allow-clear"] = attrs.get("data-allow-clear", "true")
         # If there are less than 10 results, just show all of them (no need to autocomplete)
         attrs["data-minimum-results-for-search"] = attrs.get(
             "data-minimum-results-for-search", 10
@@ -294,8 +294,8 @@ class AutocompleteMultipleModelMixin(autocomplete.ModelSelect2Multiple):
         """
         See https://select2.org/configuration/options-api
         """
-        # By default, only trigger autocompletion after 3 characters have been typed
-        # attrs["data-minimum-input-length"] = attrs.get("data-minimum-input-length", 3)
+        # Display the "x" button to clear the input by default
+        attrs["data-allow-clear"] = attrs.get("data-allow-clear", "true")
         # If there are less than 10 results, just show all of them (no need to autocomplete)
         attrs["data-minimum-results-for-search"] = attrs.get(
             "data-minimum-results-for-search", 10

@@ -44,7 +44,7 @@ class RoomAutocomplete(AutocompleteViewMixin):
 
     # Precision on search to add annotations so search behaves more like users expect it to
     def filter_results(self):
-        # Suppose we have a dorm named Dorm, a building name B, and rooms from 001 - 999
+        # Suppose we have a dorm named Dorm, a building named B, and rooms from 001 - 999
         # Comments explain what we try to match
         self.query_set = self.query_set.annotate(
             full_name=Concat(
@@ -87,7 +87,6 @@ class DormitoryAutocomplete(AutocompleteViewMixin):
 class BuildingAutocomplete(AutocompleteViewMixin):
     obj_type = Building
 
-    # Precision on search to add annotations so search behaves more like users expect it to
     def filter_results(self):
         # We want to be able to filter by dorm so it's easier
         self.query_set = self.query_set.annotate(
@@ -108,10 +107,9 @@ class SwitchAutocomplete(AutocompleteViewMixin):
 class PortAutocomplete(AutocompleteViewMixin):
     obj_type = Port
 
-    # Precision on search to add annotations so search behaves more like users expect it to
     def filter_results(self):
         # We want to enter the switch name, not just the port number
-        # Because we're concatenating a CharField and an Integer, we have to sepcify the output_field
+        # Because we're concatenating a CharField and an Integer, we have to specify the output_field
         self.query_set = self.query_set.annotate(
             full_name=Concat(
                 "switch__name", Value(" "), "port", output_field=CharField()
@@ -133,23 +131,29 @@ class PortAutocomplete(AutocompleteViewMixin):
 class SwitchBayAutocomplete(AutocompleteViewMixin):
     obj_type = SwitchBay
 
-    # Precision on search to add annotations so search behaves more like users expect it to
     def filter_results(self):
-        # Comments explain what we try to match
+        # See RoomAutocomplete.filter_results
         self.query_set = self.query_set.annotate(
             full_name=Concat(
                 "building__name", Value(" "), "name"
-            ),  # Match when the user searches ""
+            ),
             dorm_name=Concat(
                 "building__dormitory__name", Value(" "), "name"
-            ),  # Match "Dorm Local Sud"
+            ),
             dorm_full_name=Concat(
                 "building__dormitory__name",
                 Value(" "),
                 "building__name",
                 Value(" "),
                 "name",
-            ),  # Match "Dorm J Local Sud"
+            ),
+            dorm_full_colon_name=Concat(
+                "building__dormitory__name",
+                Value(" : "),
+                "building__name",
+                Value(" "),
+                "name",
+            ),
         ).all()
 
         if self.q:
@@ -157,9 +161,8 @@ class SwitchBayAutocomplete(AutocompleteViewMixin):
                 Q(full_name__icontains=self.q)
                 | Q(dorm_name__icontains=self.q)
                 | Q(dorm_full_name__icontains=self.q)
+                | Q(dorm_full_colon_name__icontains=self.q)
             )
-
-        return qs
 
 
 class PortProfileAutocomplete(AutocompleteViewMixin):

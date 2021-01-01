@@ -182,8 +182,8 @@ class AutocompleteViewMixin(LoginRequiredMixin, autocomplete.Select2QuerySetView
     query_filter = "name__icontains"  # Override this if necessary
 
     def get_queryset(self):
-
         can, reason, _permission, query_set = self.obj_type.can_list(self.request.user)
+
         if query_set:
             self.query_set = query_set
         else:
@@ -194,4 +194,5 @@ class AutocompleteViewMixin(LoginRequiredMixin, autocomplete.Select2QuerySetView
         else:
             if self.q:
                 self.query_set = self.query_set.filter(**{self.query_filter: self.q})
+
         return self.query_set
