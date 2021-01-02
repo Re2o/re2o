@@ -28,7 +28,8 @@ from django import forms
 from django.template.loader import render_to_string
 from django.forms import ModelForm, Form
 from re2o.field_permissions import FieldPermissionFormMixin
-from re2o.mixins import FormRevMixin, AutocompleteModelMixin, AutocompleteMultipleModelMixin
+from re2o.mixins import FormRevMixin
+from re2o.widgets import AutocompleteModelWidget
 from django.utils.translation import ugettext_lazy as _
 
 from .models import Ticket, CommentTicket
@@ -59,7 +60,7 @@ class EditTicketForm(FormRevMixin, ModelForm):
         model = Ticket
         fields = "__all__"
         widgets = {
-            "user": AutocompleteModelMixin(
+            "user": AutocompleteModelWidget(
                 url="/users/user-autocomplete",
             ),
         }

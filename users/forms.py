@@ -63,10 +63,10 @@ from topologie.models import Port
 from preferences.models import OptionalUser
 from re2o.utils import remove_user_room
 from re2o.base import get_input_formats_help_text
-from re2o.mixins import (
-    FormRevMixin,
-    AutocompleteMultipleModelMixin,
-    AutocompleteModelMixin,
+from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteMultipleModelWidget,
+    AutocompleteModelWidget,
 )
 from re2o.field_permissions import FieldPermissionFormMixin
 
@@ -351,14 +351,14 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             "room",
         ]
         widgets = {
-            "school": AutocompleteModelMixin(url="/users/school-autocomplete"),
-            "room": AutocompleteModelMixin(
+            "school": AutocompleteModelWidget(url="/users/school-autocomplete"),
+            "room": AutocompleteModelWidget(
                 url="/topologie/room-autocomplete",
                 attrs={
                     "data-minimum-input-length": 3  # Only trigger autocompletion after 3 characters have been typed
                 },
             ),
-            "shell": AutocompleteModelMixin(url="/users/shell-autocomplete"),
+            "shell": AutocompleteModelWidget(url="/users/shell-autocomplete"),
         }
 
     force = forms.BooleanField(
@@ -623,9 +623,9 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             "mailing",
         ]
         widgets = {
-            "school": AutocompleteModelMixin(url="/users/school-autocomplete"),
-            "room": AutocompleteModelMixin(url="/topologie/room-autocomplete"),
-            "shell": AutocompleteModelMixin(url="/users/shell-autocomplete"),
+            "school": AutocompleteModelWidget(url="/users/school-autocomplete"),
+            "room": AutocompleteModelWidget(url="/topologie/room-autocomplete"),
+            "shell": AutocompleteModelWidget(url="/users/shell-autocomplete"),
         }
 
     def clean_telephone(self):
@@ -656,10 +656,10 @@ class ClubAdminandMembersForm(FormRevMixin, ModelForm):
         model = Club
         fields = ["administrators", "members"]
         widgets = {
-            "administrators": AutocompleteMultipleModelMixin(
+            "administrators": AutocompleteMultipleModelWidget(
                 url="/users/adherent-autocomplete"
             ),
-            "members": AutocompleteMultipleModelMixin(
+            "members": AutocompleteMultipleModelWidget(
                 url="/users/adherent-autocomplete"
             ),
         }

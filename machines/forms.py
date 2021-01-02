@@ -40,10 +40,10 @@ from django.forms import ModelForm, Form
 from django.utils.translation import ugettext_lazy as _
 
 from re2o.field_permissions import FieldPermissionFormMixin
-from re2o.mixins import (
-    FormRevMixin,
-    AutocompleteModelMixin,
-    AutocompleteMultipleModelMixin,
+from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteModelWidget,
+    AutocompleteMultipleModelWidget,
 )
 from .models import (
     Domain,
@@ -75,7 +75,7 @@ class EditMachineForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     class Meta:
         model = Machine
         fields = "__all__"
-        widgets = {"user": AutocompleteModelMixin(url="/users/user-autocomplete")}
+        widgets = {"user": AutocompleteModelWidget(url="/users/user-autocomplete")}
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -97,11 +97,11 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         model = Interface
         fields = ["machine", "machine_type", "ipv4", "mac_address", "details"]
         widgets = {
-            "machine": AutocompleteModelMixin(url="/machines/machine-autocomplete"),
-            "machine_type": AutocompleteModelMixin(
+            "machine": AutocompleteModelWidget(url="/machines/machine-autocomplete"),
+            "machine_type": AutocompleteModelWidget(
                 url="/machines/machinetype-autocomplete"
             ),
-            "ipv4": AutocompleteModelMixin(
+            "ipv4": AutocompleteModelWidget(
                 url="/machines/iplist-autocomplete",
                 forward=["machine_type"],
                 attrs={
@@ -158,7 +158,7 @@ class AliasForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         model = Domain
         fields = ["name", "extension", "ttl"]
         widgets = {
-            "extension": AutocompleteModelMixin(url="/machines/extension-autocomplete")
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete")
         }
 
     def __init__(self, *args, **kwargs):
@@ -210,7 +210,7 @@ class MachineTypeForm(FormRevMixin, ModelForm):
         model = MachineType
         fields = ["name", "ip_type"]
         widgets = {
-            "ip_type": AutocompleteModelMixin(url="/machines/iptype-autocomplete")
+            "ip_type": AutocompleteModelWidget(url="/machines/iptype-autocomplete")
         }
 
     def __init__(self, *args, **kwargs):
@@ -247,9 +247,9 @@ class IpTypeForm(FormRevMixin, ModelForm):
         model = IpType
         fields = "__all__"
         widgets = {
-            "vlan": AutocompleteModelMixin(url="/machines/vlan-autocomplete"),
-            "extension": AutocompleteModelMixin(url="/machines/extension-autocomplete"),
-            "ouverture_ports": AutocompleteModelMixin(
+            "vlan": AutocompleteModelWidget(url="/machines/vlan-autocomplete"),
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "ouverture_ports": AutocompleteModelWidget(
                 url="/machines/ouvertureportlist-autocomplete"
             ),
         }
@@ -383,8 +383,8 @@ class MxForm(FormRevMixin, ModelForm):
         model = Mx
         fields = ["zone", "priority", "name", "ttl"]
         widgets = {
-            "zone": AutocompleteModelMixin(url="/machines/extension-autocomplete"),
-            "name": AutocompleteModelMixin(url="/machines/domain-autocomplete"),
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "name": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
         }
 
     def __init__(self, *args, **kwargs):
@@ -422,8 +422,8 @@ class NsForm(FormRevMixin, ModelForm):
         model = Ns
         fields = ["zone", "ns", "ttl"]
         widgets = {
-            "zone": AutocompleteModelMixin(url="/machines/extension-autocomplete"),
-            "ns": AutocompleteModelMixin(url="/machines/domain-autocomplete"),
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "ns": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
         }
 
     def __init__(self, *args, **kwargs):
@@ -459,7 +459,7 @@ class TxtForm(FormRevMixin, ModelForm):
         model = Txt
         fields = "__all__"
         widgets = {
-            "zone": AutocompleteModelMixin(url="/machines/extension-autocomplete")
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete")
         }
 
     def __init__(self, *args, **kwargs):
@@ -492,7 +492,7 @@ class DNameForm(FormRevMixin, ModelForm):
         model = DName
         fields = "__all__"
         widgets = {
-            "zone": AutocompleteModelMixin(url="/machines/extension-autocomplete")
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete")
         }
 
     def __init__(self, *args, **kwargs):
@@ -525,8 +525,8 @@ class SrvForm(FormRevMixin, ModelForm):
         model = Srv
         fields = "__all__"
         widgets = {
-            "extension": AutocompleteModelMixin(url="/machines/extension-autocomplete"),
-            "target": AutocompleteModelMixin(url="/machines/domain-autocomplete"),
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "target": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
         }
 
     def __init__(self, *args, **kwargs):
@@ -559,10 +559,10 @@ class NasForm(FormRevMixin, ModelForm):
         model = Nas
         fields = "__all__"
         widgets = {
-            "nas_type": AutocompleteModelMixin(
+            "nas_type": AutocompleteModelWidget(
                 url="/machines/machinetype-autocomplete"
             ),
-            "machine_type": AutocompleteModelMixin(
+            "machine_type": AutocompleteModelWidget(
                 url="/machines/machinetype-autocomplete"
             ),
         }
@@ -597,7 +597,7 @@ class RoleForm(FormRevMixin, ModelForm):
         model = Role
         fields = "__all__"
         widgets = {
-            "servers": AutocompleteMultipleModelMixin(
+            "servers": AutocompleteMultipleModelWidget(
                 url="/machines/interface-autocomplete"
             )
         }
@@ -635,7 +635,7 @@ class ServiceForm(FormRevMixin, ModelForm):
         model = Service
         fields = "__all__"
         widgets = {
-            "servers": AutocompleteMultipleModelMixin(
+            "servers": AutocompleteMultipleModelWidget(
                 url="/machines/interface-autocomplete"
             )
         }
@@ -724,7 +724,7 @@ class EditOuverturePortConfigForm(FormRevMixin, ModelForm):
         model = Interface
         fields = ["port_lists"]
         widgets = {
-            "port_lists": AutocompleteMultipleModelMixin(
+            "port_lists": AutocompleteMultipleModelWidget(
                 url="/machines/ouvertureportlist-autocomplete"
             )
         }

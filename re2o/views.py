@@ -32,8 +32,6 @@ from django.shortcuts import render
 from django.template.context_processors import csrf
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.views.decorators.cache import cache_page
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from dal import autocomplete
@@ -47,7 +45,6 @@ from preferences.models import (
     Mandate,
 )
 
-from .acl import can_list
 from .contributors import CONTRIBUTORS
 from importlib import import_module
 from re2o.settings_local import OPTIONNAL_APPS_RE2O
