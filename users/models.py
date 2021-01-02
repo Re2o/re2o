@@ -2086,7 +2086,7 @@ class Adherent(User):
             )
         else:
             return (
-                False,
+                True,
                 _("You don't have the right to list all adherents."),
                 ("users.view_user",),
                 cls.objects.none(),
