@@ -600,10 +600,10 @@ class ActionsSearch:
         Returns:
             The QuerySet of Revision objects corresponding to the search.
         """
-        user = params.get("u", None)
-        start = params.get("s", None)
-        end = params.get("e", None)
-        action_types = params.get("t", None)
+        user = params.get("user", None)
+        start = params.get("start_date", None)
+        end = params.get("end_date", None)
+        action_types = params.get("action_type", None)
 
         query = Q()
 

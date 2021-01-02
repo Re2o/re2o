@@ -41,6 +41,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteModelWidget,
+    AutocompleteMultipleModelWidget,
+)
 from .models import (
     Domain,
     Machine,
@@ -71,6 +75,7 @@ class EditMachineForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     class Meta:
         model = Machine
         fields = "__all__"
+        widgets = {"user": AutocompleteModelWidget(url="/users/user-autocomplete")}
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -91,6 +96,19 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     class Meta:
         model = Interface
         fields = ["machine", "machine_type", "ipv4", "mac_address", "details"]
+        widgets = {
+            "machine": AutocompleteModelWidget(url="/machines/machine-autocomplete"),
+            "machine_type": AutocompleteModelWidget(
+                url="/machines/machinetype-autocomplete"
+            ),
+            "ipv4": AutocompleteModelWidget(
+                url="/machines/iplist-autocomplete",
+                forward=["machine_type"],
+                attrs={
+                    "data-placeholder": "Automatic assigment. Type to choose specific ip."
+                },
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -139,6 +157,9 @@ class AliasForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     class Meta:
         model = Domain
         fields = ["name", "extension", "ttl"]
+        widgets = {
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -188,6 +209,9 @@ class MachineTypeForm(FormRevMixin, ModelForm):
     class Meta:
         model = MachineType
         fields = ["name", "ip_type"]
+        widgets = {
+            "ip_type": AutocompleteModelWidget(url="/machines/iptype-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -222,6 +246,13 @@ class IpTypeForm(FormRevMixin, ModelForm):
     class Meta:
         model = IpType
         fields = "__all__"
+        widgets = {
+            "vlan": AutocompleteModelWidget(url="/machines/vlan-autocomplete"),
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "ouverture_ports": AutocompleteModelWidget(
+                url="/machines/ouvertureportlist-autocomplete"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -351,6 +382,10 @@ class MxForm(FormRevMixin, ModelForm):
     class Meta:
         model = Mx
         fields = ["zone", "priority", "name", "ttl"]
+        widgets = {
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "name": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -386,6 +421,10 @@ class NsForm(FormRevMixin, ModelForm):
     class Meta:
         model = Ns
         fields = ["zone", "ns", "ttl"]
+        widgets = {
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "ns": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -419,6 +458,9 @@ class TxtForm(FormRevMixin, ModelForm):
     class Meta:
         model = Txt
         fields = "__all__"
+        widgets = {
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -449,6 +491,9 @@ class DNameForm(FormRevMixin, ModelForm):
     class Meta:
         model = DName
         fields = "__all__"
+        widgets = {
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -479,6 +524,10 @@ class SrvForm(FormRevMixin, ModelForm):
     class Meta:
         model = Srv
         fields = "__all__"
+        widgets = {
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "target": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -509,6 +558,14 @@ class NasForm(FormRevMixin, ModelForm):
     class Meta:
         model = Nas
         fields = "__all__"
+        widgets = {
+            "nas_type": AutocompleteModelWidget(
+                url="/machines/machinetype-autocomplete"
+            ),
+            "machine_type": AutocompleteModelWidget(
+                url="/machines/machinetype-autocomplete"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -539,6 +596,11 @@ class RoleForm(FormRevMixin, ModelForm):
     class Meta:
         model = Role
         fields = "__all__"
+        widgets = {
+            "servers": AutocompleteMultipleModelWidget(
+                url="/machines/interface-autocomplete"
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -572,6 +634,11 @@ class ServiceForm(FormRevMixin, ModelForm):
     class Meta:
         model = Service
         fields = "__all__"
+        widgets = {
+            "servers": AutocompleteMultipleModelWidget(
+                url="/machines/interface-autocomplete"
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -656,6 +723,11 @@ class EditOuverturePortConfigForm(FormRevMixin, ModelForm):
     class Meta:
         model = Interface
         fields = ["port_lists"]
+        widgets = {
+            "port_lists": AutocompleteMultipleModelWidget(
+                url="/machines/ouvertureportlist-autocomplete"
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)

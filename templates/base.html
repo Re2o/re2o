@@ -45,16 +45,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
     {# Preload JavaScript #}
     {% bootstrap_javascript %}
-    <script src="/static/js/typeahead/typeahead.js"></script>
-    <script src="/static/js/bootstrap-tokenfield/bootstrap-tokenfield.js"></script>
     <script src="{% static 'js/collapse-from-url.js' %}"></script>
 
     {% block custom_js %}{% endblock %}
 
     {# Load CSS #}
     {% bootstrap_css %}
-    <link href="{% static 'css/typeaheadjs.css' %}" rel="stylesheet">
-    <link href="{% static 'css/bootstrap-tokenfield.css' %}" rel="stylesheet">
+    <link href="{% static 'css/autocomplete.css' %}" rel="stylesheet">
     <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
     {# load theme #}
     {% if request.user.is_authenticated %}

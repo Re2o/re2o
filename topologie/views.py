@@ -56,7 +56,6 @@ from machines.forms import (
     AddInterfaceForm,
     EditOptionVlanForm,
 )
-from machines.views import generate_ipv4_mbf_param
 from machines.models import Interface, Service_link, Vlan
 from preferences.models import AssoOption, GeneralOption
 
@@ -560,13 +559,11 @@ def new_switch(request):
             new_domain_obj.save()
             messages.success(request, _("The switch was created."))
             return redirect(reverse("topologie:index"))
-    i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form(
         {
             "topoform": interface,
             "machineform": switch,
             "domainform": domain,
-            "i_mbf_param": i_mbf_param,
             "device": _("switch"),
         },
         "topologie/topo_more.html",
@@ -634,14 +631,12 @@ def edit_switch(request, switch, switchid):
             new_domain_obj.save()
         messages.success(request, _("The switch was edited."))
         return redirect(reverse("topologie:index"))
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form(
         {
             "id_switch": switchid,
             "topoform": interface_form,
             "machineform": switch_form,
             "domainform": domain_form,
-            "i_mbf_param": i_mbf_param,
             "device": _("switch"),
         },
         "topologie/topo_more.html",
@@ -686,13 +681,11 @@ def new_ap(request):
             new_domain_obj.save()
             messages.success(request, _("The access point was created."))
             return redirect(reverse("topologie:index-ap"))
-    i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form(
         {
             "topoform": interface,
             "machineform": ap,
             "domainform": domain,
-            "i_mbf_param": i_mbf_param,
             "device": _("access point"),
         },
         "topologie/topo_more.html",
@@ -737,13 +730,11 @@ def edit_ap(request, ap, **_kwargs):
             new_domain_obj.save()
         messages.success(request, _("The access point was edited."))
         return redirect(reverse("topologie:index-ap"))
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form(
         {
             "topoform": interface_form,
             "machineform": ap_form,
             "domainform": domain_form,
-            "i_mbf_param": i_mbf_param,
             "device": _("access point"),
         },
         "topologie/topo_more.html",

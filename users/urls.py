@@ -31,6 +31,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from . import views
+from . import views_autocomplete
 
 urlpatterns = [
     url(r"^new_user/$", views.new_user, name="new-user"),
@@ -128,4 +129,10 @@ urlpatterns = [
     url(r"^index_clubs/$", views.index_clubs, name="index-clubs"),
     url(r"^initial_register/$", views.initial_register, name="initial-register"),
     url(r"^edit_theme/(?P<userid>[0-9]+)$", views.edit_theme, name="edit-theme"),
+    ### Autocomplete Views
+    url(r'^user-autocomplete/$', views_autocomplete.UserAutocomplete.as_view(), name='user-autocomplete',),
+    url(r'^adherent-autocomplete/$', views_autocomplete.AdherentAutocomplete.as_view(), name='adherent-autocomplete',),
+    url(r'^club-autocomplete/$', views_autocomplete.ClubAutocomplete.as_view(), name='club-autocomplete',),
+    url(r'^school-autocomplete/$', views_autocomplete.SchoolAutocomplete.as_view(), name='school-autocomplete',),
+    url(r'^shell-autocomplete/$', views_autocomplete.ShellAutocomplete.as_view(), name='shell-autocomplete',),
 ]

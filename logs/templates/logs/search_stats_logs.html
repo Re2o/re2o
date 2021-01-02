@@ -22,7 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load massive_bootstrap_form %}
 {% load i18n %}
 
 {% block title %}{% trans "Search events" %}{% endblock %}
@@ -32,10 +31,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 <form class="form">
     <h3>{% trans "Search events" %}</h3>
 
-    {% massive_bootstrap_form actions_form 'u' %}
+    {% bootstrap_form actions_form %}
     {% trans "Search" as tr_search %}
     {% bootstrap_button tr_search button_type="submit" icon="search" %}
 </form>
+{{ actions_form.media }}
 <br />
 <br />
 <br />

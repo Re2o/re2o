@@ -27,7 +27,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import url
 
-from . import views
+from . import views, views_autocomplete
 from . import payment_methods
 
 urlpatterns = [
@@ -104,4 +104,6 @@ urlpatterns = [
     url(r"^index_paiement/$", views.index_paiement, name="index-paiement"),
     url(r"^control/$", views.control, name="control"),
     url(r"^$", views.index, name="index"),
+    ### Autocomplete Views
+    url(r'^banque-autocomplete/$', views_autocomplete.BanqueAutocomplete.as_view(), name='banque-autocomplete',),
 ] + payment_methods.urls.urlpatterns

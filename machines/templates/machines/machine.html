@@ -25,7 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load massive_bootstrap_form %}
 {% load i18n %}
 
 {% block title %}{% trans "Machines" %}{% endblock %}
@@ -33,54 +32,67 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
     {% if machineform %}
         {% bootstrap_form_errors machineform %}
+	{{ machineform.media }}
     {% endif %}
     {% if interfaceform %}
         {% bootstrap_form_errors interfaceform %}
+	{{ interfaceform.media }}
     {% endif %}
     {% if domainform %}
         {% bootstrap_form_errors domainform %}
     {% endif %}
     {% if iptypeform %}
         {% bootstrap_form_errors iptypeform %}
+	{{ iptypeform.media }}
     {% endif %}
     {% if machinetypeform %}
         {% bootstrap_form_errors machinetypeform %}
+	{{ machinetypeform.media }}
     {% endif %}
     {% if extensionform %}
         {% bootstrap_form_errors extensionform %}
     {% endif %}
     {% if mxform %}
         {% bootstrap_form_errors mxform %}
+	{{ mxform.media }}
     {% endif %}
     {% if nsform %}
         {% bootstrap_form_errors nsform %}
+	{{ nsform.media }}
     {% endif %}
     {% if txtform %}
         {% bootstrap_form_errors txtform %}
+	{{ txtform.media }}
     {% endif %}
     {% if dnameform %}
         {% bootstrap_form_errors dnameform %}
+	{{ dnameform.media }}
     {% endif %}
     {% if srvform %}
         {% bootstrap_form_errors srvform %}
+	{{ srvform.media }}
     {% endif %}
     {% if aliasform %}
         {% bootstrap_form_errors aliasform %}
+	{{ aliasform.media }}
     {% endif %}
     {% if serviceform %}
         {% bootstrap_form_errors serviceform %}
+	{{ serviceform.media }}
     {% endif %}
     {% if sshfpform %}
         {% bootstrap_form_errors sshfpform %}
     {% endif %}
     {% if roleform %}
         {% bootstrap_form_errors roleform %}
+	{{ roleform.media }}
     {% endif %}
     {% if vlanform %}
         {% bootstrap_form_errors vlanform %}
     {% endif %}
     {% if nasform %}
         {% bootstrap_form_errors nasform %}
+	{{ nasform.media }}
     {% endif %}
     {% if ipv6form %}
         {% bootstrap_form_errors ipv6form %}
@@ -90,15 +102,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% csrf_token %}
         {% if machineform %}
             <h3>{% trans "Machine" %}</h3>
-            {% massive_bootstrap_form machineform 'user' %}
+            {% bootstrap_form machineform %}
         {% endif %}
         {% if interfaceform %}
             <h3>{% trans "Interface" %}</h3>
-            {% if i_mbf_param %}
-                {% massive_bootstrap_form interfaceform 'ipv4,machine,port_lists' mbf_param=i_mbf_param %}
-            {% else %}
-                {% massive_bootstrap_form interfaceform 'ipv4,machine,port_lists' %}
-            {% endif %}
+            {% bootstrap_form interfaceform  %}
         {% endif %}
         {% if domainform %}
             <h3>{% trans "Domain" %}</h3>
@@ -114,7 +122,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endif %}
         {% if extensionform %}
             <h3>{% trans "Extension" %}</h3>
-            {% massive_bootstrap_form extensionform 'origin' %}
+            {% bootstrap_form extensionform  %}
         {% endif %}
         {% if soaform %}
             <h3>{% trans "SOA record" %}</h3>
@@ -122,11 +130,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endif %}
         {% if mxform %}
             <h3>{% trans "MX record" %}</h3>
-            {% massive_bootstrap_form mxform 'name' %}
+            {% bootstrap_form mxform  %}
         {% endif %}
         {% if nsform %}
             <h3>{% trans "NS record" %}</h3>
-            {% massive_bootstrap_form nsform 'ns' %}
+            {% bootstrap_form nsform  %}
         {% endif %}
         {% if txtform %}
             <h3>{% trans "TXT record" %}</h3>
@@ -138,7 +146,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endif %}
         {% if srvform %}
             <h3>{% trans "SRV record" %}</h3>
-            {% massive_bootstrap_form srvform 'target' %}
+            {% bootstrap_form srvform  %}
         {% endif %}
         {% if sshfpform %}
             <h3>{% trans "SSHFP record" %}</h3>
@@ -146,15 +154,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         {% endif %}
         {% if aliasform %}
             <h3>{% trans "Alias" %}</h3>
-	    {% massive_bootstrap_form aliasform 'extension' %} 
+	    {% bootstrap_form aliasform  %} 
         {% endif %}
         {% if serviceform %}
             <h3>{% trans "Service" %}</h3>
-            {% massive_bootstrap_form serviceform 'servers' %}
+            {% bootstrap_form serviceform  %}
         {% endif %}
         {% if roleform %}
             <h3>Role</h3>
-            {% massive_bootstrap_form roleform 'servers' %}
+            {% bootstrap_form roleform  %}
         {% endif %}
         {% if vlanform %}
             <h3>{% trans "VLAN" %}</h3>

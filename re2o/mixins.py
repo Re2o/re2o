@@ -79,6 +79,8 @@ class AclMixin(object):
     :can_view: Applied on an instance, return if the user can view the
         instance
     :can_view_all: Applied on a class, return if the user can view all
+        instances
+    :can_list: Applied on a class, return if the user can list all
         instances"""
 
     @classmethod
@@ -208,6 +210,28 @@ class AclMixin(object):
             (permission,),
         )
 
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """Check if a user can list all instances of an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
+        permission = cls.get_modulename() + ".view_" + cls.get_classname()
+        can = user_request.has_perm(permission)
+        return (
+            can,
+            _("You don't have the right to list every %s object.") % cls.get_classname()
+            if not can
+            else None,
+            (permission,),
+            cls.objects.all() if can else None,
+        )
+
     def can_view(self, user_request, *_args, **_kwargs):
         """Check if a user can view an instance of an object
 
@@ -228,3 +252,4 @@ class AclMixin(object):
             else None,
             (permission,),
         )
+
