@@ -398,7 +398,7 @@ class MachineType(RevMixin, AclMixin, models.Model):
             )
         else:
             return (
-                False,
+                True,
                 _("You don't have the right to use all machine types."),
                 ("machines.use_all_machinetype",),
                 cls.objects.filter(
@@ -1001,7 +1001,7 @@ class Extension(RevMixin, AclMixin, models.Model):
             )
         else:
             return (
-                False,
+                True,
                 _("You don't have the right to list all extensions."),
                 ("machines.use_all_extension",),
                 cls.objects.filter(need_infra=False),
@@ -2204,7 +2204,7 @@ class IpList(RevMixin, AclMixin, models.Model):
             )
         else:
             return (
-                False,
+                True,
                 _("You don't have the right to use all machine types."),
                 ("machines.use_all_machinetype",),
                 cls.objects.filter(
