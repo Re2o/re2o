@@ -173,7 +173,7 @@ def handler404(request):
     return render(request, "errors/404.html", status=404)
 
 
-class AutocompleteViewMixin(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+class AutocompleteUnloggedViewMixin(autocomplete.Select2QuerySetView):
     obj_type = None  # This MUST be overridden by child class
     query_set = None
     query_filter = "name__icontains"  # Override this if necessary
@@ -193,3 +193,8 @@ class AutocompleteViewMixin(LoginRequiredMixin, autocomplete.Select2QuerySetView
                 self.query_set = self.query_set.filter(**{self.query_filter: self.q})
 
         return self.query_set
+
+
+class AutocompleteViewMixin(LoginRequiredMixin, AutocompleteUnloggedViewMixin):
+    pass
+
