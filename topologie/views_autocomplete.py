@@ -36,10 +36,10 @@ from django.db.models.functions import Concat
 
 from .models import Room, Dormitory, Building, Switch, PortProfile, Port, SwitchBay
 
-from re2o.views import AutocompleteViewMixin
+from re2o.views import AutocompleteViewMixin, AutocompleteUnloggedViewMixin
 
 
-class RoomAutocomplete(AutocompleteViewMixin):
+class RoomAutocomplete(AutocompleteUnloggedViewMixin):
     obj_type = Room
 
     # Precision on search to add annotations so search behaves more like users expect it to

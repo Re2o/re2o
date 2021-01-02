@@ -33,13 +33,13 @@ from __future__ import unicode_literals
 
 from .models import User, School, Adherent, Club, ListShell
 
-from re2o.views import AutocompleteViewMixin
+from re2o.views import AutocompleteViewMixin, AutocompleteUnloggedViewMixin
 
 from django.db.models import Q, Value, CharField
 from django.db.models.functions import Concat
 
 
-class SchoolAutocomplete(AutocompleteViewMixin):
+class SchoolAutocomplete(AutocompleteUnloggedViewMixin):
     obj_type = School
 
 
