@@ -29,7 +29,11 @@ from django.forms import ModelForm, Form
 from django.db.models import Q
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from re2o.mixins import FormRevMixin, AutocompleteModelMixin, AutocompleteMultipleModelMixin
+from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteModelWidget,
+    AutocompleteMultipleModelWidget
+)
 from .models import (
     OptionalUser,
     OptionalMachine,
@@ -110,14 +114,14 @@ class EditOptionalTopologieForm(ModelForm):
     automatic_provision_switchs = forms.ModelMultipleChoiceField(
         Switch.objects.all(),
         required=False,
-        widget=AutocompleteMultipleModelMixin(url="/topologie/switch-autocomplete"),
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
     )
 
     class Meta:
         model = OptionalTopologie
         fields = "__all__"
         widgets = {
-            "switchs_ip_type": AutocompleteModelMixin(
+            "switchs_ip_type": AutocompleteModelWidget(
                 url="/machines/iptype-autocomplete",
             ),
         }
@@ -176,7 +180,7 @@ class EditAssoOptionForm(ModelForm):
         model = AssoOption
         fields = "__all__"
         widgets = {
-            "utilisateur_asso": AutocompleteModelMixin(
+            "utilisateur_asso": AutocompleteModelWidget(
                 url="/users/user-autocomplete",
             ),
         }
@@ -267,7 +271,7 @@ class MandateForm(ModelForm):
         model = Mandate
         fields = "__all__"
         widgets = {
-            "president": AutocompleteModelMixin(
+            "president": AutocompleteModelWidget(
                 url="/users/user-autocomplete",
             ),
         }
@@ -387,7 +391,7 @@ class RadiusKeyForm(FormRevMixin, ModelForm):
     members = forms.ModelMultipleChoiceField(
         queryset=Switch.objects.all(),
         required=False,
-        widget=AutocompleteMultipleModelMixin(url="/topologie/switch-autocomplete"),
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
     )
 
     class Meta:
@@ -413,7 +417,7 @@ class SwitchManagementCredForm(FormRevMixin, ModelForm):
     members = forms.ModelMultipleChoiceField(
         Switch.objects.all(),
         required=False,
-        widget=AutocompleteMultipleModelMixin(url="/topologie/switch-autocomplete"),
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
     )
 
     class Meta:
