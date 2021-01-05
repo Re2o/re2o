@@ -241,7 +241,7 @@ class AutodetectACLPermission(permissions.BasePermission):
 
         # Bypass permission verifications if it is a functional view
         # (permissions are handled by ACL)
-        if not getattr(view, "queryset", getattr(view, "get_queryset", None)):
+        if not hasattr(view, "queryset") and not hasattr(view, "get_queryset"):
             return True
 
         if not request.user or not request.user.is_authenticated:
