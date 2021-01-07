@@ -148,6 +148,7 @@ a > i.fa {
 
 .table-responsive {
 	overflow: visible;
+	overflow-x: scroll;
 }
 
 /* Make modal wider on wide screens */
