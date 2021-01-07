@@ -38,6 +38,10 @@ from django.utils.translation import ugettext_lazy as _
 from machines.models import Interface
 from machines.forms import EditMachineForm, NewMachineForm
 from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteModelWidget,
+    AutocompleteMultipleModelWidget,
+)
 
 from .models import (
     Port,
@@ -62,6 +66,17 @@ class PortForm(FormRevMixin, ModelForm):
     class Meta:
         model = Port
         fields = "__all__"
+        widgets = {
+            "switch": AutocompleteModelWidget(url="/topologie/switch-autocomplete"),
+            "room": AutocompleteModelWidget(url="/topologie/room-autocomplete"),
+            "machine_interface": AutocompleteModelWidget(
+                url="/machine/machine-autocomplete"
+            ),
+            "related": AutocompleteModelWidget(url="/topologie/port-autocomplete"),
+            "custom_profile": AutocompleteModelWidget(
+                url="/topologie/portprofile-autocomplete"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -154,7 +169,7 @@ class AddAccessPointForm(NewMachineForm):
 class EditAccessPointForm(EditMachineForm):
     """Form used to edit access points."""
 
-    class Meta:
+    class Meta(EditMachineForm.Meta):
         model = AccessPoint
         fields = "__all__"
 
@@ -162,9 +177,15 @@ class EditAccessPointForm(EditMachineForm):
 class EditSwitchForm(EditMachineForm):
     """Form used to edit switches."""
 
-    class Meta:
+    class Meta(EditMachineForm.Meta):
         model = Switch
         fields = "__all__"
+        widgets = {
+            "switchbay": AutocompleteModelWidget(
+                url="/topologie/switchbay-autocomplete"
+            ),
+            "user": AutocompleteModelWidget(url="/users/user-autocomplete"),
+        }
 
 
 class NewSwitchForm(NewMachineForm):
@@ -180,6 +201,9 @@ class EditRoomForm(FormRevMixin, ModelForm):
     class Meta:
         model = Room
         fields = "__all__"
+        widgets = {
+            "building": AutocompleteModelWidget(url="/topologie/building-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -196,7 +220,11 @@ class CreatePortsForm(forms.Form):
 class EditModelSwitchForm(FormRevMixin, ModelForm):
     """Form used to edit switch models."""
 
-    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
+        required=False,
+    )
 
     class Meta:
         model = ModelSwitch
@@ -230,11 +258,18 @@ class EditConstructorSwitchForm(FormRevMixin, ModelForm):
 class EditSwitchBayForm(FormRevMixin, ModelForm):
     """Form used to edit switch bays."""
 
-    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
+    )
 
     class Meta:
         model = SwitchBay
         fields = "__all__"
+        widgets = {
+            "building": AutocompleteModelWidget(url="/topologie/building-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -279,6 +314,12 @@ class EditPortProfileForm(FormRevMixin, ModelForm):
     class Meta:
         model = PortProfile
         fields = "__all__"
+        widgets = {
+            "vlan_tagged": AutocompleteMultipleModelWidget(
+                url="/machines/vlan-autocomplete"
+            ),
+            "vlan_untagged": AutocompleteModelWidget(url="/machines/vlan-autocomplete"),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)

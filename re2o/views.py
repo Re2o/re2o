@@ -32,7 +32,9 @@ from django.shortcuts import render
 from django.template.context_processors import csrf
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.views.decorators.cache import cache_page
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from dal import autocomplete
 
 from preferences.models import (
     Service,
@@ -169,3 +171,30 @@ def handler500(request):
 def handler404(request):
     """The handler view for a 404 error"""
     return render(request, "errors/404.html", status=404)
+
+
+class AutocompleteLoggedOutViewMixin(autocomplete.Select2QuerySetView):
+    obj_type = None  # This MUST be overridden by child class
+    query_set = None
+    query_filter = "name__icontains"  # Override this if necessary
+
+    def get_queryset(self):
+        can, reason, _permission, query_set = self.obj_type.can_list(self.request.user)
+
+        if query_set:
+            self.query_set = query_set
+        else:
+            self.query_set = self.obj_type.objects.none()
+
+        if hasattr(self, "filter_results"):
+            self.filter_results()
+        else:
+            if self.q:
+                self.query_set = self.query_set.filter(**{self.query_filter: self.q})
+
+        return self.query_set
+
+
+class AutocompleteViewMixin(LoginRequiredMixin, AutocompleteLoggedOutViewMixin):
+    pass
+

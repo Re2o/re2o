@@ -68,11 +68,17 @@ def acl_base_decorator(method_name, *targets, on_instance=True, api=False):
     """Base decorator for acl. It checks if the `request.user` has the
     permission by calling model.method_name. If the flag on_instance is True,
     tries to get an instance of the model by calling
-    `model.get_instance(*args, **kwargs)` and runs `instance.mehod_name`
+    `model.get_instance(obj_id, *args, **kwargs)` and runs `instance.mehod_name`
     rather than model.method_name.
 
     It is not intended to be used as is. It is a base for others ACL
-    decorators.
+    decorators. Beware, if you redefine the `get_instance` method for your 
+    model, give it a signature such as 
+    `def get_instance(cls, object_id, *_args, **_kwargs)`, because you will
+    likely have an url with a named parameter "userid" if *e.g.* your model
+    is an user. Otherwise, if the parameter name in `get_instance` was also
+    `userid`, then `get_instance` would end up having two identical parameter
+    passed on, and this would result in a `TypeError` exception.
 
     Args:
         method_name: The name of the method which is to to be used for ACL.
@@ -176,8 +182,7 @@ ModelC)
     # `wrapper` inside the `decorator` function, you need to read some
     #  documentation on decorators !
     def decorator(view):
-        """The decorator to use on a specific view
-        """
+        """The decorator to use on a specific view"""
 
         def wrapper(request, *args, **kwargs):
             """The wrapper used for a specific request"""
@@ -259,18 +264,24 @@ ModelC)
                     for msg in error_messages:
                         messages.error(
                             request,
-                            msg or _(
-                                "You don't have the right to access this menu."),
+                            msg or _("You don't have the right to access this menu."),
                         )
                 # And redirect the user to the right place.
                 if request.user.id is not None:
                     if not api:
                         return redirect(
-                            reverse("users:profil", kwargs={
-                                    "userid": str(request.user.id)})
+                            reverse(
+                                "users:profil", kwargs={"userid": str(request.user.id)}
+                            )
                         )
                     else:
-                        return Response(data={"errors": error_messages, "warning": warning_messages}, status=403)
+                        return Response(
+                            data={
+                                "errors": error_messages,
+                                "warning": warning_messages,
+                            },
+                            status=403,
+                        )
                 else:
                     return redirect(reverse("index"))
             return view(request, *chain(instances, args), **kwargs)
@@ -321,12 +332,10 @@ def can_delete_set(model):
     If none of them, return an error"""
 
     def decorator(view):
-        """The decorator to use on a specific view
-        """
+        """The decorator to use on a specific view"""
 
         def wrapper(request, *args, **kwargs):
-            """The wrapper used for a specific request
-            """
+            """The wrapper used for a specific request"""
             all_objects = model.objects.all()
             instances_id = []
             for instance in all_objects:
@@ -367,9 +376,17 @@ def can_view_all(*targets):
     return acl_base_decorator("can_view_all", *targets, on_instance=False)
 
 
-def can_view_app(*apps_name):
-    """Decorator to check if an user can view the applications.
+def can_list(*targets):
+    """Decorator to check if an user can list a class of model.
+    It runs `acl_base_decorator` with the flag `on_instance=False` and the
+    method 'can_list'. See `acl_base_decorator` documentation for further
+    details.
     """
+    return acl_base_decorator("can_list", *targets, on_instance=False)
+
+
+def can_view_app(*apps_name):
+    """Decorator to check if an user can view the applications."""
     for app_name in apps_name:
         assert app_name in sys.modules.keys()
     return acl_base_decorator(
@@ -383,8 +400,7 @@ def can_edit_history(view):
     """Decorator to check if an user can edit history."""
 
     def wrapper(request, *args, **kwargs):
-        """The wrapper used for a specific request
-        """
+        """The wrapper used for a specific request"""
         if request.user.has_perm("admin.change_logentry"):
             return view(request, *args, **kwargs)
         messages.error(request, _(

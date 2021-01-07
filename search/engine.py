@@ -42,6 +42,20 @@ from preferences.models import GeneralOption
 from re2o.base import SortTable, re2o_paginator
 
 
+# List of fields the search applies to
+FILTER_FIELDS = [
+    "users",
+    "clubs",
+    "machines",
+    "factures",
+    "bans",
+    "whitelists",
+    "rooms",
+    "ports",
+    "switches",
+]
+
+
 class Query:
     """Class representing a query.
     It can contain the user-entered text, the operator for the query,
@@ -53,6 +67,7 @@ class Query:
         subqueries: list of Query objects when the current query is split in
             several parts.
     """
+
     def __init__(self, text="", case_sensitive=False):
         """Initialise an instance of Query.
 
@@ -98,27 +113,14 @@ class Query:
             return self.operator.join([q.plaintext for q in self.subqueries])
 
         if self.case_sensitive:
-            return "\"{}\"".format(self.text)
+            return '"{}"'.format(self.text)
 
         return self.text
 
 
-def filter_fields():
-    """Return the list of fields the search applies to."""
-    return ["users",
-            "clubs",
-            "machines",
-            "factures",
-            "bans",
-            "whitelists",
-            "rooms",
-            "ports",
-            "switches"]
-
-
 def empty_filters():
     """Build empty filters used by Django."""
-    return {f: Q() for f in filter_fields()}
+    return {f: Q() for f in FILTER_FIELDS}
 
 
 def is_int(variable):
@@ -176,10 +178,9 @@ def finish_results(request, results, col, order):
     max_result = GeneralOption.get_cached_value("search_display_page")
     for name, val in results.items():
         page_arg = name + "_page"
-        results[name] = re2o_paginator(request,
-                                       val.distinct(),
-                                       max_result,
-                                       page_arg=page_arg)
+        results[name] = re2o_paginator(
+            request, val.distinct(), max_result, page_arg=page_arg
+        )
 
     results.update({"max_result": max_result})
 
@@ -206,9 +207,9 @@ def contains_filter(attribute, word, case_sensitive=False):
     return Q(**{attr: word})
 
 
-def search_single_word(word, filters, user, start, end,
-                       user_state, email_state, aff,
-                       case_sensitive=False):
+def search_single_word(
+    word, filters, user, start, end, user_state, email_state, aff, case_sensitive=False
+):
     """Construct the correct filters to match differents fields of some models
     with the given query according to the given filters.
     The match fields are either CharField or IntegerField that will be displayed
@@ -230,10 +231,7 @@ def search_single_word(word, filters, user, start, end,
         )
 
         # Users have a name whereas clubs only have a surname
-        filter_users = (
-            filter_clubs
-            | contains_filter("name", word, case_sensitive)
-        )
+        filter_users = filter_clubs | contains_filter("name", word, case_sensitive)
 
         if not User.can_view_all(user)[0]:
             filter_clubs &= Q(id=user.id)
@@ -252,12 +250,15 @@ def search_single_word(word, filters, user, start, end,
     if "1" in aff:
         filter_machines = (
             contains_filter("name", word, case_sensitive)
-            | (contains_filter("user__pseudo", word, case_sensitive)
-               & Q(user__state__in=user_state)
-               & Q(user__email_state__in=email_state))
+            | (
+                contains_filter("user__pseudo", word, case_sensitive)
+                & Q(user__state__in=user_state)
+                & Q(user__email_state__in=email_state)
+            )
             | contains_filter("interface__domain__name", word, case_sensitive)
-            | contains_filter("interface__domain__related_domain__name",
-                              word, case_sensitive)
+            | contains_filter(
+                "interface__domain__related_domain__name", word, case_sensitive
+            )
             | contains_filter("interface__mac_address", word, case_sensitive)
             | contains_filter("interface__ipv4__ipv4", word, case_sensitive)
         )
@@ -339,13 +340,12 @@ def search_single_word(word, filters, user, start, end,
     # Switch ports
     if "6" in aff and User.can_view_all(user):
         filter_ports = (
-            contains_filter("machine_interface__domain__name",
-                            word, case_sensitive)
-            | contains_filter("related__switch__interface__domain__name",
-                              word, case_sensitive)
+            contains_filter("machine_interface__domain__name", word, case_sensitive)
+            | contains_filter(
+                "related__switch__interface__domain__name", word, case_sensitive
+            )
             | contains_filter("custom_profile__name", word, case_sensitive)
-            | contains_filter("custom_profile__profil_default",
-                              word, case_sensitive)
+            | contains_filter("custom_profile__profil_default", word, case_sensitive)
             | contains_filter("details", word, case_sensitive)
             # Added through annotate
             | contains_filter("room_full_name", word, case_sensitive)
@@ -360,8 +360,7 @@ def search_single_word(word, filters, user, start, end,
         filter_switches = (
             contains_filter("interface__domain__name", word, case_sensitive)
             | contains_filter("interface__ipv4__ipv4", word, case_sensitive)
-            | contains_filter("switchbay__building__name",
-                              word, case_sensitive)
+            | contains_filter("switchbay__building__name", word, case_sensitive)
             | contains_filter("stack__name", word, case_sensitive)
             | contains_filter("model__reference", word, case_sensitive)
             | contains_filter("model__constructor__name", word, case_sensitive)
@@ -399,13 +398,11 @@ def apply_filters(filters, user, aff):
     # Users and clubs
     if "0" in aff:
         results["users"] = Adherent.objects.annotate(
-            room_full_name=Concat("room__building__name",
-                                  Value(" "), "room__name"),
+            room_full_name=Concat("room__building__name", Value(" "), "room__name"),
             room_full_name_stuck=Concat("room__building__name", "room__name"),
         ).filter(filters["users"])
         results["clubs"] = Club.objects.annotate(
-            room_full_name=Concat("room__building__name",
-                                  Value(" "), "room__name"),
+            room_full_name=Concat("room__building__name", Value(" "), "room__name"),
             room_full_name_stuck=Concat("room__building__name", "room__name"),
         ).filter(filters["clubs"])
 
@@ -435,8 +432,7 @@ def apply_filters(filters, user, aff):
     # Switch ports
     if "6" in aff and User.can_view_all(user):
         results["ports"] = Port.objects.annotate(
-            room_full_name=Concat("room__building__name",
-                                  Value(" "), "room__name"),
+            room_full_name=Concat("room__building__name", Value(" "), "room__name"),
             room_full_name_stuck=Concat("room__building__name", "room__name"),
         ).filter(filters["ports"])
 
@@ -455,24 +451,32 @@ def search_single_query(query, filters, user, start, end, user_state, email_stat
         newfilters = empty_filters()
         for q in query.subqueries:
             # Construct an independent filter for each subquery
-            subfilters = search_single_query(q, empty_filters(), user,
-                                             start, end, user_state,
-                                             email_state, aff)
+            subfilters = search_single_query(
+                q, empty_filters(), user, start, end, user_state, email_state, aff
+            )
 
             # Apply the subfilter
-            for field in filter_fields():
+            for field in FILTER_FIELDS:
                 newfilters[field] &= subfilters[field]
 
         # Add these filters to the existing ones
-        for field in filter_fields():
+        for field in FILTER_FIELDS:
             filters[field] |= newfilters[field]
 
         return filters
 
     # Handle standard queries
-    return search_single_word(query.text, filters, user, start, end,
-                              user_state, email_state, aff,
-                              query.case_sensitive)
+    return search_single_word(
+        query.text,
+        filters,
+        user,
+        start,
+        end,
+        user_state,
+        email_state,
+        aff,
+        query.case_sensitive,
+    )
 
 
 def create_queries(query):
@@ -563,5 +567,10 @@ def create_queries(query):
                 current_query.add_operator(current_query.operator)
 
         queries.append(current_query)
+
+    # Make sure there is at least one query, even if it's empty
+    # Otherwise, display filters (for advanced search) won't work
+    # when the search text field is empty
+    queries = queries or [Query()]
 
     return queries

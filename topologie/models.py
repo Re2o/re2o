@@ -731,6 +731,22 @@ class Dormitory(AclMixin, RevMixin, models.Model):
         else:
             return cache.get_or_set("multiple_dorms", cls.objects.count() > 1)
 
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list dormitory
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        return (
+            True,
+            None,
+            None,
+            cls.objects.all()
+        )
+
     def __str__(self):
         return self.name
 
@@ -761,6 +777,22 @@ class Building(AclMixin, RevMixin, models.Model):
             return self.dormitory.name + " : " + self.name
         else:
             return self.name
+
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list building
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        return (
+            True,
+            None,
+            None,
+            cls.objects.all()
+        )
 
     @cached_property
     def cached_name(self):
@@ -943,6 +975,22 @@ class Room(AclMixin, RevMixin, models.Model):
         verbose_name = _("room")
         verbose_name_plural = _("rooms")
         unique_together = ("name", "building")
+
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list room
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        return (
+            True,
+            None,
+            None,
+            cls.objects.all()
+        )
 
     def __str__(self):
         return self.building.cached_name + " " + self.name

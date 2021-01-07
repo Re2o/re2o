@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from . import views
+from . import views_autocomplete
 
 urlpatterns = [
     url(r"^$", views.index, name="index"),
@@ -169,4 +170,12 @@ urlpatterns = [
         views.del_module_on,
         name="del-module-on",
     ),
+    ### Autocomplete Views
+    url(r'^room-autocomplete/$', views_autocomplete.RoomAutocomplete.as_view(), name='room-autocomplete',),
+    url(r'^building-autocomplete/$', views_autocomplete.BuildingAutocomplete.as_view(), name='building-autocomplete',),
+    url(r'^dormitory-autocomplete/$', views_autocomplete.DormitoryAutocomplete.as_view(), name='dormitory-autocomplete',),
+    url(r'^switch-autocomplete/$', views_autocomplete.SwitchAutocomplete.as_view(), name='switch-autocomplete',),
+    url(r'^port-autocomplete/$', views_autocomplete.PortAutocomplete.as_view(), name='profile-autocomplete',),
+    url(r'^portprofile-autocomplete/$', views_autocomplete.PortProfileAutocomplete.as_view(), name='portprofile-autocomplete',),
+    url(r'^switchbay-autocomplete/$', views_autocomplete.SwitchBayAutocomplete.as_view(), name='switchbay-autocomplete',),
 ]

@@ -2027,10 +2027,10 @@ class Adherent(User):
             self.gpg_fingerprint = gpg_fingerprint
 
     @classmethod
-    def get_instance(cls, adherentid, *_args, **_kwargs):
+    def get_instance(cls, object_id, *_args, **_kwargs):
         """Try to find an instance of `Adherent` with the given id.
 
-        :param adherentid: The id of the adherent we are looking for.
+        :param object_id: The id of the adherent we are looking for.
         :return: An adherent.
 
         """
@@ -2064,6 +2064,33 @@ class Adherent(User):
                     else None,
                     ("users.add_user",),
                 )
+
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """Users can list adherent only if they are :
+            - Members of view acl,
+            - Club administrator.
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        can, _message, _group = Club.can_view_all(user_request)
+        if user_request.has_perm("users.view_user") or can:
+            return (
+                True,
+                None,
+                None,
+                cls.objects.all()
+            )
+        else:
+            return (
+                True,
+                _("You don't have the right to list all adherents."),
+                ("users.view_user",),
+                cls.objects.none(),
+            )
 
     def clean(self, *args, **kwargs):
         """Method, clean and validate the gpgfp value.
@@ -2154,13 +2181,13 @@ class Club(User):
         )
 
     @classmethod
-    def get_instance(cls, clubid, *_args, **_kwargs):
+    def get_instance(cls, object_id, *_args, **_kwargs):
         """Try to find an instance of `Club` with the given id.
 
-        :param clubid: The id of the adherent we are looking for.
+        :param object_id: The id of the adherent we are looking for.
         :return: A club.
         """
-        return cls.objects.get(pk=clubid)
+        return cls.objects.get(pk=object_id)
 
 
 @receiver(post_save, sender=Adherent)
@@ -2364,6 +2391,22 @@ class School(RevMixin, AclMixin, models.Model):
         verbose_name = _("school")
         verbose_name_plural = _("schools")
 
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list schools
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        return (
+            True,
+            None,
+            None,
+            cls.objects.all()
+        )
+
     def __str__(self):
         return self.name
 
@@ -2486,6 +2529,22 @@ class ListShell(RevMixin, AclMixin, models.Model):
 
         """
         return self.shell.split("/")[-1]
+
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list shells
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        return (
+            True,
+            None,
+            None,
+            cls.objects.all()
+        )
 
     def __str__(self):
         return self.shell

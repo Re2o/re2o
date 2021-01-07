@@ -378,6 +378,34 @@ class MachineType(RevMixin, AclMixin, models.Model):
             )
         return True, None, None
 
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list unprivileged machinetypes 
+        Only members of privileged groups can list all.
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        can, _message, _group = cls.can_use_all(user_request)
+        if can:
+            return (
+                True,
+                None,
+                None,
+                cls.objects.all()
+            )
+        else:
+            return (
+                True,
+                _("You don't have the right to use all machine types."),
+                ("machines.use_all_machinetype",),
+                cls.objects.filter(
+                    ip_type__in=IpType.objects.filter(need_infra=False)
+                ),
+            )
+
     def __str__(self):
         return self.name
 
@@ -952,6 +980,32 @@ class Extension(RevMixin, AclMixin, models.Model):
             _("You don't have the right to use all extensions.") if not can else None,
             ("machines.use_all_extension",),
         )
+
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """All users can list unprivileged extensions 
+        Only members of privileged groups can list all.
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        can, _message, _group = cls.can_use_all(user_request)
+        if can:
+            return (
+                True,
+                None,
+                None,
+                cls.objects.all()
+            )
+        else:
+            return (
+                True,
+                _("You don't have the right to list all extensions."),
+                ("machines.use_all_extension",),
+                cls.objects.filter(need_infra=False),
+            )
 
     def __str__(self):
         return self.name
@@ -2129,6 +2183,34 @@ class IpList(RevMixin, AclMixin, models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super(IpList, self).save(*args, **kwargs)
+
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """Only privilged users can list all ipv4.
+        Others can list Ipv4 related with unprivileged type.
+
+        :param user_request: The user who wants to view the list.
+        :return: True if the user can view the list and an explanation
+            message.
+
+        """
+        can, _message, _group = IpType.can_use_all(user_request)
+        if can:
+            return (
+                True,
+                None,
+                None,
+                cls.objects.all()
+            )
+        else:
+            return (
+                True,
+                _("You don't have the right to use all machine types."),
+                ("machines.use_all_machinetype",),
+                cls.objects.filter(
+                    ip_type__in=IpType.objects.filter(need_infra=False)
+                ),
+            )
 
     def __str__(self):
         return self.ipv4

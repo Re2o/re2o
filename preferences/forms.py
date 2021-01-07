@@ -30,6 +30,10 @@ from django.db.models import Q
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteModelWidget,
+    AutocompleteMultipleModelWidget
+)
 from .models import (
     OptionalUser,
     OptionalMachine,
@@ -108,12 +112,19 @@ class EditOptionalTopologieForm(ModelForm):
     """Form used to edit the configuration of switches."""
 
     automatic_provision_switchs = forms.ModelMultipleChoiceField(
-        Switch.objects.all(), required=False
+        Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
     )
 
     class Meta:
         model = OptionalTopologie
         fields = "__all__"
+        widgets = {
+            "switchs_ip_type": AutocompleteModelWidget(
+                url="/machines/iptype-autocomplete",
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -168,6 +179,11 @@ class EditAssoOptionForm(ModelForm):
     class Meta:
         model = AssoOption
         fields = "__all__"
+        widgets = {
+            "utilisateur_asso": AutocompleteModelWidget(
+                url="/users/user-autocomplete",
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -254,6 +270,11 @@ class MandateForm(ModelForm):
     class Meta:
         model = Mandate
         fields = "__all__"
+        widgets = {
+            "president": AutocompleteModelWidget(
+                url="/users/user-autocomplete",
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -368,7 +389,9 @@ class RadiusKeyForm(FormRevMixin, ModelForm):
     """Form used to add and edit RADIUS keys."""
 
     members = forms.ModelMultipleChoiceField(
-        queryset=Switch.objects.all(), required=False
+        queryset=Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
     )
 
     class Meta:
@@ -391,7 +414,11 @@ class RadiusKeyForm(FormRevMixin, ModelForm):
 class SwitchManagementCredForm(FormRevMixin, ModelForm):
     """Form used to add and edit switch management credentials."""
 
-    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
+    )
 
     class Meta:
         model = SwitchManagementCred

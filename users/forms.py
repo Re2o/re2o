@@ -46,7 +46,10 @@ from os import walk, path
 from django import forms
 from django.forms import ModelForm, Form
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.contrib.auth.password_validation import validate_password, password_validators_help_text_html
+from django.contrib.auth.password_validation import (
+    validate_password,
+    password_validators_help_text_html,
+)
 from django.core.validators import MinLengthValidator
 from django.conf import settings
 from django.utils import timezone
@@ -61,6 +64,10 @@ from preferences.models import OptionalUser
 from re2o.utils import remove_user_room
 from re2o.base import get_input_formats_help_text
 from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteMultipleModelWidget,
+    AutocompleteModelWidget,
+)
 from re2o.field_permissions import FieldPermissionFormMixin
 
 from preferences.models import GeneralOption
@@ -156,14 +163,10 @@ class ServiceUserAdminForm(FormRevMixin, forms.ModelForm):
     """
 
     password1 = forms.CharField(
-        label=_("Password"),
-        widget=forms.PasswordInput,
-        max_length=255,
+        label=_("Password"), widget=forms.PasswordInput, max_length=255
     )
     password2 = forms.CharField(
-        label=_("Password confirmation"),
-        widget=forms.PasswordInput,
-        max_length=255,
+        label=_("Password confirmation"), widget=forms.PasswordInput, max_length=255
     )
 
     def __init__(self, *args, **kwargs):
@@ -215,6 +218,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         DjangoForm : Inherit from basic django form
         
     """
+
     selfpasswd = forms.CharField(
         label=_("Current password"), max_length=255, widget=forms.PasswordInput
     )
@@ -222,12 +226,10 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
         label=_("New password"),
         max_length=255,
         widget=forms.PasswordInput,
-        help_text=password_validators_help_text_html()
+        help_text=password_validators_help_text_html(),
     )
     passwd2 = forms.CharField(
-        label=_("New password confirmation"),
-        max_length=255,
-        widget=forms.PasswordInput,
+        label=_("New password confirmation"), max_length=255, widget=forms.PasswordInput
     )
 
     class Meta:
@@ -280,7 +282,7 @@ class ResetPasswordForm(forms.Form):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """    
+    """
 
     pseudo = forms.CharField(label=_("Username"), max_length=255)
     email = forms.EmailField(max_length=255)
@@ -292,13 +294,11 @@ class MassArchiveForm(forms.Form):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """   
+    """
 
     date = forms.DateTimeField(help_text="%d/%m/%y")
     full_archive = forms.BooleanField(
-        label=_(
-            "Fully archive users? WARNING: CRITICAL OPERATION IF TRUE"
-        ),
+        label=_("Fully archive users? WARNING: CRITICAL OPERATION IF TRUE"),
         initial=False,
         required=False,
     )
@@ -323,7 +323,7 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """   
+    """
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -350,6 +350,16 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             "telephone",
             "room",
         ]
+        widgets = {
+            "school": AutocompleteModelWidget(url="/users/school-autocomplete"),
+            "room": AutocompleteModelWidget(
+                url="/topologie/room-autocomplete",
+                attrs={
+                    "data-minimum-input-length": 3  # Only trigger autocompletion after 3 characters have been typed
+                },
+            ),
+            "shell": AutocompleteModelWidget(url="/users/shell-autocomplete"),
+        }
 
     force = forms.BooleanField(
         label=_("Force the move?"), initial=False, required=False
@@ -412,7 +422,8 @@ class AdherentCreationForm(AdherentForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
+
     # Champ pour choisir si un lien est envoyé par mail pour le mot de passe
     init_password_by_mail_info = _(
         "If this options is set, you will receive a link to set"
@@ -425,9 +436,7 @@ class AdherentCreationForm(AdherentForm):
     )
 
     init_password_by_mail = forms.BooleanField(
-        help_text=init_password_by_mail_info,
-        required=False,
-        initial=True
+        help_text=init_password_by_mail_info, required=False, initial=True
     )
     init_password_by_mail.label = _("Send password reset link by email.")
 
@@ -438,7 +447,7 @@ class AdherentCreationForm(AdherentForm):
         label=_("Password"),
         widget=forms.PasswordInput,
         max_length=255,
-        help_text=password_validators_help_text_html()
+        help_text=password_validators_help_text_html(),
     )
     password2 = forms.CharField(
         required=False,
@@ -461,7 +470,7 @@ class AdherentCreationForm(AdherentForm):
     # Checkbox for GTU
     gtu_check = forms.BooleanField(required=True)
 
-    class Meta:
+    class Meta(AdherentForm.Meta):
         model = Adherent
         fields = [
             "name",
@@ -528,8 +537,12 @@ class AdherentCreationForm(AdherentForm):
         # Save the provided password in hashed format
         user = super(AdherentForm, self).save(commit=False)
 
-        is_set_password_allowed = OptionalUser.get_cached_value("allow_set_password_during_user_creation")
-        set_passwd = is_set_password_allowed and not self.cleaned_data.get("init_password_by_mail")
+        is_set_password_allowed = OptionalUser.get_cached_value(
+            "allow_set_password_during_user_creation"
+        )
+        set_passwd = is_set_password_allowed and not self.cleaned_data.get(
+            "init_password_by_mail"
+        )
         if set_passwd:
             user.set_password(self.cleaned_data["password1"])
 
@@ -544,7 +557,7 @@ class AdherentEditForm(AdherentForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     def __init__(self, *args, **kwargs):
         super(AdherentEditForm, self).__init__(*args, **kwargs)
@@ -556,7 +569,7 @@ class AdherentEditForm(AdherentForm):
         if "shell" in self.fields:
             self.fields["shell"].empty_label = _("Default shell")
 
-    class Meta:
+    class Meta(AdherentForm.Meta):
         model = Adherent
         fields = [
             "name",
@@ -580,7 +593,7 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -609,6 +622,11 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
             "shell",
             "mailing",
         ]
+        widgets = {
+            "school": AutocompleteModelWidget(url="/users/school-autocomplete"),
+            "room": AutocompleteModelWidget(url="/topologie/room-autocomplete"),
+            "shell": AutocompleteModelWidget(url="/users/shell-autocomplete"),
+        }
 
     def clean_telephone(self):
         """Clean telephone, check if telephone is made mandatory, and
@@ -632,11 +650,19 @@ class ClubAdminandMembersForm(FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     class Meta:
         model = Club
         fields = ["administrators", "members"]
+        widgets = {
+            "administrators": AutocompleteMultipleModelWidget(
+                url="/users/adherent-autocomplete"
+            ),
+            "members": AutocompleteMultipleModelWidget(
+                url="/users/adherent-autocomplete"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -648,7 +674,7 @@ class PasswordForm(FormRevMixin, ModelForm):
     
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     class Meta:
         model = User
@@ -665,7 +691,7 @@ class ServiceUserForm(FormRevMixin, ModelForm):
     
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     password = forms.CharField(
         label=_("New password"),
@@ -704,7 +730,7 @@ class EditServiceUserForm(ServiceUserForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     password = forms.CharField(
         label=_("New password"),
@@ -724,7 +750,7 @@ class StateForm(FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     class Meta:
         model = User
@@ -742,7 +768,7 @@ class GroupForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     groups = forms.ModelMultipleChoiceField(
         Group.objects.all(), widget=forms.CheckboxSelectMultiple, required=False
@@ -764,7 +790,7 @@ class SchoolForm(FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     class Meta:
         model = School
@@ -781,7 +807,7 @@ class ShellForm(FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     class Meta:
         model = ListShell
@@ -800,7 +826,7 @@ class ListRightForm(FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     permissions = forms.ModelMultipleChoiceField(
         Permission.objects.all().select_related("content_type"),
@@ -824,7 +850,7 @@ class NewListRightForm(ListRightForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     class Meta(ListRightForm.Meta):
         fields = ("name", "unix_name", "gid", "critical", "permissions", "details")
@@ -842,7 +868,7 @@ class DelListRightForm(Form):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     listrights = forms.ModelMultipleChoiceField(
         queryset=ListRight.objects.none(),
@@ -865,7 +891,7 @@ class DelSchoolForm(Form):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     schools = forms.ModelMultipleChoiceField(
         queryset=School.objects.none(),
@@ -887,7 +913,7 @@ class BanForm(FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -906,7 +932,7 @@ class WhitelistForm(FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -926,7 +952,7 @@ class EMailAddressForm(FormRevMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -947,7 +973,7 @@ class EmailSettingsForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -971,7 +997,8 @@ class InitialRegisterForm(forms.Form):
 
     Parameters:
         DjangoForm : Inherit from basic django form
-    """ 
+    """
+
     register_room = forms.BooleanField(required=False)
     register_machine = forms.BooleanField(required=False)
 
@@ -1052,8 +1079,8 @@ class ThemeForm(FormRevMixin, forms.Form):
     theme = forms.ChoiceField(widget=forms.Select())
 
     def __init__(self, *args, **kwargs):
-        _, _ ,themes = next(walk(path.join(settings.STATIC_ROOT, "css/themes")))
+        _, _, themes = next(walk(path.join(settings.STATIC_ROOT, "css/themes")))
         if not themes:
             themes = ["default.css"]
         super(ThemeForm, self).__init__(*args, **kwargs)
-        self.fields['theme'].choices = [(theme, theme) for theme in themes]
+        self.fields["theme"].choices = [(theme, theme) for theme in themes]
