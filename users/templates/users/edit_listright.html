@@ -54,6 +54,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             :data="treeData"
             :options="treeOptions"
             @node:checked="onNodeChecked"
+            @node:unchecked="onNodeUnchecked"
         />
     </div>
     <div id="legacy_form">
