@@ -1276,10 +1276,17 @@ class SshFp(RevMixin, AclMixin, models.Model):
         """Get the hashes for the pub key with correct ID.
 
         See RFC: 1 is sha1 , 2 is sha256.
+
+        Because of b64 MUST be divided by 4, we add a "padding" = carracter 3 times.
+        This padding is then ignored if the pubkey is greater than a multiple of 4.
+        More informations on : https://gist.github.com/perrygeo/ee7c65bb1541ff6ac770
+        As said in the thread, this fix is not optimal, however it is very simple as
+        no options on b64decode function exists.
         """
+        pubkey = base64.b64decode(self.pub_key_entry + "===")
         return {
-            "1": hashlib.sha1(base64.b64decode(self.pub_key_entry)).hexdigest(),
-            "2": hashlib.sha256(base64.b64decode(self.pub_key_entry)).hexdigest(),
+            "1": hashlib.sha1(pubkey).hexdigest(),
+            "2": hashlib.sha256(pubkey).hexdigest(),
         }
 
     class Meta:
