@@ -1,3 +1,28 @@
+# Re2o 2.9
+
+TODO after install:
+
+* !531: on the radius, add `buster-backports` to `/etc/apt/sources.list` and then run `apt update`, `apt install -t buster-backports freeradius`, `apt install python3-dev`, and `sudo pip3 install -r apt_requirements_radius.txt`.
+* !582: run `sudo pip3 install -r pip_requirements.txt` and `python3 manage.py collectstatic`.
+* `python3 manage.py migrate` and `sudo service apache2 reload` as usual.
+* !589 : Add `ldap_sync` to your optional apps in your local settings if you want to keep using the LDAP synchronisation.
+
+New features:
+* !488: Use `+` in search to combine keywords.
+* !495: Add option to allow users to override another user's room, if that user is no longer active
+* !496: Add option to allow users to choose password during account creation. They will have to separately confirm their email address.
+* !513: IP and MAC address history (`Statistics > Machine history` tab) which also works for delete interfaces.  Uses already existing history so events before the upgrade are taken into account.
+* !516: Detail event in user's history view (e.g. show `old_email -> new_email`).
+* !569: Refactor navbar to make menu navigation easier.
+* !569: Add ability to have custom themes.
+* !582: Improve autocomplete fields so they load faster and have a clearer behavior (no more entering a value without clicking and thinking it was taken into account).
+* ?: Add option to choose minimum password length.
+* ?: Add ability to comment on tickets.
+* !578 : Migrations squashed to ease the installation process. First step towards making the LDAP an optional feature dor re2o.
+* !507 :  New form for editing list rights that should make everyone happier.
+* !589 : Move LDAP stuff to an optional app.
+
+# Pevious to Re2o 2.9
 ## MR 160: Datepicker
 
 Install libjs-jquery libjs-jquery-ui libjs-jquery-timepicker libjs-bootstrap javascript-common
