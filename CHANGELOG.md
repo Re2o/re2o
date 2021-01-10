@@ -2,7 +2,7 @@
 
 TODO after install:
 
-* !531: on the radius, add `buster-backports` to `/etc/apt/sources.list` and then run `apt update`, `apt install -t buster-backports freeradius`, `apt install python3-dev`, and `sudo pip3 install -r apt_requirements_radius.txt`.
+* !531: on the radius, add `buster-backports` to `/etc/apt/sources.list` and then run `apt update`, `apt install -t buster-backports freeradius`, `apt install python3-dev`, and `cat apt_requirements_radius.txt | xargs sudo apt -y install`.
 * !582: run `sudo pip3 install -r pip_requirements.txt` and `python3 manage.py collectstatic`.
 * `python3 manage.py migrate` and `sudo service apache2 reload` as usual.
 * !589 : Add `ldap_sync` to your optional apps in your local settings if you want to keep using the LDAP synchronisation.
