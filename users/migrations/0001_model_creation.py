@@ -14,7 +14,6 @@ import users.models
 class Migration(migrations.Migration):
     dependencies = [('auth', '0008_alter_user_username_max_length')]
     initial = True
-    run_before = [("reversion", "0001_squashed_0004_auto_20160611_1202")]
     # We replace everything.
     replaces = [
         ("users", "0001_initial"),
