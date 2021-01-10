@@ -1,4 +1,5 @@
 # Copyright © 2018 Maël Kervella
+# Copyright © 2021 Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +22,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
 from users.models import User, ListRight
+from ldap_sync.models import synchronise_user, synchronise_serviceuser, synchronise_usergroup
 
 
 def split_lines(lines):
@@ -89,9 +91,9 @@ def flush_ldap(binddn, bindpass, server, usersdn, groupsdn):
 def sync_ldap():
     """Syncrhonize the whole LDAP with the DB."""
     for u in User.objects.all():
-        u.ldap_sync()
+        synchronise_user(sender=User, instance=u)
     for lr in ListRight.objects.all():
-        lr.ldap_sync()
+        synchronise_usergroup(sender=ListRight, instance=lr)
 
 
 class Command(BaseCommand):

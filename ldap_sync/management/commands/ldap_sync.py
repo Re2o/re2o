@@ -1,6 +1,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2020  Hugo Levy-Falk
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +20,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from users.models import User
+from ldap_sync.models import synchronise_user
 
 
 class Command(BaseCommand):
@@ -36,5 +38,5 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        for usr in User.objects.all():
-            usr.ldap_sync(mac_refresh=options["full"])
+        for user in User.objects.all():
+            synchronise_user(sender=User, instance=user)

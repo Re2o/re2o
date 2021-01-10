@@ -39,14 +39,6 @@ Here are defined the following django models :
     * Schools (teaching structures)
     * Rights (Groups and ListRight)
     * ServiceUser (for ldap connexions)
-
-Also define django-ldapdb models :
-    * LdapUser
-    * LdapGroup
-    * LdapServiceUser
-
-These objects are sync from django regular models as auxiliary models from
-sql data into ldap.
 """
 
 
@@ -82,8 +74,6 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from reversion import revisions as reversion
 
-import ldapdb.models
-import ldapdb.models.fields
 
 from re2o.settings import LDAP, GID_RANGES, UID_RANGES
 from re2o.field_permissions import FieldPermissionModelMixin
@@ -95,6 +85,8 @@ from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
 from preferences.models import GeneralOption, AssoOption, OptionalUser
 from preferences.models import OptionalMachine, MailMessageOption
+
+from users import signals
 
 from PIL import Image
 from io import BytesIO
@@ -1042,7 +1034,7 @@ class User(
         """
         cls.mass_disable_email(queryset_users)
         Machine.mass_delete(Machine.objects.filter(user__in=queryset_users))
-        cls.ldap_delete_users(queryset_users)
+        signals.remove_mass.send(sender=cls, queryset=queryset_users)
 
     def archive(self):
         """Method, archive user by unassigning ips.
@@ -1072,7 +1064,7 @@ class User(
 
     def full_archive(self):
         """Method, full archive an user by unassigning ips, deleting data
-        and ldap deletion.
+        and authentication deletion.
 
         Parameters:
             self (user instance): user to full archive.
@@ -1080,7 +1072,7 @@ class User(
         """
         self.archive()
         self.delete_data()
-        self.ldap_del()
+        signals.remove.send(sender=User, instance=self)
 
     @classmethod
     def mass_full_archive(cls, users_list):
@@ -1102,14 +1094,14 @@ class User(
 
     def unarchive(self):
         """Method, unarchive an user by assigning ips, and recreating
-        ldap user associated.
+        authentication user associated.
 
         Parameters:
             self (user instance): user to unarchive.
 
         """
         self.assign_ips()
-        self.ldap_sync()
+        signals.synchronise.send(sender=self.__class__, instance=self)
 
     def state_sync(self):
         """Master Method, call unarchive, full_archive or archive method
@@ -1134,109 +1126,6 @@ class User(
             and self.state == self.STATE_FULL_ARCHIVE
         ):
             self.full_archive()
-
-    def ldap_sync(
-        self, base=True, access_refresh=True, mac_refresh=True, group_refresh=False
-    ):
-        """Method ldap_sync, sync in ldap with self user attributes.
-        Each User instance is copy into ldap, via a LdapUser virtual objects.
-        This method performs a copy of several attributes (name, surname, mail,
-        hashed SSHA password, ntlm password, shell, homedirectory).
-
-        Update, or create if needed a ldap entry related with the User instance.
-
-        Parameters:
-            self (user instance): user to sync in ldap.
-            base (boolean): Default true, if base is true, perform a basic
-            sync of basic attributes.
-            access_refresh (boolean): Default true, if access_refresh is true,
-            update the dialup_access attributes based on has_access (is this user
-            has a valid internet access).
-            mac_refresh (boolean): Default true, if mac_refresh, update the mac_address
-            list of the user.
-            group_refresh (boolean): Default False, if true, update the groups membership
-            of this user. Onerous option, call ldap_sync() on every groups of the user.
-
-        """
-        if sys.version_info[0] >= 3 and (
-            self.state == self.STATE_ACTIVE
-            or self.state == self.STATE_ARCHIVE
-            or self.state == self.STATE_DISABLED
-        ):
-            self.refresh_from_db()
-            try:
-                user_ldap = LdapUser.objects.get(uidNumber=self.uid_number)
-            except LdapUser.DoesNotExist:
-                user_ldap = LdapUser(uidNumber=self.uid_number)
-                base = True
-                access_refresh = True
-                mac_refresh = True
-            if base:
-                user_ldap.name = self.pseudo
-                user_ldap.sn = self.pseudo
-                user_ldap.dialupAccess = str(self.has_access())
-                user_ldap.home_directory = self.home_directory
-                user_ldap.mail = self.get_mail
-                user_ldap.given_name = (
-                    self.surname.lower() + "_" + self.name.lower()[:3]
-                )
-                user_ldap.gid = LDAP["user_gid"]
-                if "{SSHA}" in self.password or "{SMD5}" in self.password:
-                    # We remove the extra $ added at import from ldap
-                    user_ldap.user_password = self.password[:6] + self.password[7:]
-                elif "{crypt}" in self.password:
-                    # depending on the length, we need to remove or not a $
-                    if len(self.password) == 41:
-                        user_ldap.user_password = self.password
-                    else:
-                        user_ldap.user_password = self.password[:7] + self.password[8:]
-
-                user_ldap.sambat_nt_password = self.pwd_ntlm.upper()
-                if self.get_shell:
-                    user_ldap.login_shell = str(self.get_shell)
-                user_ldap.shadowexpire = self.get_shadow_expire
-            if access_refresh:
-                user_ldap.dialupAccess = str(self.has_access())
-            if mac_refresh:
-                user_ldap.macs = [
-                    str(mac)
-                    for mac in Interface.objects.filter(machine__user=self)
-                    .values_list("mac_address", flat=True)
-                    .distinct()
-                ]
-            if group_refresh:
-                # Need to refresh all groups because we don't know which groups
-                # were updated during edition of groups and the user may no longer
-                # be part of the updated group (case of group removal)
-                for group in Group.objects.all():
-                    if hasattr(group, "listright"):
-                        group.listright.ldap_sync()
-            user_ldap.save()
-
-    def ldap_del(self):
-        """Method, delete an user in ldap.
-
-        Parameters:
-            self (user instance): user to delete in Ldap.
-
-        """
-        try:
-            user_ldap = LdapUser.objects.get(name=self.pseudo)
-            user_ldap.delete()
-        except LdapUser.DoesNotExist:
-            pass
-
-    @classmethod
-    def ldap_delete_users(cls, queryset_users):
-        """Class method, delete several users in ldap (queryset).
-
-        Parameters:
-            queryset_users (list of users queryset): users to delete
-            in ldap.
-        """
-        LdapUser.objects.filter(
-            name__in=list(queryset_users.values_list("pseudo", flat=True))
-        )
 
     ###### Send mail functions ######
 
@@ -2195,7 +2084,7 @@ class Club(User):
 @receiver(post_save, sender=User)
 def user_post_save(**kwargs):
     """Django signal, post save operations on Adherent, Club and User.
-    Sync pseudo, sync ldap, create mailalias and send welcome email if needed
+    Sync pseudo, sync authentication, create mailalias and send welcome email if needed
     (new user)
 
     """
@@ -2207,8 +2096,7 @@ def user_post_save(**kwargs):
         user.notif_inscription(user.request)
         user.set_active()
     user.state_sync()
-    user.ldap_sync(
-        base=True, access_refresh=True, mac_refresh=False, group_refresh=True
+    signals.synchronise.send(sender=User, instance=user, base=True, access_refresh=True, mac_refresh=False, group_refresh=True
     )
     regen("mailing")
 
@@ -2216,14 +2104,13 @@ def user_post_save(**kwargs):
 @receiver(m2m_changed, sender=User.groups.through)
 def user_group_relation_changed(**kwargs):
     """Django signal, used for User Groups change (related models).
-    Sync ldap, with calling group_refresh.
+    Sync authentication, with calling group_refresh.
 
     """
     action = kwargs["action"]
     if action in ("post_add", "post_remove", "post_clear"):
         user = kwargs["instance"]
-        user.ldap_sync(
-            base=False, access_refresh=False, mac_refresh=False, group_refresh=True
+        signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=False, mac_refresh=False, group_refresh=True
         )
 
 
@@ -2232,20 +2119,20 @@ def user_group_relation_changed(**kwargs):
 @receiver(post_delete, sender=User)
 def user_post_delete(**kwargs):
     """Django signal, post delete operations on Adherent, Club and User.
-    Delete user in ldap.
+    Delete user in authentication.
 
     """
     user = kwargs["instance"]
-    user.ldap_del()
+    signals.remove.send(sender=User, instance=user)
     regen("mailing")
 
 
 class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
     """A class representing a serviceuser (it is considered as a user
     with special informations).
-    The serviceuser is a special user used with special access to ldap tree. It is
+    The serviceuser is a special user used with special access to authentication tree. It is
     its only usefullness, and service user can't connect to re2o.
-    Each service connected to ldap for auth (ex dokuwiki, owncloud, etc) should
+    Each service connected to authentication for auth (ex dokuwiki, owncloud, etc) should
     have a different service user with special acl (readonly, auth) and password.
 
     Attributes:
@@ -2293,65 +2180,6 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
         """
         return self.pseudo
 
-    def ldap_sync(self):
-        """Method ldap_sync, sync the serviceuser in ldap with its attributes.
-        Each ServiceUser instance is copy into ldap, via a LdapServiceUser virtual object.
-        This method performs a copy of several attributes (pseudo, access).
-
-        Update, or create if needed a mirror ldap entry related with the ServiceUserinstance.
-
-        Parameters:
-            self (serviceuser instance): ServiceUser to sync in ldap.
-
-        """
-        try:
-            user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
-        except LdapServiceUser.DoesNotExist:
-            user_ldap = LdapServiceUser(name=self.pseudo)
-        user_ldap.user_password = self.password[:6] + self.password[7:]
-        user_ldap.save()
-        self.serviceuser_group_sync()
-
-    def ldap_del(self):
-        """Method, delete an ServiceUser in ldap.
-
-        Parameters:
-            self (ServiceUser instance): serviceuser to delete in Ldap.
-
-        """
-        try:
-            user_ldap = LdapServiceUser.objects.get(name=self.pseudo)
-            user_ldap.delete()
-        except LdapUser.DoesNotExist:
-            pass
-        self.serviceuser_group_sync()
-
-    def serviceuser_group_sync(self):
-        """Method, update serviceuser group sync in ldap.
-        In LDAP, Acl depends on the ldapgroup (readonly, auth, or usermgt),
-        so the ldap group need to be synced with the accessgroup field on ServiceUser.
-        Called by ldap_sync and ldap_del.
-
-        Parameters:
-            self (ServiceUser instance): serviceuser to update groups in LDAP.
-
-        """
-        try:
-            group = LdapServiceUserGroup.objects.get(name=self.access_group)
-        except:
-            group = LdapServiceUserGroup(name=self.access_group)
-        group.members = list(
-            LdapServiceUser.objects.filter(
-                name__in=[
-                    user.pseudo
-                    for user in ServiceUser.objects.filter(
-                        access_group=self.access_group
-                    )
-                ]
-            ).values_list("dn", flat=True)
-        )
-        group.save()
-
     def __str__(self):
         return self.pseudo
 
@@ -2359,21 +2187,21 @@ class ServiceUser(RevMixin, AclMixin, AbstractBaseUser):
 @receiver(post_save, sender=ServiceUser)
 def service_user_post_save(**kwargs):
     """Django signal, post save operations on ServiceUser.
-    Sync or create serviceuser in ldap.
+    Sync or create serviceuser in authentication.
 
     """
     service_user = kwargs["instance"]
-    service_user.ldap_sync()
+    signals.synchronise.send(sender=ServiceUser, instance=service_user)
 
 
 @receiver(post_delete, sender=ServiceUser)
 def service_user_post_delete(**kwargs):
     """Django signal, post delete operations on ServiceUser.
-    Delete service user in ldap.
+    Delete service user in authentication.
 
     """
     service_user = kwargs["instance"]
-    service_user.ldap_del()
+    signals.remove.send(sender=ServiceUser, instance=service_user)
 
 
 class School(RevMixin, AclMixin, models.Model):
@@ -2448,58 +2276,25 @@ class ListRight(RevMixin, AclMixin, Group):
     def __str__(self):
         return self.name
 
-    def ldap_sync(self):
-        """Method ldap_sync, sync the listright/group in ldap with its listright attributes.
-        Each ListRight/Group instance is copy into ldap, via a LdapUserGroup virtual objects.
-        This method performs a copy of several attributes (name, members, gid, etc).
-        The primary key is the gid, and should never change.
-
-        Update, or create if needed a ldap entry related with the ListRight/Group instance.
-
-        Parameters:
-            self (listright instance): ListRight/Group to sync in ldap.
-
-        """
-        try:
-            group_ldap = LdapUserGroup.objects.get(gid=self.gid)
-        except LdapUserGroup.DoesNotExist:
-            group_ldap = LdapUserGroup(gid=self.gid)
-        group_ldap.name = self.unix_name
-        group_ldap.members = [user.pseudo for user in self.user_set.all()]
-        group_ldap.save()
-
-    def ldap_del(self):
-        """Method, delete an ListRight/Group in ldap.
-
-        Parameters:
-            self (listright/Group instance): group to delete in Ldap.
-
-        """
-        try:
-            group_ldap = LdapUserGroup.objects.get(gid=self.gid)
-            group_ldap.delete()
-        except LdapUserGroup.DoesNotExist:
-            pass
-
 
 @receiver(post_save, sender=ListRight)
 def listright_post_save(**kwargs):
     """Django signal, post save operations on ListRight/Group objects.
-    Sync or create group in ldap.
+    Sync or create group in authentication.
 
     """
     right = kwargs["instance"]
-    right.ldap_sync()
+    signals.synchronise.send(sender=ListRight, instance=right)
 
 
 @receiver(post_delete, sender=ListRight)
 def listright_post_delete(**kwargs):
     """Django signal, post delete operations on ListRight/Group objects.
-    Delete group in ldap.
+    Delete group in authentication.
 
     """
     right = kwargs["instance"]
-    right.ldap_del()
+    signals.remove.send(sender=ListRight, instance=right)
 
 
 class ListShell(RevMixin, AclMixin, models.Model):
@@ -2649,13 +2444,13 @@ class Ban(RevMixin, AclMixin, models.Model):
 @receiver(post_save, sender=Ban)
 def ban_post_save(**kwargs):
     """Django signal, post save operations on Ban objects.
-    Sync user's access state in ldap, call email notification if needed.
+    Sync user's access state in authentication, call email notification if needed.
 
     """
     ban = kwargs["instance"]
     is_created = kwargs["created"]
     user = ban.user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False)
     regen("mailing")
     if is_created:
         ban.notif_ban(ban.request)
@@ -2669,11 +2464,11 @@ def ban_post_save(**kwargs):
 @receiver(post_delete, sender=Ban)
 def ban_post_delete(**kwargs):
     """Django signal, post delete operations on Ban objects.
-    Sync user's access state in ldap.
+    Sync user's access state in authentication.
 
     """
     user = kwargs["instance"].user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False)
     regen("mailing")
     regen("dhcp")
     regen("mac_ip_list")
@@ -2740,12 +2535,12 @@ class Whitelist(RevMixin, AclMixin, models.Model):
 @receiver(post_save, sender=Whitelist)
 def whitelist_post_save(**kwargs):
     """Django signal, post save operations on Whitelist objects.
-    Sync user's access state in ldap.
+    Sync user's access state in authentication.
 
     """
     whitelist = kwargs["instance"]
     user = whitelist.user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False)
     is_created = kwargs["created"]
     regen("mailing")
     if is_created:
@@ -2759,11 +2554,11 @@ def whitelist_post_save(**kwargs):
 @receiver(post_delete, sender=Whitelist)
 def whitelist_post_delete(**kwargs):
     """Django signal, post delete operations on Whitelist objects.
-    Sync user's access state in ldap.
+    Sync user's access state in authentication.
 
     """
     user = kwargs["instance"].user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False)
     regen("mailing")
     regen("dhcp")
     regen("mac_ip_list")
@@ -2995,172 +2790,4 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if result:
             raise ValidationError(reason)
         super(EMailAddress, self).clean(*args, **kwargs)
-
-
-class LdapUser(ldapdb.models.Model):
-    """A class representing a LdapUser in LDAP, its LDAP conterpart.
-    Synced from re2o django User model, (User django models),
-    with a copy of its attributes/fields into LDAP, so this class is a mirror
-    of the classic django User model.
-
-    The basedn userdn is specified in settings.
-
-    Attributes:
-        name: The name of this User
-        uid: The uid (login) for the unix user
-        uidNumber: Linux uid number
-        gid: The default gid number for this user
-        sn: The user "str" pseudo
-        login_shell: Linux shell for the user
-        mail: Email address contact for this user
-        display_name: Pretty display name for this user
-        dialupAccess: Boolean, True for valid membership
-        sambaSID: Identical id as uidNumber
-        user_password: SSHA hashed password of user
-        samba_nt_password: NTLM hashed password of user
-        macs: Multivalued mac address
-        shadowexpire: Set it to 0 to block access for this user and disabled
-        account
-    """
-
-    # LDAP meta-data
-    base_dn = LDAP["base_user_dn"]
-    object_classes = [
-        "inetOrgPerson",
-        "top",
-        "posixAccount",
-        "sambaSamAccount",
-        "radiusprofile",
-        "shadowAccount",
-    ]
-
-    # attributes
-    gid = ldapdb.models.fields.IntegerField(db_column="gidNumber")
-    name = ldapdb.models.fields.CharField(
-        db_column="cn", max_length=200, primary_key=True
-    )
-    uid = ldapdb.models.fields.CharField(db_column="uid", max_length=200)
-    uidNumber = ldapdb.models.fields.IntegerField(db_column="uidNumber", unique=True)
-    sn = ldapdb.models.fields.CharField(db_column="sn", max_length=200)
-    login_shell = ldapdb.models.fields.CharField(
-        db_column="loginShell", max_length=200, blank=True, null=True
-    )
-    mail = ldapdb.models.fields.CharField(db_column="mail", max_length=200)
-    given_name = ldapdb.models.fields.CharField(db_column="givenName", max_length=200)
-    home_directory = ldapdb.models.fields.CharField(
-        db_column="homeDirectory", max_length=200
-    )
-    display_name = ldapdb.models.fields.CharField(
-        db_column="displayName", max_length=200, blank=True, null=True
-    )
-    dialupAccess = ldapdb.models.fields.CharField(db_column="dialupAccess")
-    sambaSID = ldapdb.models.fields.IntegerField(db_column="sambaSID", unique=True)
-    user_password = ldapdb.models.fields.CharField(
-        db_column="userPassword", max_length=200, blank=True, null=True
-    )
-    sambat_nt_password = ldapdb.models.fields.CharField(
-        db_column="sambaNTPassword", max_length=200, blank=True, null=True
-    )
-    macs = ldapdb.models.fields.ListField(
-        db_column="radiusCallingStationId", max_length=200, blank=True, null=True
-    )
-    shadowexpire = ldapdb.models.fields.CharField(
-        db_column="shadowExpire", blank=True, null=True
-    )
-
-    def __str__(self):
-        return self.name
-
-    def __unicode__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.sn = self.name
-        self.uid = self.name
-        self.sambaSID = self.uidNumber
-        super(LdapUser, self).save(*args, **kwargs)
-
-
-class LdapUserGroup(ldapdb.models.Model):
-    """A class representing a LdapUserGroup in LDAP, its LDAP conterpart.
-    Synced from UserGroup, (ListRight/Group django models),
-    with a copy of its attributes/fields into LDAP, so this class is a mirror
-    of the classic django ListRight model.
-
-    The basedn usergroupdn is specified in settings.
-
-    Attributes:
-        name: The name of this LdapUserGroup
-        gid: The gid number for this unix group
-        members: Users dn members of this LdapUserGroup
-    """
-
-    # LDAP meta-data
-    base_dn = LDAP["base_usergroup_dn"]
-    object_classes = ["posixGroup"]
-
-    # attributes
-    gid = ldapdb.models.fields.IntegerField(db_column="gidNumber")
-    members = ldapdb.models.fields.ListField(db_column="memberUid", blank=True)
-    name = ldapdb.models.fields.CharField(
-        db_column="cn", max_length=200, primary_key=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class LdapServiceUser(ldapdb.models.Model):
-    """A class representing a ServiceUser in LDAP, its LDAP conterpart.
-    Synced from ServiceUser, with a copy of its attributes/fields into LDAP,
-    so this class is a mirror of the classic django ServiceUser model.
-
-    The basedn userservicedn is specified in settings.
-
-    Attributes:
-        name: The name of this ServiceUser
-        user_password: The SSHA hashed password of this ServiceUser
-    """
-
-    # LDAP meta-data
-    base_dn = LDAP["base_userservice_dn"]
-    object_classes = ["applicationProcess", "simpleSecurityObject"]
-
-    # attributes
-    name = ldapdb.models.fields.CharField(
-        db_column="cn", max_length=200, primary_key=True
-    )
-    user_password = ldapdb.models.fields.CharField(
-        db_column="userPassword", max_length=200, blank=True, null=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class LdapServiceUserGroup(ldapdb.models.Model):
-    """A class representing a ServiceUserGroup in LDAP, its LDAP conterpart.
-    Synced from ServiceUserGroup, with a copy of its attributes/fields into LDAP,
-    so this class is a mirror of the classic django ServiceUserGroup model.
-
-    The basedn userservicegroupdn is specified in settings.
-
-    Attributes:
-        name: The name of this ServiceUserGroup
-        members: ServiceUsers dn members of this ServiceUserGroup
-    """
-
-    # LDAP meta-data
-    base_dn = LDAP["base_userservicegroup_dn"]
-    object_classes = ["groupOfNames"]
-
-    # attributes
-    name = ldapdb.models.fields.CharField(
-        db_column="cn", max_length=200, primary_key=True
-    )
-    members = ldapdb.models.fields.ListField(db_column="member", blank=True)
-
-    def __str__(self):
-        return self.name
-
 
