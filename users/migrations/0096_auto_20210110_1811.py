@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0003_ldapserviceuser_ldapserviceusergroup_ldapuser_ldapusergroup'),
+        ('users', '0095_user_theme'),
     ]
 
     operations = [

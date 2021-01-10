@@ -113,6 +113,7 @@ class Migration(migrations.Migration):
         ("users", "0093_user_profile_image"),
         ("users", "0094_remove_user_profile_image"),
         ("users", "0095_user_theme"),
+        ("users", "0096_auto_20210110_1811"),
         ("cotisations", "0001_initial"),
         ("cotisations", "0002_remove_facture_article"),
         ("cotisations", "0003_auto_20160702_1448"),

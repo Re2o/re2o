@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('users', '0004_auto_20210110_1811')
+        ('users', '0002_foreign_keys')
     ]
 
     operations = [
