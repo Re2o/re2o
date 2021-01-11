@@ -79,12 +79,12 @@ def context_optionnal_apps(request):
     optionnal_templates_navbar_user_list = [
         app.views.navbar_user()
         for app in optionnal_apps
-        if hasattr(app.views, "navbar_user")
+        if hasattr(app, "views") and hasattr(app.views, "navbar_user")
     ]
     optionnal_templates_navbar_logout_list = [
         app.views.navbar_logout()
         for app in optionnal_apps
-        if hasattr(app.views, "navbar_logout")
+        if hasattr(app, "views") and hasattr(app.views, "navbar_logout")
     ]
     return {
         "optionnal_templates_navbar_user_list": optionnal_templates_navbar_user_list,
