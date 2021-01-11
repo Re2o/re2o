@@ -54,7 +54,7 @@ Here is a list of noteworthy features brought by this update:
 * [!512](https://gitlab.federez.net/re2o/re2o/-/merge_requests/512): Add ability to comment on tickets.
 * [!513](https://gitlab.federez.net/re2o/re2o/-/merge_requests/513): IP and MAC address history (`Statistics > Machine history` tab) which also works for deleted interfaces. Uses already existing history so events before the upgrade are taken into account.
 * [!516](https://gitlab.federez.net/re2o/re2o/-/merge_requests/516): Detailed events in history views (e.g. show `old_email -> new_email`).
-* [!519](https://gitlab.federez.net/re2o/re2o/-/merge_requests/516): Add ability to filter event logs (e.g. to show all the subscriptions added by an admin).
+* [!519](https://gitlab.federez.net/re2o/re2o/-/merge_requests/519): Add ability to filter event logs (e.g. to show all the subscriptions added by an admin).
 * [!569](https://gitlab.federez.net/re2o/re2o/-/merge_requests/569): Refactor navbar to make menu navigation easier.
 * [!569](https://gitlab.federez.net/re2o/re2o/-/merge_requests/569): Add ability to install custom themes.
 * [!578](https://gitlab.federez.net/re2o/re2o/-/merge_requests/578) : Migrations squashed to ease the installation process.
