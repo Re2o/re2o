@@ -60,7 +60,7 @@ Here is a list of noteworthy features brought by this update:
 * [!578](https://gitlab.federez.net/re2o/re2o/-/merge_requests/578) : Migrations squashed to ease the installation process.
 * [!582](https://gitlab.federez.net/re2o/re2o/-/merge_requests/582): Improve autocomplete fields so they load faster and have a clearer behavior (no more entering a value without clicking and thinking it was taken into account).
 * [!589](https://gitlab.federez.net/re2o/re2o/-/merge_requests/589): Move LDAP to a separate optional app.
-* Plenty of bux fixes.
+* Plenty of bug fixes.
 
 You can view the full list of closed issues [here](https://gitlab.federez.net/re2o/re2o/-/issues?scope=all&state=all&milestone_title=Re2o 2.9).
 
