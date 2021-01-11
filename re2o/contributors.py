@@ -27,9 +27,9 @@ CONTRIBUTORS = [
     'Gabriel Le Bouder',
     'Simon Brélivet',
     '~anonymised~',
+    'Benjamin Graillot',
     'Leïla Bekaddour',
     'Éloi Alain',
-    'Benjamin Graillot',
     'Pierre Cadart',
     'Antoine Vintache',
     'Thibault De Boutray',
@@ -44,5 +44,4 @@ CONTRIBUTORS = [
     'Nymous',
     'Pierre-antoine Comby',
     'Vincent Le Gallic',
-    'Esum',
 ]
