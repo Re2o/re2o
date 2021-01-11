@@ -30,15 +30,16 @@ sudo pip3 install -r pip_requirements.txt
 python3 manage.py collectstatic
 ```
 
-### MR 589: Move ldap to optional app
+### MR 589: Move LDAP to optional app
 
-Add `ldap_sync` to your optional apps in your local settings if you want to keep using the LDAP synchronisation.
+Add `ldap_sync` to your optional apps in your local settings (`re2o/settings_local.py`) if you want to keep using the LDAP synchronisation.
 
 ### Final steps
 
 As usual, run the following commands after updating:
 ```bash
 python3 manage.py migrate
+python3 manage.py compilemessages
 sudo service apache2 reload
 ```
 
