@@ -1277,9 +1277,10 @@ class SshFp(RevMixin, AclMixin, models.Model):
 
         See RFC: 1 is sha1 , 2 is sha256.
         """
+        pubkey = self.base64_pubkey()
         return {
-            "1": hashlib.sha1(base64.b64decode(self.pub_key_entry)).hexdigest(),
-            "2": hashlib.sha256(base64.b64decode(self.pub_key_entry)).hexdigest(),
+            "1": hashlib.sha1(pubkey).hexdigest(),
+            "2": hashlib.sha256(pubkey).hexdigest(),
         }
 
     class Meta:
@@ -1295,6 +1296,31 @@ class SshFp(RevMixin, AclMixin, models.Model):
 
     def can_delete(self, user_request, *args, **kwargs):
         return self.machine.can_delete(user_request, *args, **kwargs)
+
+    def base64_pubkey(self):
+        """Function to decode in base64 the pub key entry
+
+        Returns:
+            Base64 decoded value of pub_key_entry
+
+        Because of b64 MUST be divided by 4, we add a "padding" = carracter 3 times.
+        This padding is then ignored if the pubkey is greater than a multiple of 4.
+        More informations on : https://gist.github.com/perrygeo/ee7c65bb1541ff6ac770
+        As said in the thread, this fix is not optimal, however it is very simple as
+        no options on b64decode function exists."""
+        return base64.b64decode(self.pub_key_entry + "===")
+
+    def clean(self, *args, **kwargs):
+        """Check if the pub_key_entry is a valid base64 entry.
+
+        Raises:
+            ValidationError: the pub key entry is not a valid base64 enty.
+        """
+        try:
+            self.base64_pubkey()
+        except ValueError:
+            raise ValidationError(_("Ssh pub key entry is incorrect base64 entry"))
+        super(SshFp, self).clean(*args, **kwargs)
 
     def __str__(self):
         return str(self.algo) + " " + str(self.comment)
