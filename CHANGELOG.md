@@ -1,28 +1,71 @@
 # Re2o 2.9
 
-TODO after install:
+## Install steps
 
-* !531: on the radius, add `buster-backports` to `/etc/apt/sources.list` and then run `apt update`, `apt install -t buster-backports freeradius`, `apt install python3-dev`, and `cat apt_requirements_radius.txt | xargs sudo apt -y install`.
-* !582: run `sudo pip3 install -r pip_requirements.txt` and `python3 manage.py collectstatic`.
-* `python3 manage.py migrate` and `sudo service apache2 reload` as usual.
-* !589 : Add `ldap_sync` to your optional apps in your local settings if you want to keep using the LDAP synchronisation.
+To install the latest version of Re2o, checkout the [dedicated wiki entry](https://gitlab.federez.net/re2o/re2o/-/wikis/User-Documentation/Quick-Start#update-re2o).
 
-New features:
-* !488: Use `+` in search to combine keywords.
-* !495: Add option to allow users to override another user's room, if that user is no longer active
-* !496: Add option to allow users to choose password during account creation. They will have to separately confirm their email address.
-* !513: IP and MAC address history (`Statistics > Machine history` tab) which also works for delete interfaces.  Uses already existing history so events before the upgrade are taken into account.
-* !516: Detail event in user's history view (e.g. show `old_email -> new_email`).
-* !569: Refactor navbar to make menu navigation easier.
-* !569: Add ability to have custom themes.
-* !582: Improve autocomplete fields so they load faster and have a clearer behavior (no more entering a value without clicking and thinking it was taken into account).
-* ?: Add option to choose minimum password length.
-* ?: Add ability to comment on tickets.
-* !578 : Migrations squashed to ease the installation process. First step towards making the LDAP an optional feature dor re2o.
-* !507 :  New form for editing list rights that should make everyone happier.
-* !589 : Move LDAP stuff to an optional app.
+## Post-install steps
 
-# Pevious to Re2o 2.9
+### MR 531: FreeRADIUS Python3 backend
+
+On the Radius server, add `buster-backports` to your `/etc/apt/sources.list`:
+```bash
+echo "deb http://deb.debian.org/debian buster-backports main contrib" >> /etc/apt/sources.list
+```
+
+**Note:** If you are running Debian Bullseye, the package should already be available without going through backports.
+
+Then install the new required packages:
+```bash
+apt update
+apt install -t buster-backports freeradius
+cat apt_requirements_radius.txt | xargs sudo apt -y install
+```
+
+### MR 582: Autocomplete light
+
+On the Re2o server, install the new dependency and run `collectstatic`:
+```bash
+sudo pip3 install -r pip_requirements.txt
+python3 manage.py collectstatic
+```
+
+### MR 589: Move ldap to optional app
+
+Add `ldap_sync` to your optional apps in your local settings if you want to keep using the LDAP synchronisation.
+
+### Final steps
+
+As usual, run the following commands after updating:
+```bash
+python3 manage.py migrate
+sudo service apache2 reload
+```
+
+## New features
+
+Here is a list of noteworthy features brought by this update:
+
+* [!488](https://gitlab.federez.net/re2o/re2o/-/merge_requests/488): Use `+` in searches to combine keywords (e.g. `John+Doe`).
+* [!495](https://gitlab.federez.net/re2o/re2o/-/merge_requests/495): Add optional behavior allowing users to override another user's room, if that user is no longer active.
+* [!496](https://gitlab.federez.net/re2o/re2o/-/merge_requests/496): Add option to allow users to choose their password during account creation. They will have to separately confirm their email address.
+* [!504](https://gitlab.federez.net/re2o/re2o/-/merge_requests/504): Add setting to change the minimum password length.
+* [!507](https://gitlab.federez.net/re2o/re2o/-/merge_requests/507): New form for editing lists of rights that should make everyone happier.
+* [!512](https://gitlab.federez.net/re2o/re2o/-/merge_requests/512): Add ability to comment on tickets.
+* [!513](https://gitlab.federez.net/re2o/re2o/-/merge_requests/513): IP and MAC address history (`Statistics > Machine history` tab) which also works for deleted interfaces. Uses already existing history so events before the upgrade are taken into account.
+* [!516](https://gitlab.federez.net/re2o/re2o/-/merge_requests/516): Detailed events in history views (e.g. show `old_email -> new_email`).
+* [!519](https://gitlab.federez.net/re2o/re2o/-/merge_requests/516): Add ability to filter event logs (e.g. to show all the subscriptions added by an admin).
+* [!569](https://gitlab.federez.net/re2o/re2o/-/merge_requests/569): Refactor navbar to make menu navigation easier.
+* [!569](https://gitlab.federez.net/re2o/re2o/-/merge_requests/569): Add ability to install custom themes.
+* [!578](https://gitlab.federez.net/re2o/re2o/-/merge_requests/578) : Migrations squashed to ease the installation process.
+* [!582](https://gitlab.federez.net/re2o/re2o/-/merge_requests/582): Improve autocomplete fields so they load faster and have a clearer behavior (no more entering a value without clicking and thinking it was taken into account).
+* [!589](https://gitlab.federez.net/re2o/re2o/-/merge_requests/589): Move LDAP to a separate optional app.
+* Plenty of bux fixes.
+
+You can view the full list of closed issues [here](https://gitlab.federez.net/re2o/re2o/-/issues?scope=all&state=all&milestone_title=Re2o 2.9).
+
+# Before Re2o 2.9
+
 ## MR 160: Datepicker
 
 Install libjs-jquery libjs-jquery-ui libjs-jquery-timepicker libjs-bootstrap javascript-common
@@ -46,7 +89,6 @@ rm static_files/js/jquery-2.2.4.min.js
 rm static/css/jquery-ui-timepicker-addon.css
 ```
 
-
 ## MR 159: Graph topo & MR 164: branche de création de graph
 
 Add a graph of the network topology
@@ -59,7 +101,6 @@ Create the *media/images* directory:
 mkdir -p media/images
 ```
 
-
 ## MR 163: Fix install re2o
 
 Refactored install_re2o.sh script.
@@ -70,15 +111,12 @@ install_re2o.sh help
 
 * The installation templates (LDIF files and `re2o/settings_locale.example.py`) have been changed to use `example.net` instead of `example.org` (more neutral and generic)
 
-
-
 ## MR 176: Add awesome Logo
 
 Add the logo and fix somme issues on the navbar and home page. Only collecting the statics is needed:
 ```
 python3 manage.py collectstatic
 ```
-
 
 ## MR 172: Refactor API
 
@@ -99,7 +137,6 @@ OPTIONAL_APPS = (
     ...
 )
 ```
-
 
 ## MR 177: Add django-debug-toolbar support
 
