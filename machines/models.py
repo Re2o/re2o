@@ -58,6 +58,7 @@ from netaddr import (
 
 import preferences.models
 import users.models
+import users.signals
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
 
@@ -2541,7 +2542,7 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
 def machine_post_save(**kwargs):
     """Synchronise LDAP and regen firewall/DHCP after a machine is edited."""
     user = kwargs["instance"].user
-    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=False, mac_refresh=True)
     regen("dhcp")
     regen("mac_ip_list")
 
@@ -2551,7 +2552,7 @@ def machine_post_delete(**kwargs):
     """Synchronise LDAP and regen firewall/DHCP after a machine is deleted."""
     machine = kwargs["instance"]
     user = machine.user
-    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=False, mac_refresh=True)
     regen("dhcp")
     regen("mac_ip_list")
 
@@ -2564,7 +2565,7 @@ def interface_post_save(**kwargs):
     interface = kwargs["instance"]
     interface.sync_ipv6()
     user = interface.machine.user
-    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=False, mac_refresh=True)
     # Regen services
     regen("dhcp")
     regen("mac_ip_list")
@@ -2580,7 +2581,7 @@ def interface_post_delete(**kwargs):
     """
     interface = kwargs["instance"]
     user = interface.machine.user
-    user.ldap_sync(base=False, access_refresh=False, mac_refresh=True)
+    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=False, mac_refresh=True)
 
 
 @receiver(post_save, sender=IpType)
