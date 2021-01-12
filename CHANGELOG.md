@@ -30,15 +30,16 @@ sudo pip3 install -r pip_requirements.txt
 python3 manage.py collectstatic
 ```
 
-### MR 589: Move ldap to optional app
+### MR 589: Move LDAP to optional app
 
-Add `ldap_sync` to your optional apps in your local settings if you want to keep using the LDAP synchronisation.
+Add `ldap_sync` to your optional apps in your local settings (`re2o/settings_local.py`) if you want to keep using the LDAP synchronisation.
 
 ### Final steps
 
 As usual, run the following commands after updating:
 ```bash
 python3 manage.py migrate
+python3 manage.py compilemessages
 sudo service apache2 reload
 ```
 
@@ -60,7 +61,7 @@ Here is a list of noteworthy features brought by this update:
 * [!578](https://gitlab.federez.net/re2o/re2o/-/merge_requests/578) : Migrations squashed to ease the installation process.
 * [!582](https://gitlab.federez.net/re2o/re2o/-/merge_requests/582): Improve autocomplete fields so they load faster and have a clearer behavior (no more entering a value without clicking and thinking it was taken into account).
 * [!589](https://gitlab.federez.net/re2o/re2o/-/merge_requests/589): Move LDAP to a separate optional app.
-* Plenty of bux fixes.
+* Plenty of bug fixes.
 
 You can view the full list of closed issues [here](https://gitlab.federez.net/re2o/re2o/-/issues?scope=all&state=all&milestone_title=Re2o 2.9).
 

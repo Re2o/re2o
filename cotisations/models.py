@@ -50,6 +50,8 @@ from preferences.models import CotisationsOption
 from machines.models import regen
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
+import users.signals
+import users.models
 
 from cotisations.utils import find_payment_method, send_mail_invoice, send_mail_voucher
 from cotisations.validators import check_no_balance
@@ -356,7 +358,7 @@ def facture_post_save(**kwargs):
     if facture.valid:
         user = facture.user
         user.set_active()
-        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+        users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=True, mac_refresh=False)
 
 
 @receiver(post_delete, sender=Facture)
@@ -365,7 +367,7 @@ def facture_post_delete(**kwargs):
     Synchronise the LDAP user after an invoice has been deleted.
     """
     user = kwargs["instance"].user
-    user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=True, mac_refresh=False)
 
 
 class CustomInvoice(BaseInvoice):
@@ -661,7 +663,7 @@ def vente_post_save(**kwargs):
         purchase.cotisation.save()
         user = purchase.facture.facture.user
         user.set_active()
-        user.ldap_sync(base=True, access_refresh=True, mac_refresh=False)
+        users.signals.synchronise.send(sender=users.models.User, instance=user, base=True, access_refresh=True, mac_refresh=False)
 
 
 # TODO : change vente to purchase
@@ -677,7 +679,7 @@ def vente_post_delete(**kwargs):
         return
     if purchase.type_cotisation:
         user = invoice.user
-        user.ldap_sync(base=False, access_refresh=True, mac_refresh=False)
+        users.signals.synchronise.send(sender=users.models.User, instance=user, base=True, access_refresh=True, mac_refresh=False)
 
 
 class Article(RevMixin, AclMixin, models.Model):
