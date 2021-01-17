@@ -270,7 +270,7 @@ msgid "Control invoices"
 msgstr "Contrôler les factures"
 
 #: templates/nav.html:112
-msgid "Cutsom invoices"
+msgid "Custom invoices"
 msgstr "Facture personnalisée"
 
 #: templates/nav.html:117
