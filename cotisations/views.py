@@ -1057,7 +1057,7 @@ def voucher_pdf(request, invoice, **_kwargs):
             "lastname": invoice.user.surname,
             "email": invoice.user.email,
             "phone": invoice.user.telephone,
-            "date_end": invoice.get_subscription().latest("date_end").date_end,
+            "date_end": invoice.get_subscription().latest("date_end_memb").date_end_memb,
             "date_begin": invoice.date,
         },
     )

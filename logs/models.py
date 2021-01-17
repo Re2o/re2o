@@ -360,7 +360,7 @@ class HistoryEvent:
 
         return value
 
-    def edits(self, hide=[]):
+    def edits(self, hide=["password", "pwd_ntlm"]):
         """Get the list of the changes performed during this event.
 
         Args:

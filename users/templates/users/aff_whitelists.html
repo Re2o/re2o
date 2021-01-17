@@ -30,43 +30,44 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load acl %}
 {% load logs_extra %}
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            {% trans "User" as tr_user %}
-            <th>{% include 'buttons/sort.html' with prefix='white' col="user" text=tr_user %}</th>
-            <th>{% trans "Reason" %}</th>
-            {% trans "Start date" as tr_start %}
-            <th>{% include 'buttons/sort.html' with prefix='white' col="start" text=tr_start %}</th>
-            {% trans "End date" as tr_end %}
-            <th>{% include 'buttons/sort.html' with prefix='white' col="end" text=tr_end %}</th>
-            <th></th>
-        </tr>
-    </thead>
-    {% for whitelist in white_list %}
-    {% if whitelist.is_active %}
-        <tr class="success">
-    {% else %}
-        <tr>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                {% trans "User" as tr_user %}
+                <th>{% include 'buttons/sort.html' with prefix='white' col="user" text=tr_user %}</th>
+                <th>{% trans "Reason" %}</th>
+                {% trans "Start date" as tr_start %}
+                <th>{% include 'buttons/sort.html' with prefix='white' col="start" text=tr_start %}</th>
+                {% trans "End date" as tr_end %}
+                <th>{% include 'buttons/sort.html' with prefix='white' col="end" text=tr_end %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        {% for whitelist in white_list %}
+        {% if whitelist.is_active %}
+            <tr class="success">
+        {% else %}
+            <tr>
+        {% endif %}
+                <td><a href="{% url 'users:profil' whitelist.user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i> {{ whitelist.user }}</a></td>
+                <td>{{ whitelist.raison }}</td>
+                <td>{{ whitelist.date_start }}</td>
+                <td>{{ whitelist.date_end }}</td>
+                <td class="text-right">
+                    {% can_delete whitelist %}
+                    {% include 'buttons/suppr.html' with href='users:del-whitelist' id=whitelist.id %}
+                    {% acl_end %}
+                    {% history_button whitelist %}
+                    {% can_edit whitelist %}
+                    {% include 'buttons/edit.html' with href='users:edit-whitelist' id=whitelist.id %}
+                    {% acl_end %}
+                </td>
+            </tr>
+            {% endfor %}
+    </table>
+
+    {% if white_list.paginator %}
+        {% include 'pagination.html' with list=white_list %}
     {% endif %}
-            <td><a href="{% url 'users:profil' whitelist.user.id%}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-user"></i> {{ whitelist.user }}</a></td>
-            <td>{{ whitelist.raison }}</td>
-            <td>{{ whitelist.date_start }}</td>
-            <td>{{ whitelist.date_end }}</td>
-            <td class="text-right">
-                {% can_delete whitelist %}
-                {% include 'buttons/suppr.html' with href='users:del-whitelist' id=whitelist.id %}
-                {% acl_end %}
-                {% history_button whitelist %}
-                {% can_edit whitelist %}
-                {% include 'buttons/edit.html' with href='users:edit-whitelist' id=whitelist.id %}
-                {% acl_end %}
-            </td>
-        </tr>
-        {% endfor %}
-</table>
-
-{% if white_list.paginator %}
-    {% include 'pagination.html' with list=white_list %}
-{% endif %}
-
+</div>
