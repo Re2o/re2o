@@ -31,9 +31,9 @@ def tick(valeur, autoescape=False):
 
     if isinstance(valeur, bool):
         if valeur == True:
-            result = '<i style="color: #1ECA18;" class="fa fa-check"></i>'
+            result = '<i class="fa fa-check text-success"></i>'
         else:
-            result = '<i style="color: #D10115;" class="fa fa-times"></i>'
+            result = '<i class="fa fa-times text-danger"></i>'
         return mark_safe(result)
 
     else:  #  if the value is not a boolean, display it as if tick was not called

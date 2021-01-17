@@ -60,7 +60,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td><a href="{% url 'users:profil' userid=facture.user.id %}">{{ facture.user }}</a></td>
             <td>
-                <table class="table-striped">
+                <table class="table-borderless">
                     {% for article in facture.name_detailed %}
                     <tr>
                         <td>
