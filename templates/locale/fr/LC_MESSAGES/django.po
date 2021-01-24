@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-17 22:00+0100\n"
+"POT-Creation-Date: 2021-01-24 11:51+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
 "Last-Translator: Yoann Piétri <me@nanoy.fr>\n"
 "Language-Team: \n"
@@ -80,7 +80,7 @@ msgstr "Non disponible"
 msgid "Unknown content"
 msgstr "Contenu incconu"
 
-#: templates/base.html:79 templates/registration/logged_out.html:11
+#: templates/base.html:76 templates/registration/logged_out.html:11
 #: templates/registration/password_change_done.html:11
 #: templates/registration/password_change_form.html:11
 #: templates/registration/password_reset_complete.html:11
@@ -452,7 +452,8 @@ msgstr "Dernière page"
 
 #: templates/registration/logged_out.html:16
 msgid "Thanks for spending some quality time with the Web site today."
-msgstr "Merci pour avoir passé un moment de qualite sur notre site aujourd'hui."
+msgstr ""
+"Merci pour avoir passé un moment de qualite sur notre site aujourd'hui."
 
 #: templates/registration/logged_out.html:17
 msgid "Log in again"
@@ -483,12 +484,14 @@ msgid ""
 "You're receiving this email because you requested a password reset for your "
 "user account at %(site_name)s."
 msgstr ""
-"Vous recevez cet email car vous avez demandé une réinitialisation du mot de passe "
-"de votre compte sur %(site_name)s."
+"Vous recevez cet email car vous avez demandé une réinitialisation du mot de "
+"passe de votre compte sur %(site_name)s."
 
 #: templates/registration/password_reset_email.html:4
 msgid "Please go to the following page and choose a new password:"
-msgstr "Merci de vous rendre sur la page suivante et de choisir un nouveau mot de passe : "
+msgstr ""
+"Merci de vous rendre sur la page suivante et de choisir un nouveau mot de "
+"passe : "
 
 #: templates/registration/password_reset_email.html:9
 msgid "Thanks for using our site!"
@@ -512,6 +515,7 @@ msgid "Internet access"
 msgstr "Accès Internet"
 
 #: templates/sidebar.html:51 templates/sidebar.html:85
+#, python-format
 msgid ""
 "Until\n"
 "                    %(end_access_date)s"
@@ -526,6 +530,7 @@ msgid "Membership"
 msgstr "Adhésion"
 
 #: templates/sidebar.html:63 templates/sidebar.html:96
+#, python-format
 msgid ""
 "Until\n"
 "                    %(end_adhesion_date)s"
@@ -544,6 +549,7 @@ msgid "You are not logged in."
 msgstr "Vous n'êtes pas connecté."
 
 #: templates/sidebar.html:120
+#, python-format
 msgid "%(nb)s active machine"
 msgid_plural ""
 "%(nb)s\n"
