@@ -92,7 +92,9 @@ from PIL import Image
 from io import BytesIO
 import sys
 
+
 # General utilities
+
 
 def linux_user_check(login):
     """Check if a login comply with unix base login policy
@@ -913,8 +915,8 @@ class User(
             days_not_zero = self.facture_set.filter(valid=True).exclude(Q(vente__duration_days_membership=0)).exists()
             if(not_zero or days_not_zero\
                     or OptionalUser.get_cached_value("all_users_active")):
-               self.state = self.STATE_ACTIVE
-               self.save()
+                self.state = self.STATE_ACTIVE
+                self.save()
         if self.state == self.STATE_ARCHIVE or self.state == self.STATE_FULL_ARCHIVE:
             self.unarchive()
             self.state = self.STATE_ACTIVE
@@ -1862,6 +1864,7 @@ class User(
         """
         return self.theme.split(".")[0]
 
+
 class Adherent(User):
     """Base re2o Adherent model, inherit from User. Add other attributes.
 
@@ -1923,7 +1926,7 @@ class Adherent(User):
         :return: An adherent.
 
         """
-        return cls.objects.get(pk=adherentid)
+        return cls.objects.get(pk=object_id)
 
     @staticmethod
     def can_create(user_request, *_args, **_kwargs):
@@ -2790,4 +2793,3 @@ class EMailAddress(RevMixin, AclMixin, models.Model):
         if result:
             raise ValidationError(reason)
         super(EMailAddress, self).clean(*args, **kwargs)
-
