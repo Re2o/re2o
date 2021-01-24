@@ -88,7 +88,7 @@ msgstr "Contenu incconu"
 #: templates/registration/password_reset_done.html:11
 #: templates/registration/password_reset_form.html:11
 msgid "Home"
-msgstr "Acceuil"
+msgstr "Accueil"
 
 #: templates/buttons/add.html:27
 msgid "Add"
