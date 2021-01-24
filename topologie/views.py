@@ -1331,7 +1331,7 @@ def make_machine_graph():
                     {"numero": port.port, "related": port.related.switch.get_name}
                 )
 
-        for ap in AccessPoint.all_ap_in(building).prefetch_related(
+        for ap in building.all_ap_in().prefetch_related(
             Prefetch(
                 "interface_set",
                 queryset=(

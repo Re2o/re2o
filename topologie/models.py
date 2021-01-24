@@ -129,17 +129,17 @@ class AccessPoint(Machine):
         return str(self.interface_set.first().domain.name)
 
     @classmethod
-    def all_ap_in(cls, building_instance):
-        """Get all the APs of the given building.
+    def all_ap_in(cls, building_set):
+        """Get all the APs of the given building set.
 
         Args:
-            building_instance: the building used to find APs.
+            building_set: the building set used to find APs.
 
         Returns:
-            The queryset of all APs in the given building.
+            The queryset of all APs in the given building set.
         """
         return cls.objects.filter(
-            interface__port__switch__switchbay__building=building_instance
+            interface__port__switch__switchbay__building__in=building_set
         )
 
     def __str__(self):
@@ -770,7 +770,7 @@ class Building(AclMixin, RevMixin, models.Model):
 
     def all_ap_in(self):
         """Get all the APs in the building."""
-        return AccessPoint.all_ap_in(self)
+        return AccessPoint.all_ap_in(Building.objects.filter(id=self.id))
 
     def get_name(self):
         if Dormitory.is_multiple_dorms():
