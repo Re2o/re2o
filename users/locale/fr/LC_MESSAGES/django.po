@@ -530,10 +530,8 @@ msgid "You don't have the right to create a user."
 msgstr "Vous n'avez pas le droit de créer un utilisateur."
 
 #: users/models.py:1979
-#, fuzzy
-#| msgid "You don't have the right to edit another user."
 msgid "You don't have the right to list all adherents."
-msgstr "Vous n'avez pas le droit de modifier un autre utilisateur."
+msgstr "Vous n'avez pas le droit de voir la liste des adhérents."
 
 #: users/models.py:2021
 msgid "club"
@@ -907,10 +905,8 @@ msgstr ""
 "( %(objet)s ) ?"
 
 #: users/templates/users/index.html:35
-#, fuzzy
-#| msgid "Add a shell"
 msgid "Add a user"
-msgstr "Ajouter une interface en ligne de commande"
+msgstr "Ajouter un utilisateur"
 
 #: users/templates/users/index_ban.html:32
 #: users/templates/users/profil.html:428
@@ -922,10 +918,8 @@ msgid "Clubs"
 msgstr "Clubs"
 
 #: users/templates/users/index_clubs.html:35
-#, fuzzy
-#| msgid "Add a ban"
 msgid "Add a club"
-msgstr "Ajouter un bannissement"
+msgstr "Ajouter un club"
 
 #: users/templates/users/index_emailaddress.html:32
 msgid "Local email accounts"

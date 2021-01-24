@@ -131,10 +131,8 @@ msgid "date"
 msgstr "date"
 
 #: cotisations/models.py:66
-#, fuzzy
-#| msgid "Can view an invoice object"
 msgid "Can view an base invoice object"
-msgstr "Peut voir un objet facture"
+msgstr "Peut voir un objet BaseInvoice"
 
 #: cotisations/models.py:148
 msgid "cheque number"
