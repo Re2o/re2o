@@ -57,13 +57,13 @@ Here is a list of noteworthy features brought by this update:
 * [!516](https://gitlab.federez.net/re2o/re2o/-/merge_requests/516): Detailed events in history views (e.g. show `old_email -> new_email`).
 * [!519](https://gitlab.federez.net/re2o/re2o/-/merge_requests/519): Add ability to filter event logs (e.g. to show all the subscriptions added by an admin).
 * [!569](https://gitlab.federez.net/re2o/re2o/-/merge_requests/569): Refactor navbar to make menu navigation easier.
-* [!569](https://gitlab.federez.net/re2o/re2o/-/merge_requests/569): Add ability to install custom themes.
+* [!569](https://gitlab.federez.net/re2o/re2o/-/merge_requests/569): Add ability to install custom themes (checkout [this repository](https://gitlab.federez.net/re2o/re2o-themes) for a list of Re2o themes).
 * [!578](https://gitlab.federez.net/re2o/re2o/-/merge_requests/578) : Migrations squashed to ease the installation process.
 * [!582](https://gitlab.federez.net/re2o/re2o/-/merge_requests/582): Improve autocomplete fields so they load faster and have a clearer behavior (no more entering a value without clicking and thinking it was taken into account).
 * [!589](https://gitlab.federez.net/re2o/re2o/-/merge_requests/589): Move LDAP to a separate optional app.
 * Plenty of bug fixes.
 
-You can view the full list of closed issues [here](https://gitlab.federez.net/re2o/re2o/-/issues?scope=all&state=all&milestone_title=Re2o 2.9).
+You can view the full list of closed issues [here](https://gitlab.federez.net/re2o/re2o/-/issues?scope=all&state=all&milestone_title=Re2o%202.9).
 
 # Before Re2o 2.9
 

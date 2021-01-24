@@ -223,7 +223,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, AclMixin, models.Model):
                         "You don't have the right to delete a machine"
                         " of another user."
                     ),
-                    ("machines.delete_interface",) + (permissions or ()),
+                    ("machines.change_interface",) + (permissions or ()),
                 )
         return True, None, None
 
@@ -1654,7 +1654,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             if not (user_request.has_perm("machines.change_interface") and can_user):
                 return (
                     False,
-                    _("You don't have the right to edit a machine of another user."),
+                    _("You don't have the right to edit a machine of another" " user."),
                     ("machines.change_interface",) + (permissions or ()),
                 )
         return True, None, None
