@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-17 22:00+0100\n"
+"POT-Creation-Date: 2021-01-24 11:51+0100\n"
 "PO-Revision-Date: 2018-06-23 16:01+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -34,31 +34,31 @@ msgstr ""
 msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: logs/forms.py:40
+#: logs/forms.py:41
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: logs/forms.py:41
+#: logs/forms.py:42
 msgid "Machines"
 msgstr "Machines"
 
-#: logs/forms.py:42
+#: logs/forms.py:43
 msgid "Subscription"
 msgstr "Cotisations"
 
-#: logs/forms.py:43
+#: logs/forms.py:44
 msgid "Whitelists"
 msgstr "Accès gracieux"
 
-#: logs/forms.py:44
+#: logs/forms.py:45
 msgid "Bans"
 msgstr "Bannissements"
 
-#: logs/forms.py:45 logs/views.py:437
+#: logs/forms.py:46 logs/views.py:437
 msgid "Topology"
 msgstr "Topologie"
 
-#: logs/forms.py:46
+#: logs/forms.py:47
 msgid "All"
 msgstr "Tous"
 
@@ -66,34 +66,34 @@ msgstr "Tous"
 msgid "IPv4"
 msgstr "IPv4"
 
-#: logs/forms.py:51 logs/templates/logs/machine_history.html:36
+#: logs/forms.py:50 logs/templates/logs/machine_history.html:36
 msgid "MAC address"
 msgstr "Adresse MAC"
 
-#: logs/forms.py:118
+#: logs/forms.py:114
 msgid "Performed by"
 msgstr "Effectué(e) par"
 
-#: logs/forms.py:123
+#: logs/forms.py:120
 msgid "Action type"
 msgstr "Type d'action"
 
-#: logs/forms.py:129 logs/forms.py:152
+#: logs/forms.py:126 logs/forms.py:146
 #: logs/templates/logs/machine_history.html:37
 msgid "Start date"
 msgstr "Date de début"
 
-#: logs/forms.py:130 logs/forms.py:153
+#: logs/forms.py:127 logs/forms.py:147
 #: logs/templates/logs/machine_history.html:38
 msgid "End date"
 msgstr "Date de fin"
 
-#: logs/forms.py:145 logs/templates/logs/search_machine_history.html:38
-#: logs/templates/logs/search_stats_logs.html:36
+#: logs/forms.py:142 logs/templates/logs/search_machine_history.html:38
+#: logs/templates/logs/search_stats_logs.html:35
 msgid "Search"
 msgstr "Rechercher"
 
-#: logs/forms.py:149
+#: logs/forms.py:144
 msgid "Search type"
 msgstr "Type de recherche"
 
@@ -274,8 +274,8 @@ msgstr "Aucun résultat"
 msgid "Search machine history"
 msgstr "Rechercher l'historique des machines"
 
-#: logs/templates/logs/search_stats_logs.html:28
-#: logs/templates/logs/search_stats_logs.html:33
+#: logs/templates/logs/search_stats_logs.html:27
+#: logs/templates/logs/search_stats_logs.html:32
 msgid "Search events"
 msgstr "Recherche les évènements"
 
