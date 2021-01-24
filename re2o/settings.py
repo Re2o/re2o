@@ -165,6 +165,8 @@ if "LOCAL_ROUTERS" in globals():
 
 # django-bootstrap3 config
 BOOTSTRAP3 = {
+    "css_url": "/javascript/bootstrap/css/bootstrap.min.css",
+    "javascript_url": "/javascript/bootstrap/js/bootstrap.min.js",
     "jquery_url": "/javascript/jquery/jquery.min.js",
     "base_url": "/javascript/bootstrap/",
     "include_jquery": True,
@@ -176,6 +178,7 @@ BOOTSTRAP_BASE_URL = "/javascript/bootstrap/"
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static").replace("\\", "/"),
     "/usr/share/fonts-font-awesome/",
+    "/usr/share/javascript/",
 )
 # Directory where the static files served by the server are stored
 STATIC_ROOT = os.path.join(BASE_DIR, "static_files")
