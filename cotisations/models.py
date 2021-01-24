@@ -60,6 +60,12 @@ from cotisations.validators import check_no_balance
 class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
 
+    class Meta:
+        abstract = False
+        permissions = (
+            ("view_baseinvoice", _("Can view an base invoice object")),
+        )
+
     # TODO : change prix to price
     def prix(self):
         """
