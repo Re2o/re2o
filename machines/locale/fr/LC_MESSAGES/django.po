@@ -418,10 +418,8 @@ msgid "You don't have the right to use all extensions."
 msgstr "Vous n'avez pas le droit d'utiliser toutes les extensions."
 
 #: machines/models.py:1006
-#, fuzzy
-#| msgid "You don't have the right to use all extensions."
 msgid "You don't have the right to list all extensions."
-msgstr "Vous n'avez pas le droit d'utiliser toutes les extensions."
+msgstr "Vous n'avez pas le droit de voir la liste des extensions."
 
 #: machines/models.py:1016
 msgid "An extension must begin with a dot."

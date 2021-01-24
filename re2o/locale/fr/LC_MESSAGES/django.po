@@ -100,16 +100,14 @@ msgid "You don't have the right to view every %s object."
 msgstr "Vous n'avez pas le droit de voir tous les objets %s."
 
 #: re2o/mixins.py:207
-#, fuzzy, python-format
-#| msgid "You don't have the right to view every %s object."
+#, python-format
 msgid "You don't have the right to edit every %s object."
-msgstr "Vous n'avez pas le droit de voir tous les objets %s."
+msgstr "Vous n'avez pas le droit de modifier tous les objets %s."
 
 #: re2o/mixins.py:228
-#, fuzzy, python-format
-#| msgid "You don't have the right to view every %s object."
+#, python-format
 msgid "You don't have the right to list every %s object."
-msgstr "Vous n'avez pas le droit de voir tous les objets %s."
+msgstr "Vous n'avez pas le droit de voir la liste des objets %s."
 
 #: re2o/mixins.py:250
 #, python-format
