@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -34,16 +34,19 @@ from django.utils.translation import ugettext_lazy as _
 
 from topologie.models import Dormitory
 
+from .preferences.models import MultiopOption
+
 
 class DormitoryForm(FormRevMixin, Form):
-    """Select a dorm"""
+    """Form used to select dormitories."""
 
     dormitory = forms.ModelMultipleChoiceField(
-        queryset=Dormitory.objects.all(),
         label=_("Dormitory"),
         widget=forms.CheckboxSelectMultiple,
         required=False,
+        queryset=Dormitory.objects.none(),
     )
 
     def __init__(self, *args, **kwargs):
         super(DormitoryForm, self).__init__(*args, **kwargs)
+        self.fields["dormitory"].queryset = MultiopOption.get_cached_value("enabled_dorm").all()

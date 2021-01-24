@@ -1,4 +1,4 @@
-# Re2o un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -20,7 +20,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Formulaire d'edition des réglages : user, machine, topologie, asso...
+Forms to edit preferences: users, machines, topology, organisation etc.
 """
 
 from __future__ import unicode_literals
@@ -30,6 +30,10 @@ from django.db.models import Q
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteModelWidget,
+    AutocompleteMultipleModelWidget
+)
 from .models import (
     OptionalUser,
     OptionalMachine,
@@ -53,7 +57,7 @@ from topologie.models import Switch
 
 
 class EditOptionalUserForm(ModelForm):
-    """Formulaire d'édition des options de l'user. (solde, telephone..)"""
+    """Form used to edit user preferences."""
 
     class Meta:
         model = OptionalUser
@@ -66,12 +70,23 @@ class EditOptionalUserForm(ModelForm):
         self.fields["gpg_fingerprint"].label = _("GPG fingerprint")
         self.fields["all_can_create_club"].label = _("All can create a club")
         self.fields["all_can_create_adherent"].label = _("All can create a member")
-        self.fields["self_adhesion"].label = _("Self registration")
         self.fields["shell_default"].label = _("Default shell")
+        self.fields["self_change_shell"].label = _("Self change shell")
+        self.fields["self_change_pseudo"].label = _("Self change pseudo")
+        self.fields["self_room_policy"].label = _("Self room policy")
+        self.fields["local_email_accounts_enabled"].label = _("Local email accounts enabled")
+        self.fields["local_email_domain"].label = _("Local email domain")
+        self.fields["max_email_address"].label = _("Max local email address")
+        self.fields["delete_notyetactive"].label = _("Delete not yet active users")
+        self.fields["disable_emailnotyetconfirmed"].label = _("Disabled email not yet confirmed")
+        self.fields["self_adhesion"].label = _("Self registration")
+        self.fields["all_users_active"].label = _("All users are state active by default")
+        self.fields["allow_set_password_during_user_creation"].label = _("Allow set password during user creation")
+        self.fields["allow_archived_connexion"].label = _("Allow archived connexion")
 
 
 class EditOptionalMachineForm(ModelForm):
-    """Options machines (max de machines, etc)"""
+    """Form used to edit machine preferences."""
 
     class Meta:
         model = OptionalMachine
@@ -94,17 +109,22 @@ class EditOptionalMachineForm(ModelForm):
 
 
 class EditOptionalTopologieForm(ModelForm):
-    """Options de topologie, formulaire d'edition (vlan par default etc)
-    On rajoute un champ automatic provision switchs pour gérer facilement
-    l'ajout de switchs au provisionning automatique"""
+    """Form used to edit the configuration of switches."""
 
     automatic_provision_switchs = forms.ModelMultipleChoiceField(
-        Switch.objects.all(), required=False
+        Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
     )
 
     class Meta:
         model = OptionalTopologie
         fields = "__all__"
+        widgets = {
+            "switchs_ip_type": AutocompleteModelWidget(
+                url="/machines/iptype-autocomplete",
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -124,7 +144,7 @@ class EditOptionalTopologieForm(ModelForm):
 
 
 class EditGeneralOptionForm(ModelForm):
-    """Options générales (affichages de résultats de recherche, etc)"""
+    """Form used to edit general preferences."""
 
     class Meta:
         model = GeneralOption
@@ -154,11 +174,16 @@ class EditGeneralOptionForm(ModelForm):
 
 
 class EditAssoOptionForm(ModelForm):
-    """Options de l'asso (addresse, telephone, etc)"""
+    """Form used to edit information about the organisation."""
 
     class Meta:
         model = AssoOption
         fields = "__all__"
+        widgets = {
+            "utilisateur_asso": AutocompleteModelWidget(
+                url="/users/user-autocomplete",
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -177,7 +202,7 @@ class EditAssoOptionForm(ModelForm):
 
 
 class EditMailMessageOptionForm(ModelForm):
-    """Formulaire d'edition des messages de bienvenue personnalisés"""
+    """Form used to edit welcome email messages."""
 
     class Meta:
         model = MailMessageOption
@@ -195,7 +220,9 @@ class EditMailMessageOptionForm(ModelForm):
 
 
 class EditHomeOptionForm(ModelForm):
-    """Edition forms of Home options"""
+    """Form used to edit the social networks information displayed on the home
+    page.
+    """
 
     class Meta:
         model = HomeOption
@@ -210,7 +237,7 @@ class EditHomeOptionForm(ModelForm):
 
 
 class EditRadiusOptionForm(ModelForm):
-    """Edition forms for Radius options"""
+    """Form used to edit RADIUS preferences."""
 
     class Meta:
         model = RadiusOption
@@ -230,7 +257,7 @@ class EditRadiusOptionForm(ModelForm):
 
 
 class EditCotisationsOptionForm(ModelForm):
-    """Edition forms for Cotisations options"""
+    """Form used to edit subscription preferences."""
 
     class Meta:
         model = CotisationsOption
@@ -238,11 +265,16 @@ class EditCotisationsOptionForm(ModelForm):
 
 
 class MandateForm(ModelForm):
-    """Edit Mandates"""
+    """Form used to add and edit mandates."""
 
     class Meta:
         model = Mandate
         fields = "__all__"
+        widgets = {
+            "president": AutocompleteModelWidget(
+                url="/users/user-autocomplete",
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -307,7 +339,7 @@ class MandateForm(ModelForm):
 
 
 class ServiceForm(ModelForm):
-    """Edition, ajout de services sur la page d'accueil"""
+    """Form used to add and edit services displayed on the home page."""
 
     class Meta:
         model = Service
@@ -323,7 +355,8 @@ class ServiceForm(ModelForm):
 
 
 class DelServiceForm(Form):
-    """Suppression de services sur la page d'accueil"""
+    """Form used to delete one or several services displayed on the home page.
+    """
 
     services = forms.ModelMultipleChoiceField(
         queryset=Service.objects.none(),
@@ -341,7 +374,7 @@ class DelServiceForm(Form):
 
 
 class ReminderForm(FormRevMixin, ModelForm):
-    """Edition, ajout de services sur la page d'accueil"""
+    """Form used to add and edit reminders."""
 
     class Meta:
         model = Reminder
@@ -353,10 +386,12 @@ class ReminderForm(FormRevMixin, ModelForm):
 
 
 class RadiusKeyForm(FormRevMixin, ModelForm):
-    """Edition, ajout de clef radius"""
+    """Form used to add and edit RADIUS keys."""
 
     members = forms.ModelMultipleChoiceField(
-        queryset=Switch.objects.all(), required=False
+        queryset=Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
     )
 
     class Meta:
@@ -377,10 +412,13 @@ class RadiusKeyForm(FormRevMixin, ModelForm):
 
 
 class SwitchManagementCredForm(FormRevMixin, ModelForm):
-    """Edition, ajout de creds de management pour gestion
-    et interface rest des switchs"""
+    """Form used to add and edit switch management credentials."""
 
-    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
+    )
 
     class Meta:
         model = SwitchManagementCred
@@ -400,7 +438,7 @@ class SwitchManagementCredForm(FormRevMixin, ModelForm):
 
 
 class MailContactForm(ModelForm):
-    """Edition, ajout d'adresse de contact"""
+    """Form used to add and edit contact email addresses."""
 
     class Meta:
         model = MailContact
@@ -412,7 +450,7 @@ class MailContactForm(ModelForm):
 
 
 class DelMailContactForm(Form):
-    """Delete contact email adress"""
+    """Form used to delete one or several contact email addresses."""
 
     mailcontacts = forms.ModelMultipleChoiceField(
         queryset=MailContact.objects.none(),
@@ -430,9 +468,7 @@ class DelMailContactForm(Form):
 
 
 class DocumentTemplateForm(FormRevMixin, ModelForm):
-    """
-    Form used to create a document template.
-    """
+    """Form used to add and edit document templates."""
 
     class Meta:
         model = DocumentTemplate
@@ -444,10 +480,7 @@ class DocumentTemplateForm(FormRevMixin, ModelForm):
 
 
 class DelDocumentTemplateForm(FormRevMixin, Form):
-    """
-    Form used to delete one or more document templatess.
-    The use must choose the one to delete by checking the boxes.
-    """
+    """Form used to delete one or several document templates."""
 
     document_templates = forms.ModelMultipleChoiceField(
         queryset=DocumentTemplate.objects.none(),
@@ -465,7 +498,7 @@ class DelDocumentTemplateForm(FormRevMixin, Form):
 
 
 class RadiusAttributeForm(ModelForm):
-    """Edit and add RADIUS attributes."""
+    """Form used to add and edit RADIUS attributes."""
 
     class Meta:
         model = RadiusAttribute
@@ -477,7 +510,7 @@ class RadiusAttributeForm(ModelForm):
 
 
 class DelRadiusAttributeForm(Form):
-    """Delete RADIUS attributes"""
+    """Form used to delete one or several RADIUS attributes."""
 
     attributes = forms.ModelMultipleChoiceField(
         queryset=RadiusAttribute.objects.none(),

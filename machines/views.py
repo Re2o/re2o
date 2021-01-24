@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -35,9 +35,11 @@ from __future__ import unicode_literals
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import ProtectedError, F
+from django.db import IntegrityError
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
@@ -120,112 +122,17 @@ from .models import (
     OuverturePort,
     Ipv6List,
 )
-from .serializers import (
-    FullInterfaceSerializer,
-    InterfaceSerializer,
-    TypeSerializer,
-    DomainSerializer,
-    TxtSerializer,
-    SrvSerializer,
-    MxSerializer,
-    ExtensionSerializer,
-    ServiceServersSerializer,
-    NsSerializer,
-)
-
-
-def f_type_id(is_type_tt):
-    """ The id that will be used in HTML to store the value of the field
-    type. Depends on the fact that type is generate using typeahead or not
-    """
-    return (
-        "id_Interface-machine_type_hidden"
-        if is_type_tt
-        else "id_Interface-machine_type"
-    )
-
-
-def generate_ipv4_choices(form_obj):
-    """ Generate the parameter choices for the massive_bootstrap_form tag
-    """
-    f_ipv4 = form_obj.fields["ipv4"]
-    used_mtype_id = []
-    choices = '{"":[{key:"",value:"' + _("Select a machine type first.") + '"}'
-    mtype_id = -1
-
-    for ip in f_ipv4.queryset.annotate(mtype_id=F("ip_type__machinetype__id")).order_by(
-        "mtype_id", "id"
-    ):
-        if mtype_id != ip.mtype_id:
-            mtype_id = ip.mtype_id
-            used_mtype_id.append(mtype_id)
-            choices += '],"{t}":[{{key:"",value:"{v}"}},'.format(
-                t=mtype_id, v=f_ipv4.empty_label or '""'
-            )
-        choices += '{{key:{k},value:"{v}"}},'.format(k=ip.id, v=ip.ipv4)
-
-    for t in form_obj.fields["machine_type"].queryset.exclude(id__in=used_mtype_id):
-        choices += '], "' + str(t.id) + '": ['
-        choices += '{key: "", value: "' + str(f_ipv4.empty_label) + '"},'
-    choices += "]}"
-    return choices
-
-
-def generate_ipv4_engine(is_type_tt):
-    """ Generate the parameter engine for the massive_bootstrap_form tag
-    """
-    return (
-        "new Bloodhound( {{"
-        'datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),'
-        "queryTokenizer: Bloodhound.tokenizers.whitespace,"
-        'local: choices_ipv4[ $( "#{machine_type_id}" ).val() ],'
-        "identify: function( obj ) {{ return obj.key; }}"
-        "}} )"
-    ).format(machine_type_id=f_type_id(is_type_tt))
-
-
-def generate_ipv4_match_func(is_type_tt):
-    """ Generate the parameter match_func for the massive_bootstrap_form tag
-    """
-    return (
-        "function(q, sync) {{"
-        'if (q === "") {{'
-        'var first = choices_ipv4[$("#{machine_type_id}").val()].slice(0, 5);'
-        "first = first.map( function (obj) {{ return obj.key; }} );"
-        "sync(engine_ipv4.get(first));"
-        "}} else {{"
-        "engine_ipv4.search(q, sync);"
-        "}}"
-        "}}"
-    ).format(machine_type_id=f_type_id(is_type_tt))
-
-
-def generate_ipv4_mbf_param(form_obj, is_type_tt):
-    """ Generate all the parameters to use with the massive_bootstrap_form
-    tag """
-    i_choices = {"ipv4": generate_ipv4_choices(form_obj)}
-    i_engine = {"ipv4": generate_ipv4_engine(is_type_tt)}
-    i_match_func = {"ipv4": generate_ipv4_match_func(is_type_tt)}
-    i_update_on = {"ipv4": [f_type_id(is_type_tt)]}
-    i_gen_select = {"ipv4": False}
-    i_mbf_param = {
-        "choices": i_choices,
-        "engine": i_engine,
-        "match_func": i_match_func,
-        "update_on": i_update_on,
-        "gen_select": i_gen_select,
-    }
-    return i_mbf_param
 
 
 @login_required
 @can_create(Machine)
 @can_edit(User)
 def new_machine(request, user, **_kwargs):
-    """ Fonction de creation d'une machine. Cree l'objet machine,
-    le sous objet interface et l'objet domain à partir de model forms.
-    Trop complexe, devrait être simplifié"""
+    """View used to create machines.
 
+    Creates the object, the underlying interface and domain objects from model
+    forms. Too complex, should be simplified.
+    """
     machine = NewMachineForm(request.POST or None, user=request.user)
     interface = AddInterfaceForm(request.POST or None, user=request.user)
     domain = DomainForm(request.POST or None, user=user, initial={'name': user.get_next_domain_name()})
@@ -243,13 +150,11 @@ def new_machine(request, user, **_kwargs):
             new_domain.save()
             messages.success(request, _("The machine was created."))
             return redirect(reverse("users:profil", kwargs={"userid": str(user.id)}))
-    i_mbf_param = generate_ipv4_mbf_param(interface, False)
     return form(
         {
             "machineform": machine,
             "interfaceform": interface,
             "domainform": domain,
-            "i_mbf_param": i_mbf_param,
             "action_name": _("Add"),
         },
         "machines/machine.html",
@@ -260,10 +165,10 @@ def new_machine(request, user, **_kwargs):
 @login_required
 @can_edit(Interface)
 def edit_interface(request, interface_instance, **_kwargs):
-    """ Edition d'une interface. Distingue suivant les droits les valeurs
-    de interfaces et machines que l'user peut modifier infra permet de
-    modifier le propriétaire"""
+    """View used to edit interfaces.
 
+    The values a user can change depends on their rights.
+    """
     machine_form = EditMachineForm(
         request.POST or None, instance=interface_instance.machine, user=request.user
     )
@@ -289,13 +194,11 @@ def edit_interface(request, interface_instance, **_kwargs):
                 kwargs={"userid": str(interface_instance.machine.user.id)},
             )
         )
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form(
         {
             "machineform": machine_form,
             "interfaceform": interface_form,
             "domainform": domain_form,
-            "i_mbf_param": i_mbf_param,
             "action_name": _("Edit"),
         },
         "machines/machine.html",
@@ -306,7 +209,7 @@ def edit_interface(request, interface_instance, **_kwargs):
 @login_required
 @can_delete(Machine)
 def del_machine(request, machine, **_kwargs):
-    """ Supprime une machine, interfaces en mode cascade"""
+    """View used to delete machines, and the interfaces in cascade."""
     if request.method == "POST":
         machine.delete()
         messages.success(request, _("The machine was deleted."))
@@ -322,8 +225,9 @@ def del_machine(request, machine, **_kwargs):
 @can_create(Interface)
 @can_edit(Machine)
 def new_interface(request, machine, **_kwargs):
-    """ Ajoute une interface et son domain associé à une machine existante"""
-
+    """View used to create interfaces and the associated domains related to a
+    machine.
+    """
     interface_form = AddInterfaceForm(request.POST or None, user=request.user)
     domain_form = DomainForm(request.POST or None, user=request.user, initial={'name': machine.user.get_next_domain_name()})
     if interface_form.is_valid():
@@ -339,12 +243,10 @@ def new_interface(request, machine, **_kwargs):
             return redirect(
                 reverse("users:profil", kwargs={"userid": str(machine.user.id)})
             )
-    i_mbf_param = generate_ipv4_mbf_param(interface_form, False)
     return form(
         {
             "interfaceform": interface_form,
             "domainform": domain_form,
-            "i_mbf_param": i_mbf_param,
             "action_name": _("Add"),
         },
         "machines/machine.html",
@@ -355,7 +257,7 @@ def new_interface(request, machine, **_kwargs):
 @login_required
 @can_delete(Interface)
 def del_interface(request, interface, **_kwargs):
-    """ Supprime une interface. Domain objet en mode cascade"""
+    """View used to delete interfaces, and the domains in cascade."""
     if request.method == "POST":
         machine = interface.machine
         interface.delete()
@@ -374,7 +276,7 @@ def del_interface(request, interface, **_kwargs):
 @can_create(Ipv6List)
 @can_edit(Interface)
 def new_ipv6list(request, interface, **_kwargs):
-    """Nouvelle ipv6"""
+    """View used to create IPv6 addresses lists."""
     ipv6list_instance = Ipv6List(interface=interface)
     ipv6 = Ipv6ListForm(
         request.POST or None, instance=ipv6list_instance, user=request.user
@@ -395,7 +297,7 @@ def new_ipv6list(request, interface, **_kwargs):
 @login_required
 @can_edit(Ipv6List)
 def edit_ipv6list(request, ipv6list_instance, **_kwargs):
-    """Edition d'une ipv6"""
+    """View used to edit IPv6 addresses lists."""
     ipv6 = Ipv6ListForm(
         request.POST or None, instance=ipv6list_instance, user=request.user
     )
@@ -417,7 +319,7 @@ def edit_ipv6list(request, ipv6list_instance, **_kwargs):
 @login_required
 @can_delete(Ipv6List)
 def del_ipv6list(request, ipv6list, **_kwargs):
-    """ Supprime une ipv6"""
+    """View used to delete IPv6 addresses lists."""
     if request.method == "POST":
         interfaceid = ipv6list.interface.id
         ipv6list.delete()
@@ -434,7 +336,7 @@ def del_ipv6list(request, ipv6list, **_kwargs):
 @can_create(SshFp)
 @can_edit(Machine)
 def new_sshfp(request, machine, **_kwargs):
-    """Creates an SSHFP record associated with a machine"""
+    """View used to create SSHFP records associated with machines."""
     sshfp_instance = SshFp(machine=machine)
     sshfp = SshFpForm(request.POST or None, instance=sshfp_instance)
     if sshfp.is_valid():
@@ -453,7 +355,7 @@ def new_sshfp(request, machine, **_kwargs):
 @login_required
 @can_edit(SshFp)
 def edit_sshfp(request, sshfp_instance, **_kwargs):
-    """Edits an SSHFP record"""
+    """View used to edit SSHFP records."""
     sshfp = SshFpForm(request.POST or None, instance=sshfp_instance)
     if sshfp.is_valid():
         if sshfp.changed_data:
@@ -473,7 +375,7 @@ def edit_sshfp(request, sshfp_instance, **_kwargs):
 @login_required
 @can_delete(SshFp)
 def del_sshfp(request, sshfp, **_kwargs):
-    """Deletes an SSHFP record"""
+    """View used to delete SSHFP records."""
     if request.method == "POST":
         machineid = sshfp.machine.id
         sshfp.delete()
@@ -489,9 +391,10 @@ def del_sshfp(request, sshfp, **_kwargs):
 @login_required
 @can_create(IpType)
 def add_iptype(request):
-    """ Ajoute un range d'ip. Intelligence dans le models, fonction views
-    minimaliste"""
+    """View used to create IP ranges.
 
+    The view function is simple, the intelligence is in the model.
+    """
     iptype = IpTypeForm(request.POST or None)
     if iptype.is_valid():
         iptype.save()
@@ -507,14 +410,18 @@ def add_iptype(request):
 @login_required
 @can_edit(IpType)
 def edit_iptype(request, iptype_instance, **_kwargs):
-    """ Edition d'un range. Ne permet pas de le redimensionner pour éviter
-    l'incohérence"""
+    """View used to edit IP ranges.
 
+    Changing the size of the range is not possible to prevent inconsistency.
+    """
     iptype = EditIpTypeForm(request.POST or None, instance=iptype_instance)
     if iptype.is_valid():
         if iptype.changed_data:
-            iptype.save()
-            messages.success(request, _("The IP type was edited."))
+            try:
+                iptype.save()
+                messages.success(request, _("The IP type was edited."))
+            except IntegrityError as e:
+                messages.success(request, _("This IP type change would create duplicated domains"))
         return redirect(reverse("machines:index-iptype"))
     return form(
         {"iptypeform": iptype, "action_name": _("Edit")},
@@ -526,7 +433,10 @@ def edit_iptype(request, iptype_instance, **_kwargs):
 @login_required
 @can_delete_set(IpType)
 def del_iptype(request, instances):
-    """ Suppression d'un range ip. Supprime les objets ip associés"""
+    """View used to delete IP ranges.
+
+    Deletes the related IP objects.
+    """
     iptype = DelIpTypeForm(request.POST or None, instances=instances)
     if iptype.is_valid():
         iptype_dels = iptype.cleaned_data["iptypes"]
@@ -556,7 +466,7 @@ def del_iptype(request, instances):
 @login_required
 @can_create(MachineType)
 def add_machinetype(request):
-    """ View used to add a Machinetype object """
+    """View used to create machine types."""
     machinetype = MachineTypeForm(request.POST or None)
     if machinetype.is_valid():
         machinetype.save()
@@ -572,12 +482,15 @@ def add_machinetype(request):
 @login_required
 @can_edit(MachineType)
 def edit_machinetype(request, machinetype_instance, **_kwargs):
-    """ View used to edit a MachineType object """
+    """View used to edit machine types."""
     machinetype = MachineTypeForm(request.POST or None, instance=machinetype_instance)
     if machinetype.is_valid():
         if machinetype.changed_data:
-            machinetype.save()
-            messages.success(request, _("The machine type was edited."))
+            try:
+                machinetype.save()
+                messages.success(request, _("The machine type was edited."))
+            except IntegrityError as e:
+                messages.error(request, _("This machine type change would create duplicated domains"))
         return redirect(reverse("machines:index-machinetype"))
     return form(
         {"machinetypeform": machinetype, "action_name": _("Edit")},
@@ -589,7 +502,7 @@ def edit_machinetype(request, machinetype_instance, **_kwargs):
 @login_required
 @can_delete_set(MachineType)
 def del_machinetype(request, instances):
-    """ View used to delete a MachineType object """
+    """View used to delete machines types."""
     machinetype = DelMachineTypeForm(request.POST or None, instances=instances)
     if machinetype.is_valid():
         machinetype_dels = machinetype.cleaned_data["machinetypes"]
@@ -619,7 +532,7 @@ def del_machinetype(request, instances):
 @login_required
 @can_create(Extension)
 def add_extension(request):
-    """ View used to add an Extension object """
+    """View used to create extensions."""
     extension = ExtensionForm(request.POST or None)
     if extension.is_valid():
         extension.save()
@@ -635,7 +548,7 @@ def add_extension(request):
 @login_required
 @can_edit(Extension)
 def edit_extension(request, extension_instance, **_kwargs):
-    """ View used to edit an Extension object """
+    """View used to edit extensions."""
     extension = ExtensionForm(request.POST or None, instance=extension_instance)
     if extension.is_valid():
         if extension.changed_data:
@@ -652,7 +565,7 @@ def edit_extension(request, extension_instance, **_kwargs):
 @login_required
 @can_delete_set(Extension)
 def del_extension(request, instances):
-    """ View used to delete an Extension object """
+    """View used to delete extensions."""
     extension = DelExtensionForm(request.POST or None, instances=instances)
     if extension.is_valid():
         extension_dels = extension.cleaned_data["extensions"]
@@ -660,13 +573,17 @@ def del_extension(request, instances):
             try:
                 extension_del.delete()
                 messages.success(request, _("The extension was deleted."))
-            except ProtectedError:
+            except ProtectedError as e:
                 messages.error(
                     request,
                     (
                         _(
-                            "The extension %s is assigned to at least one machine"
-                            " type, you can't delete it." % extension_del
+                            "The extension %s is assigned to following %s : %s"
+                            ", you can't delete it."
+                        ) % (
+                            extension_del,
+                            str(e.protected_objects.model._meta.verbose_name_plural),
+                            ",".join(map(lambda x: str(x['name']), e.protected_objects.values('name').iterator()))
                         )
                     ),
                 )
@@ -681,7 +598,7 @@ def del_extension(request, instances):
 @login_required
 @can_create(SOA)
 def add_soa(request):
-    """ View used to add a SOA object """
+    """View used to create SOA records."""
     soa = SOAForm(request.POST or None)
     if soa.is_valid():
         soa.save()
@@ -697,7 +614,7 @@ def add_soa(request):
 @login_required
 @can_edit(SOA)
 def edit_soa(request, soa_instance, **_kwargs):
-    """ View used to edit a SOA object """
+    """View used to edit SOA records."""
     soa = SOAForm(request.POST or None, instance=soa_instance)
     if soa.is_valid():
         if soa.changed_data:
@@ -712,7 +629,7 @@ def edit_soa(request, soa_instance, **_kwargs):
 @login_required
 @can_delete_set(SOA)
 def del_soa(request, instances):
-    """ View used to delete a SOA object """
+    """View used to delete SOA records."""
     soa = DelSOAForm(request.POST or None, instances=instances)
     if soa.is_valid():
         soa_dels = soa.cleaned_data["soa"]
@@ -733,7 +650,7 @@ def del_soa(request, instances):
 @login_required
 @can_create(Mx)
 def add_mx(request):
-    """ View used to add a MX object """
+    """View used to create MX records."""
     mx = MxForm(request.POST or None)
     if mx.is_valid():
         mx.save()
@@ -749,7 +666,7 @@ def add_mx(request):
 @login_required
 @can_edit(Mx)
 def edit_mx(request, mx_instance, **_kwargs):
-    """ View used to edit a MX object """
+    """View used to edit MX records."""
     mx = MxForm(request.POST or None, instance=mx_instance)
     if mx.is_valid():
         if mx.changed_data:
@@ -764,7 +681,7 @@ def edit_mx(request, mx_instance, **_kwargs):
 @login_required
 @can_delete_set(Mx)
 def del_mx(request, instances):
-    """ View used to delete a MX object """
+    """View used to delete MX records."""
     mx = DelMxForm(request.POST or None, instances=instances)
     if mx.is_valid():
         mx_dels = mx.cleaned_data["mx"]
@@ -785,7 +702,7 @@ def del_mx(request, instances):
 @login_required
 @can_create(Ns)
 def add_ns(request):
-    """ View used to add a NS object """
+    """View used to create NS records."""
     ns = NsForm(request.POST or None)
     if ns.is_valid():
         ns.save()
@@ -801,7 +718,7 @@ def add_ns(request):
 @login_required
 @can_edit(Ns)
 def edit_ns(request, ns_instance, **_kwargs):
-    """ View used to edit a NS object """
+    """View used to edit NS records."""
     ns = NsForm(request.POST or None, instance=ns_instance)
     if ns.is_valid():
         if ns.changed_data:
@@ -816,7 +733,7 @@ def edit_ns(request, ns_instance, **_kwargs):
 @login_required
 @can_delete_set(Ns)
 def del_ns(request, instances):
-    """ View used to delete a NS object """
+    """View used to delete NS records."""
     nss = DelNsForm(request.POST or None, instances=instances)
     if nss.is_valid():
         ns_dels = nss.cleaned_data["nss"]
@@ -837,7 +754,7 @@ def del_ns(request, instances):
 @login_required
 @can_create(DName)
 def add_dname(request):
-    """ View used to add a DName object """
+    """View used to create DNAME records."""
     dname = DNameForm(request.POST or None)
     if dname.is_valid():
         dname.save()
@@ -853,7 +770,7 @@ def add_dname(request):
 @login_required
 @can_edit(DName)
 def edit_dname(request, dname_instance, **_kwargs):
-    """ View used to edit a DName object """
+    """View used to edit DNAME records."""
     dname = DNameForm(request.POST or None, instance=dname_instance)
     if dname.is_valid():
         if dname.changed_data:
@@ -868,7 +785,7 @@ def edit_dname(request, dname_instance, **_kwargs):
 @login_required
 @can_delete_set(DName)
 def del_dname(request, instances):
-    """ View used to delete a DName object """
+    """View used to delete DNAME records."""
     dname = DelDNameForm(request.POST or None, instances=instances)
     if dname.is_valid():
         dname_dels = dname.cleaned_data["dname"]
@@ -892,7 +809,7 @@ def del_dname(request, instances):
 @login_required
 @can_create(Txt)
 def add_txt(request):
-    """ View used to add a TXT object """
+    """View used to create TXT records."""
     txt = TxtForm(request.POST or None)
     if txt.is_valid():
         txt.save()
@@ -908,7 +825,7 @@ def add_txt(request):
 @login_required
 @can_edit(Txt)
 def edit_txt(request, txt_instance, **_kwargs):
-    """ View used to edit a TXT object """
+    """View used to edit TXT records."""
     txt = TxtForm(request.POST or None, instance=txt_instance)
     if txt.is_valid():
         if txt.changed_data:
@@ -923,7 +840,7 @@ def edit_txt(request, txt_instance, **_kwargs):
 @login_required
 @can_delete_set(Txt)
 def del_txt(request, instances):
-    """ View used to delete a TXT object """
+    """View used to delete TXT records."""
     txt = DelTxtForm(request.POST or None, instances=instances)
     if txt.is_valid():
         txt_dels = txt.cleaned_data["txt"]
@@ -944,7 +861,7 @@ def del_txt(request, instances):
 @login_required
 @can_create(Srv)
 def add_srv(request):
-    """ View used to add a SRV object """
+    """View used to create SRV records."""
     srv = SrvForm(request.POST or None)
     if srv.is_valid():
         srv.save()
@@ -960,13 +877,13 @@ def add_srv(request):
 @login_required
 @can_edit(Srv)
 def edit_srv(request, srv_instance, **_kwargs):
-    """ View used to edit a SRV object """
+    """View used to edit SRV records."""
     srv = SrvForm(request.POST or None, instance=srv_instance)
     if srv.is_valid():
         if srv.changed_data:
             srv.save()
             messages.success(request, _("The SRV record was edited."))
-        return redirect(reverse("machines:1index-extension"))
+        return redirect(reverse("machines:index-extension"))
     return form(
         {"srvform": srv, "action_name": _("Edit")}, "machines/machine.html", request
     )
@@ -975,7 +892,7 @@ def edit_srv(request, srv_instance, **_kwargs):
 @login_required
 @can_delete_set(Srv)
 def del_srv(request, instances):
-    """ View used to delete a SRV object """
+    """View used to delete SRV records."""
     srv = DelSrvForm(request.POST or None, instances=instances)
     if srv.is_valid():
         srv_dels = srv.cleaned_data["srv"]
@@ -997,7 +914,7 @@ def del_srv(request, instances):
 @can_create(Domain)
 @can_edit(Interface)
 def add_alias(request, interface, interfaceid):
-    """ View used to add an Alias object """
+    """View used to create aliases."""
     alias = AliasForm(request.POST or None, user=request.user)
     if alias.is_valid():
         alias = alias.save(commit=False)
@@ -1017,7 +934,7 @@ def add_alias(request, interface, interfaceid):
 @login_required
 @can_edit(Domain)
 def edit_alias(request, domain_instance, **_kwargs):
-    """ View used to edit an Alias object """
+    """View used to edit aliases records."""
     alias = AliasForm(request.POST or None, instance=domain_instance, user=request.user)
     if alias.is_valid():
         if alias.changed_data:
@@ -1037,7 +954,7 @@ def edit_alias(request, domain_instance, **_kwargs):
 @login_required
 @can_edit(Interface)
 def del_alias(request, interface, interfaceid):
-    """ View used to delete an Alias object """
+    """View used to delete aliases records."""
     alias = DelAliasForm(request.POST or None, interface=interface)
     if alias.is_valid():
         alias_dels = alias.cleaned_data["alias"]
@@ -1062,7 +979,7 @@ def del_alias(request, interface, interfaceid):
 @login_required
 @can_create(Role)
 def add_role(request):
-    """ View used to add a Role object """
+    """View used to create roles."""
     role = RoleForm(request.POST or None)
     if role.is_valid():
         role.save()
@@ -1078,7 +995,7 @@ def add_role(request):
 @login_required
 @can_edit(Role)
 def edit_role(request, role_instance, **_kwargs):
-    """ View used to edit a Role object """
+    """View used to edit roles."""
     role = RoleForm(request.POST or None, instance=role_instance)
     if role.is_valid():
         if role.changed_data:
@@ -1093,7 +1010,7 @@ def edit_role(request, role_instance, **_kwargs):
 @login_required
 @can_delete_set(Role)
 def del_role(request, instances):
-    """ View used to delete a Service object """
+    """View used to delete roles."""
     role = DelRoleForm(request.POST or None, instances=instances)
     if role.is_valid():
         role_dels = role.cleaned_data["role"]
@@ -1114,7 +1031,7 @@ def del_role(request, instances):
 @login_required
 @can_create(Service)
 def add_service(request):
-    """ View used to add a Service object """
+    """View used to create services."""
     service = ServiceForm(request.POST or None)
     if service.is_valid():
         service.save()
@@ -1130,7 +1047,7 @@ def add_service(request):
 @login_required
 @can_edit(Service)
 def edit_service(request, service_instance, **_kwargs):
-    """ View used to edit a Service object """
+    """View used to edit services."""
     service = ServiceForm(request.POST or None, instance=service_instance)
     if service.is_valid():
         if service.changed_data:
@@ -1147,7 +1064,7 @@ def edit_service(request, service_instance, **_kwargs):
 @login_required
 @can_delete_set(Service)
 def del_service(request, instances):
-    """ View used to delete a Service object """
+    """View used to delete services."""
     service = DelServiceForm(request.POST or None, instances=instances)
     if service.is_valid():
         service_dels = service.cleaned_data["service"]
@@ -1180,7 +1097,7 @@ def regen_service(request, service, **_kwargs):
 @login_required
 @can_create(Vlan)
 def add_vlan(request):
-    """ View used to add a VLAN object """
+    """View used to create VLANs."""
     vlan = VlanForm(request.POST or None)
     if vlan.is_valid():
         vlan.save()
@@ -1196,7 +1113,7 @@ def add_vlan(request):
 @login_required
 @can_edit(Vlan)
 def edit_vlan(request, vlan_instance, **_kwargs):
-    """ View used to edit a VLAN object """
+    """View used to edit VLANs."""
     vlan = VlanForm(request.POST or None, instance=vlan_instance)
     if vlan.is_valid():
         if vlan.changed_data:
@@ -1211,7 +1128,7 @@ def edit_vlan(request, vlan_instance, **_kwargs):
 @login_required
 @can_delete_set(Vlan)
 def del_vlan(request, instances):
-    """ View used to delete a VLAN object """
+    """View used to delete VLANs."""
     vlan = DelVlanForm(request.POST or None, instances=instances)
     if vlan.is_valid():
         vlan_dels = vlan.cleaned_data["vlan"]
@@ -1232,7 +1149,7 @@ def del_vlan(request, instances):
 @login_required
 @can_create(Nas)
 def add_nas(request):
-    """ View used to add a NAS object """
+    """View used to create NAS devices."""
     nas = NasForm(request.POST or None)
     if nas.is_valid():
         nas.save()
@@ -1248,7 +1165,7 @@ def add_nas(request):
 @login_required
 @can_edit(Nas)
 def edit_nas(request, nas_instance, **_kwargs):
-    """ View used to edit a NAS object """
+    """View used to edit NAS devices."""
     nas = NasForm(request.POST or None, instance=nas_instance)
     if nas.is_valid():
         if nas.changed_data:
@@ -1263,7 +1180,7 @@ def edit_nas(request, nas_instance, **_kwargs):
 @login_required
 @can_delete_set(Nas)
 def del_nas(request, instances):
-    """ View used to delete a NAS object """
+    """View used to delete NAS devices."""
     nas = DelNasForm(request.POST or None, instances=instances)
     if nas.is_valid():
         nas_dels = nas.cleaned_data["nas"]
@@ -1284,8 +1201,8 @@ def del_nas(request, instances):
 @login_required
 @can_view_all(Machine)
 def index(request):
-    """ The home view for this app. Displays the list of registered
-    machines in Re2o """
+    """The home view for this app. Displays the list of registered
+    machines in Re2o."""
     pagination_large_number = GeneralOption.get_cached_value("pagination_large_number")
     machines_list = (
         Machine.objects.select_related("user")
@@ -1304,23 +1221,59 @@ def index(request):
     machines_list = re2o_paginator(request, machines_list, pagination_large_number)
     return render(request, "machines/index.html", {"machines_list": machines_list})
 
+# Canonic view for displaying machines in users's profil
+def aff_profil(request, user):
+    """View used to display the machines on a user's profile."""
+    machines = (
+    Machine.objects.filter(user=user)
+        .select_related("user")
+        .prefetch_related("interface_set__domain__extension")
+        .prefetch_related("interface_set__ipv4__ip_type__extension")
+        .prefetch_related("interface_set__machine_type")
+        .prefetch_related("interface_set__domain__related_domain__extension")
+    )    
+    machines = SortTable.sort(
+        machines,
+        request.GET.get("col"),
+        request.GET.get("order"),
+        SortTable.MACHINES_INDEX,
+    )
+    nb_machines = machines.count()
+    pagination_large_number = GeneralOption.get_cached_value("pagination_large_number")
+    machines = re2o_paginator(request, machines, pagination_large_number)
+
+    context = {
+            "users":user,
+            "machines_list": machines,
+            "nb_machines":nb_machines,
+    }
+
+    return render_to_string(
+            "machines/aff_profil.html",context=context,request=request,using=None
+    )
+
+
+
+
 
 @login_required
 @can_view_all(IpType)
 def index_iptype(request):
-    """ View displaying the list of existing types of IP """
+    """View used to display the list of existing types of IP."""
+    pagination_large_number = GeneralOption.get_cached_value("pagination_large_number")
     iptype_list = (
         IpType.objects.select_related("extension")
         .select_related("vlan")
         .order_by("name")
     )
+    iptype_list = re2o_paginator(request, iptype_list, pagination_large_number)
     return render(request, "machines/index_iptype.html", {"iptype_list": iptype_list})
 
 
 @login_required
 @can_view_all(Vlan)
 def index_vlan(request):
-    """ View displaying the list of existing VLANs """
+    """View used to display the list of existing VLANs."""
     vlan_list = Vlan.objects.prefetch_related("iptype_set").order_by("vlan_id")
     return render(request, "machines/index_vlan.html", {"vlan_list": vlan_list})
 
@@ -1328,7 +1281,7 @@ def index_vlan(request):
 @login_required
 @can_view_all(MachineType)
 def index_machinetype(request):
-    """ View displaying the list of existing types of machines """
+    """View used to display the list of existing types of machines."""
     machinetype_list = MachineType.objects.select_related("ip_type").order_by("name")
     return render(
         request,
@@ -1340,7 +1293,7 @@ def index_machinetype(request):
 @login_required
 @can_view_all(Nas)
 def index_nas(request):
-    """ View displaying the list of existing NAS """
+    """View used to display the list of existing NAS devices."""
     nas_list = (
         Nas.objects.select_related("machine_type")
         .select_related("nas_type")
@@ -1352,10 +1305,11 @@ def index_nas(request):
 @login_required
 @can_view_all(SOA, Mx, Ns, Txt, DName, Srv, Extension)
 def index_extension(request):
-    """ View displaying the list of existing extensions, the list of
+    """View used to display the list of existing extensions, the list of
     existing SOA records, the list of existing MX records , the list of
     existing NS records, the list of existing TXT records and the list of
-    existing SRV records """
+    existing SRV records.
+    """
     extension_list = (
         Extension.objects.select_related("origin")
         .select_related("soa")
@@ -1397,7 +1351,7 @@ def index_extension(request):
 @login_required
 @can_edit(Interface)
 def index_alias(request, interface, interfaceid):
-    """ View used to display the list of existing alias of an interface """
+    """View used to display the list of existing aliases of an interface."""
     alias_list = Domain.objects.filter(
         cname=Domain.objects.filter(interface_parent=interface)
     ).order_by("name")
@@ -1412,7 +1366,7 @@ def index_alias(request, interface, interfaceid):
 @can_view(Machine)
 def index_sshfp(request, machine, machineid):
     """View used to display the list of existing SSHFP records associated
-    with a machine"""
+    with a machine."""
     sshfp_list = SshFp.objects.filter(machine=machine)
     return render(
         request,
@@ -1424,7 +1378,7 @@ def index_sshfp(request, machine, machineid):
 @login_required
 @can_view(Interface)
 def index_ipv6(request, interface, interfaceid):
-    """ View used to display the list of existing IPv6 of an interface """
+    """View used to display the list of existing IPv6 of an interface."""
     ipv6_list = Ipv6List.objects.filter(interface=interface)
     return render(
         request,
@@ -1436,7 +1390,7 @@ def index_ipv6(request, interface, interfaceid):
 @login_required
 @can_view_all(Role)
 def index_role(request):
-    """ View used to display the list of existing roles """
+    """View used to display the list of existing roles."""
     role_list = Role.objects.prefetch_related("servers__domain__extension").all()
     return render(request, "machines/index_role.html", {"role_list": role_list})
 
@@ -1444,7 +1398,7 @@ def index_role(request):
 @login_required
 @can_view_all(Service)
 def index_service(request):
-    """ View used to display the list of existing services """
+    """View used to display the list of existing services."""
     service_list = Service.objects.prefetch_related(
         "service_link_set__server__domain__extension"
     ).all()
@@ -1463,7 +1417,7 @@ def index_service(request):
 @login_required
 @can_view_all(OuverturePortList)
 def index_portlist(request):
-    """ View used to display the list of existing port policies """
+    """View used to display the list of existing port policies."""
     port_list = (
         OuverturePortList.objects.prefetch_related("ouvertureport_set")
         .prefetch_related("interface_set__domain__extension")
@@ -1476,7 +1430,7 @@ def index_portlist(request):
 @login_required
 @can_edit(OuverturePortList)
 def edit_portlist(request, ouvertureportlist_instance, **_kwargs):
-    """ View used to edit a port policy """
+    """View used to edit port policies."""
     port_list = EditOuverturePortListForm(
         request.POST or None, instance=ouvertureportlist_instance
     )
@@ -1511,7 +1465,7 @@ def edit_portlist(request, ouvertureportlist_instance, **_kwargs):
 @login_required
 @can_delete(OuverturePortList)
 def del_portlist(request, port_list_instance, **_kwargs):
-    """ View used to delete a port policy """
+    """View used to delete port policies."""
     port_list_instance.delete()
     messages.success(request, _("The ports list was deleted."))
     return redirect(reverse("machines:index-portlist"))
@@ -1520,7 +1474,7 @@ def del_portlist(request, port_list_instance, **_kwargs):
 @login_required
 @can_create(OuverturePortList)
 def add_portlist(request):
-    """ View used to add a port policy """
+    """View used to create port policies."""
     port_list = EditOuverturePortListForm(request.POST or None)
     port_formset = modelformset_factory(
         OuverturePort,
@@ -1551,8 +1505,9 @@ def add_portlist(request):
 @can_create(OuverturePort)
 @can_edit(Interface)
 def configure_ports(request, interface_instance, **_kwargs):
-    """ View to display the list of configured port policy for an
-    interface """
+    """View to display the list of configured port policies for an
+    interface.
+    """
     if not interface_instance.may_have_port_open():
         messages.error(
             request,
@@ -1577,240 +1532,3 @@ def configure_ports(request, interface_instance, **_kwargs):
         request,
     )
 
-
-# Framework Rest
-
-
-class JSONResponse(HttpResponse):
-    """ Class to build a JSON response. Used for API """
-
-    def __init__(self, data, **kwargs):
-        content = JSONRenderer().render(data)
-        kwargs["content_type"] = "application/json"
-        super(JSONResponse, self).__init__(content, **kwargs)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def mac_ip_list(_request):
-    """ API view to list the active and assigned interfaces """
-    interfaces = all_active_assigned_interfaces()
-    seria = InterfaceSerializer(interfaces, many=True)
-    return seria.data
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def full_mac_ip_list(_request):
-    """ API view to list the active and assigned interfaces. More
-    detailed than mac_ip_list(request) """
-    interfaces = all_active_assigned_interfaces(full=True)
-    seria = FullInterfaceSerializer(interfaces, many=True)
-    return seria.data
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def alias(_request):
-    """ API view to list the alias (CNAME) for all assigned interfaces """
-    alias = (
-        Domain.objects.filter(interface_parent=None)
-        .filter(
-            cname__in=Domain.objects.filter(
-                interface_parent__in=Interface.objects.exclude(ipv4=None)
-            )
-        )
-        .select_related("extension")
-        .select_related("cname__extension")
-    )
-    seria = DomainSerializer(alias, many=True)
-    return JSONResponse(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def corresp(_request):
-    """ API view to list the types of IP and infos about it """
-    type = IpType.objects.all().select_related("extension")
-    seria = TypeSerializer(type, many=True)
-    return JSONResponse(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def mx(_request):
-    """ API view to list the MX records """
-    mx = Mx.objects.all().select_related("zone").select_related("name__extension")
-    seria = MxSerializer(mx, many=True)
-    return JSONResponse(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def txt(_request):
-    """ API view to list the TXT records """
-    txt = Txt.objects.all().select_related("zone")
-    seria = TxtSerializer(txt, many=True)
-    return JSONResponse(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def srv(_request):
-    """ API view to list the SRV records """
-    srv = (
-        Srv.objects.all()
-        .select_related("extension")
-        .select_related("target__extension")
-    )
-    seria = SrvSerializer(srv, many=True)
-    return JSONResponse(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def ns(_request):
-    """ API view to list the NS records """
-    ns = (
-        Ns.objects.exclude(
-            ns__in=Domain.objects.filter(
-                interface_parent__in=Interface.objects.filter(ipv4=None)
-            )
-        )
-        .select_related("zone")
-        .select_related("ns__extension")
-    )
-    seria = NsSerializer(ns, many=True)
-    return JSONResponse(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def zones(_request):
-    """ API view to list the DNS zones """
-    zones = Extension.objects.all().select_related("origin")
-    seria = ExtensionSerializer(zones, many=True)
-    return JSONResponse(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def mac_ip(request):
-    """ API view to list the active and assigned interfaces """
-    seria = mac_ip_list(request)
-    return JSONResponse(seria)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def mac_ip_dns(request):
-    """ API view to list the active and assigned interfaces. More
-    detailed than mac_ip_list(request) """
-    seria = full_mac_ip_list(request)
-    return JSONResponse(seria)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def service_servers(_request):
-    """ API view to list the service links """
-    service_link = (
-        Service_link.objects.all()
-        .select_related("server__domain")
-        .select_related("service")
-    )
-    seria = ServiceServersSerializer(service_link, many=True)
-    return JSONResponse(seria.data)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def ouverture_ports(_request):
-    """ API view to list the port policies for each IP """
-    r = {"ipv4": {}, "ipv6": {}}
-    for o in (
-        OuverturePortList.objects.all()
-        .prefetch_related("ouvertureport_set")
-        .prefetch_related("interface_set", "interface_set__ipv4")
-    ):
-        pl = {
-            "tcp_in": set(
-                map(
-                    str,
-                    o.ouvertureport_set.filter(
-                        protocole=OuverturePort.TCP, io=OuverturePort.IN
-                    ),
-                )
-            ),
-            "tcp_out": set(
-                map(
-                    str,
-                    o.ouvertureport_set.filter(
-                        protocole=OuverturePort.TCP, io=OuverturePort.OUT
-                    ),
-                )
-            ),
-            "udp_in": set(
-                map(
-                    str,
-                    o.ouvertureport_set.filter(
-                        protocole=OuverturePort.UDP, io=OuverturePort.IN
-                    ),
-                )
-            ),
-            "udp_out": set(
-                map(
-                    str,
-                    o.ouvertureport_set.filter(
-                        protocole=OuverturePort.UDP, io=OuverturePort.OUT
-                    ),
-                )
-            ),
-        }
-        for i in filter_active_interfaces(o.interface_set):
-            if i.may_have_port_open():
-                d = r["ipv4"].get(i.ipv4.ipv4, {})
-                d["tcp_in"] = d.get("tcp_in", set()).union(pl["tcp_in"])
-                d["tcp_out"] = d.get("tcp_out", set()).union(pl["tcp_out"])
-                d["udp_in"] = d.get("udp_in", set()).union(pl["udp_in"])
-                d["udp_out"] = d.get("udp_out", set()).union(pl["udp_out"])
-                r["ipv4"][i.ipv4.ipv4] = d
-            if i.ipv6():
-                for ipv6 in i.ipv6():
-                    d = r["ipv6"].get(ipv6.ipv6, {})
-                    d["tcp_in"] = d.get("tcp_in", set()).union(pl["tcp_in"])
-                    d["tcp_out"] = d.get("tcp_out", set()).union(pl["tcp_out"])
-                    d["udp_in"] = d.get("udp_in", set()).union(pl["udp_in"])
-                    d["udp_out"] = d.get("udp_out", set()).union(pl["udp_out"])
-                    r["ipv6"][ipv6.ipv6] = d
-    return JSONResponse(r)
-
-
-@csrf_exempt
-@login_required
-@permission_required("machines.serveur")
-def regen_achieved(request):
-    """ API view to list the regen status for each (Service link, Server)
-    couple """
-    obj = Service_link.objects.filter(
-        service__in=Service.objects.filter(service_type=request.POST["service"]),
-        server__in=Interface.objects.filter(
-            domain__in=Domain.objects.filter(name=request.POST["server"])
-        ),
-    )
-    if obj:
-        obj.first().done_regen()
-    return HttpResponse("Ok")

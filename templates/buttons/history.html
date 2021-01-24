@@ -1,5 +1,5 @@
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -23,6 +23,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load i18n %}
+
 <a {% if class%}class="btn btn-info btn-sm"{% endif %} role="button" title="{% trans "History" %}" href="{% url 'logs:history' application name id %}">
     <i class="fa fa-history"></i> {% if text %}{% trans "History" %}{% endif %}
 </a>

@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -20,14 +20,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Un forms le plus simple possible pour les objets topologie de re2o.
+Forms for the topologie app of re2o.
 
-Permet de créer et supprimer : un Port de switch, relié à un switch.
-
-Permet de créer des stacks et d'y ajouter des switchs (StackForm)
-
-Permet de créer, supprimer et editer un switch (EditSwitchForm,
-NewSwitchForm)
+The forms are used to:
+    * create and delete switch ports, related to a switch.
+    * create stacks and add switches to them (StackForm).
+    * create, edit and delete a switch (NewSwitchForm, EditSwitchForm).
 """
 
 from __future__ import unicode_literals
@@ -40,6 +38,10 @@ from django.utils.translation import ugettext_lazy as _
 from machines.models import Interface
 from machines.forms import EditMachineForm, NewMachineForm
 from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteModelWidget,
+    AutocompleteMultipleModelWidget,
+)
 
 from .models import (
     Port,
@@ -59,12 +61,22 @@ from .models import (
 
 
 class PortForm(FormRevMixin, ModelForm):
-    """Formulaire pour la création d'un port d'un switch
-    Relié directement au modèle port"""
+    """Form used to manage a switch's port."""
 
     class Meta:
         model = Port
         fields = "__all__"
+        widgets = {
+            "switch": AutocompleteModelWidget(url="/topologie/switch-autocomplete"),
+            "room": AutocompleteModelWidget(url="/topologie/room-autocomplete"),
+            "machine_interface": AutocompleteModelWidget(
+                url="/machine/machine-autocomplete"
+            ),
+            "related": AutocompleteModelWidget(url="/topologie/port-autocomplete"),
+            "custom_profile": AutocompleteModelWidget(
+                url="/topologie/portprofile-autocomplete"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -72,14 +84,11 @@ class PortForm(FormRevMixin, ModelForm):
 
 
 class EditPortForm(FormRevMixin, ModelForm):
-    """Form pour l'édition d'un port de switche : changement des reglages
-    radius ou vlan, ou attribution d'une chambre, autre port ou machine
+    """Form used to edit a switch's port: change in RADIUS or VLANs settings,
+    assignement to a room, port or machine.
 
-    Un port est relié à une chambre, un autre port (uplink) ou une machine
-    (serveur ou borne), mutuellement exclusif
-    Optimisation sur les queryset pour machines et port_related pour
-    optimiser le temps de chargement avec select_related (vraiment
-    lent sans)"""
+    A port is related to either a room, another port (uplink) or a machine (server or AP).
+    """
 
     class Meta(PortForm.Meta):
         fields = [
@@ -106,8 +115,7 @@ class EditPortForm(FormRevMixin, ModelForm):
 
 
 class AddPortForm(FormRevMixin, ModelForm):
-    """Permet d'ajouter un port de switch. Voir EditPortForm pour plus
-    d'informations"""
+    """Form used to add a switch's port. See EditPortForm."""
 
     class Meta(PortForm.Meta):
         fields = [
@@ -139,8 +147,7 @@ class AddPortForm(FormRevMixin, ModelForm):
 
 
 class StackForm(FormRevMixin, ModelForm):
-    """Permet d'edition d'une stack : stack_id, et switches membres
-    de la stack"""
+    """Form used to create and edit stacks."""
 
     class Meta:
         model = Stack
@@ -152,8 +159,7 @@ class StackForm(FormRevMixin, ModelForm):
 
 
 class AddAccessPointForm(NewMachineForm):
-    """Formulaire pour la création d'une borne
-    Relié directement au modèle borne"""
+    """Form used to create access points."""
 
     class Meta:
         model = AccessPoint
@@ -161,35 +167,43 @@ class AddAccessPointForm(NewMachineForm):
 
 
 class EditAccessPointForm(EditMachineForm):
-    """Edition d'une borne. Edition complète"""
+    """Form used to edit access points."""
 
-    class Meta:
+    class Meta(EditMachineForm.Meta):
         model = AccessPoint
         fields = "__all__"
 
 
 class EditSwitchForm(EditMachineForm):
-    """Permet d'éditer un switch : nom et nombre de ports"""
+    """Form used to edit switches."""
 
-    class Meta:
+    class Meta(EditMachineForm.Meta):
         model = Switch
         fields = "__all__"
+        widgets = {
+            "switchbay": AutocompleteModelWidget(
+                url="/topologie/switchbay-autocomplete"
+            ),
+            "user": AutocompleteModelWidget(url="/users/user-autocomplete"),
+        }
 
 
 class NewSwitchForm(NewMachineForm):
-    """Permet de créer un switch : emplacement, paramètres machine,
-    membre d'un stack (option), nombre de ports (number)"""
+    """Form used to create a switch."""
 
     class Meta(EditSwitchForm.Meta):
         fields = ["name", "switchbay", "number", "stack", "stack_member_id"]
 
 
 class EditRoomForm(FormRevMixin, ModelForm):
-    """Permet d'éediter le nom et commentaire d'une prise murale"""
+    """Form used to edit a room."""
 
     class Meta:
         model = Room
         fields = "__all__"
+        widgets = {
+            "building": AutocompleteModelWidget(url="/topologie/building-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -197,16 +211,20 @@ class EditRoomForm(FormRevMixin, ModelForm):
 
 
 class CreatePortsForm(forms.Form):
-    """Permet de créer une liste de ports pour un switch."""
+    """Form used to create switch ports lists."""
 
     begin = forms.IntegerField(label=_("Start:"), min_value=0)
     end = forms.IntegerField(label=_("End:"), min_value=0)
 
 
 class EditModelSwitchForm(FormRevMixin, ModelForm):
-    """Permet d'éediter un modèle de switch : nom et constructeur"""
+    """Form used to edit switch models."""
 
-    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
+        required=False,
+    )
 
     class Meta:
         model = ModelSwitch
@@ -226,7 +244,7 @@ class EditModelSwitchForm(FormRevMixin, ModelForm):
 
 
 class EditConstructorSwitchForm(FormRevMixin, ModelForm):
-    """Permet d'éediter le nom d'un constructeur"""
+    """Form used to edit switch constructors."""
 
     class Meta:
         model = ConstructorSwitch
@@ -238,13 +256,20 @@ class EditConstructorSwitchForm(FormRevMixin, ModelForm):
 
 
 class EditSwitchBayForm(FormRevMixin, ModelForm):
-    """Permet d'éditer une baie de brassage"""
+    """Form used to edit switch bays."""
 
-    members = forms.ModelMultipleChoiceField(Switch.objects.all(), required=False)
+    members = forms.ModelMultipleChoiceField(
+        Switch.objects.all(),
+        required=False,
+        widget=AutocompleteMultipleModelWidget(url="/topologie/switch-autocomplete"),
+    )
 
     class Meta:
         model = SwitchBay
         fields = "__all__"
+        widgets = {
+            "building": AutocompleteModelWidget(url="/topologie/building-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -260,7 +285,7 @@ class EditSwitchBayForm(FormRevMixin, ModelForm):
 
 
 class EditBuildingForm(FormRevMixin, ModelForm):
-    """Permet d'éditer le batiment"""
+    """Form used to edit buildings."""
 
     class Meta:
         model = Building
@@ -272,7 +297,7 @@ class EditBuildingForm(FormRevMixin, ModelForm):
 
 
 class EditDormitoryForm(FormRevMixin, ModelForm):
-    """Enable dormitory edition"""
+    """Form used to edit dormitories."""
 
     class Meta:
         model = Dormitory
@@ -284,11 +309,17 @@ class EditDormitoryForm(FormRevMixin, ModelForm):
 
 
 class EditPortProfileForm(FormRevMixin, ModelForm):
-    """Form to edit a port profile"""
+    """Form used to edit port profiles."""
 
     class Meta:
         model = PortProfile
         fields = "__all__"
+        widgets = {
+            "vlan_tagged": AutocompleteMultipleModelWidget(
+                url="/machines/vlan-autocomplete"
+            ),
+            "vlan_untagged": AutocompleteModelWidget(url="/machines/vlan-autocomplete"),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -296,7 +327,7 @@ class EditPortProfileForm(FormRevMixin, ModelForm):
 
 
 class EditModuleForm(FormRevMixin, ModelForm):
-    """Add and edit module instance"""
+    """Form used to add and edit switch modules."""
 
     class Meta:
         model = ModuleSwitch
@@ -308,7 +339,7 @@ class EditModuleForm(FormRevMixin, ModelForm):
 
 
 class EditSwitchModuleForm(FormRevMixin, ModelForm):
-    """Add/edit a switch to a module"""
+    """Form used to add and edit modules related to a switch."""
 
     class Meta:
         model = ModuleOnSwitch

@@ -1,11 +1,12 @@
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
 Copyright © 2017  Gabriel Détraz
 Copyright © 2017  Lara Kermarec
 Copyright © 2017  Augustin Lemesle
+Copyright © 2020  Jean-Romain Garnier
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,36 +24,73 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load i18n %}
+{% load logs_extra %}
 
- {% if reversions.paginator %}
- <ul class="pagination nav navbar-nav">
-    {% if reversions.has_previous %}
-    	<li><a href="?page={{ reversions.previous_page_number }}">{% trans "Next" %}</a></li>
-    {% endif %}
-    {% for page in reversions.paginator.page_range %}
-        <li class="{% if reversions.number == page  %}active{% endif %}"><a href="?page={{page }}">{{ page }}</a></li>
-    {% endfor %}
-
-    {% if reversions.has_next %}
-    	<li> <a href="?page={{ reversions.next_page_number }}">{% trans "Previous" %}</a></li>
-    {% endif %}
- </ul>
- {% endif %}
-
-<table class="table table-striped">
-    <thead>
+{% if events %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{% trans "Date" %}</th>
+                <th>{% trans "Performed by" %}</th>
+                <th>{% trans "Edited" %}</th>
+                <th>{% trans "Comment" %}</th>
+            </tr>
+        </thead>
+        {% for event in events %}
         <tr>
-	    <th>{% trans "Date" %}</th>
-	    <th>{% trans "Performed by" %}</th>
-	    <th>{% trans "Comment" %}</th>
+            <td>{{ event.date }}</td>
+            <td>
+                {% if event.performed_by %}
+                    <a href="{% url 'users:profil' userid=event.performed_by.id %}" title=tr_view_the_profile>
+                        {{ event.performed_by }}
+                    </a>
+                {% else %}
+                    {% trans "Unknown" %}
+                {% endif %}
+            </td>
+            <td>
+                {% for edit in event.edits %}
+                    {% if edit.1 is None and edit.2 is None %}
+                        <strong>{{ edit.0 }}</strong><br/>
+                    {% elif edit.1 is None %}
+                        <strong>{{ edit.0 }}:</strong>
+                        <i class="text-success"> {{ edit.2 }}</i><br/>
+                    {% else %}
+                        <strong>{{ edit.0 }}:</strong>
+                        <i class="text-danger"> {{ edit.1 }} </i>
+                        ➔ <i class="text-success">{{ edit.2 }}</i><br/>
+                    {% endif %}
+                {% endfor %}
+            </td>
+            <td>{{ event.comment }}</td>
         </tr>
-   </thead>
-   {% for rev in reversions %}
-   <tr>
-       <td>{{ rev.revision.date_created }}</td>
-       <td>{{ rev.revision.user }}</td>
-       <td>{{ rev.revision.comment }}</td>
-   </tr>
-   {% endfor %}
-</table>
+        {% endfor %}
+    </table>
+    {% include 'pagination.html' with list=events %}
+{% else %}
+    <h3>{% trans "No event" %}</h3>
+{% endif %}
+
+{% if related_history %}
+
+    <h2>{% blocktrans %}Related elements{% endblocktrans %}</h2>
+
+    <ul>
+        {% for related in related_history %}
+        <li>
+            {% if related.object_id %}
+                <a href="{% url 'logs:history' related.app_name related.model_name related.object_id %}" title="{% trans "History" %}">
+                    {{ related.name }}
+                </a>
+            {% else %}
+                {{ related.name }}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<br />
+<br />
+<br />
+
 

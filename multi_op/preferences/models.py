@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -19,20 +19,24 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Fichier définissant les administration des models de preference 
+multi_op preferences model. The settings are used when managing dormitories
+with multiple operators.
 """
 
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from re2o.mixins import AclMixin, RevMixin
+from preferences.models import PreferencesModel
 
-class Preferences(models.Model):
-    """ Definition of the app settings"""
+
+class MultiopOption(AclMixin, PreferencesModel):
+    """Definition of the settings of multi_op."""
 
     enabled_dorm = models.ManyToManyField(
         "topologie.Dormitory",
-        related_name="vlan_tagged",
+        related_name="enabled_dorm_multiop",
         blank=True,
         verbose_name=_("enabled dorm"),
     )

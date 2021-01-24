@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -237,6 +237,11 @@ class AutodetectACLPermission(permissions.BasePermission):
         # Workaround to ensure ACLPermissions are not applied
         # to the root view when using DefaultRouter.
         if getattr(view, "_ignore_model_permissions", False):
+            return True
+
+        # Bypass permission verifications if it is a functional view
+        # (permissions are handled by ACL)
+        if not hasattr(view, "queryset") and not hasattr(view, "get_queryset"):
             return True
 
         if not request.user or not request.user.is_authenticated:

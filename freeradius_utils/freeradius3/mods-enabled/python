@@ -6,10 +6,10 @@
 # rlm_python is called for a section which does not have
 # a function defined, it will return NOOP.
 #
-python re2o {
+python3 re2o {
 	module = auth
 
-        python_path = /etc/freeradius/3.0:/usr/lib/python2.7:/usr/lib/python2.7/dist-packages:/usr/local/lib/python2.7/site-packages:/usr/lib/python2.7/lib-dynload:/usr/local/lib/python2.7/dist-packages
+        python_path = /etc/freeradius/3.0:/usr/lib/python3.7:/usr/lib/python3.7/dist-packages:/usr/local/lib/python3.7/site-packages:/usr/lib/python3.7/lib-dynload:/usr/local/lib/python3.7/dist-packages
 
 	mod_instantiate = ${.module}
 	func_instantiate = instantiate

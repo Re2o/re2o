@@ -1,0 +1,45 @@
+{% extends 'users/sidebar.html' %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2017  Gabriel Détraz
+Copyright © 2017  Lara Kermarec
+Copyright © 2017  Augustin Lemesle
+Copyright © 2017  Maël Kervella
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block title %}{% trans "Ticket" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Ticket opening" %}</h2>
+
+{% bootstrap_form_errors ticketform %}
+{{ ticketform.media }}
+
+<form class="form" method="post">
+    {% csrf_token %}
+    {% bootstrap_form ticketform  %}
+    {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
+</form>
+
+
+{% endblock %}

@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -37,6 +37,12 @@ CHOICES_USER = (
     ("4", _("Fully archived")),
 )
 
+CHOICES_EMAILS = (
+    ("0", _("Confirmed")),
+    ("1", _("Not confirmed")),
+    ("2", _("Waiting for email confirmation")),
+)
+
 CHOICES_AFF = (
     ("0", _("Users")),
     ("1", _("Machines")),
@@ -56,14 +62,15 @@ def initial_choices(choice_set):
 
 
 class SearchForm(Form):
-    """The form for a simple search"""
+    """Form used to do a simple search."""
 
     q = forms.CharField(
         label=_("Search"),
         help_text=(
             _(
                 'Use « » and «,» to specify distinct words, «"query"» for'
-                " an exact search and «\\» to escape a character."
+                " an exact search, «\\» to escape a character and «+» to"
+                " combine keywords."
             )
         ),
         max_length=100,
@@ -71,14 +78,15 @@ class SearchForm(Form):
 
 
 class SearchFormPlus(Form):
-    """The form for an advanced search (with filters)"""
+    """Form used to do an advanced search (with filters)."""
 
     q = forms.CharField(
         label=_("Search"),
         help_text=(
             _(
                 'Use « » and «,» to specify distinct words, «"query"» for'
-                " an exact search and «\\» to escape a character."
+                " an exact search, «\\» to escape a character and «+» to"
+                " combine keywords."
             )
         ),
         max_length=100,
@@ -90,6 +98,13 @@ class SearchFormPlus(Form):
         widget=forms.CheckboxSelectMultiple,
         choices=CHOICES_USER,
         initial=initial_choices(CHOICES_USER),
+    )
+    m = forms.MultipleChoiceField(
+        label=_("Email state filter"),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        choices=CHOICES_EMAILS,
+        initial=initial_choices(CHOICES_EMAILS),
     )
     a = forms.MultipleChoiceField(
         label=_("Display filter"),

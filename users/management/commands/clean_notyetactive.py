@@ -17,6 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 
 from users.models import User
 from cotisations.models import Facture
@@ -31,9 +32,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """First deleting invalid invoices, and then deleting the users"""
-        days = OptionalUser.get_cached_value("delete_notyetactive")
+        days = OptionalUser.get_cached_value("disable_emailnotyetconfirmed")
         users_to_delete = (
-            User.objects.filter(state=User.STATE_NOT_YET_ACTIVE)
+            User.objects.filter(Q(state=User.STATE_NOT_YET_ACTIVE))
             .filter(registered__lte=timezone.now() - timedelta(days=days))
             .exclude(facture__valid=True)
             .distinct()

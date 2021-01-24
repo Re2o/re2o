@@ -1,3 +1,15 @@
+.navbar-collapse {
+    overflow-x: hidden;
+}
+/* For the footer to be at the bottom*/
+body {
+    padding-top: 50px;
+}
+
+.content {
+    min-height: calc(100vh - 100px);
+}
+
 /* Footer */
 footer {
   padding-top: 3rem;
@@ -70,10 +82,56 @@ a > i.fa {
 }
 
 /* Set gray background color */
-.sidenav {
-    background-color: #f1f1f1;
-    border: 1px solid #e0e0e0;
-    border-radius: 0 0 5px 5px;
+@media (min-width: 768px) {
+    .sidenav-right {
+        position: fixed;
+        top:50px;
+        right:0;
+        overflow-y: auto;
+        bottom:50px;
+    }
+    .sidenav-left {
+        position: fixed;
+        top:50px;
+        left:0;
+        overflow-y: auto;
+        bottom:50px;
+    }
+    .dropdown-menu .dropdown-toggle:after {
+        border-top: .3em solid transparent;
+        border-right: 0;
+        border-bottom: .3em solid transparent;
+        border-left: .3em solid;
+    }
+
+    .dropdown-menu .dropdown-menu {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .dropdown-menu li {
+        position: relative;
+    }
+
+    .nav-item .submenu {
+        display: none;
+        position: absolute;
+        left: 100%;
+        top: -7px;
+    }
+
+    .nav-item .submenu-left {
+        right: 100%;
+        left: auto;
+    }
+
+    .dropdown-menu>li:hover {
+        background-color: #f1f1f1
+    }
+
+    .dropdown-menu>li:hover>.submenu {
+        display: block;
+    }
 }
 .table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
     vertical-align: middle;
@@ -90,6 +148,7 @@ a > i.fa {
 
 .table-responsive {
 	overflow: visible;
+	overflow-x: scroll;
 }
 
 /* Make modal wider on wide screens */
@@ -148,3 +207,11 @@ dl.profile-info > div {
 [data-toggle~="collapse"] {
     cursor: pointer;
 }
+
+/* Indent for submenu when collapsed */
+
+@media (max-width:767px) {
+    .submenu > li {
+        margin-left:20px;
+    }
+};

@@ -1,5 +1,5 @@
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -25,32 +25,40 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load logs_extra %}
 {% load i18n %}
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>{% trans "Name" %}</th>
-            <th>{% trans "URL" %}</th>
-            <th>{% trans "Description" %}</th>
-            <th>{% trans "Image" %}</th>
-            <th></th>
-        </tr>
-    </thead>
-    {% for service in service_list %}
-        <tr>
-            <td>{{ service.name }}</td>
-            <td>{{ service.url }}</td>
-            <td>{{ service.description }}</td>
-            <td>{{ service.image }}</td>
-            <td class="text-right">
-            {% can_edit service %}
-            {% include 'buttons/edit.html' with href='preferences:edit-service' id=service.id %}
-            {% acl_end %}
-            {% can_delete service %}
-            {% include 'buttons/suppr.html' with href='preferences:del-service' id=service.id %}
-            {% acl_end %}
-            {% history_button service %}
-            </td>
-        </tr>
-    {% endfor %}
-</table>
-
+{% for service in service_list %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-9">
+                    <h4>{{ service.name }}</h4>
+                </div>
+                <div class="col-sm-3 text-right">
+                    {% can_edit service %}
+                    {% include 'buttons/edit.html' with href='preferences:edit-service' id=service.id %}
+                    {% acl_end %}
+                    {% can_delete service %}
+                    {% include 'buttons/suppr.html' with href='preferences:del-service' id=service.id %}
+                    {% acl_end %}
+                    {% history_button service %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        {{ service.description }}
+    </div>
+    <div class="panel-footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <b>{% trans "URL" %}: </b>{{ service.url }}
+                </div>
+                <div class="col-sm-6">
+                    <b>{% trans "Image" %}: </b>{{ service.image }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

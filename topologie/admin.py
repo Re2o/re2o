@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -20,8 +20,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""
-Fichier définissant les administration des models dans l'interface admin
+"""topologie.admin
+The objects, fields and datastructures visible in the Django admin view.
 """
 
 from __future__ import unicode_literals
@@ -45,67 +45,67 @@ from .models import (
 
 
 class StackAdmin(VersionAdmin):
-    """Administration d'une stack de switches (inclus des switches)"""
+    """Admin class of stacks (includes switches)."""
 
     pass
 
 
 class SwitchAdmin(VersionAdmin):
-    """Administration d'un switch"""
+    """Admin class of switches."""
 
     pass
 
 
 class PortAdmin(VersionAdmin):
-    """Administration d'un port de switches"""
+    """Admin class of switch ports."""
 
     pass
 
 
 class AccessPointAdmin(VersionAdmin):
-    """Administration d'une borne"""
+    """Admin class of APs."""
 
     pass
 
 
 class RoomAdmin(VersionAdmin):
-    """Administration d'un chambre"""
+    """Admin class of rooms."""
 
     pass
 
 
 class ModelSwitchAdmin(VersionAdmin):
-    """Administration d'un modèle de switch"""
+    """Admin class of switch models."""
 
     pass
 
 
 class ConstructorSwitchAdmin(VersionAdmin):
-    """Administration d'un constructeur d'un switch"""
+    """Admin class of switch constructors."""
 
     pass
 
 
 class SwitchBayAdmin(VersionAdmin):
-    """Administration d'une baie de brassage"""
+    """Admin class of switch bays."""
 
     pass
 
 
 class BuildingAdmin(VersionAdmin):
-    """Administration d'un batiment"""
+    """Admin class of buildings."""
 
     pass
 
 
 class DormitoryAdmin(VersionAdmin):
-    """Administration d'une residence"""
+    """Admin class of dormitories."""
 
     pass
 
 
 class PortProfileAdmin(VersionAdmin):
-    """Administration of a port profile"""
+    """Admin class of port profiles."""
 
     pass
 

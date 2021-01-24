@@ -1,5 +1,5 @@
 # ⁻*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -47,7 +47,15 @@ application = get_wsgi_application()
 
 
 def get_user(pseudo):
-    """Cherche un utilisateur re2o à partir de son pseudo"""
+    """Find a user from its pseudo
+    
+    Parameters:
+        pseudo (string): pseudo of this user
+
+    Returns:
+        user instance:Instance of user
+    
+    """
     user = User.objects.filter(pseudo=pseudo)
     if len(user) == 0:
         raise CommandError("Invalid user.")
@@ -59,17 +67,20 @@ def get_user(pseudo):
 
 
 def get_system_user():
-    """Retourne l'utilisateur système ayant lancé la commande"""
+    """Find the system user login who used the command    
+    """
     return pwd.getpwuid(int(os.getenv("SUDO_UID") or os.getuid())).pw_name
 
 
 def form_cli(Form, user, action, *args, **kwargs):
     """
-    Remplit un formulaire à partir de la ligne de commande
-        Form : le formulaire (sous forme de classe) à remplir
-        user : l'utilisateur re2o faisant la modification
-        action : l'action réalisée par le formulaire (pour les logs)
-    Les arguments suivants sont transmis tels quels au formulaire.
+    Fill-in a django form from cli
+
+    Parameters
+        Form : a django class form to fill-in
+        user : a re2o user doign the modification
+        action: the action done with that form, for logs purpose
+    
     """
     data = {}
     dumb_form = Form(user=user, *args, **kwargs)

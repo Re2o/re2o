@@ -1,6 +1,6 @@
 {% extends 'topologie/sidebar.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -24,7 +24,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load massive_bootstrap_form %}
 {% load i18n %}
 
 {% block title %}{% trans "Topology" %}{% endblock %}
@@ -32,9 +31,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block content %}
 {% if topoform %}
 {% bootstrap_form_errors topoform %}
+{{ topoform.media }}
 {% endif %}
 {% if machineform %}
 {% bootstrap_form_errors machineform %}
+{{ machineform.media }}
 {% endif %}
 {% if domainform %}
 {% bootstrap_form_errors domainform %}
@@ -46,11 +47,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% csrf_token %}
     {% if topoform %}
     <h3>{% blocktrans %}Specific settings for the {{ device }} object{% endblocktrans %}</h3>
-    {% massive_bootstrap_form topoform 'ipv4,machine' mbf_param=i_mbf_param%}
+    {% bootstrap_form topoform %}
     {% endif %}
     {% if machineform %}
     <h3>{% blocktrans %}General settings for the machine linked to the {{ device }} object{% endblocktrans %}</h3>
-    {% massive_bootstrap_form machineform 'user' %}
+    {% bootstrap_form machineform %}
     {% endif %}
     {% if domainform %}
     <h3>{% trans "DNS name" %}</h3>

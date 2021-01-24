@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -85,7 +85,13 @@ class FieldPermissionModelMixin:
 
 class FieldPermissionFormMixin:
     """
-    Construit le formulaire et retire les champs interdits
+    Build a form, and remove all forbiden fields
+
+        Parameters:
+        user:Build-in with a Django Form instance, and parameter user in kwargs,
+        representing calling user for this form. Then test if a field is forbiden
+        or not with has_field_paremeter model function
+
     """
 
     def __init__(self, *args, **kwargs):

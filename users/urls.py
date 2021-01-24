@@ -1,11 +1,13 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017  Gabriel Détraz
-# Copyright © 2017  Lara Kermarec
-# Copyright © 2017  Augustin Lemesle
+# Copyright © 2017-2020  Gabriel Détraz
+# Copyright © 2017-2020  Lara Kermarec
+# Copyright © 2017-2020  Augustin Lemesle
+# Copyright © 2017-2020  Hugo Levy--Falk
+# Copyright © 2017-2020  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +23,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Definition des urls, pointant vers les views
+The defined URLs for the Users app
 """
 
 from __future__ import unicode_literals
@@ -29,6 +31,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from . import views
+from . import views_autocomplete
 
 urlpatterns = [
     url(r"^new_user/$", views.new_user, name="new-user"),
@@ -42,6 +45,7 @@ urlpatterns = [
     url(r"^state/(?P<userid>[0-9]+)$", views.state, name="state"),
     url(r"^groups/(?P<userid>[0-9]+)$", views.groups, name="groups"),
     url(r"^password/(?P<userid>[0-9]+)$", views.password, name="password"),
+    url(r"^confirm_email/(?P<userid>[0-9]+)$", views.resend_confirmation_email, name="resend-confirmation-email"),
     url(
         r"^del_group/(?P<userid>[0-9]+)/(?P<listrightid>[0-9]+)$",
         views.del_group,
@@ -124,21 +128,11 @@ urlpatterns = [
     url(r"^$", views.index, name="index"),
     url(r"^index_clubs/$", views.index_clubs, name="index-clubs"),
     url(r"^initial_register/$", views.initial_register, name="initial-register"),
-    url(r"^rest/ml/std/$", views.ml_std_list, name="ml-std-list"),
-    url(
-        r"^rest/ml/std/member/(?P<ml_name>\w+)/$",
-        views.ml_std_members,
-        name="ml-std-members",
-    ),
-    url(r"^rest/ml/club/$", views.ml_club_list, name="ml-club-list"),
-    url(
-        r"^rest/ml/club/admin/(?P<ml_name>\w+)/$",
-        views.ml_club_admins,
-        name="ml-club-admins",
-    ),
-    url(
-        r"^rest/ml/club/member/(?P<ml_name>\w+)/$",
-        views.ml_club_members,
-        name="ml-club-members",
-    ),
+    url(r"^edit_theme/(?P<userid>[0-9]+)$", views.edit_theme, name="edit-theme"),
+    ### Autocomplete Views
+    url(r'^user-autocomplete/$', views_autocomplete.UserAutocomplete.as_view(), name='user-autocomplete',),
+    url(r'^adherent-autocomplete/$', views_autocomplete.AdherentAutocomplete.as_view(), name='adherent-autocomplete',),
+    url(r'^club-autocomplete/$', views_autocomplete.ClubAutocomplete.as_view(), name='club-autocomplete',),
+    url(r'^school-autocomplete/$', views_autocomplete.SchoolAutocomplete.as_view(), name='school-autocomplete',),
+    url(r'^shell-autocomplete/$', views_autocomplete.ShellAutocomplete.as_view(), name='shell-autocomplete',),
 ]

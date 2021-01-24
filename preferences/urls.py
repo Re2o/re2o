@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -28,52 +28,53 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from . import views
+from .views import edit_options
 
 
 urlpatterns = [
     url(
         r"^edit_options/(?P<section>OptionalUser)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(
         r"^edit_options/(?P<section>OptionalMachine)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(
         r"^edit_options/(?P<section>OptionalTopologie)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(
         r"^edit_options/(?P<section>GeneralOption)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(
         r"^edit_options/(?P<section>AssoOption)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(
         r"^edit_options/(?P<section>HomeOption)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(
         r"^edit_options/(?P<section>MailMessageOption)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(
         r"^edit_options/(?P<section>RadiusOption)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(
         r"^edit_options/(?P<section>CotisationsOption)$",
-        views.edit_options,
+        edit_options,
         name="edit-options",
     ),
     url(r"^add_service/$", views.add_service, name="add-service"),

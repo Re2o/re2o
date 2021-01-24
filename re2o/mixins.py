@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -29,9 +29,9 @@ from django.utils.translation import ugettext as _
 
 
 class RevMixin(object):
-    """ A mixin to subclass the save and delete function of a model
+    """A mixin to subclass the save and delete function of a model
     to enforce the versioning of the object before those actions
-    really happen """
+    really happen"""
 
     def save(self, *args, **kwargs):
         """ Creates a version of this object and save it to database """
@@ -49,8 +49,8 @@ class RevMixin(object):
 
 
 class FormRevMixin(object):
-    """ A mixin to subclass the save function of a form
-    to enforce the versionning of the object before it is really edited """
+    """A mixin to subclass the save function of a form
+    to enforce the versionning of the object before it is really edited"""
 
     def save(self, *args, **kwargs):
         """ Create a version of this object and save it to database """
@@ -61,8 +61,7 @@ class FormRevMixin(object):
             )
         elif self.changed_data:
             reversion.set_comment(
-                "Field(s) edited: %s"
-                % ", ".join(field for field in self.changed_data)
+                "Field(s) edited: %s" % ", ".join(field for field in self.changed_data)
             )
         return super(FormRevMixin, self).save(*args, **kwargs)
 
@@ -80,6 +79,8 @@ class AclMixin(object):
     :can_view: Applied on an instance, return if the user can view the
         instance
     :can_view_all: Applied on a class, return if the user can view all
+        instances
+    :can_list: Applied on a class, return if the user can list all
         instances"""
 
     @classmethod
@@ -93,19 +94,28 @@ class AclMixin(object):
         return str(cls.__module__).split(".")[0].lower()
 
     @classmethod
-    def get_instance(cls, *_args, **kwargs):
-        """Récupère une instance
-        :param objectid: Instance id à trouver
-        :return: Une instance de la classe évidemment"""
-        object_id = kwargs.get(cls.get_classname() + "id")
+    def get_instance(cls, object_id, *_args, **kwargs):
+        """Get an instance from its id.
+
+        Parameters:
+           object_id (int): Id of the instance to find
+
+        Returns:
+           Django instance: Instance of this class
+        """
         return cls.objects.get(pk=object_id)
 
     @classmethod
     def can_create(cls, user_request, *_args, **_kwargs):
-        """Verifie que l'user a les bons droits pour créer
-        un object
-        :param user_request: instance utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
+        """Check if a user has the right to create an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = cls.get_modulename() + ".add_" + cls.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -117,11 +127,16 @@ class AclMixin(object):
         )
 
     def can_edit(self, user_request, *_args, **_kwargs):
-        """Verifie que l'user a les bons droits pour editer
-        cette instance
-        :param self: Instance à editer
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
+        """Check if a user has the right to edit an instance
+
+        Parameters:
+            user_request: User calling for this action
+            self: Instance to edit
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = self.get_modulename() + ".change_" + self.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -133,11 +148,16 @@ class AclMixin(object):
         )
 
     def can_delete(self, user_request, *_args, **_kwargs):
-        """Verifie que l'user a les bons droits pour delete
-        cette instance
-        :param self: Instance à delete
-        :param user_request: Utilisateur qui fait la requête
-        :return: soit True, soit False avec la raison de l'échec"""
+        """Check if a user has the right to delete an instance
+
+        Parameters:
+            user_request: User calling for this action
+            self: Instance to delete
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = self.get_modulename() + ".delete_" + self.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -150,10 +170,15 @@ class AclMixin(object):
 
     @classmethod
     def can_view_all(cls, user_request, *_args, **_kwargs):
-        """Vérifie qu'on peut bien afficher l'ensemble des objets,
-        droit particulier view objet correspondant
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
+        """Check if a user can view all instances of an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = cls.get_modulename() + ".view_" + cls.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -164,12 +189,60 @@ class AclMixin(object):
             (permission,),
         )
 
+    @classmethod
+    def can_edit_all(cls, user_request, *_args, **_kwargs):
+        """Check if a user can edit all instances of an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
+        permission = cls.get_modulename() + ".change_" + cls.get_classname()
+        can = user_request.has_perm(permission)
+        return (
+            can,
+            _("You don't have the right to edit every %s object.") % cls.get_classname()
+            if not can
+            else None,
+            (permission,),
+        )
+
+    @classmethod
+    def can_list(cls, user_request, *_args, **_kwargs):
+        """Check if a user can list all instances of an object
+
+        Parameters:
+            user_request: User calling for this action
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
+        permission = cls.get_modulename() + ".view_" + cls.get_classname()
+        can = user_request.has_perm(permission)
+        return (
+            can,
+            _("You don't have the right to list every %s object.") % cls.get_classname()
+            if not can
+            else None,
+            (permission,),
+            cls.objects.all() if can else None,
+        )
+
     def can_view(self, user_request, *_args, **_kwargs):
-        """Vérifie qu'on peut bien voir cette instance particulière avec
-        droit view objet
-        :param self: instance à voir
-        :param user_request: instance user qui fait l'edition
-        :return: True ou False avec la raison de l'échec le cas échéant"""
+        """Check if a user can view an instance of an object
+
+        Parameters:
+            user_request: User calling for this action
+            self: Instance to view
+
+        Returns:
+            Boolean: True if user_request has the right access to do it, else
+            false with reason for reject authorization
+        """
         permission = self.get_modulename() + ".view_" + self.get_classname()
         can = user_request.has_perm(permission)
         return (
@@ -179,3 +252,4 @@ class AclMixin(object):
             else None,
             (permission,),
         )
+

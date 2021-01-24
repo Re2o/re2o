@@ -1,5 +1,5 @@
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -30,44 +30,79 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% include 'pagination.html' with list=room_list %}
 {% endif %}
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            {% trans "Room" as tr_room %}
-            {% trans "Building" as tr_building %}
-            <th>{% include 'buttons/sort.html' with prefix='building' col='name' text=tr_building %}</th>
-            <th>{% include 'buttons/sort.html' with prefix='room' col='name' text=tr_room %}</th>
-	    <th>{% trans "Connnected to" %}</th>
-	    <th>{% trans "User" %}</th>
-	    <th>{% trans "Details" %}</th>
-            <th>{% trans "End of subscription on" %}</th>
-            <th>{% trans "Internet access" %}</th>
-	    <th>{% trans "Action" %}</th>
-        </tr>
-    </thead>
-    {% for room in room_list %}
-    <tr>
-        <td>{{ room.building }}</td>
-        <td>{{ room.name }}</td>
-	<td>{% if room.port_set.all %}<span class="label label-success">{{ asso_name }}{% else %}<span class="label label-danger">{% trans "Other operator" %}{% endif %}</span></td>
-	<td>{% if room.adherent %}<a href="{% url 'users:profil' room.adherent.id%}">{{ room.adherent }}</a>{% else %} {% trans "None" %}{% endif %}</td>
-        <td>{{ room.details }}</td>
-	<td>{% if room.adherent.is_adherent %}<i class="text-success">{% else %}<i class="text-danger">{% endif %}{% if room.adherent.end_adhesion %}{{ room.adherent.end_adhesion}}{% else %}{% trans "Non member" %}{% endif %}</i></td>
-        <td>
-            {% if room.adherent.has_access == True %}
-            <i class="text-success">{% trans "Active" %}</i>
-            {% else %}
-            <i class="text-danger">{% trans "Disabled" %}</i>
-            {% endif %}
-        </td>
-	<td>
-	{% if room.port_set.all %}
-	<a href="{% url 'multi_op:disconnect-room' room.id %}" class="btn btn-danger btn-sm" role="button"><i class="fa fa-expand"></i></a> 
-        {% endif %}
-	</td>
-    </tr>
-    {% endfor %}
-</table>
+{%for room in room_list %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h4>{{ room.building }} - {{room.name }}</h4>
+                </div>
+                <div class="col-sm-8 text-right">
+                    {% if room.port_set.all %}
+                    <a href="{% url 'multi_op:disconnect-room' room.id %}" class="btn btn-danger btn-sm" role="button"><i class="fa fa-expand"></i></a> 
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="table-repsonsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans "User"%}</th>
+                        <th>{% trans "Connected to"%}</th>
+                        <th>{% trans "End of subscription on" %}</th>
+                        <th>{% trans "Internet access" %}</th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>
+                        {% if room.adherent %}
+                        <a href="{% url 'users:profil' room.adherent.id%}">{{ room.adherent }}</a>
+                        {% else %}
+                        {% trans "None" %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if room.port_set.all %}
+                        <span class="label label-success">{{ asso_name }}</span>
+                        {% else %}
+                        <span class="label label-danger">{% trans "Other operator" %}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if room.adherent.is_adherent %}
+                            <i class="text-success">
+                        {% else %}
+                            <i class="text-danger">
+                        {% endif %}
+                        {% if room.adherent.end_adhesion %}
+                            {{ room.adherent.end_adhesion}}
+                        {% else %}
+                            {% trans "Non member" %}
+                        {% endif %}
+                        </i>
+                    </td>
+                    <td>
+                        {% if room.adherent.has_access == True %}
+                        <i class="text-success">{% trans "Active" %}</i>
+                        {% else %}
+                        <i class="text-danger">{% trans "Disabled" %}</i>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    {% if room.details  %}
+    <div class="panel-footer">
+        <span><b>{% trans "Details: " %}</b>{{ room.details }}</span>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
 
 {% if room_list.paginator %}
     {% include 'pagination.html' with list=room_list %}

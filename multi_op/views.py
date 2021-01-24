@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -45,18 +45,22 @@ from preferences.models import GeneralOption, AssoOption
 
 from .forms import DormitoryForm
 
-from .preferences.models import Preferences
+from .preferences.models import MultiopOption
 
 from topologie.models import Room, Dormitory
 
-from .preferences.forms import EditPreferencesForm
-
 
 def display_rooms_connection(request, dormitory=None):
-    """View to display global state of connection state"""
-    room_list = Room.objects.select_related("building__dormitory").order_by(
-        "building_dormitory", "port"
-    )
+    """View used to display an overview of the rooms' connection state.
+
+    Args:
+        request: django request.
+        dormitory: Dormitory, the dormitory used to filter rooms. If no
+            dormitory is given, all rooms are displayed (default: None).
+    """
+    room_list = Room.objects.select_related("building__dormitory").filter(
+        building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all()
+    ).order_by("building_dormitory", "port")
     if dormitory:
         room_list = room_list.filter(building__dormitory=dormitory)
     room_list = SortTable.sort(
@@ -81,23 +85,35 @@ def display_rooms_connection(request, dormitory=None):
 @login_required
 @can_view_all(Room)
 def aff_state_global(request):
+    """View used to display the connection state of all rooms."""
     return display_rooms_connection(request)
 
 
 @login_required
 @can_view(Dormitory)
 def aff_state_dormitory(request, dormitory, dormitoryid):
+    """View used to display the connection state of the rooms in the given
+    dormitory.
+
+    Args:
+        request: django request.
+        dormitory: Dormitory, the dormitory used to filter rooms.
+        dormitoryid: int, the id of the dormitory.
+    """
     return display_rooms_connection(dormitory=dormitory)
 
 
 @login_required
 @can_view_all(Room)
 def aff_pending_connection(request):
-    """Aff pending Rooms to connect on our network"""
+    """View used to display rooms pending connection to the organisation's
+    network.
+    """
     room_list = (
         Room.objects.select_related("building__dormitory")
         .filter(port__isnull=True)
         .filter(adherent__in=all_has_access())
+        .filter(building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all())
         .order_by("building_dormitory", "port")
     )
     dormitory_form = DormitoryForm(request.POST or None)
@@ -128,11 +144,14 @@ def aff_pending_connection(request):
 @login_required
 @can_view_all(Room)
 def aff_pending_disconnection(request):
-    """Aff pending Rooms to disconnect from our network"""
+    """View used to display rooms pending disconnection from the organisation's
+    network.
+    """
     room_list = (
         Room.objects.select_related("building__dormitory")
         .filter(port__isnull=False)
         .exclude(Q(adherent__in=all_has_access()) | Q(adherent__in=all_adherent()))
+        .filter(building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all())
         .order_by("building_dormitory", "port")
     )
     dormitory_form = DormitoryForm(request.POST or None)
@@ -163,7 +182,13 @@ def aff_pending_disconnection(request):
 @login_required
 @can_edit(Room)
 def disconnect_room(request, room, roomid):
-    """Action of disconnecting a room"""
+    """View used to disconnect a room.
+
+    Args:
+        request: django request.
+        room: Room, the room to be disconnected.
+        roomid: int, the id of the room.
+    """
     room.port_set.clear()
     room.save()
     messages.success(request, _("The room %s was disconnected.") % room)
@@ -171,5 +196,7 @@ def disconnect_room(request, room, roomid):
 
 
 def navbar_user():
-    """View to display the app in user's dropdown in the navbar"""
+    """View used to display a link to manage operators in the navbar (in the
+    dropdown menu Topology).
+    """
     return ("topologie", render_to_string("multi_op/navbar.html"))

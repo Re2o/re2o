@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-19 23:43+0100\n"
+"POT-Creation-Date: 2021-01-24 11:51+0100\n"
 "PO-Revision-Date: 2018-06-24 20:10+0200\n"
 "Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
 "Language-Team: \n"
@@ -51,63 +51,80 @@ msgid "Fully archived"
 msgstr "Complètement archivés"
 
 #: search/forms.py:41
+msgid "Confirmed"
+msgstr "Confirmé"
+
+#: search/forms.py:42
+msgid "Not confirmed"
+msgstr "Non confirmé"
+
+#: search/forms.py:43
+msgid "Waiting for email confirmation"
+msgstr "En attente de confirmation du mail"
+
+#: search/forms.py:47
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: search/forms.py:42
+#: search/forms.py:48
 msgid "Machines"
 msgstr "Machines"
 
-#: search/forms.py:43
+#: search/forms.py:49
 msgid "Invoices"
 msgstr "Factures"
 
-#: search/forms.py:44
+#: search/forms.py:50
 msgid "Bans"
 msgstr "Bannissements"
 
-#: search/forms.py:45
+#: search/forms.py:51
 msgid "Whitelists"
 msgstr "Accès gracieux"
 
-#: search/forms.py:46
+#: search/forms.py:52
 msgid "Rooms"
 msgstr "Chambres"
 
-#: search/forms.py:47
+#: search/forms.py:53
 msgid "Ports"
 msgstr "Ports"
 
-#: search/forms.py:48
+#: search/forms.py:54
 msgid "Switches"
 msgstr "Commutateurs réseau"
 
-#: search/forms.py:62 search/forms.py:77 search/templates/search/search.html:29
-#: search/templates/search/search.html:48
+#: search/forms.py:68 search/forms.py:84 search/templates/search/search.html:29
+#: search/templates/search/search.html:51
 msgid "Search"
 msgstr "Rechercher"
 
-#: search/forms.py:65 search/forms.py:80
+#: search/forms.py:71 search/forms.py:87
 msgid ""
-"Use « » and «,» to specify distinct words, «\"query\"» for an exact search "
-"and «\\» to escape a character."
+"Use « » and «,» to specify distinct words, «\"query\"» for an exact search, "
+"«\\» to escape a character and «+» to combine keywords."
 msgstr ""
-"Utilisez « » et «,» pour spécifier différents mots, «\"query\"» pour une "
-"recherche exacte et «\\» pour échapper un caractère."
+"Utilisez « » et «,» pour spécifier différents mots, «\"recherche\"» pour une "
+"recherche exacte, «\\» pour échapper un caractère et «+» pour combiner des "
+"mots clés."
 
-#: search/forms.py:88
+#: search/forms.py:96
 msgid "Users filter"
 msgstr "Filtre utilisateurs"
 
-#: search/forms.py:95
+#: search/forms.py:103
+msgid "Email state filter"
+msgstr "Filtre mails"
+
+#: search/forms.py:110
 msgid "Display filter"
 msgstr "Filtre affichage"
 
-#: search/forms.py:101
+#: search/forms.py:116
 msgid "Start date"
 msgstr "Date de début"
 
-#: search/forms.py:102
+#: search/forms.py:117
 msgid "End date"
 msgstr "Date de fin"
 
@@ -115,47 +132,47 @@ msgstr "Date de fin"
 msgid "Search results"
 msgstr "Résultats de la recherche"
 
-#: search/templates/search/index.html:33
+#: search/templates/search/index.html:34
 msgid "Results among users:"
 msgstr "Résultats parmi les utilisateurs :"
 
-#: search/templates/search/index.html:37
+#: search/templates/search/index.html:44
 msgid "Results among clubs:"
 msgstr "Résultats parmi les clubs :"
 
-#: search/templates/search/index.html:41
+#: search/templates/search/index.html:54
 msgid "Results among machines:"
 msgstr "Résultats parmi les machines :"
 
-#: search/templates/search/index.html:45
+#: search/templates/search/index.html:64
 msgid "Results among invoices:"
 msgstr "Résultats parmi les factures :"
 
-#: search/templates/search/index.html:49
+#: search/templates/search/index.html:74
 msgid "Results among whitelists:"
 msgstr "Résultats parmi les accès à titre gracieux :"
 
-#: search/templates/search/index.html:53
+#: search/templates/search/index.html:84
 msgid "Results among bans:"
 msgstr "Résultats parmi les bannissements :"
 
-#: search/templates/search/index.html:57
+#: search/templates/search/index.html:94
 msgid "Results among rooms:"
 msgstr "Résultats parmi les chambres :"
 
-#: search/templates/search/index.html:61
+#: search/templates/search/index.html:104
 msgid "Results among ports:"
 msgstr "Résultats parmi les ports :"
 
-#: search/templates/search/index.html:65
+#: search/templates/search/index.html:114
 msgid "Results among switches:"
 msgstr "Résultats parmi les commutateurs réseau :"
 
-#: search/templates/search/index.html:69
+#: search/templates/search/index.html:123
 msgid "No result"
 msgstr "Pas de résultat"
 
-#: search/templates/search/index.html:71
+#: search/templates/search/index.html:125
 #, python-format
 msgid "Only the first %(max_result)s results are displayed in each category."
 msgstr ""
@@ -169,3 +186,9 @@ msgstr "Recherche simple"
 #: search/templates/search/sidebar.html:35
 msgid "Advanced search"
 msgstr "Recherche avancée"
+
+#~ msgid "Verified"
+#~ msgstr "Confirmé"
+
+#~ msgid "Unverified"
+#~ msgstr "Non-confirmé"

@@ -1,5 +1,5 @@
 # coding: utf-8
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -76,6 +76,8 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 X_FRAME_OPTIONS = "DENY"
+
+# The validity duration of session cookies, in seconds
 SESSION_COOKIE_AGE = 60 * 60 * 3
 
 # The path where your organization logo is stored
@@ -101,8 +103,35 @@ UID_RANGES = {"users": [21001, 30000], "service-users": [20000, 21000]}
 # A range of GID to use. Used in linux environement
 GID_RANGES = {"posix": [501, 600]}
 
+# If you want to add a database routers, please fill in above and add your databse.
+# Then, add a file "local_routers.py" in folder app re2o, and add your router path in
+# the LOCAL_ROUTERS var as "re2o.local_routers.DbRouter". You can also add extra routers. 
+LOCAL_ROUTERS = []
+
 # Some optionnal Re2o Apps
 OPTIONNAL_APPS_RE2O = ()
 
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + ()
+
+#Set auth password validator
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {
+            'user_attributes': ['surname', 'pseudo', 'name', 'email'],
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]

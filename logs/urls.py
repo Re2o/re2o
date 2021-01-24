@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -19,9 +19,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""
-Urls de l'application logs, pointe vers les fonctions de views.
-Inclu dans le re2o.urls
+"""logs.urls
+The defined URLs for the logs app. Included in re2o.urls.
 """
 from __future__ import unicode_literals
 
@@ -37,13 +36,14 @@ urlpatterns = [
         views.revert_action,
         name="revert-action",
     ),
-    url(r"^stats_general/$", views.stats_general, name="stats-general"),
-    url(r"^stats_models/$", views.stats_models, name="stats-models"),
-    url(r"^stats_users/$", views.stats_users, name="stats-users"),
-    url(r"^stats_actions/$", views.stats_actions, name="stats-actions"),
     url(
         r"(?P<application>\w+)/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$",
         views.history,
         name="history",
     ),
+    url(r"^stats_general/$", views.stats_general, name="stats-general"),
+    url(r"^stats_models/$", views.stats_models, name="stats-models"),
+    url(r"^stats_users/$", views.stats_users, name="stats-users"),
+    url(r"^stats_actions/$", views.stats_actions, name="stats-actions"),
+    url(r"^stats_search_machine/$", views.stats_search_machine_history, name="stats-search-machine"),
 ]

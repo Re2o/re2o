@@ -1,12 +1,14 @@
 {% extends 'users/sidebar.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
-Copyright © 2017  Gabriel Détraz
-Copyright © 2017  Lara Kermarec
-Copyright © 2017  Augustin Lemesle
+Copyright © 2017-2020  Gabriel Détraz
+Copyright © 2017-2020  Lara Kermarec
+Copyright © 2017-2020  Augustin Lemesle
+Copyright © 2017-2020  Hugo Levy--Falk
+Copyright © 2017-2020  Jean-Romain Garnier
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,6 +40,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <h2>{% blocktrans with name=users.name surname=users.surname %}Profile of {{ name }} {{ surname }}{% endblocktrans %}</h2>
     {% endif %}
 </div>
+
+
+{% if users.email_state == users.EMAIL_STATE_PENDING %}
+<div class="alert alert-warning">
+    {% blocktrans with confirm_before_date=users.confirm_email_before_date|date:"DATE_FORMAT" %}Please confirm your email address before {{ confirm_before_date }}, or your account will be suspended.{% endblocktrans %}
+    <br/>
+    <a href="{% url 'users:resend-confirmation-email' users.id %}">
+        {% blocktrans %}Didn't receive the email?{% endblocktrans %}
+    </a>
+</div>
+{% elif users.email_state == users.EMAIL_STATE_UNVERIFIED %}
+<div class="alert alert-danger">
+    {% blocktrans %}Your account has been suspended, please confirm your email address.{% endblocktrans %}
+</div>
+{% endif %}
+
+
 <div class="dashboard_container">
     <div class="row">
         <div class="col-sm-6 {% if solde_activated %}col-md-4{% else %}col_md-6{% endif %}">
@@ -51,14 +70,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             {% elif not users.has_access %}
             <div class="panel panel-danger">
                 <div class="panel-heading dashboard">{% trans "No connection" %}</div>
+
                 <div class="panel-body dashboard">
-                    {% can_create Facture %}
-                    <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
-                        <i class="fa fa-sign-in"></i> {% trans "Pay for a connection" %}
-                    </a>
-                    {% acl_else %}
-                    {% trans "Ask someone with the appropriate rights to pay for a connection." %}
-                    {% acl_end %}
+                    {% if users.email_state == users.EMAIL_STATE_UNVERIFIED %}
+                        <a class="btn btn-danger btn-sm" role="button" href="{% url 'users:resend-confirmation-email' users.id %}">
+                            <i class="fa fa-sign-in"></i> {% trans "Resend the email" %}
+                        </a>
+                    {% else %}
+                        {% can_create Facture %}
+                        <a class="btn btn-danger btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
+                            <i class="fa fa-sign-in"></i> {% trans "Pay for a connection" %}
+                        </a>
+                        {% acl_else %}
+                        {% trans "Ask someone with the appropriate rights to pay for a connection." %}
+                        {% acl_end %}
+                {% endif %}
                 </div>
             </div>
             {% else %}
@@ -150,6 +176,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                     {% trans "Edit the groups" %}
                 </a>
                 {% acl_end %}
+                <a class="btn btn-primary btn-sm" role="button" href="{% url 'users:edit-theme' users.id %}">
+                    <i class="fa fa-paint-brush"></i>
+                    {% trans "Change theme" %}
+                </a>
                 {% history_button users text=True %}
                 </ul>
             </div>
@@ -179,9 +209,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <dd>{{ users.pseudo }}</dd>
                     </div>
 
+                    {% if users.image_url %}
+                    <div class="col-md-6">
+                        <dt>{% trans "Profile picture" %}</dt>
+                        <dd><img src="{{ users.image_url }}" height="42" width="42" /></dd>
+                    </div>
+                    {% endif %}
+
                     <div class="col-md-6">
                         <dt>{% trans "Email address" %}</dt>
-                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a></dd>
+                        <dd><a href="mailto:{{ users.email }}">{{ users.email }}</a>{% if users.email_state != users.EMAIL_STATE_VERIFIED %}<br/><i class="text-warning">{% trans "Pending confirmation..." %}</i>{% endif %}</dd>
                     </div>
 
                     <div class="col-md-6">
@@ -312,6 +349,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                         <dt>{% trans "Shortcuts enabled" %}</dt>
                         <dd>{{ users.shortcuts_enabled | tick }}</dd>
                     </div>
+                    <div class="col-md-6 col-xs-12">
+                        <dt>{% trans "Theme" %}</dt>
+                        <dd>{{ users.theme_name }}</dd>
+                    </div>
                 </dl>
             </div>
         </div>
@@ -374,63 +415,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
     {% endif %}
-    <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
-             data-target="#machines">
-            <h3 class="panel-title pull-left">
-                <i class="fa fa-desktop"></i>
-		{% trans "Machines" %}
-                <span class="badge">{{ nb_machines }}</span>
-            </h3>
-        </div>
-        <div id="machines" class="panel-collapse collapse">
-            <div class="panel-body">
-               <a class="btn btn-primary btn-sm" role="button" href="{% url 'machines:new-machine' users.id %}">
-                   <i class="fa fa-desktop"></i>
-		   {% trans "Add a machine" %}
-                </a>
-            </div>
-            <div class="panel-body">
-                {% if machines_list %}
-                {% include 'machines/aff_machines.html' with machines_list=machines_list %}
-                {% else %}
-		<p>{% trans "No machine" %}</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse"
-             data-target="#subscriptions">
-            <h3 class="panel-title pull-left">
-                <i class="fa fa-eur"></i>
-		{% trans "Subscriptions" %}
-            </h3>
-        </div>
-        <div id="subscriptions" class="panel-collapse collapse">
-            <div class="panel-body">
-                {% can_create Facture %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:new-facture' users.id %}">
-                    <i class="fa fa-eur"></i>
-		    {% trans "Add a subscription" %}
-                </a>
-                {% if user_solde %}
-                <a class="btn btn-primary btn-sm" role="button" href="{% url 'cotisations:credit-solde' users.id %}">
-                    <i class="fa fa-eur"></i>
-		    {% trans "Edit the balance" %}
-                </a>
-                {% endif%}
-                {% acl_end %}
-            </div>
-            <div class="panel-body">
-                {% if facture_list %}
-                {% include 'cotisations/aff_cotisations.html' with facture_list=facture_list %}
-                {% else %}
-		<p>{% trans "No invoice" %}</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    
+    
+    {% for template in apps_templates_list %}
+        {{ template }}
+    {% endfor %}
+    
     <div class="panel panel-default">
         <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#bans">
             <h3 class="panel-title pull-left">
@@ -536,9 +526,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         </div>
     </div>
 
-    {% for template in optionnal_templates_list %}
-        {{ template }}
-    {% endfor %}
 
 </div>
 {% endblock %}

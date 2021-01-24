@@ -1,6 +1,6 @@
 {% extends 'topologie/sidebar.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -24,7 +24,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load bootstrap3 %}
-{% load massive_bootstrap_form %}
 {% load i18n %}
 
 {% block title %}{% trans "Topology" %}{% endblock %}
@@ -37,11 +36,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endif %}
 <form class="form" method="post">
     {% csrf_token %}
-    {% massive_bootstrap_form topoform 'room,related,machine_interface,members,vlan_tagged,switch' %}
+    {% bootstrap_form topoform  %}
     {% bootstrap_button action_name icon='ok' button_class='btn-success' %}
 </form>
   <br />
   <br />
   <br />
+
+{{ topoform.media }}
+
 {% endblock %}
 

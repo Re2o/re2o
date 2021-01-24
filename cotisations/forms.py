@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -46,6 +46,7 @@ from django.shortcuts import get_object_or_404
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
+from re2o.widgets import AutocompleteModelWidget
 from .models import (
     Article,
     Paiement,
@@ -79,6 +80,10 @@ class FactureForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
     class Meta:
         model = Facture
         fields = "__all__"
+        widgets = {
+            "user": AutocompleteModelWidget(url="/users/user-autocomplete"),
+            "banque": AutocompleteModelWidget(url="/cotisations/banque-autocomplete"),
+        }
 
     def clean(self):
         cleaned_data = super(FactureForm, self).clean()

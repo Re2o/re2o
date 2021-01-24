@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -55,7 +55,7 @@ def accept_payment(request, factureid):
         )
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
-        if any(purchase.type_cotisation for purchase in invoice.vente_set.all()):
+        if any(purchase.test_membership_or_connection() for purchase in invoice.vente_set.all()):
             messages.success(
                 request,
                 _(

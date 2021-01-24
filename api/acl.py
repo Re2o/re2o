@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -31,32 +31,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
 
-def _create_api_permission():
-    """Creates the 'use_api' permission if not created.
-
-    The 'use_api' is a fake permission in the sense it is not associated with an
-    existing model and this ensure the permission is created every time this file
-    is imported.
-    """
-    api_content_type, created = ContentType.objects.get_or_create(
-        app_label=settings.API_CONTENT_TYPE_APP_LABEL,
-        model=settings.API_CONTENT_TYPE_MODEL,
-    )
-    if created:
-        api_content_type.save()
-    api_permission, created = Permission.objects.get_or_create(
-        name=settings.API_PERMISSION_NAME,
-        content_type=api_content_type,
-        codename=settings.API_PERMISSION_CODENAME,
-    )
-    if created:
-        api_permission.save()
-
-
-_create_api_permission()
-
-
-def can_view(user):
+def can_view(user, *args, **kwargs):
     """Check if an user can view the application.
 
     Args:

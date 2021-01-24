@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,9 +21,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-20 01:24+0100\n"
+"POT-Creation-Date: 2021-01-24 11:51+0100\n"
 "PO-Revision-Date: 2018-03-31 16:09+0002\n"
-"Last-Translator: Laouen Fernet <laouen.fernet@supelec.fr>\n"
+"Last-Translator: Yoann Piétri <me@nanoy.fr>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -33,83 +33,83 @@ msgstr ""
 msgid "You don't have the right to view this application."
 msgstr "Vous n'avez pas le droit de voir cette application."
 
-#: cotisations/forms.py:70 cotisations/forms.py:296
+#: cotisations/forms.py:71 cotisations/forms.py:301
 msgid "Select a payment method"
 msgstr "Sélectionnez un moyen de paiement"
 
-#: cotisations/forms.py:73 cotisations/models.py:676
+#: cotisations/forms.py:74 cotisations/models.py:706
 msgid "Member"
 msgstr "Adhérent"
 
-#: cotisations/forms.py:74
+#: cotisations/forms.py:75
 msgid "Select the proprietary member"
 msgstr "Sélectionnez l'adhérent propriétaire"
 
-#: cotisations/forms.py:75
+#: cotisations/forms.py:76
 msgid "Validated invoice"
 msgstr "Facture validée"
 
-#: cotisations/forms.py:87
+#: cotisations/forms.py:92
 msgid "A payment method must be specified."
 msgstr "Un moyen de paiement doit être renseigné."
 
-#: cotisations/forms.py:98
+#: cotisations/forms.py:103
 #: cotisations/templates/cotisations/aff_article.html:33
 #: cotisations/templates/cotisations/facture.html:64
 msgid "Article"
 msgstr "Article"
 
-#: cotisations/forms.py:101
+#: cotisations/forms.py:106
 #: cotisations/templates/cotisations/edit_facture.html:50
 msgid "Quantity"
 msgstr "Quantité"
 
-#: cotisations/forms.py:119
+#: cotisations/forms.py:124
 msgid "Discount is in percentage."
 msgstr "La réduction est en pourcentage."
 
-#: cotisations/forms.py:122 cotisations/templates/cotisations/facture.html:75
+#: cotisations/forms.py:127 cotisations/templates/cotisations/facture.html:75
 msgid "Discount"
 msgstr "Réduction"
 
-#: cotisations/forms.py:139
+#: cotisations/forms.py:144
 #, python-format
 msgid "{}% discount"
 msgstr "{}% de réduction"
 
-#: cotisations/forms.py:139
+#: cotisations/forms.py:144
 msgid "{} € discount"
 msgstr "{} € de réduction"
 
-#: cotisations/forms.py:176
+#: cotisations/forms.py:181
 msgid "Article name"
 msgstr "Nom de l'article"
 
-#: cotisations/forms.py:187
+#: cotisations/forms.py:192
 msgid "Current articles"
 msgstr "Articles actuels"
 
-#: cotisations/forms.py:216
+#: cotisations/forms.py:221
 msgid "Payment method name"
 msgstr "Nom du moyen de paiement"
 
-#: cotisations/forms.py:229
+#: cotisations/forms.py:234
 msgid "Current payment methods"
 msgstr "Moyens de paiement actuels"
 
-#: cotisations/forms.py:256
+#: cotisations/forms.py:261
 msgid "Bank name"
 msgstr "Nom de la banque"
 
-#: cotisations/forms.py:269
+#: cotisations/forms.py:274
 msgid "Current banks"
 msgstr "Banques actuelles"
 
-#: cotisations/forms.py:288
+#: cotisations/forms.py:293
 msgid "Amount"
 msgstr "Montant"
 
-#: cotisations/forms.py:290
+#: cotisations/forms.py:295
 #: cotisations/templates/cotisations/aff_cost_estimate.html:42
 #: cotisations/templates/cotisations/aff_cotisations.html:44
 #: cotisations/templates/cotisations/aff_custom_invoice.html:42
@@ -117,7 +117,7 @@ msgstr "Montant"
 msgid "Payment method"
 msgstr "Moyen de paiement"
 
-#: cotisations/forms.py:314
+#: cotisations/forms.py:319
 #, python-format
 msgid ""
 "Requested amount is too high. Your balance can't exceed "
@@ -126,52 +126,56 @@ msgstr ""
 "Le montant demandé est trop grand. Votre solde ne peut excéder "
 "%(max_online_balance)s €."
 
-#: cotisations/models.py:59
+#: cotisations/models.py:61
 msgid "date"
 msgstr "date"
 
-#: cotisations/models.py:130
+#: cotisations/models.py:66
+msgid "Can view an base invoice object"
+msgstr "Peut voir un objet BaseInvoice"
+
+#: cotisations/models.py:148
 msgid "cheque number"
 msgstr "numéro de chèque"
 
-#: cotisations/models.py:133
+#: cotisations/models.py:151
 msgid "validated"
 msgstr "validé"
 
-#: cotisations/models.py:135
+#: cotisations/models.py:153
 msgid "controlled"
 msgstr "contrôlé"
 
-#: cotisations/models.py:141
+#: cotisations/models.py:159
 msgid "Can edit the \"controlled\" state"
 msgstr "Peut modifier l'état \"contrôlé\""
 
-#: cotisations/models.py:142
+#: cotisations/models.py:160
 msgid "Can view an invoice object"
 msgstr "Peut voir un objet facture"
 
-#: cotisations/models.py:143
+#: cotisations/models.py:161
 msgid "Can edit all the previous invoices"
 msgstr "Peut modifier toutes les factures précédentes"
 
-#: cotisations/models.py:145 cotisations/models.py:431 cotisations/views.py:378
-#: cotisations/views.py:573
+#: cotisations/models.py:163 cotisations/models.py:458 cotisations/views.py:380
+#: cotisations/views.py:575
 msgid "invoice"
 msgstr "facture"
 
-#: cotisations/models.py:146
+#: cotisations/models.py:164
 msgid "invoices"
 msgstr "factures"
 
-#: cotisations/models.py:160
+#: cotisations/models.py:178
 msgid "You don't have the right to edit an invoice."
 msgstr "Vous n'avez pas le droit de modifier une facture."
 
-#: cotisations/models.py:168
+#: cotisations/models.py:186
 msgid "You don't have the right to edit this user's invoices."
 msgstr "Vous n'avez pas le droit de modifier les factures de cet utilisateur."
 
-#: cotisations/models.py:177
+#: cotisations/models.py:195
 msgid ""
 "You don't have the right to edit an invoice already controlled or "
 "invalidated."
@@ -179,15 +183,15 @@ msgstr ""
 "Vous n'avez pas le droit de modifier une facture précédemment contrôlée ou "
 "invalidée."
 
-#: cotisations/models.py:192
+#: cotisations/models.py:210
 msgid "You don't have the right to delete an invoice."
 msgstr "Vous n'avez pas le droit de supprimer une facture."
 
-#: cotisations/models.py:200
+#: cotisations/models.py:218
 msgid "You don't have the right to delete this user's invoices."
 msgstr "Vous n'avez pas le droit de supprimer les factures de cet utilisateur."
 
-#: cotisations/models.py:209
+#: cotisations/models.py:227
 msgid ""
 "You don't have the right to delete an invoice already controlled or "
 "invalidated."
@@ -195,137 +199,123 @@ msgstr ""
 "Vous n'avez pas le droit de supprimer une facture précédemment contrôlée ou "
 "invalidée."
 
-#: cotisations/models.py:223
+#: cotisations/models.py:241
 msgid "You don't have the right to view someone else's invoices history."
 msgstr ""
 "Vous n'avez pas le droit de voir l'historique des factures d'un autre "
 "utilisateur."
 
-#: cotisations/models.py:231
+#: cotisations/models.py:249
 msgid "The invoice has been invalidated."
 msgstr "La facture a été invalidée."
 
-#: cotisations/models.py:246
+#: cotisations/models.py:264
 msgid "You don't have the right to edit the \"controlled\" state."
 msgstr "Vous n'avez pas le droit de modifier le statut \"contrôlé\"."
 
-#: cotisations/models.py:265
+#: cotisations/models.py:283
 msgid "There are no payment methods that you can use."
 msgstr "Il n'y a pas de moyens de paiement que vous puissiez utiliser."
 
-#: cotisations/models.py:271
+#: cotisations/models.py:289
 msgid "There are no articles that you can buy."
 msgstr "Il n'y a pas d'articles que vous puissiez acheter."
 
-#: cotisations/models.py:347
+#: cotisations/models.py:381
 msgid "Can view a custom invoice object"
 msgstr "Peut voir un objet facture personnalisée"
 
-#: cotisations/models.py:349
+#: cotisations/models.py:383
 msgid "recipient"
 msgstr "destinataire"
 
-#: cotisations/models.py:350
+#: cotisations/models.py:384
 msgid "payment type"
 msgstr "type de paiement"
 
-#: cotisations/models.py:351
+#: cotisations/models.py:385
 msgid "address"
 msgstr "adresse"
 
-#: cotisations/models.py:352
+#: cotisations/models.py:386
 msgid "paid"
 msgstr "payé"
 
-#: cotisations/models.py:353
+#: cotisations/models.py:387
 msgid "remark"
 msgstr "remarque"
 
-#: cotisations/models.py:358
+#: cotisations/models.py:392
 msgid "Can view a cost estimate object"
 msgstr "Peut voir un objet devis"
 
-#: cotisations/models.py:361
+#: cotisations/models.py:395
 msgid "period of validity"
 msgstr "période de validité"
 
-#: cotisations/models.py:396
+#: cotisations/models.py:430
 msgid "You don't have the right to delete a cost estimate."
 msgstr "Vous n'avez pas le droit de supprimer un devis."
 
-#: cotisations/models.py:402
+#: cotisations/models.py:436
 msgid "The cost estimate has an invoice and can't be deleted."
 msgstr "Le devis a une facture et ne peut pas être supprimé."
 
-#: cotisations/models.py:424 cotisations/models.py:682
-#: cotisations/models.py:940
-msgid "Connection"
-msgstr "Connexion"
-
-#: cotisations/models.py:425 cotisations/models.py:683
-#: cotisations/models.py:941
-msgid "Membership"
-msgstr "Adhésion"
-
-#: cotisations/models.py:426 cotisations/models.py:678
-#: cotisations/models.py:684 cotisations/models.py:942
-msgid "Both of them"
-msgstr "Les deux"
-
-#: cotisations/models.py:435
+#: cotisations/models.py:462
 msgid "amount"
 msgstr "montant"
 
-#: cotisations/models.py:438
+#: cotisations/models.py:467
 msgid "article"
 msgstr "article"
 
-#: cotisations/models.py:441
+#: cotisations/models.py:470
 msgid "price"
 msgstr "prix"
 
-#: cotisations/models.py:444 cotisations/models.py:696
-msgid "duration (in months)"
-msgstr "durée (en mois)"
+#: cotisations/models.py:473 cotisations/models.py:726
+msgid "duration of the connection (in months)"
+msgstr "durée de la connexion (en mois)"
 
-#: cotisations/models.py:450 cotisations/models.py:702
-msgid "duration (in days, will be added to duration in months)"
-msgstr "durée (en jours, sera ajoutée à la durée en mois)"
+#: cotisations/models.py:478 cotisations/models.py:730
+msgid ""
+"duration of the connection (in days, will be added to duration in months)"
+msgstr "durée de la connexion (en jours, sera ajoutée à la durée en mois)"
 
-#: cotisations/models.py:458 cotisations/models.py:716
-#: cotisations/models.py:953
-msgid "subscription type"
-msgstr "type de cotisation"
+#: cotisations/models.py:482 cotisations/models.py:718
+msgid "duration of the membership (in months)"
+msgstr "durée de l'adhésion (en mois)"
 
-#: cotisations/models.py:463
+#: cotisations/models.py:487 cotisations/models.py:722
+msgid ""
+"duration of the membership (in days, will be added to duration in months)"
+msgstr "durée de l'adhésion (en jours, sera ajoutée à la durée en mois)"
+
+#: cotisations/models.py:493
 msgid "Can view a purchase object"
 msgstr "Peut voir un objet achat"
 
-#: cotisations/models.py:464
+#: cotisations/models.py:494
 msgid "Can edit all the previous purchases"
 msgstr "Peut modifier tous les achats précédents"
 
-#: cotisations/models.py:466 cotisations/models.py:947
+#: cotisations/models.py:496 cotisations/models.py:970
 msgid "purchase"
 msgstr "achat"
 
-#: cotisations/models.py:467
+#: cotisations/models.py:497
 msgid "purchases"
 msgstr "achats"
 
-#: cotisations/models.py:539 cotisations/models.py:736
-msgid "Duration must be specified for a subscription."
-msgstr "La durée doit être renseignée pour une cotisation."
-
-#: cotisations/models.py:550
+#: cotisations/models.py:572
 msgid "You don't have the right to edit a purchase."
 msgstr "Vous n'avez pas le droit de modifier un achat."
 
-#: cotisations/models.py:556
+#: cotisations/models.py:578
 msgid "You don't have the right to edit this user's purchases."
 msgstr "Vous n'avez pas le droit de modifier les achats de cet utilisateur."
 
-#: cotisations/models.py:565
+#: cotisations/models.py:587
 msgid ""
 "You don't have the right to edit a purchase already controlled or "
 "invalidated."
@@ -333,15 +323,15 @@ msgstr ""
 "Vous n'avez pas le droit de modifier un achat précédemment contrôlé ou "
 "invalidé."
 
-#: cotisations/models.py:580
+#: cotisations/models.py:602
 msgid "You don't have the right to delete a purchase."
 msgstr "Vous n'avez pas le droit de supprimer un achat."
 
-#: cotisations/models.py:586
+#: cotisations/models.py:608
 msgid "You don't have the right to delete this user's purchases."
 msgstr "Vous n'avez pas le droit de supprimer les achats de cet utilisateur."
 
-#: cotisations/models.py:593
+#: cotisations/models.py:615
 msgid ""
 "You don't have the right to delete a purchase already controlled or "
 "invalidated."
@@ -349,134 +339,150 @@ msgstr ""
 "Vous n'avez pas le droit de supprimer un achat précédemment contrôlé ou "
 "invalidé."
 
-#: cotisations/models.py:609
+#: cotisations/models.py:631
 msgid "You don't have the right to view someone else's purchase history."
 msgstr ""
 "Vous n'avez pas le droit de voir l'historique des achats d'un autre "
 "utilisateur."
 
-#: cotisations/models.py:677
+#: cotisations/models.py:707
 msgid "Club"
 msgstr "Club"
 
-#: cotisations/models.py:687
+#: cotisations/models.py:708
+msgid "Both of them"
+msgstr "Les deux"
+
+#: cotisations/models.py:711
 msgid "designation"
 msgstr "désignation"
 
-#: cotisations/models.py:690
+#: cotisations/models.py:714
 msgid "unit price"
 msgstr "prix unitaire"
 
-#: cotisations/models.py:708
+#: cotisations/models.py:736
+msgid "need membership to be purchased"
+msgstr "nécessite une adhésion pour être acheté"
+
+#: cotisations/models.py:743
 msgid "type of users concerned"
 msgstr "type d'utilisateurs concernés"
 
-#: cotisations/models.py:719 cotisations/models.py:820
+#: cotisations/models.py:746 cotisations/models.py:847
 msgid "is available for every user"
 msgstr "est disponible pour chaque utilisateur"
 
-#: cotisations/models.py:726
+#: cotisations/models.py:753
 msgid "Can view an article object"
 msgstr "Peut voir un objet article"
 
-#: cotisations/models.py:727
+#: cotisations/models.py:754
 msgid "Can buy every article"
 msgstr "Peut acheter chaque article"
 
-#: cotisations/models.py:734
+#: cotisations/models.py:761
 msgid "Solde is a reserved article name."
 msgstr "Solde est un nom d'article réservé."
 
-#: cotisations/models.py:759
+#: cotisations/models.py:784
 msgid "You can't buy this article."
 msgstr "Vous ne pouvez pas acheter cet article."
 
-#: cotisations/models.py:800
+#: cotisations/models.py:827
 msgid "Can view a bank object"
 msgstr "Peut voir un objet banque"
 
-#: cotisations/models.py:801
+#: cotisations/models.py:828
 msgid "bank"
 msgstr "banque"
 
-#: cotisations/models.py:802
+#: cotisations/models.py:829
 msgid "banks"
 msgstr "banques"
 
-#: cotisations/models.py:818
+#: cotisations/models.py:845
 msgid "method"
 msgstr "moyen"
 
-#: cotisations/models.py:825
+#: cotisations/models.py:852
 msgid "is user balance"
 msgstr "est solde utilisateur"
 
-#: cotisations/models.py:826
+#: cotisations/models.py:853
 msgid "There should be only one balance payment method."
 msgstr "Il ne devrait y avoir qu'un moyen de paiement solde."
 
-#: cotisations/models.py:832
+#: cotisations/models.py:859
 msgid "Can view a payment method object"
 msgstr "Peut voir un objet moyen de paiement"
 
-#: cotisations/models.py:833
+#: cotisations/models.py:860
 msgid "Can use every payment method"
 msgstr "Peut utiliser chaque moyen de paiement"
 
-#: cotisations/models.py:835
+#: cotisations/models.py:862
 msgid "payment method"
 msgstr "moyen de paiement"
 
-#: cotisations/models.py:836
+#: cotisations/models.py:863
 msgid "payment methods"
 msgstr "moyens de paiement"
 
-#: cotisations/models.py:875 cotisations/payment_methods/comnpay/views.py:62
+#: cotisations/models.py:904 cotisations/payment_methods/comnpay/views.py:62
 #, python-format
 msgid "The subscription of %(member_name)s was extended to %(end_date)s."
 msgstr "La cotisation de %(member_name)s a été étendue au %(end_date)s."
 
-#: cotisations/models.py:885
+#: cotisations/models.py:914
 msgid "The invoice was created."
 msgstr "La facture a été créée."
 
-#: cotisations/models.py:905
+#: cotisations/models.py:934
 msgid "You can't use this payment method."
 msgstr "Vous ne pouvez pas utiliser ce moyen de paiement."
 
-#: cotisations/models.py:924
+#: cotisations/models.py:953
 msgid "No custom payment methods."
 msgstr "Pas de moyens de paiement personnalisés."
 
-#: cotisations/models.py:955
-msgid "start date"
-msgstr "date de début"
+#: cotisations/models.py:973
+msgid "start date for the connection"
+msgstr "date de début pour la connexion"
 
-#: cotisations/models.py:956
-msgid "end date"
-msgstr "date de fin"
+#: cotisations/models.py:975
+msgid "end date for the connection"
+msgstr "date de fin pour la connexion"
 
-#: cotisations/models.py:960
+#: cotisations/models.py:977
+msgid "start date for the membership"
+msgstr "date de début pour l'adhésion"
+
+#: cotisations/models.py:979
+msgid "end date for the membership"
+msgstr "date de fin pour l'adhésion"
+
+#: cotisations/models.py:983
 msgid "Can view a subscription object"
 msgstr "Peut voir un objet cotisation"
 
-#: cotisations/models.py:961
+#: cotisations/models.py:984
 msgid "Can edit the previous subscriptions"
 msgstr "Peut modifier les cotisations précédentes"
 
-#: cotisations/models.py:963
+#: cotisations/models.py:986
 msgid "subscription"
 msgstr "cotisation"
 
-#: cotisations/models.py:964
+#: cotisations/models.py:987
 msgid "subscriptions"
 msgstr "cotisations"
 
-#: cotisations/models.py:970
+#: cotisations/models.py:993
 msgid "You don't have the right to edit a subscription."
 msgstr "Vous n'avez pas le droit de modifier une cotisation."
 
-#: cotisations/models.py:979
+#: cotisations/models.py:1002
 msgid ""
 "You don't have the right to edit a subscription already controlled or "
 "invalidated."
@@ -484,11 +490,11 @@ msgstr ""
 "Vous n'avez pas le droit de modifier une cotisation précédemment contrôlée "
 "ou invalidée."
 
-#: cotisations/models.py:991
+#: cotisations/models.py:1014
 msgid "You don't have the right to delete a subscription."
 msgstr "Vous n'avez pas le droit de supprimer une cotisation."
 
-#: cotisations/models.py:998
+#: cotisations/models.py:1021
 msgid ""
 "You don't have the right to delete a subscription already controlled or "
 "invalidated."
@@ -496,7 +502,7 @@ msgstr ""
 "Vous n'avez pas le droit de supprimer une cotisation précédemment contrôlée "
 "ou invalidée."
 
-#: cotisations/models.py:1014
+#: cotisations/models.py:1037
 msgid "You don't have the right to view someone else's subscription history."
 msgstr ""
 "Vous n'avez pas le droit de voir l'historique des cotisations d'un autre "
@@ -646,22 +652,26 @@ msgid "Price"
 msgstr "Prix"
 
 #: cotisations/templates/cotisations/aff_article.html:35
-msgid "Subscription type"
-msgstr "Type de cotisation"
+msgid "Duration membership (in months)"
+msgstr "Durée adhésion (en mois)"
 
 #: cotisations/templates/cotisations/aff_article.html:36
-msgid "Duration (in months)"
-msgstr "Durée (en mois)"
+msgid "Duration membership (in days)"
+msgstr "Durée adhésion (en jours)"
 
 #: cotisations/templates/cotisations/aff_article.html:37
-msgid "Duration (in days)"
-msgstr "Durée (en jours)"
+msgid "Duration connection (in months)"
+msgstr "Durée connexion (en mois)"
 
 #: cotisations/templates/cotisations/aff_article.html:38
+msgid "Duration connection (in days)"
+msgstr "Durée connexion (en jours)"
+
+#: cotisations/templates/cotisations/aff_article.html:39
 msgid "Concerned users"
 msgstr "Utilisateurs concernés"
 
-#: cotisations/templates/cotisations/aff_article.html:39
+#: cotisations/templates/cotisations/aff_article.html:40
 #: cotisations/templates/cotisations/aff_paiement.html:34
 msgid "Available for everyone"
 msgstr "Disponible pour tous"
@@ -710,7 +720,7 @@ msgid "Invoice created"
 msgstr "Facture créée"
 
 #: cotisations/templates/cotisations/aff_cost_estimate.html:91
-#: cotisations/templates/cotisations/aff_cotisations.html:81
+#: cotisations/templates/cotisations/aff_cotisations.html:91
 #: cotisations/templates/cotisations/aff_custom_invoice.html:79
 msgid "PDF"
 msgstr "PDF"
@@ -725,15 +735,15 @@ msgstr "Utilisateur"
 msgid "Invoice ID"
 msgstr "ID facture"
 
-#: cotisations/templates/cotisations/aff_cotisations.html:71
+#: cotisations/templates/cotisations/aff_cotisations.html:81
 msgid "Controlled invoice"
 msgstr "Facture contrôlée"
 
-#: cotisations/templates/cotisations/aff_cotisations.html:84
+#: cotisations/templates/cotisations/aff_cotisations.html:94
 msgid "Invalidated invoice"
 msgstr "Facture invalidée"
 
-#: cotisations/templates/cotisations/aff_cotisations.html:88
+#: cotisations/templates/cotisations/aff_cotisations.html:98
 msgid "Voucher"
 msgstr "Reçu"
 
@@ -748,6 +758,23 @@ msgstr "Type de paiement"
 #: cotisations/templates/cotisations/aff_paiement.html:35
 msgid "Custom payment method"
 msgstr "Moyen de paiement personnalisé"
+
+#: cotisations/templates/cotisations/aff_profil.html:35
+#: cotisations/templates/cotisations/index.html:32
+msgid "Subscriptions"
+msgstr "Cotisations"
+
+#: cotisations/templates/cotisations/aff_profil.html:43
+msgid "Add a subscription"
+msgstr "Ajouter une cotisation"
+
+#: cotisations/templates/cotisations/aff_profil.html:48
+msgid "Edit the balance"
+msgstr "Modifier le solde utilisateur"
+
+#: cotisations/templates/cotisations/aff_profil.html:57
+msgid "No invoice"
+msgstr "Pas de facture"
 
 #: cotisations/templates/cotisations/control.html:30
 msgid "Invoice control"
@@ -784,7 +811,7 @@ msgstr "Contrôlé"
 #: cotisations/templates/cotisations/control.html:107
 #: cotisations/templates/cotisations/delete.html:38
 #: cotisations/templates/cotisations/edit_facture.html:64
-#: cotisations/views.py:168 cotisations/views.py:222 cotisations/views.py:278
+#: cotisations/views.py:172 cotisations/views.py:224 cotisations/views.py:280
 msgid "Confirm"
 msgstr "Confirmer"
 
@@ -801,7 +828,7 @@ msgstr ""
 "Attention: voulez-vous vraiment supprimer cet objet %(objet_name)s  "
 "( %(objet)s ) ?"
 
-#: cotisations/templates/cotisations/edit_facture.html:31
+#: cotisations/templates/cotisations/edit_facture.html:30
 #: cotisations/templates/cotisations/facture.html:30
 msgid "Creation and editing of invoices"
 msgstr "Création et modification de factures"
@@ -813,7 +840,6 @@ msgstr "Modifier la facture"
 #: cotisations/templates/cotisations/edit_facture.html:45
 #: cotisations/templates/cotisations/facture.html:59
 #: cotisations/templates/cotisations/index_article.html:30
-#: cotisations/templates/cotisations/sidebar.html:55
 msgid "Articles"
 msgstr "Articles"
 
@@ -840,13 +866,8 @@ msgid "Total price: <span id=\"total_price\">0,00</span> €"
 msgstr "Prix total : <span id=\"total_price\">0,00</span> €"
 
 #: cotisations/templates/cotisations/index.html:29
-#: cotisations/templates/cotisations/sidebar.html:40
 msgid "Invoices"
 msgstr "Factures"
-
-#: cotisations/templates/cotisations/index.html:32
-msgid "Subscriptions"
-msgstr "Cotisations"
 
 #: cotisations/templates/cotisations/index_article.html:33
 msgid "List of articles"
@@ -861,7 +882,6 @@ msgid "Delete one or several articles"
 msgstr "Supprimer un ou plusieurs articles"
 
 #: cotisations/templates/cotisations/index_banque.html:30
-#: cotisations/templates/cotisations/sidebar.html:60
 msgid "Banks"
 msgstr "Banques"
 
@@ -878,7 +898,6 @@ msgid "Delete one or several banks"
 msgstr "Supprimer une ou plusieurs banques"
 
 #: cotisations/templates/cotisations/index_cost_estimate.html:28
-#: cotisations/templates/cotisations/sidebar.html:50
 msgid "Cost estimates"
 msgstr "Devis"
 
@@ -887,7 +906,6 @@ msgid "List of cost estimates"
 msgstr "Liste des devis"
 
 #: cotisations/templates/cotisations/index_custom_invoice.html:28
-#: cotisations/templates/cotisations/sidebar.html:45
 msgid "Custom invoices"
 msgstr "Factures personnalisées"
 
@@ -896,7 +914,6 @@ msgid "List of custom invoices"
 msgstr "Liste des factures personnalisées"
 
 #: cotisations/templates/cotisations/index_paiement.html:30
-#: cotisations/templates/cotisations/sidebar.html:65
 msgid "Payment methods"
 msgstr "Moyens de paiement"
 
@@ -921,132 +938,124 @@ msgstr "Rechargement de solde"
 msgid "Pay %(amount)s €"
 msgstr "Payer %(amount)s €"
 
-#: cotisations/templates/cotisations/payment.html:42 cotisations/views.py:1028
+#: cotisations/templates/cotisations/payment.html:42 cotisations/views.py:1030
 msgid "Pay"
 msgstr "Payer"
 
-#: cotisations/templates/cotisations/sidebar.html:32
-msgid "Create an invoice"
-msgstr "Créer une facture"
-
-#: cotisations/templates/cotisations/sidebar.html:35
-msgid "Control the invoices"
-msgstr "Contrôler les factures"
-
-#: cotisations/views.py:155
+#: cotisations/views.py:159
 msgid "You need to choose at least one article."
 msgstr "Vous devez choisir au moins un article."
 
-#: cotisations/views.py:169
+#: cotisations/views.py:173
 msgid "New invoice"
 msgstr "Nouvelle facture"
 
-#: cotisations/views.py:216
+#: cotisations/views.py:218
 msgid "The cost estimate was created."
 msgstr "Le devis a été créé."
 
-#: cotisations/views.py:226
+#: cotisations/views.py:228
 msgid "New cost estimate"
 msgstr "Nouveau devis"
 
-#: cotisations/views.py:272
+#: cotisations/views.py:274
 msgid "The custom invoice was created."
 msgstr "La facture personnalisée a été créée."
 
-#: cotisations/views.py:282
+#: cotisations/views.py:284
 msgid "New custom invoice"
 msgstr "Nouvelle facture personnalisée"
 
-#: cotisations/views.py:357 cotisations/views.py:438
+#: cotisations/views.py:359 cotisations/views.py:440
 msgid "The invoice was edited."
 msgstr "La facture a été modifiée."
 
-#: cotisations/views.py:375 cotisations/views.py:570
+#: cotisations/views.py:377 cotisations/views.py:572
 msgid "The invoice was deleted."
 msgstr "La facture a été supprimée."
 
-#: cotisations/views.py:398
+#: cotisations/views.py:400
 msgid "The cost estimate was edited."
 msgstr "Le devis a été modifié."
 
-#: cotisations/views.py:405
+#: cotisations/views.py:407
 msgid "Edit cost estimate"
 msgstr "Modifier le devis"
 
-#: cotisations/views.py:419
+#: cotisations/views.py:421
 msgid "An invoice was successfully created from your cost estimate."
 msgstr "Une facture a bien été créée à partir de votre devis."
 
-#: cotisations/views.py:445
+#: cotisations/views.py:447
 msgid "Edit custom invoice"
 msgstr "Modifier la facture personnalisée"
 
-#: cotisations/views.py:507
+#: cotisations/views.py:509
 msgid "The cost estimate was deleted."
 msgstr "Le devis a été supprimé."
 
-#: cotisations/views.py:510
+#: cotisations/views.py:512
 msgid "cost estimate"
 msgstr "devis"
 
-#: cotisations/views.py:594
+#: cotisations/views.py:596
 msgid "The article was created."
 msgstr "L'article a été créé."
 
-#: cotisations/views.py:599 cotisations/views.py:673 cotisations/views.py:767
+#: cotisations/views.py:601 cotisations/views.py:675 cotisations/views.py:769
 msgid "Add"
 msgstr "Ajouter"
 
-#: cotisations/views.py:600
+#: cotisations/views.py:602
 msgid "New article"
 msgstr "Nouvel article"
 
-#: cotisations/views.py:617
+#: cotisations/views.py:619
 msgid "The article was edited."
 msgstr "L'article a été modifié."
 
-#: cotisations/views.py:622 cotisations/views.py:705 cotisations/views.py:791
+#: cotisations/views.py:624 cotisations/views.py:707 cotisations/views.py:793
 msgid "Edit"
 msgstr "Modifier"
 
-#: cotisations/views.py:623
+#: cotisations/views.py:625
 msgid "Edit article"
 msgstr "Modifier l'article"
 
-#: cotisations/views.py:640
+#: cotisations/views.py:642
 msgid "The articles were deleted."
 msgstr "Les articles ont été supprimés."
 
-#: cotisations/views.py:645 cotisations/views.py:744 cotisations/views.py:829
+#: cotisations/views.py:647 cotisations/views.py:746 cotisations/views.py:831
 msgid "Delete"
 msgstr "Supprimer"
 
-#: cotisations/views.py:646
+#: cotisations/views.py:648
 msgid "Delete article"
 msgstr "Supprimer l'article"
 
-#: cotisations/views.py:667
+#: cotisations/views.py:669
 msgid "The payment method was created."
 msgstr "Le moyen de paiment a été créé."
 
-#: cotisations/views.py:674
+#: cotisations/views.py:676
 msgid "New payment method"
 msgstr "Nouveau moyen de paiement"
 
-#: cotisations/views.py:699
+#: cotisations/views.py:701
 msgid "The payment method was edited."
 msgstr "Le moyen de paiment a été modifié."
 
-#: cotisations/views.py:706
+#: cotisations/views.py:708
 msgid "Edit payment method"
 msgstr "Modifier le moyen de paiement"
 
-#: cotisations/views.py:728
+#: cotisations/views.py:730
 #, python-format
 msgid "The payment method %(method_name)s was deleted."
 msgstr "Le moyen de paiement %(method_name)s a été supprimé."
 
-#: cotisations/views.py:735
+#: cotisations/views.py:737
 #, python-format
 msgid ""
 "The payment method %(method_name)s can't be deleted because there are "
@@ -1055,32 +1064,32 @@ msgstr ""
 "Le moyen de paiement %(method_name)s ne peut pas être supprimé car il y a "
 "des factures qui l'utilisent."
 
-#: cotisations/views.py:745
+#: cotisations/views.py:747
 msgid "Delete payment method"
 msgstr "Supprimer le moyen de paiement"
 
-#: cotisations/views.py:762
+#: cotisations/views.py:764
 msgid "The bank was created."
 msgstr "La banque a été créée."
 
-#: cotisations/views.py:768
+#: cotisations/views.py:770
 msgid "New bank"
 msgstr "Nouvelle banque"
 
-#: cotisations/views.py:786
+#: cotisations/views.py:788
 msgid "The bank was edited."
 msgstr "La banque a été modifiée."
 
-#: cotisations/views.py:792
+#: cotisations/views.py:794
 msgid "Edit bank"
 msgstr "Modifier la banque"
 
-#: cotisations/views.py:814
+#: cotisations/views.py:816
 #, python-format
 msgid "The bank %(bank_name)s was deleted."
 msgstr "La banque %(bank_name)s a été supprimée."
 
-#: cotisations/views.py:820
+#: cotisations/views.py:822
 #, python-format
 msgid ""
 "The bank %(bank_name)s can't be deleted because there are invoices using it."
@@ -1088,22 +1097,22 @@ msgstr ""
 "La banque %(bank_name)s ne peut pas être supprimée car il y a des factures "
 "qui l'utilisent."
 
-#: cotisations/views.py:830
+#: cotisations/views.py:832
 msgid "Delete bank"
 msgstr "Supprimer la banque"
 
-#: cotisations/views.py:864
+#: cotisations/views.py:866
 msgid "Your changes have been properly taken into account."
 msgstr "Vos modifications ont correctement été prises en compte."
 
-#: cotisations/views.py:996
+#: cotisations/views.py:998
 msgid "You are not allowed to credit your balance."
 msgstr "Vous n'êtes pas autorisé à créditer votre solde."
 
-#: cotisations/views.py:1027
+#: cotisations/views.py:1029
 msgid "Refill your balance"
 msgstr "Recharger votre solde"
 
-#: cotisations/views.py:1046
+#: cotisations/views.py:1048
 msgid "Could not find a voucher for that invoice."
 msgstr "Impossible de trouver un reçu pour cette facture."

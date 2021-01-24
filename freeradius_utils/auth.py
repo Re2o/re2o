@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -23,23 +23,22 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Backend python pour freeradius.
+Python backend for freeradius.
 
-Ce fichier contient la définition de plusieurs fonctions d'interface à
-freeradius qui peuvent être appelées (suivant les configurations) à certains
-moment de l'authentification, en WiFi, filaire, ou par les NAS eux-mêmes.
+This file contains definition of some functions called by freeradius backend
+during auth for wifi, wired device and nas.
 
-Inspirés d'autres exemples trouvés ici :
+Other examples can be found here :
 https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_python/
 
-Inspiré du travail de Daniel Stan au Crans
+Inspired by Daniel Stan in Crans
 """
 
 import os
 import sys
 import logging
 import traceback
-import radiusd  # Module magique freeradius (radiusd.py is dummy)
+import radiusd  # Magic module freeradius (radiusd.py is dummy)
 
 from django.core.wsgi import get_wsgi_application
 from django.db.models import Q
@@ -61,26 +60,23 @@ from users.models import User
 from preferences.models import RadiusOption
 
 
-#: Serveur radius de test (pas la prod)
-TEST_SERVER = bool(os.getenv("DBG_FREERADIUS", False))
-
 
 # Logging
 class RadiusdHandler(logging.Handler):
-    """Handler de logs pour freeradius"""
+    """Logs handler for freeradius"""
 
     def emit(self, record):
-        """Process un message de log, en convertissant les niveaux"""
+        """Log message processing, level are converted"""
         if record.levelno >= logging.WARN:
             rad_sig = radiusd.L_ERR
         elif record.levelno >= logging.INFO:
             rad_sig = radiusd.L_INFO
         else:
             rad_sig = radiusd.L_DBG
-        radiusd.radlog(rad_sig, record.msg.encode("utf-8"))
+        radiusd.radlog(rad_sig, str(record.msg))
 
 
-# Initialisation d'un logger (pour logguer unifié)
+# Init for logging 
 logger = logging.getLogger("auth.py")
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(name)s: [%(levelname)s] %(message)s")
@@ -90,17 +86,15 @@ logger.addHandler(handler)
 
 
 def radius_event(fun):
-    """Décorateur pour les fonctions d'interfaces avec radius.
-    Une telle fonction prend un uniquement argument, qui est une liste de
-    tuples (clé, valeur) et renvoie un triplet dont les composantes sont :
-     * le code de retour (voir radiusd.RLM_MODULE_* )
-     * un tuple de couples (clé, valeur) pour les valeurs de réponse (accès ok
-       et autres trucs du genre)
-     * un tuple de couples (clé, valeur) pour les valeurs internes à mettre à
-       jour (mot de passe par exemple)
+    """Decorator for freeradius fonction with radius.
+    This function take a unique argument which is a list of tuples (key, value)
+    and return a tuple of 3 values which are:
+     * return code (see radiusd.RLM_MODULE_* )
+     * a tuple of 2 elements for response value (access ok , etc)
+     * a tuple of 2 elements for internal value to update (password for example)
 
-    On se contente avec ce décorateur (pour l'instant) de convertir la liste de
-    tuples en entrée en un dictionnaire."""
+    Here, we convert the list of tuples into a dictionnary.
+    """
 
     def new_f(auth_data):
         """ The function transforming the tuples as dict """
@@ -113,8 +107,6 @@ def radius_event(fun):
                 # Ex: Calling-Station-Id: "une_adresse_mac"
                 data[key] = value.replace('"', "")
         try:
-            # TODO s'assurer ici que les tuples renvoyés sont bien des
-            # (str,str) : rlm_python ne digère PAS les unicodes
             return fun(data)
         except Exception as err:
             exc_type, exc_instance, exc_traceback = sys.exc_info()
@@ -128,36 +120,32 @@ def radius_event(fun):
 
 @radius_event
 def instantiate(*_):
-    """Utile pour initialiser les connexions ldap une première fois (otherwise,
-    do nothing)"""
+    """Usefull for instantiate ldap connexions otherwise,
+    do nothing"""
     logger.info("Instantiation")
-    if TEST_SERVER:
-        logger.info(u"DBG_FREERADIUS is enabled")
 
 
 @radius_event
 def authorize(data):
-    """On test si on connait le calling nas:
-    - si le nas est inconnue, on suppose que c'est une requète 802.1X, on la
-      traite
-    - si le nas est connu, on applique 802.1X si le mode est activé
-    - si le nas est connu et si il s'agit d'un nas auth par mac, on repond
-      accept en authorize
-    """
-    # Pour les requetes proxifiees, on split
+    """Here, we test if the Nas is known.
+    - If the nas is unknown, we assume that it is a 802.1X request,
+    - If the nas is known, we apply the 802.1X if enabled,
+    - It the nas is known AND nas auth is enabled with mac address, returns
+    accept here"""
+    # For proxified request, split 
     nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
     nas_instance = find_nas_from_request(nas)
-    # Toutes les reuquètes non proxifiées
+    # For none proxified requests 
     nas_type = None
     if nas_instance:
         nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
     if not nas_type or nas_type.port_access_mode == "802.1X":
-        user = data.get("User-Name", "").decode("utf-8", errors="replace")
+        user = data.get("User-Name", "")
         user = user.split("@", 1)[0]
         mac = data.get("Calling-Station-Id", "")
         result, log, password = check_user_machine_and_register(nas_type, user, mac)
-        logger.info(log.encode("utf-8"))
-        logger.info(user.encode("utf-8"))
+        logger.info(str(log))
+        logger.info(str(user))
 
         if not result:
             return radiusd.RLM_MODULE_REJECT
@@ -179,28 +167,26 @@ def post_auth(data):
 
     nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
     nas_instance = find_nas_from_request(nas)
-    # Toutes les reuquètes non proxifiées
+    # All non proxified requests 
     if not nas_instance:
-        logger.info(u"Requete proxifiee, nas inconnu".encode("utf-8"))
+        logger.info("Proxified request, nas unknown")
         return radiusd.RLM_MODULE_OK
     nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
     if not nas_type:
-        logger.info(u"Type de nas non enregistre dans la bdd!".encode("utf-8"))
+        logger.info("This kind of nas is not registered in the database!")
         return radiusd.RLM_MODULE_OK
 
     mac = data.get("Calling-Station-Id", None)
 
-    # Switch et bornes héritent de machine et peuvent avoir plusieurs
-    # interfaces filles
+    # Switchs and access point can have several interfaces
     nas_machine = nas_instance.machine
-    # Si il s'agit d'un switch
+    # If it is a switchs
     if hasattr(nas_machine, "switch"):
         port = data.get("NAS-Port-Id", data.get("NAS-Port", None))
-        # Pour les infrastructures possédant des switchs Juniper :
-        # On vérifie si le switch fait partie d'un stack Juniper
+        # If the switch is part of a stack, calling ip is different from calling switch.
         instance_stack = nas_machine.switch.stack
         if instance_stack:
-            # Si c'est le cas, on resélectionne le bon switch dans la stack
+            # If it is a stack, we select the correct switch in the stack
             id_stack_member = port.split("-")[1].split("/")[0]
             nas_machine = (
                 Switch.objects.filter(stack=instance_stack)
@@ -208,22 +194,22 @@ def post_auth(data):
                 .prefetch_related("interface_set__domain__extension")
                 .first()
             )
-        # On récupère le numéro du port sur l'output de freeradius.
-        # La ligne suivante fonctionne pour cisco, HP et Juniper
+        # Find the port number from freeradius, works both with HP, Cisco
+        # and juniper output
         port = port.split(".")[0].split("/")[-1][-2:]
         out = decide_vlan_switch(nas_machine, nas_type, port, mac)
         sw_name, room, reason, vlan_id, decision, attributes = out
 
         if decision:
-            log_message = "(fil) %s -> %s [%s%s]" % (
-                sw_name + u":" + port + u"/" + str(room),
+            log_message = "(wired) %s -> %s [%s%s]" % (
+                sw_name + ":" + port + "/" + str(room),
                 mac,
                 vlan_id,
-                (reason and u": " + reason).encode("utf-8"),
+                (reason and ": " + reason),
             )
             logger.info(log_message)
 
-            # Filaire
+            # Wired connexion
             return (
                 radiusd.RLM_MODULE_UPDATED,
                 (
@@ -235,10 +221,10 @@ def post_auth(data):
                 (),
             )
         else:
-            log_message = "(fil) %s -> %s [Reject:%s]" % (
-                sw_name + u":" + port + u"/" + str(room),
+            log_message = "(fil) %s -> %s [Reject %s]" % (
+                sw_name + ":" + port + "/" + str(room),
                 mac,
-                (reason and u": " + reason).encode("utf-8"),
+                (reason and ": " + reason),
             )
             logger.info(log_message)
 
@@ -251,12 +237,12 @@ def post_auth(data):
 # TODO : remove this function
 @radius_event
 def dummy_fun(_):
-    """Do nothing, successfully. (C'est pour avoir un truc à mettre)"""
+    """Do nothing, successfully. """
     return radiusd.RLM_MODULE_OK
 
 
 def detach(_=None):
-    """Appelé lors du déchargement du module (enfin, normalement)"""
+    """Detatch the auth"""
     print("*** goodbye from auth.py ***")
     return radiusd.RLM_MODULE_OK
 
@@ -275,82 +261,74 @@ def find_nas_from_request(nas_id):
 
 
 def check_user_machine_and_register(nas_type, username, mac_address):
-    """Verifie le username et la mac renseignee. L'enregistre si elle est
-    inconnue.
-    Renvoie le mot de passe ntlm de l'user si tout est ok
-    Utilise pour les authentifications en 802.1X"""
+    """Check if username and mac are registered. Register it if unknown.
+    Return the user ntlm password if everything is ok.
+    Used for 802.1X auth"""
     interface = Interface.objects.filter(mac_address=mac_address).first()
     user = User.objects.filter(pseudo__iexact=username).first()
     if not user:
-        return (False, u"User inconnu", "")
+        return (False, "User unknown", "")
     if not user.has_access():
-        return (False, u"Adherent non cotisant", "")
+        return (False, "Invalid connexion (non-contributing user)", "")
     if interface:
         if interface.machine.user != user:
             return (
                 False,
-                u"Machine enregistree sur le compte d'un autre " "user...",
+                "Mac address registered on another user account",
                 "",
             )
         elif not interface.is_active:
-            return (False, u"Machine desactivee", "")
+            return (False, "Interface/Machine disabled", "")
         elif not interface.ipv4:
             interface.assign_ipv4()
-            return (True, u"Ok, Reassignation de l'ipv4", user.pwd_ntlm)
+            return (True, "Ok, new ipv4 assignement...", user.pwd_ntlm)
         else:
-            return (True, u"Access ok", user.pwd_ntlm)
+            return (True, "Access ok", user.pwd_ntlm)
     elif nas_type:
         if nas_type.autocapture_mac:
             result, reason = user.autoregister_machine(mac_address, nas_type)
             if result:
-                return (True, u"Access Ok, Capture de la mac...", user.pwd_ntlm)
+                return (True, "Access Ok, Registering mac...", user.pwd_ntlm)
             else:
-                return (False, u"Erreur dans le register mac %s" % reason, "")
+                return (False, "Error during mac register %s" % reason, "")
         else:
-            return (False, u"Machine inconnue", "")
+            return (False, "Unknown interface/machine", "")
     else:
-        return (False, u"Machine inconnue", "")
+        return (False, "Unknown interface/machine", "")
 
 
 def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
-    """Fonction de placement vlan pour un switch en radius filaire auth par
-    mac.
-    Plusieurs modes :
-        - tous les modes:
-            - nas inconnu: VLAN_OK
-            - port inconnu: Politique définie dans RadiusOption
-        - pas de radius sur le port: VLAN_OK
-        - force: placement sur le vlan indiqué dans la bdd
+    """Function for selecting vlan for a switch with wired mac auth radius.
+    Several modes are available :
+        - all modes:
+           - unknown NAS : VLAN_OK,
+           - unknown port : Decision set in Re2o RadiusOption
+        - No radius on this port : VLAN_OK
+        - force : returns vlan provided by the database
         - mode strict:
-            - pas de chambre associée: Politique définie
-              dans RadiusOption
-            - pas d'utilisateur dans la chambre : Rejet
-              (redirection web si disponible)
-            - utilisateur de la chambre banni ou désactivé : Rejet
-              (redirection web si disponible)
-            - utilisateur de la chambre non cotisant et non whiteslist:
-              Politique définie dans RadiusOption
-
-            - sinon passe à common (ci-dessous)
+            - no room : Decision set in Re2o RadiusOption,
+            - no user in this room : Reject,
+            - user of this room is banned or disable : Reject,
+            - user of this room non-contributor and not whitelisted: 
+            Decision set in Re2o RadiusOption
         - mode common :
-            - interface connue (macaddress):
-                - utilisateur proprio non cotisant / machine désactivée:
-                    Politique définie dans RadiusOption
-                - utilisateur proprio banni :
-                    Politique définie dans RadiusOption
-                - user à jour : VLAN_OK (réassignation de l'ipv4 au besoin)
-            - interface inconnue :
-                - register mac désactivé : Politique définie
-                  dans RadiusOption
-                - register mac activé: redirection vers webauth
+            - mac-address already registered:
+                - related user non contributor / interface disabled:
+                Decision set in Re2o RadiusOption
+                - related user is banned:
+                Decision set in Re2o RadiusOption
+                - user contributing : VLAN_OK (can assign ipv4 if needed)
+            - unknown interface :
+                - register mac disabled : Decision set in Re2o RadiusOption
+                - register mac enabled : redirect to webauth
     Returns:
-        tuple avec :
-            - Nom du switch (str)
-            - chambre (str)
-            - raison de la décision (str)
+        tuple with :
+            - Switch name (str)
+            - Room (str)
+            - Reason of the decision (str)
             - vlan_id (int)
             - decision (bool)
-            - Attributs supplémentaires (attribut:str, operateur:str, valeur:str)
+            - Other Attributs (attribut:str, operator:str, value:str)
     """
     attributes_kwargs = {
         "client_mac": str(mac_address),
@@ -358,12 +336,12 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
     }
     # Get port from switch and port number
     extra_log = ""
-    # Si le NAS est inconnu, on place sur le vlan defaut
+    # If NAS is unknown, go to default vlan 
     if not nas_machine:
         return (
             "?",
-            u"Chambre inconnue",
-            u"Nas inconnu",
+            "Unknown room",
+            "Unknown NAS",
             RadiusOption.get_cached_value("vlan_decision_ok").vlan_id,
             True,
             RadiusOption.get_attributes("ok_attributes", attributes_kwargs),
@@ -375,76 +353,71 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
     attributes_kwargs["switch_ip"] = str(switch.ipv4)
     port = Port.objects.filter(switch=switch, port=port_number).first()
 
-    # Si le port est inconnu, on place sur le vlan defaut
-    # Aucune information particulière ne permet de déterminer quelle
-    # politique à appliquer sur ce port
+    # If the port is unknwon, go to default vlan
+    # We don't have enought information to make a better decision
     if not port:
         return (
             sw_name,
-            "Port inconnu",
-            u"Port inconnu",
+            "Unknown port",
+            "PUnknown port",
             getattr(
                 RadiusOption.get_cached_value("unknown_port_vlan"), "vlan_id", None
             ),
             RadiusOption.get_cached_value("unknown_port") != RadiusOption.REJECT,
             RadiusOption.get_attributes("unknown_port_attributes", attributes_kwargs),
         )
-
-    # On récupère le profil du port
+ 
+    # Retrieve port profile
     port_profile = port.get_port_profile
 
-    # Si un vlan a été précisé dans la config du port,
-    # on l'utilise pour VLAN_OK
+    # If a vlan is precised in port config, we use it
     if port_profile.vlan_untagged:
         DECISION_VLAN = int(port_profile.vlan_untagged.vlan_id)
-        extra_log = u"Force sur vlan " + str(DECISION_VLAN)
+        extra_log = "Force sur vlan " + str(DECISION_VLAN)
         attributes = ()
     else:
         DECISION_VLAN = RadiusOption.get_cached_value("vlan_decision_ok").vlan_id
         attributes = RadiusOption.get_attributes("ok_attributes", attributes_kwargs)
 
-    # Si le port est désactivé, on rejette la connexion
+    # If the port is disabled in re2o, REJECT
     if not port.state:
-        return (sw_name, port.room, u"Port desactive", None, False, ())
+        return (sw_name, port.room, "Port disabled", None, False, ())
 
-    # Si radius est désactivé, on laisse passer
+    # If radius is disabled, decision is OK
     if port_profile.radius_type == "NO":
         return (
             sw_name,
             "",
-            u"Pas d'authentification sur ce port" + extra_log,
+            "No Radius auth enabled on this port" + extra_log,
             DECISION_VLAN,
             True,
             attributes,
         )
 
-    # Si le 802.1X est activé sur ce port, cela veut dire que la personne a
-    # été accept précédemment
-    # Par conséquent, on laisse passer sur le bon vlan
+    # If 802.1X is enabled, people has been previously accepted.
+    # Go to the decision vlan
     if (nas_type.port_access_mode, port_profile.radius_type) == ("802.1X", "802.1X"):
-        room = port.room or "Chambre/local inconnu"
+        room = port.room or "Room unknown"
         return (
             sw_name,
             room,
-            u"Acceptation authentification 802.1X",
+            "Accept authentication 802.1X",
             DECISION_VLAN,
             True,
             attributes,
         )
 
-    # Sinon, cela veut dire qu'on fait de l'auth radius par mac
-    # Si le port est en mode strict, on vérifie que tous les users
-    # rattachés à ce port sont bien à jour de cotisation. Sinon on rejette
-    # (anti squattage)
-    # Il n'est pas possible de se connecter sur une prise strict sans adhérent
-    # à jour de cotis dedans
+    # Otherwise, we are in mac radius.
+    # If strict mode is enabled, we check every user related with this port. If
+    # one user or more is not enabled, we reject to prevent from sharing or
+    # spoofing mac.
     if port_profile.radius_mode == "STRICT":
         room = port.room
         if not room:
             return (
                 sw_name,
-                "Inconnue",
-                u"Chambre inconnue",
+                "Unknown",
+                "Unkwown room",
                 getattr(
                     RadiusOption.get_cached_value("unknown_room_vlan"), "vlan_id", None
                 ),
@@ -461,7 +434,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
             return (
                 sw_name,
                 room,
-                u"Chambre non cotisante",
+                "Non-contributing room",
                 getattr(
                     RadiusOption.get_cached_value("non_member_vlan"), "vlan_id", None
                 ),
@@ -473,18 +446,18 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                 return (
                     sw_name,
                     room,
-                    u"Utilisateur banni ou desactive",
+                    "User is banned or disabled",
                     getattr(
                         RadiusOption.get_cached_value("banned_vlan"), "vlan_id", None
                     ),
                     RadiusOption.get_cached_value("banned") != RadiusOption.REJECT,
                     RadiusOption.get_attributes("banned_attributes", attributes_kwargs),
                 )
-            elif not (user.is_connected() or user.is_whitelisted()):
+            elif user.email_state == User.EMAIL_STATE_UNVERIFIED:
                 return (
                     sw_name,
                     room,
-                    u"Utilisateur non cotisant",
+                    "User is suspended (mail has not been confirmed)",
                     getattr(
                         RadiusOption.get_cached_value("non_member_vlan"),
                         "vlan_id",
@@ -495,27 +468,42 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                         "non_member_attributes", attributes_kwargs
                     ),
                 )
-        # else: user OK, on passe à la verif MAC
+            elif not (user.is_connected() or user.is_whitelisted()):
+                return (
+                    sw_name,
+                    room,
+                    "Non-contributing member",
+                    getattr(
+                        RadiusOption.get_cached_value("non_member_vlan"),
+                        "vlan_id",
+                        None,
+                    ),
+                    RadiusOption.get_cached_value("non_member") != RadiusOption.REJECT,
+                    RadiusOption.get_attributes(
+                        "non_member_attributes", attributes_kwargs
+                    ),
+                )
+        # else: user OK, so we check MAC now
 
-    # Si on fait de l'auth par mac, on cherche l'interface
-    # via sa mac dans la bdd
+    # If we are authenticating with mac, we look for the interfaces and its mac address
     if port_profile.radius_mode == "COMMON" or port_profile.radius_mode == "STRICT":
-        # Authentification par mac
+        # Mac auth
         interface = (
             Interface.objects.filter(mac_address=mac_address)
             .select_related("machine__user")
             .select_related("ipv4")
             .first()
         )
+        # If mac is unknown,
         if not interface:
             room = port.room
-            # On essaye de register la mac, si l'autocapture a été activée,
-            # on rejette pour faire une redirection web si possible.
+            # We try to register mac, if autocapture is enabled
+            # Final decision depend on RADIUSOption set in re2o
             if nas_type.autocapture_mac:
                 return (
                     sw_name,
                     room,
-                    u"Machine Inconnue",
+                    "Unknown mac/interface",
                     getattr(
                         RadiusOption.get_cached_value("unknown_machine_vlan"),
                         "vlan_id",
@@ -527,13 +515,12 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                         "unknown_machine_attributes", attributes_kwargs
                     ),
                 )
-            # Sinon on bascule sur la politique définie dans les options
-            # radius.
+            # Otherwise, if autocapture mac is not enabled,
             else:
                 return (
                     sw_name,
                     "",
-                    u"Machine inconnue",
+                    "Unknown mac/interface",
                     getattr(
                         RadiusOption.get_cached_value("unknown_machine_vlan"),
                         "vlan_id",
@@ -546,17 +533,15 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                     ),
                 )
 
-        # L'interface a été trouvée, on vérifie qu'elle est active,
-        # sinon on reject
-        # Si elle n'a pas d'ipv4, on lui en met une
-        # Enfin on laisse passer sur le vlan pertinent
+        # Mac/Interface is found, check if related user is contributing and ok
+        # If needed, set ipv4 to it
         else:
             room = port.room
             if interface.machine.user.is_ban():
                 return (
                     sw_name,
                     room,
-                    u"Adherent banni",
+                    "Banned user",
                     getattr(
                         RadiusOption.get_cached_value("banned_vlan"), "vlan_id", None
                     ),
@@ -567,7 +552,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                 return (
                     sw_name,
                     room,
-                    u"Machine non active / adherent non cotisant",
+                    "Disabled interface / non-contributing member",
                     getattr(
                         RadiusOption.get_cached_value("non_member_vlan"),
                         "vlan_id",
@@ -578,8 +563,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                         "non_member_attributes", attributes_kwargs
                     ),
                 )
-            # Si on choisi de placer les machines sur le vlan
-            # correspondant à leur type :
+            # If settings is set to related interface vlan policy based on interface type:
             if RadiusOption.get_cached_value("radius_general_policy") == "MACHINE":
                 DECISION_VLAN = interface.machine_type.ip_type.vlan.vlan_id
             if not interface.ipv4:
@@ -587,7 +571,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                 return (
                     sw_name,
                     room,
-                    u"Ok, Reassignation de l'ipv4" + extra_log,
+                    "Ok, assigning new ipv4" + extra_log,
                     DECISION_VLAN,
                     True,
                     attributes,
@@ -596,7 +580,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
                 return (
                     sw_name,
                     room,
-                    u"Machine OK" + extra_log,
+                    "Interface OK" + extra_log,
                     DECISION_VLAN,
                     True,
                     attributes,

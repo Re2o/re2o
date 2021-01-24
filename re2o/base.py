@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,9 +21,7 @@
 
 # -*- coding: utf-8 -*-
 """
-Regroupe les fonctions transversales utiles
-
-Et non corrélées/dépendantes des autres applications
+Global independant usefull functions
 """
 
 import smtplib

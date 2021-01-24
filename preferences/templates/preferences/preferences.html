@@ -1,6 +1,6 @@
 {% extends 'preferences/sidebar.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -25,20 +25,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load bootstrap3 %}
 {% load i18n %}
-{% load massive_bootstrap_form %}
 
 {% block title %}{% trans "Preferences" %}{% endblock %}
 
 {% block content %}
 {% if preferenceform %}
 {% bootstrap_form_errors preferenceform %}
+{{ preferenceform.media }}
 {% endif %}
 
 
 <form class="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {% if preferenceform %}
-    {% massive_bootstrap_form preferenceform 'members,president' %}
+    {% bootstrap_form preferenceform  %}
     {% endif %}
     {% bootstrap_button action_name button_type="submit" icon='ok' button_class='btn-success' %}
 </form>

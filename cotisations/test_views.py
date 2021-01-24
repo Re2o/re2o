@@ -38,25 +38,28 @@ class NewFactureTests(TestCase):
         self.article_one_day = Article.objects.create(
             name="One day",
             prix=0,
-            duration=0,
-            duration_days=1,
-            type_cotisation="All",
+            duration_connection=0,
+            duration_days_connection=1,
+            duration_membership=0,
+            duration_days_membership=1,
             available_for_everyone=True,
         )
         self.article_one_month = Article.objects.create(
-            name="One day",
+            name="One mounth",
             prix=0,
-            duration=1,
-            duration_days=0,
-            type_cotisation="All",
+            duration_connection=1,
+            duration_days_connection=0,
+            duration_membership=1,
+            duration_days_membership=0,
             available_for_everyone=True,
         )
         self.article_one_month_and_one_week = Article.objects.create(
-            name="One day",
+            name="One mounth and one week",
             prix=0,
-            duration=1,
-            duration_days=7,
-            type_cotisation="All",
+            duration_connection=1,
+            duration_days_connection=7,
+            duration_membership=1,
+            duration_days_membership=7,
             available_for_everyone=True,
         )
         self.client.login(username="testUser", password="plopiplop")

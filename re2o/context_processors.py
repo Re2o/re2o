@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -19,13 +19,14 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""Fonction de context, variables renvoyées à toutes les vues"""
+"""Context functions, runs and results sends globaly to all templates"""
 
 from __future__ import unicode_literals
 
 import datetime
 
 from django.contrib import messages
+from django.contrib.messages import get_messages
 from django.http import HttpRequest
 from preferences.models import GeneralOption, OptionalMachine
 from django.utils.translation import get_language
@@ -34,8 +35,12 @@ from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def context_user(request):
-    """Fonction de context lorsqu'un user est logué (ou non),
-    renvoie les infos sur l'user, la liste de ses droits, ses machines"""
+    """Global Context function
+
+        Returns:
+        dict:Containing user's interfaces and himself if logged, else None
+
+    """
     user = request.user
     if get_language() == "fr":
         global_message = GeneralOption.get_cached_value("general_message_fr")
@@ -43,9 +48,11 @@ def context_user(request):
         global_message = GeneralOption.get_cached_value("general_message_en")
     if global_message:
         if isinstance(request, HttpRequest):
-            messages.warning(request, global_message)
+            if global_message not in [msg.message for msg in get_messages(request)]:
+                messages.warning(request, global_message)
         else:
-            messages.warning(request._request, global_message)
+            if global_message not in [msg.message for msg in get_messages(request._request)]:
+                messages.warning(request._request, global_message)
     if user.is_authenticated():
         interfaces = user.user_interfaces()
     else:
@@ -61,18 +68,23 @@ def context_user(request):
 
 
 def context_optionnal_apps(request):
-    """Fonction de context pour générer la navbar en fonction des
-    apps optionnels"""
+    """Context functions. Called to add optionnal apps buttons in navbari
+
+        Returns:
+        dict:Containing optionnal template list of functions for navbar found
+        in optional apps
+
+    """
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]
     optionnal_templates_navbar_user_list = [
         app.views.navbar_user()
         for app in optionnal_apps
-        if hasattr(app.views, "navbar_user")
+        if hasattr(app, "views") and hasattr(app.views, "navbar_user")
     ]
     optionnal_templates_navbar_logout_list = [
         app.views.navbar_logout()
         for app in optionnal_apps
-        if hasattr(app.views, "navbar_logout")
+        if hasattr(app, "views") and hasattr(app.views, "navbar_logout")
     ]
     return {
         "optionnal_templates_navbar_user_list": optionnal_templates_navbar_user_list,

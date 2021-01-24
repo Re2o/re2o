@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -22,15 +22,15 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Formulaires d'ajout, edition et suppressions de :
-    - machines
-    - interfaces
-    - domain (noms de machine)
-    - alias (cname)
-    - service (dhcp, dns..)
-    - ns (serveur dns)
-    - mx (serveur mail)
-    - ports ouverts et profils d'ouverture par interface
+Forms to create, edit and delete:
+    * machines
+    * interfaces
+    * domains (machine names)
+    * aliases (CNAME)
+    * services (DHCP, DNS...)
+    * NS records (DNS server)
+    * MX records (mail serveur)
+    * open ports and ports opening for interfaces
 """
 
 from __future__ import unicode_literals
@@ -41,6 +41,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
+from re2o.widgets import (
+    AutocompleteModelWidget,
+    AutocompleteMultipleModelWidget,
+)
 from .models import (
     Domain,
     Machine,
@@ -66,11 +70,12 @@ from .models import (
 
 
 class EditMachineForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Formulaire d'édition d'une machine"""
+    """Form used to edit a machine."""
 
     class Meta:
         model = Machine
         fields = "__all__"
+        widgets = {"user": AutocompleteModelWidget(url="/users/user-autocomplete")}
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -79,18 +84,31 @@ class EditMachineForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 
 class NewMachineForm(EditMachineForm):
-    """Creation d'une machine, ne renseigne que le nom"""
+    """Form used to create a machine."""
 
     class Meta(EditMachineForm.Meta):
         fields = ["name"]
 
 
 class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Edition d'une interface. Edition complète"""
+    """Form used to edit an interface."""
 
     class Meta:
         model = Interface
         fields = ["machine", "machine_type", "ipv4", "mac_address", "details"]
+        widgets = {
+            "machine": AutocompleteModelWidget(url="/machines/machine-autocomplete"),
+            "machine_type": AutocompleteModelWidget(
+                url="/machines/machinetype-autocomplete"
+            ),
+            "ipv4": AutocompleteModelWidget(
+                url="/machines/iplist-autocomplete",
+                forward=["machine_type"],
+                attrs={
+                    "data-placeholder": "Automatic assigment. Type to choose specific ip."
+                },
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -127,19 +145,21 @@ class EditInterfaceForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 
 class AddInterfaceForm(EditInterfaceForm):
-    """Ajout d'une interface à une machine. En fonction des droits,
-    affiche ou non l'ensemble des ip disponibles"""
+    """Form used to add an interface to a machine."""
 
     class Meta(EditInterfaceForm.Meta):
         fields = ["machine_type", "ipv4", "mac_address", "details"]
 
 
 class AliasForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Ajout d'un alias (et edition), CNAME, contenant nom et extension"""
+    """Form used to add and edit an alias (CNAME)."""
 
     class Meta:
         model = Domain
         fields = ["name", "extension", "ttl"]
+        widgets = {
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -153,7 +173,9 @@ class AliasForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 
 class DomainForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Ajout et edition d'un enregistrement de nom, relié à interface"""
+    """Form used to add and edit a domain record, related to an
+    interface.
+    """
 
     class Meta:
         model = Domain
@@ -165,7 +187,7 @@ class DomainForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 
 class DelAliasForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs objets alias"""
+    """Form used to delete one or several aliases."""
 
     alias = forms.ModelMultipleChoiceField(
         queryset=Domain.objects.all(),
@@ -182,11 +204,14 @@ class DelAliasForm(FormRevMixin, Form):
 
 
 class MachineTypeForm(FormRevMixin, ModelForm):
-    """Ajout et edition d'un machinetype, relié à un iptype"""
+    """Form used to add and edit a machine type, related to an IP type."""
 
     class Meta:
         model = MachineType
         fields = ["name", "ip_type"]
+        widgets = {
+            "ip_type": AutocompleteModelWidget(url="/machines/iptype-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -196,7 +221,7 @@ class MachineTypeForm(FormRevMixin, ModelForm):
 
 
 class DelMachineTypeForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs machinetype"""
+    """Form used to delete one or several machines types."""
 
     machinetypes = forms.ModelMultipleChoiceField(
         queryset=MachineType.objects.none(),
@@ -214,12 +239,20 @@ class DelMachineTypeForm(FormRevMixin, Form):
 
 
 class IpTypeForm(FormRevMixin, ModelForm):
-    """Formulaire d'ajout d'un iptype. Pas d'edition de l'ip de start et de
-    stop après creation"""
+    """Form used to add an IP type. The start and stop IP addresses cannot
+    be changed afterwards.
+    """
 
     class Meta:
         model = IpType
         fields = "__all__"
+        widgets = {
+            "vlan": AutocompleteModelWidget(url="/machines/vlan-autocomplete"),
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "ouverture_ports": AutocompleteModelWidget(
+                url="/machines/ouvertureportlist-autocomplete"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -228,8 +261,9 @@ class IpTypeForm(FormRevMixin, ModelForm):
 
 
 class EditIpTypeForm(IpTypeForm):
-    """Edition d'un iptype. Pas d'edition du rangev4 possible, car il faudrait
-    synchroniser les objets iplist"""
+    """Form used to edit an IP type. The start and stop IP addresses cannot
+    be changed.
+    """
 
     class Meta(IpTypeForm.Meta):
         fields = [
@@ -248,7 +282,7 @@ class EditIpTypeForm(IpTypeForm):
 
 
 class DelIpTypeForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs iptype"""
+    """Form used to delete one or several IP types."""
 
     iptypes = forms.ModelMultipleChoiceField(
         queryset=IpType.objects.none(),
@@ -266,7 +300,7 @@ class DelIpTypeForm(FormRevMixin, Form):
 
 
 class ExtensionForm(FormRevMixin, ModelForm):
-    """Formulaire d'ajout et edition d'une extension"""
+    """Form used to add and edit extensions."""
 
     class Meta:
         model = Extension
@@ -283,7 +317,7 @@ class ExtensionForm(FormRevMixin, ModelForm):
 
 
 class DelExtensionForm(FormRevMixin, Form):
-    """Suppression d'une ou plusieurs extensions"""
+    """Form used to delete one or several extensions."""
 
     extensions = forms.ModelMultipleChoiceField(
         queryset=Extension.objects.none(),
@@ -301,11 +335,11 @@ class DelExtensionForm(FormRevMixin, Form):
 
 
 class Ipv6ListForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
-    """Gestion des ipv6 d'une machine"""
+    """Form used to manage lists of IPv6 addresses."""
 
     class Meta:
         model = Ipv6List
-        fields = ["ipv6", "slaac_ip"]
+        fields = ["ipv6", "slaac_ip", "active"]
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -313,7 +347,7 @@ class Ipv6ListForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
 
 
 class SOAForm(FormRevMixin, ModelForm):
-    """Ajout et edition d'un SOA"""
+    """Form used to add and edit SOA records."""
 
     class Meta:
         model = SOA
@@ -325,7 +359,7 @@ class SOAForm(FormRevMixin, ModelForm):
 
 
 class DelSOAForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs SOA"""
+    """Form used to delete one or several SOA records."""
 
     soa = forms.ModelMultipleChoiceField(
         queryset=SOA.objects.none(),
@@ -343,11 +377,15 @@ class DelSOAForm(FormRevMixin, Form):
 
 
 class MxForm(FormRevMixin, ModelForm):
-    """Ajout et edition d'un MX"""
+    """Form used to add and edit MX records."""
 
     class Meta:
         model = Mx
         fields = ["zone", "priority", "name", "ttl"]
+        widgets = {
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "name": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -358,7 +396,7 @@ class MxForm(FormRevMixin, ModelForm):
 
 
 class DelMxForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs MX"""
+    """Form used to delete one or several MX records."""
 
     mx = forms.ModelMultipleChoiceField(
         queryset=Mx.objects.none(),
@@ -376,13 +414,17 @@ class DelMxForm(FormRevMixin, Form):
 
 
 class NsForm(FormRevMixin, ModelForm):
-    """Ajout d'un NS pour une zone
-    On exclue les CNAME dans les objets domain (interdit par la rfc)
-    donc on prend uniquemet """
+    """Form used to add and edit NS records. Only interface names are
+    available because CNAME aliases should not be used in the records.
+    """
 
     class Meta:
         model = Ns
         fields = ["zone", "ns", "ttl"]
+        widgets = {
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "ns": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -393,7 +435,7 @@ class NsForm(FormRevMixin, ModelForm):
 
 
 class DelNsForm(FormRevMixin, Form):
-    """Suppresion d'un ou plusieurs NS"""
+    """Form used to delete one or several NS records."""
 
     nss = forms.ModelMultipleChoiceField(
         queryset=Ns.objects.none(),
@@ -411,11 +453,14 @@ class DelNsForm(FormRevMixin, Form):
 
 
 class TxtForm(FormRevMixin, ModelForm):
-    """Ajout d'un txt pour une zone"""
+    """Form used to add and edit TXT records."""
 
     class Meta:
         model = Txt
         fields = "__all__"
+        widgets = {
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -423,7 +468,7 @@ class TxtForm(FormRevMixin, ModelForm):
 
 
 class DelTxtForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs TXT"""
+    """Form used to delete one or several TXT records."""
 
     txt = forms.ModelMultipleChoiceField(
         queryset=Txt.objects.none(),
@@ -441,11 +486,14 @@ class DelTxtForm(FormRevMixin, Form):
 
 
 class DNameForm(FormRevMixin, ModelForm):
-    """Add a DNAME entry for a zone"""
+    """Form used to add and edit DNAME records."""
 
     class Meta:
         model = DName
         fields = "__all__"
+        widgets = {
+            "zone": AutocompleteModelWidget(url="/machines/extension-autocomplete")
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -453,7 +501,7 @@ class DNameForm(FormRevMixin, ModelForm):
 
 
 class DelDNameForm(FormRevMixin, Form):
-    """Delete a set of DNAME entries"""
+    """Form used to delete one or several DNAME records."""
 
     dnames = forms.ModelMultipleChoiceField(
         queryset=Txt.objects.none(),
@@ -471,11 +519,15 @@ class DelDNameForm(FormRevMixin, Form):
 
 
 class SrvForm(FormRevMixin, ModelForm):
-    """Ajout d'un srv pour une zone"""
+    """Form used to add and edit SRV records."""
 
     class Meta:
         model = Srv
         fields = "__all__"
+        widgets = {
+            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "target": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -483,7 +535,7 @@ class SrvForm(FormRevMixin, ModelForm):
 
 
 class DelSrvForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs Srv"""
+    """Form used to delete one or several SRV records."""
 
     srv = forms.ModelMultipleChoiceField(
         queryset=Srv.objects.none(),
@@ -501,12 +553,19 @@ class DelSrvForm(FormRevMixin, Form):
 
 
 class NasForm(FormRevMixin, ModelForm):
-    """Ajout d'un type de nas (machine d'authentification,
-    swicths, bornes...)"""
+    """Form used to create and edit NAS devices."""
 
     class Meta:
         model = Nas
         fields = "__all__"
+        widgets = {
+            "nas_type": AutocompleteModelWidget(
+                url="/machines/machinetype-autocomplete"
+            ),
+            "machine_type": AutocompleteModelWidget(
+                url="/machines/machinetype-autocomplete"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -514,7 +573,7 @@ class NasForm(FormRevMixin, ModelForm):
 
 
 class DelNasForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs nas"""
+    """Form used to delete one or several NAS devices."""
 
     nas = forms.ModelMultipleChoiceField(
         queryset=Nas.objects.none(),
@@ -532,11 +591,16 @@ class DelNasForm(FormRevMixin, Form):
 
 
 class RoleForm(FormRevMixin, ModelForm):
-    """Add and edit role."""
+    """Form used to add and edit roles."""
 
     class Meta:
         model = Role
         fields = "__all__"
+        widgets = {
+            "servers": AutocompleteMultipleModelWidget(
+                url="/machines/interface-autocomplete"
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -547,7 +611,7 @@ class RoleForm(FormRevMixin, ModelForm):
 
 
 class DelRoleForm(FormRevMixin, Form):
-    """Deletion of one or several roles."""
+    """Form used to delete one or several roles."""
 
     role = forms.ModelMultipleChoiceField(
         queryset=Role.objects.none(),
@@ -565,11 +629,16 @@ class DelRoleForm(FormRevMixin, Form):
 
 
 class ServiceForm(FormRevMixin, ModelForm):
-    """Ajout et edition d'une classe de service : dns, dhcp, etc"""
+    """Form to add and edit services (DHCP, DNS etc.)."""
 
     class Meta:
         model = Service
         fields = "__all__"
+        widgets = {
+            "servers": AutocompleteMultipleModelWidget(
+                url="/machines/interface-autocomplete"
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -589,7 +658,7 @@ class ServiceForm(FormRevMixin, ModelForm):
 
 
 class DelServiceForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs service"""
+    """Form used to delete one or several services."""
 
     service = forms.ModelMultipleChoiceField(
         queryset=Service.objects.none(),
@@ -607,7 +676,7 @@ class DelServiceForm(FormRevMixin, Form):
 
 
 class VlanForm(FormRevMixin, ModelForm):
-    """Ajout d'un vlan : id, nom"""
+    """Form used to add and edit VLANs."""
 
     class Meta:
         model = Vlan
@@ -619,7 +688,7 @@ class VlanForm(FormRevMixin, ModelForm):
 
 
 class EditOptionVlanForm(FormRevMixin, ModelForm):
-    """Ajout d'un vlan : id, nom"""
+    """Form used to edit the options of a VLAN."""
 
     class Meta:
         model = Vlan
@@ -631,7 +700,7 @@ class EditOptionVlanForm(FormRevMixin, ModelForm):
 
 
 class DelVlanForm(FormRevMixin, Form):
-    """Suppression d'un ou plusieurs vlans"""
+    """Form used to delete one or several VLANs."""
 
     vlan = forms.ModelMultipleChoiceField(
         queryset=Vlan.objects.none(),
@@ -649,12 +718,16 @@ class DelVlanForm(FormRevMixin, Form):
 
 
 class EditOuverturePortConfigForm(FormRevMixin, ModelForm):
-    """Edition de la liste des profils d'ouverture de ports
-    pour l'interface"""
+    """Form to edit the ports opening list of an interface."""
 
     class Meta:
         model = Interface
         fields = ["port_lists"]
+        widgets = {
+            "port_lists": AutocompleteMultipleModelWidget(
+                url="/machines/ouvertureportlist-autocomplete"
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
@@ -664,8 +737,7 @@ class EditOuverturePortConfigForm(FormRevMixin, ModelForm):
 
 
 class EditOuverturePortListForm(FormRevMixin, ModelForm):
-    """Edition de la liste des ports et profils d'ouverture
-    des ports"""
+    """Form used to add and edit ports opening lists."""
 
     class Meta:
         model = OuverturePortList
@@ -677,7 +749,7 @@ class EditOuverturePortListForm(FormRevMixin, ModelForm):
 
 
 class SshFpForm(FormRevMixin, ModelForm):
-    """Edits a SSHFP record."""
+    """Form used to add and edit SSHFP records."""
 
     class Meta:
         model = SshFp

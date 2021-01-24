@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,8 +21,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Fonctions de la page d'accueil et diverses fonctions utiles pour tous
-les views
+Welcom main page view, and several template widely used in re2o views
 """
 
 from __future__ import unicode_literals
@@ -33,7 +32,9 @@ from django.shortcuts import render
 from django.template.context_processors import csrf
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.views.decorators.cache import cache_page
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from dal import autocomplete
 
 from preferences.models import (
     Service,
@@ -50,14 +51,29 @@ from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def form(ctx, template, request):
-    """Form générique, raccourci importé par les fonctions views du site"""
+    """Global template function, used in all re2o views, for building a render with context,
+    template and request. Adding csrf.
+ 
+    Parameters:
+        ctx (dict): Dict of values to transfer to template
+        template (django template): The django template of this view
+        request (django request)
+
+    Returns:
+        Django render: Django render complete view with template, context and request
+    """
     context = ctx
     context.update(csrf(request))
     return render(request, template, context)
 
 
 def index(request):
-    """Affiche la liste des services sur la page d'accueil de re2o"""
+    """Display all services provided on main page
+
+        Returns: a form with all services linked and description, and social media
+        link if provided.
+
+    """
     services = [[], [], []]
     for indice, serv in enumerate(Service.objects.all()):
         services[indice % 3].append(serv)
@@ -101,13 +117,18 @@ def about_page(request):
 
     dependencies = settings.INSTALLED_APPS + settings.MIDDLEWARE_CLASSES
 
+    try:
+        president = Mandate.get_mandate().president.get_full_name()
+    except Mandate.DoesNotExist:
+        president = _("Unable to get the information.")
+
     return render(
         request,
         "re2o/about.html",
         {
             "option": option,
             "gtu": general.GTU,
-            "president": Mandate.get_mandate().president.get_full_name(),
+            "president": president,
             "git_info_contributors": git_info_contributors,
             "git_info_remote": git_info_remote,
             "git_info_branch": git_info_branch,
@@ -150,3 +171,30 @@ def handler500(request):
 def handler404(request):
     """The handler view for a 404 error"""
     return render(request, "errors/404.html", status=404)
+
+
+class AutocompleteLoggedOutViewMixin(autocomplete.Select2QuerySetView):
+    obj_type = None  # This MUST be overridden by child class
+    query_set = None
+    query_filter = "name__icontains"  # Override this if necessary
+
+    def get_queryset(self):
+        can, reason, _permission, query_set = self.obj_type.can_list(self.request.user)
+
+        if query_set:
+            self.query_set = query_set
+        else:
+            self.query_set = self.obj_type.objects.none()
+
+        if hasattr(self, "filter_results"):
+            self.filter_results()
+        else:
+            if self.q:
+                self.query_set = self.query_set.filter(**{self.query_filter: self.q})
+
+        return self.query_set
+
+
+class AutocompleteViewMixin(LoginRequiredMixin, AutocompleteLoggedOutViewMixin):
+    pass
+

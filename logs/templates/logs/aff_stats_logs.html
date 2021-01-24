@@ -1,5 +1,5 @@
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -34,22 +34,51 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <thead>
         <tr>
             <th>{% trans "Edited object" %}</th>
-            <th>{% trans "Object type" %}</th>
             {% trans "Edited by" as tr_edited_by %}
             <th>{% include 'buttons/sort.html' with prefix='logs' col='author' text=tr_edited_by %}</th>
             {% trans "Date of editing" as tr_date_of_editing %}
             <th>{% include 'buttons/sort.html' with prefix='logs' col='date' text=tr_date_of_editing %}</th>
+            <th>{% trans "Edited" %}</th>
             <th>{% trans "Comment" %}</th>
             <th></th>
         </tr>
     </thead>
     {% for revision in revisions_list %}
-        {% for reversion in revision.version_set.all %}
+        {% for version in revision.versions %}
             <tr>
-                <td>{{ reversion.object|truncatechars:20 }}</td>
-                <td>{{ reversion.object|classname }}</td>
-                <td>{{ revision.user }}</td>
+                <td>
+                    {% if version.object_id %}
+                    <a href="{% url 'logs:history' version.application version.model_name version.object_id %}" title="{% trans "History" %}">
+                        {{ version.name }}
+                    </a>
+                    {% else %}
+                        {{ version.name }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if revision.performed_by %}
+                    <a href="{% url 'users:profil' userid=revision.performed_by.id %}" title=tr_view_the_profile>
+                        {{ revision.performed_by }}
+                    </a>
+                    {% else %}
+                        {{ revision.performed_by }}
+                    {% endif %}
+                </td>
                 <td>{{ revision.date_created }}</td>
+                <td>
+                    {% for edit in version.edits %}
+                        {% if edit.1 is None and edit.2 is None %}
+                            <strong>{{ edit.0 }}</strong><br/>
+                        {% elif edit.1 is None %}
+                            <strong>{{ edit.0 }}:</strong>
+                            <i class="text-success"> {{ edit.2|truncatechars:50 }}</i><br/>
+                        {% else %}
+                            <strong>{{ edit.0 }}:</strong>
+                            <i class="text-danger"> {{ edit.1|truncatechars:50 }} </i>
+                            ➔ <i class="text-success">{{ edit.2|truncatechars:50 }}</i><br/>
+                        {% endif %}
+                    {% endfor %}
+                </td>
                 <td>{{ revision.comment }}</td>
                 {% can_edit_history %}
                 <td>

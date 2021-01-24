@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,8 +21,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Definition des vues pour les admin. Classique, sauf pour users,
-où on fait appel à UserChange et ServiceUserChange, forms custom
+Admin views basic definition, include basic definition of admin view.
+
+Except for Admin edition and creation of users and services users;
+with AdherentAdmin, ClubAdmin and ServiceUserAdmin.
 """
 
 from __future__ import unicode_literals
@@ -44,122 +46,129 @@ from .models import (
     Ban,
     Whitelist,
     Request,
-    LdapUser,
-    LdapServiceUser,
-    LdapServiceUserGroup,
-    LdapUserGroup,
 )
 from .forms import (
-    UserChangeForm,
-    UserCreationForm,
-    ServiceUserChangeForm,
-    ServiceUserCreationForm,
+    UserAdminForm,
+    ServiceUserAdminForm,
 )
-
-
-class LdapUserAdmin(admin.ModelAdmin):
-    """Administration du ldapuser"""
-
-    list_display = ("name", "uidNumber", "login_shell")
-    exclude = ("user_password", "sambat_nt_password")
-    search_fields = ("name",)
-
-
-class LdapServiceUserAdmin(admin.ModelAdmin):
-    """Administration du ldapserviceuser"""
-
-    list_display = ("name",)
-    exclude = ("user_password",)
-    search_fields = ("name",)
-
-
-class LdapUserGroupAdmin(admin.ModelAdmin):
-    """Administration du ldapusergroupe"""
-
-    list_display = ("name", "members", "gid")
-    search_fields = ("name",)
-
-
-class LdapServiceUserGroupAdmin(admin.ModelAdmin):
-    """Administration du ldap serviceusergroup"""
-
-    list_display = ("name",)
-    search_fields = ("name",)
 
 
 class SchoolAdmin(VersionAdmin):
-    """Administration, gestion des écoles"""
+    """School Admin view and management.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class ListRightAdmin(VersionAdmin):
-    """Gestion de la liste des droits existants
-    Ne permet pas l'edition du gid (primarykey pour ldap)"""
+    """ListRight and groups Admin view and management.
+    Even if it is possible, gid should NOT be changed
+    as it is the ldap primary key.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     list_display = ("unix_name",)
 
 
 class ListShellAdmin(VersionAdmin):
-    """Gestion de la liste des shells coté admin"""
+    """Users Shell Admin view and management.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class RequestAdmin(admin.ModelAdmin):
-    """Gestion des request objet, ticket pour lien de reinit mot de passe"""
+    """User Request Admin view and management, for
+    change password and email validation.
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     list_display = ("user", "type", "created_at", "expires_at")
 
 
 class BanAdmin(VersionAdmin):
-    """Gestion des bannissements"""
+    """Ban Admin view and management, for
+    User Ban
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class EMailAddressAdmin(VersionAdmin):
-    """Gestion des alias mail"""
+    """EmailAddress Admin view and management, for
+    auxiliary and local email addresses
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
 class WhitelistAdmin(VersionAdmin):
-    """Gestion des whitelist"""
+    """Whitelist Admin view and management, for
+    free access whitelisted users
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     pass
 
 
-class UserAdmin(VersionAdmin, BaseUserAdmin):
-    """Gestion d'un user : modification des champs perso, mot de passe, etc"""
+class AdherentAdmin(VersionAdmin, BaseUserAdmin):
+    """Adherent Admin view and management, for
+    Adherent fields : password, pseudo, etc, admin can
+    edit all fields on user instance.
+    Inherit from django BaseUserAdmin
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     # The forms to add and change user instances
-    form = UserChangeForm
-    add_form = UserCreationForm
 
-    # The fields to be used in displaying the User model.
-    # These override the definitions on the base UserAdmin
-    # that reference specific fields on auth.User.
+    add_form = UserAdminForm
+    form = UserAdminForm
+
     list_display = (
         "pseudo",
+        "name",
         "surname",
         "email",
         "local_email_redirect",
         "local_email_enabled",
         "school",
-        "is_admin",
         "shell",
     )
-    # Need to reset the settings from BaseUserAdmin
-    # They are using fields we don't use like 'is_staff'
     list_filter = ()
     fieldsets = (
-        (None, {"fields": ("pseudo", "password")}),
+        (None, {"fields": ("pseudo",)}),
         (
             "Personal info",
-            {"fields": ("surname", "email", "school", "shell", "uid_number")},
+            {"fields": ("surname", "name", "email", "school", "shell", "uid_number", "password1", "password2")},
         ),
-        ("Permissions", {"fields": ("is_admin",)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -171,11 +180,66 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
                 "fields": (
                     "pseudo",
                     "surname",
+                    "name",
                     "email",
                     "school",
-                    "is_admin",
                     "password1",
                     "password2",
+                    "is_superuser",
+                ),
+            },
+        ),
+    )
+    search_fields = ("pseudo", "surname", "name")
+    ordering = ("pseudo",)
+    filter_horizontal = ()
+
+
+class ClubAdmin(VersionAdmin, BaseUserAdmin):
+    """Club Admin view and management, for
+    Club fields : password, pseudo, etc, admin can
+    edit all fields on user instance.
+    Inherit from django BaseUserAdmin
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
+    # The forms to add and change user instances
+    add_form = UserAdminForm
+    form = UserAdminForm
+
+    list_display = (
+        "pseudo",
+        "surname",
+        "email",
+        "local_email_redirect",
+        "local_email_enabled",
+        "school",
+        "shell",
+    )
+    list_filter = ()
+    fieldsets = (
+        (None, {"fields": ("pseudo",)}),
+        (
+            "Personal info",
+            {"fields": ("surname", "email", "school", "shell", "uid_number", "password1", "password2")},
+        ),
+    )
+
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "pseudo",
+                    "surname",
+                    "email",
+                    "school",
+                    "password1",
+                    "password2",
+                    "is_superuser",
                 ),
             },
         ),
@@ -186,19 +250,26 @@ class UserAdmin(VersionAdmin, BaseUserAdmin):
 
 
 class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
-    """Gestion d'un service user admin : champs personnels,
-    mot de passe; etc"""
+    """ServiceUser Admin view and management, for
+    User fields : password, pseudo, etc, admin can
+    edit all fields on user instance.
+    Inherit from django BaseUserAdmin
+
+    Parameters:
+        Django ModelAdmin: Apply on django ModelAdmin
+
+    """
 
     # The forms to add and change user instances
-    form = ServiceUserChangeForm
-    add_form = ServiceUserCreationForm
+    form = ServiceUserAdminForm
+    add_form = ServiceUserAdminForm
 
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
     list_display = ("pseudo", "access_group")
     list_filter = ()
-    fieldsets = ((None, {"fields": ("pseudo", "password", "access_group")}),)
+    fieldsets = ((None, {"fields": ("pseudo", "access_group", "comment", "password1", "password2")}),)
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
@@ -209,14 +280,9 @@ class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
     filter_horizontal = ()
 
 
-admin.site.register(User, UserAdmin)
-admin.site.register(Adherent, UserAdmin)
-admin.site.register(Club, UserAdmin)
+admin.site.register(Adherent, AdherentAdmin)
+admin.site.register(Club, ClubAdmin)
 admin.site.register(ServiceUser, ServiceUserAdmin)
-admin.site.register(LdapUser, LdapUserAdmin)
-admin.site.register(LdapUserGroup, LdapUserGroupAdmin)
-admin.site.register(LdapServiceUser, LdapServiceUserAdmin)
-admin.site.register(LdapServiceUserGroup, LdapServiceUserGroupAdmin)
 admin.site.register(School, SchoolAdmin)
 admin.site.register(ListRight, ListRightAdmin)
 admin.site.register(ListShell, ListShellAdmin)
@@ -224,11 +290,6 @@ admin.site.register(Ban, BanAdmin)
 admin.site.register(EMailAddress, EMailAddressAdmin)
 admin.site.register(Whitelist, WhitelistAdmin)
 admin.site.register(Request, RequestAdmin)
-# Now register the new UserAdmin...
-admin.site.unregister(User)
-admin.site.unregister(ServiceUser)
-admin.site.register(User, UserAdmin)
-admin.site.register(ServiceUser, ServiceUserAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 admin.site.unregister(Group)

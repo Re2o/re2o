@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,7 +21,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Reglages généraux, machines, utilisateurs, mail, general pour l'application.
+Models defining the preferences for users, machines, emails, general settings
+etc.
 """
 from __future__ import unicode_literals
 import os
@@ -44,20 +45,24 @@ from datetime import timedelta
 
 
 class PreferencesModel(models.Model):
-    """ Base object for the Preferences objects
-    Defines methods to handle the cache of the settings (they should
-    not change a lot) """
+    """Base object for the Preferences objects.
+
+    Defines methods to handle the cache of the settings (they should not change
+    a lot).
+    """
 
     @classmethod
     def set_in_cache(cls):
-        """ Save the preferences in a server-side cache """
-        instance, _created = cls.objects.get_or_create()
+        """Save the preferences in a server-side cache."""
+        instance = cls.objects.first()
+        if not instance:
+            instance, _created = cls.objects.get_or_create()
         cache.set(cls().__class__.__name__.lower(), instance, None)
         return instance
 
     @classmethod
     def get_cached_value(cls, key):
-        """ Get the preferences from the server-side cache """
+        """Get the preferences from the server-side cache."""
         instance = cache.get(cls().__class__.__name__.lower())
         if instance is None:
             instance = cls.set_in_cache()
@@ -68,8 +73,48 @@ class PreferencesModel(models.Model):
 
 
 class OptionalUser(AclMixin, PreferencesModel):
-    """Options pour l'user : obligation ou nom du telephone,
-    activation ou non du solde, autorisation du negatif, fingerprint etc"""
+    """User preferences: telephone number requirement, user balance activation,
+    creation of users by everyone etc.
+
+    Attributes:
+        is_tel_mandatory: whether indicating a telephone number is mandatory.
+        gpg_fingerprint: whether GPG fingerprints are enabled.
+        all_can_create_club: whether all users can create a club.
+        all_can_create_adherent: whether all users can create a member.
+        shell_default: the default shell for users connecting to machines
+            managed by the organisation.
+        self_change_shell: whether users can edit their shell.
+        self_change_pseudo: whether users can edit their pseudo (username).
+        self_room_policy: whether users can edit the policy of their room.
+        local_email_accounts_enabled: whether local email accounts are enabled.
+        local_email_domain: the domain used for local email accounts.
+        max_email_address: the maximum number of local email addresses allowed
+            for a standard user.
+        delete_notyetactive: the number of days before deleting not yet active
+            users.
+        disable_emailnotyetconfirmed: the number of days before disabling users
+            with not yet verified email address.
+        self_adhesion: whether users can create their account themselves.
+        all_users_active: whether newly created users are active.
+        allow_set_password_during_user_creation: whether users can set their
+            password directly when creating their account.
+        allow_archived_connexion: whether archived users can connect on the web
+            interface.
+    """
+
+    DISABLED = "DISABLED"
+    ONLY_INACTIVE = "ONLY_INACTIVE"
+    ALL_ROOM = "ALL_ROOM"
+    ROOM_POLICY = (
+        (DISABLED, _("Users can't select their room")),
+        (
+            ONLY_INACTIVE,
+            _(
+                "Users can only select a room occupied by a user with a disabled connection."
+            ),
+        ),
+        (ALL_ROOM, _("Users can select all rooms")),
+    )
 
     is_tel_mandatory = models.BooleanField(default=True)
     gpg_fingerprint = models.BooleanField(default=True)
@@ -79,15 +124,20 @@ class OptionalUser(AclMixin, PreferencesModel):
     all_can_create_adherent = models.BooleanField(
         default=False, help_text=_("Users can create a member.")
     )
-
     shell_default = models.OneToOneField(
         "users.ListShell", on_delete=models.PROTECT, blank=True, null=True
     )
     self_change_shell = models.BooleanField(
         default=False, help_text=_("Users can edit their shell.")
     )
-    self_change_room = models.BooleanField(
-        default=False, help_text=_("Users can edit their room.")
+    self_change_pseudo = models.BooleanField(
+        default=True, help_text=_("Users can edit their pseudo.")
+    )
+    self_room_policy = models.CharField(
+        max_length=32,
+        choices=ROOM_POLICY,
+        default="DISABLED",
+        help_text=_("Policy on self users room edition"),
     )
     local_email_accounts_enabled = models.BooleanField(
         default=False, help_text=_("Enable local email accounts for users.")
@@ -103,8 +153,12 @@ class OptionalUser(AclMixin, PreferencesModel):
     )
     delete_notyetactive = models.IntegerField(
         default=15,
+        help_text=_("Not yet active users will be deleted after this number of days."),
+    )
+    disable_emailnotyetconfirmed = models.IntegerField(
+        default=2,
         help_text=_(
-            "Not yet active users will be deleted after this number of days."
+            "Users with an email address not yet confirmed will be disabled after this number of days."
         ),
     )
     self_adhesion = models.BooleanField(
@@ -117,6 +171,15 @@ class OptionalUser(AclMixin, PreferencesModel):
             " If False, only when a valid registration has been paid."
         ),
     )
+    allow_set_password_during_user_creation = models.BooleanField(
+        default=False,
+        help_text=_(
+            "If True, users have the choice to receive an email containing"
+            " a link to reset their password during creation, or to directly"
+            " set their password in the page."
+            " If False, an email is always sent."
+        ),
+    )
     allow_archived_connexion = models.BooleanField(
         default=False, help_text=_("If True, archived users are allowed to connect.")
     )
@@ -126,23 +189,32 @@ class OptionalUser(AclMixin, PreferencesModel):
         verbose_name = _("user preferences")
 
     def clean(self):
-        """Clean model:
-        Check the mail_extension
-        """
+        """Check the email extension."""
         if self.local_email_domain[0] != "@":
             raise ValidationError(_("Email domain must begin with @."))
 
 
 @receiver(post_save, sender=OptionalUser)
 def optionaluser_post_save(**kwargs):
-    """Ecriture dans le cache"""
+    """Write in the cache."""
     user_pref = kwargs["instance"]
     user_pref.set_in_cache()
 
 
 class OptionalMachine(AclMixin, PreferencesModel):
-    """Options pour les machines : maximum de machines ou d'alias par user
-    sans droit, activation de l'ipv6"""
+    """Machines preferences: maximum number of machines per user, IPv6
+    activation etc.
+
+    Attributes:
+        password_machine: whether password per machine is enabled.
+        max_lambdauser_interfaces: the maximum number of interfaces allowed for
+            a standard user.
+        max_lambdauser_aliases: the maximum number of aliases allowed for a
+            standard user.
+        ipv6_mode: whether IPv6 mode is enabled.
+        create_machine: whether creation of machine is enabled.
+        default_dns_ttl: the default TTL for CNAME, A and AAAA records.
+    """
 
     SLAAC = "SLAAC"
     DHCPV6 = "DHCPV6"
@@ -165,7 +237,7 @@ class OptionalMachine(AclMixin, PreferencesModel):
 
     @cached_property
     def ipv6(self):
-        """ Check if the IPv6 option is activated """
+        """Check if the IPv6 mode is enabled."""
         return not self.get_cached_value("ipv6_mode") == "DISABLED"
 
     class Meta:
@@ -175,7 +247,7 @@ class OptionalMachine(AclMixin, PreferencesModel):
 
 @receiver(post_save, sender=OptionalMachine)
 def optionalmachine_post_save(**kwargs):
-    """Synchronisation ipv6 et ecriture dans le cache"""
+    """Synchronise IPv6 mode and write in the cache."""
     machine_pref = kwargs["instance"]
     machine_pref.set_in_cache()
     if machine_pref.ipv6_mode != "DISABLED":
@@ -184,14 +256,27 @@ def optionalmachine_post_save(**kwargs):
 
 
 class OptionalTopologie(AclMixin, PreferencesModel):
-    """Reglages pour la topologie : mode d'accès radius, vlan où placer
-    les machines en accept ou reject"""
+    """Configuration of switches: automatic provision, RADIUS mode, default
+    VLANs etc.
+
+    Attributes:
+        switchs_web_management: whether web management for automatic provision
+            is enabled.
+        switchs_web_management_ssl: whether SSL web management is required.
+        switchs_rest_management: whether REST management for automatic
+            provision is enabled.
+        switchs_ip_type: the IP range for the management of switches.
+        switchs_provision: the provision mode for switches to get their
+            configuration.
+        sftp_login: the SFTP login for switches.
+        sftp_pass: the SFTP password for switches.
+    """
 
     MACHINE = "MACHINE"
     DEFINED = "DEFINED"
     CHOICE_RADIUS = (
         (MACHINE, _("On the IP range's VLAN of the machine")),
-        (DEFINED, _("Preset in \"VLAN for machines accepted by RADIUS\"")),
+        (DEFINED, _('Preset in "VLAN for machines accepted by RADIUS"')),
     )
     CHOICE_PROVISION = (("sftp", "SFTP"), ("tftp", "TFTP"))
 
@@ -232,7 +317,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
     @cached_property
     def provisioned_switchs(self):
-        """Liste des switches provisionnés"""
+        """Get the list of provisioned switches."""
         from topologie.models import Switch
 
         return Switch.objects.filter(automatic_provision=True).order_by(
@@ -241,7 +326,9 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
     @cached_property
     def switchs_management_interface(self):
-        """Return the ip of the interface that the switch have to contact to get it's config"""
+        """Get the interface that the switch has to contact to get its
+        configuration.
+        """
         if self.switchs_ip_type:
             from machines.models import Role, Interface
 
@@ -259,14 +346,16 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
     @cached_property
     def switchs_management_interface_ip(self):
-        """Same, but return the ipv4"""
+        """Get the IPv4 address of the interface that the switch has to contact
+        to get its configuration.
+        """
         if not self.switchs_management_interface:
             return None
         return self.switchs_management_interface.ipv4
 
     @cached_property
     def switchs_management_sftp_creds(self):
-        """Credentials des switchs pour provion sftp"""
+        """Get the switch credentials for SFTP provisioning."""
         if self.sftp_login and self.sftp_pass:
             return {"login": self.sftp_login, "pass": self.sftp_pass}
         else:
@@ -274,13 +363,15 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
     @cached_property
     def switchs_management_utils(self):
-        """Used for switch_conf, return a list of ip on vlans"""
+        """Get the dictionary of IP addresses for the configuration of
+        switches.
+        """
         from machines.models import Role, Ipv6List, Interface
 
         def return_ips_dict(interfaces):
             return {
                 "ipv4": [str(interface.ipv4) for interface in interfaces],
-                "ipv6": Ipv6List.objects.filter(interface__in=interfaces).values_list(
+                "ipv6": Ipv6List.objects.filter(interface__in=interfaces).filter(active=True).values_list(
                     "ipv6", flat=True
                 ),
             }
@@ -318,8 +409,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
 
     @cached_property
     def provision_switchs_enabled(self):
-        """Return true if all settings are ok : switchs on automatic provision,
-        ip_type"""
+        """Check if all automatic provisioning settings are OK."""
         return bool(
             self.provisioned_switchs
             and self.switchs_ip_type
@@ -331,19 +421,28 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         )
 
     class Meta:
-        permissions = (("view_optionaltopologie", _("Can view the topology preferences")),)
+        permissions = (
+            ("view_optionaltopologie", _("Can view the topology preferences")),
+        )
         verbose_name = _("topology preferences")
 
 
 @receiver(post_save, sender=OptionalTopologie)
 def optionaltopologie_post_save(**kwargs):
-    """Ecriture dans le cache"""
+    """Write in the cache."""
     topologie_pref = kwargs["instance"]
     topologie_pref.set_in_cache()
 
 
 class RadiusKey(AclMixin, models.Model):
-    """Class of a radius key"""
+    """Class of a RADIUS key.
+
+    Attributes:
+        radius_key: the encrypted RADIUS key.
+        comment: a comment related to the key.
+        default_switch: bool, True if the key is to be used by default on
+            switches and False otherwise.
+    """
 
     radius_key = AESEncryptedField(max_length=255, help_text=_("RADIUS key."))
     comment = models.CharField(
@@ -359,9 +458,7 @@ class RadiusKey(AclMixin, models.Model):
         verbose_name_plural = _("RADIUS keys")
 
     def clean(self):
-        """Clean model:
-        Check default switch is unique
-        """
+        """Check if there is a unique default RADIUS key."""
         if RadiusKey.objects.filter(default_switch=True).count() > 1:
             raise ValidationError(_("Default RADIUS key for switches already exists."))
 
@@ -370,7 +467,14 @@ class RadiusKey(AclMixin, models.Model):
 
 
 class SwitchManagementCred(AclMixin, models.Model):
-    """Class of a management creds of a switch, for rest management"""
+    """Class of a switch management credentials, for rest management.
+
+    Attributes:
+        management_id: the login used to connect to switches.
+        management_pass: the encrypted password used to connect to switches.
+        default_switch: bool, True if the credentials are to be used by default
+            on switches and False otherwise.
+    """
 
     management_id = models.CharField(max_length=63, help_text=_("Switch login."))
     management_pass = AESEncryptedField(max_length=63, help_text=_("Password."))
@@ -392,9 +496,13 @@ class SwitchManagementCred(AclMixin, models.Model):
 
 
 class Reminder(AclMixin, models.Model):
-    """Options pour les mails de notification de fin d'adhésion.
-    Days: liste des nombres de jours pour lesquells un mail est envoyé
-    optionalMessage: message additionel pour le mail
+    """Reminder of membership's end preferences: email messages, number of days
+    before sending emails.
+
+    Attributes:
+        days: the number of days before the membership's end to send the
+            reminder.
+        message: the content of the reminder.
     """
 
     days = models.IntegerField(
@@ -426,8 +534,26 @@ class Reminder(AclMixin, models.Model):
 
 
 class GeneralOption(AclMixin, PreferencesModel):
-    """Options générales : nombre de resultats par page, nom du site,
-    temps où les liens sont valides"""
+    """General preferences: number of search results per page, website name
+    etc.
+
+    Attributes:
+        general_message_fr: general message displayed on the French version of
+            the website (e.g. in case of maintenance).
+        general_message_en: general message displayed on the English version of
+            the website (e.g. in case of maintenance).
+        search_display_page: number of results displayed (in each category)
+            when searching.
+        pagination_number: number of items per page (standard size).
+        pagination_large_number: number of items per page (large size).
+        req_expire_hrs: number of hours before expiration of the reset password
+            link.
+        site_name: website name.
+        email_from: email address for automatic emailing.
+        main_site_url: main site URL.
+        GTU_sum_up: summary of the General Terms of Use.
+        GTU: file, General Terms of Use.
+    """
 
     general_message_fr = models.TextField(
         default="",
@@ -462,14 +588,20 @@ class GeneralOption(AclMixin, PreferencesModel):
 
 @receiver(post_save, sender=GeneralOption)
 def generaloption_post_save(**kwargs):
-    """Ecriture dans le cache"""
+    """Write in the cache."""
     general_pref = kwargs["instance"]
     general_pref.set_in_cache()
 
 
 class Service(AclMixin, models.Model):
-    """Liste des services affichés sur la page d'accueil : url, description,
-    image et nom"""
+    """Service displayed on the home page.
+
+    Attributes:
+        name: the name of the service.
+        url: the URL of the service.
+        description: the description of the service.
+        image: an image to illustrate the service (e.g. logo).
+    """
 
     name = models.CharField(max_length=32)
     url = models.URLField()
@@ -486,7 +618,12 @@ class Service(AclMixin, models.Model):
 
 
 class MailContact(AclMixin, models.Model):
-    """Contact email adress with a commentary."""
+    """Contact email address with a comment.
+
+    Attributes:
+        address: the contact email address.
+        commentary: a comment used to describe the contact email address.
+    """
 
     address = models.EmailField(
         default="contact@example.org", help_text=_("Contact email address.")
@@ -515,6 +652,15 @@ class MailContact(AclMixin, models.Model):
 
 
 class Mandate(RevMixin, AclMixin, models.Model):
+    """Mandate, documenting who was the president of the organisation at a
+    given time.
+
+    Attributes:
+        president: User, the president during the mandate.
+        start_date: datetime, the date when the mandate started.
+        end_date: datetime, the date when the mandate ended.
+    """
+
     class Meta:
         verbose_name = _("mandate")
         verbose_name_plural = _("mandates")
@@ -533,7 +679,14 @@ class Mandate(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def get_mandate(cls, date=timezone.now):
-        """"Find the mandate taking place at the given date."""
+        """"Get the mandate taking place at the given date.
+
+        Args:
+            date: the date used to find the mandate (default: timezone.now).
+
+        Returns:
+            The mandate related to the given date.
+        """
         if callable(date):
             date = date()
         mandate = (
@@ -542,7 +695,9 @@ class Mandate(RevMixin, AclMixin, models.Model):
         )
         if not mandate:
             raise cls.DoesNotExist(
-                _("No mandates have been created. Please go to the preferences page to create one.")
+                _(
+                    "No mandates have been created. Please go to the preferences page to create one."
+                )
             )
         return mandate
 
@@ -554,7 +709,21 @@ class Mandate(RevMixin, AclMixin, models.Model):
 
 
 class AssoOption(AclMixin, PreferencesModel):
-    """Options générales de l'asso : siret, addresse, nom, etc"""
+    """Information about the organisation: name, address, SIRET number etc.
+
+    Attributes:
+        name: the name of the organisation.
+        siret: the SIRET number of the organisation.
+        adresse1: the first line of the organisation's address, e.g. street and
+            number.
+        adresse2: the second line of the organisation's address, e.g. city and
+            postal code.
+        contact: contact email address.
+        telephone: contact telephone number.
+        pseudo: short name of the organisation.
+        utilisateur_asso: the user used to manage the organisation.
+        description: the description of the organisation.
+    """
 
     name = models.CharField(
         default=_("Networking organisation school Something"), max_length=256
@@ -577,13 +746,20 @@ class AssoOption(AclMixin, PreferencesModel):
 
 @receiver(post_save, sender=AssoOption)
 def assooption_post_save(**kwargs):
-    """Ecriture dans le cache"""
+    """Write in the cache."""
     asso_pref = kwargs["instance"]
     asso_pref.set_in_cache()
 
 
 class HomeOption(AclMixin, PreferencesModel):
-    """Settings of the home page (facebook/twitter etc)"""
+    """Social networks displayed on the home page (supports only Facebook and
+    Twitter).
+
+    Attributes:
+        facebook_url: URL of the Facebook account.
+        twitter_url: URL of the Twitter account.
+        twitter_account_name: name of the Twitter account.
+    """
 
     facebook_url = models.URLField(null=True, blank=True)
     twitter_url = models.URLField(null=True, blank=True)
@@ -596,13 +772,18 @@ class HomeOption(AclMixin, PreferencesModel):
 
 @receiver(post_save, sender=HomeOption)
 def homeoption_post_save(**kwargs):
-    """Ecriture dans le cache"""
+    """Write in the cache."""
     home_pref = kwargs["instance"]
     home_pref.set_in_cache()
 
 
 class MailMessageOption(AclMixin, models.Model):
-    """Reglages, mail de bienvenue et autre"""
+    """Welcome email messages preferences.
+
+    Attributes:
+        welcome_mail_fr: the text of the welcome email in French.
+        welcome_mail_en: the text of the welcome email in English.
+    """
 
     welcome_mail_fr = models.TextField(
         default="", blank=True, help_text=_("Welcome email in French.")
@@ -619,6 +800,14 @@ class MailMessageOption(AclMixin, models.Model):
 
 
 class RadiusAttribute(RevMixin, AclMixin, models.Model):
+    """RADIUS attributes preferences.
+
+    Attributes:
+        attribute: the name of the RADIUS attribute.
+        value: the value of the RADIUS attribute.
+        comment: the comment to document the attribute.
+    """
+
     class Meta:
         verbose_name = _("RADIUS attribute")
         verbose_name_plural = _("RADIUS attributes")
@@ -641,6 +830,30 @@ class RadiusAttribute(RevMixin, AclMixin, models.Model):
 
 
 class RadiusOption(AclMixin, PreferencesModel):
+    """RADIUS preferences.
+
+    Attributes:
+        radius_general_policy: the general RADIUS policy (MACHINE or DEFINED).
+        unknown_machine: the RADIUS policy for unknown machines.
+        unknown_machine_vlan: the VLAN for unknown machines if not rejected.
+        unknown_machine_attributes: the answer attributes for unknown machines.
+        unknown_port: the RADIUS policy for unknown ports.
+        unknown_port_vlan: the VLAN for unknown ports if not rejected;
+        unknown_port_attributes: the answer attributes for unknown ports.
+        unknown_room: the RADIUS policy for machines connecting from
+            unregistered rooms (relevant for ports with STRICT RADIUS mode).
+        unknown_room_vlan: the VLAN for unknown rooms if not rejected.
+        unknown_room_attributes: the answer attributes for unknown rooms.
+        non_member: the RADIUS policy for non members.
+        non_member_vlan: the VLAN for non members if not rejected.
+        non_member_attributes: the answer attributes for non members.
+        banned: the RADIUS policy for banned users.
+        banned_vlan: the VLAN for banned users if not rejected.
+        banned_attributes: the answer attributes for banned users.
+        vlan_decision_ok: the VLAN for accepted machines.
+        ok_attributes: the answer attributes for accepted machines.
+    """
+
     class Meta:
         verbose_name = _("RADIUS policy")
         verbose_name_plural = _("RADIUS policies")
@@ -649,7 +862,7 @@ class RadiusOption(AclMixin, PreferencesModel):
     DEFINED = "DEFINED"
     CHOICE_RADIUS = (
         (MACHINE, _("On the IP range's VLAN of the machine")),
-        (DEFINED, _("Preset in \"VLAN for machines accepted by RADIUS\"")),
+        (DEFINED, _('Preset in "VLAN for machines accepted by RADIUS"')),
     )
     REJECT = "REJECT"
     SET_VLAN = "SET_VLAN"
@@ -811,6 +1024,15 @@ def default_voucher():
 
 
 class CotisationsOption(AclMixin, PreferencesModel):
+    """Subscription preferences.
+
+    Attributes:
+        invoice_template: the template for invoices.
+        voucher_template: the template for vouchers.
+        send_voucher_mail: whether the voucher is sent by email when the
+            invoice is controlled.
+    """
+
     class Meta:
         verbose_name = _("subscription preferences")
 
@@ -841,6 +1063,10 @@ class CotisationsOption(AclMixin, PreferencesModel):
 class DocumentTemplate(RevMixin, AclMixin, models.Model):
     """Represent a template in order to create documents such as invoice or
     subscription voucher.
+
+    Attributes:
+        template: file, the template used to create documents.
+        name: the name of the template.
     """
 
     template = models.FileField(upload_to="templates/", verbose_name=_("template"))
@@ -856,9 +1082,8 @@ class DocumentTemplate(RevMixin, AclMixin, models.Model):
 
 @receiver(models.signals.post_delete, sender=DocumentTemplate)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `DocumentTemplate` object is deleted.
+    """Delete the tempalte file from filesystem when the related
+    DocumentTemplate object is deleted.
     """
     if instance.template:
         if os.path.isfile(instance.template.path):
@@ -867,10 +1092,8 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
 
 @receiver(models.signals.pre_save, sender=DocumentTemplate)
 def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `DocumentTemplate` object is updated
-    with new file.
+    """Delete the previous file from filesystem when the related
+    DocumentTemplate object is updated with new file.
     """
     if not instance.pk:
         return False

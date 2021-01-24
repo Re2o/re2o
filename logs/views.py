@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -24,20 +24,19 @@
 # App de gestion des statistiques pour re2o
 # Gabriel Détraz
 # Gplv2
-"""
-Vues des logs et statistiques générales.
+"""logs.views
+Views of logs and general statistics.
 
-La vue index générale affiche une selection des dernières actions,
-classées selon l'importance, avec date, et user formatés.
+The general indew view displays a list of the last actions, sorted by
+importance, with date and user formatted.
 
-Stats_logs renvoie l'ensemble des logs.
+stats_logs returns all the logs.
 
-Les autres vues sont thématiques, ensemble des statistiques et du
-nombre d'objets par models, nombre d'actions par user, etc
+The other views are related to specific topics, with statistics for number of
+objects for per model, number of actions per user etc.
 """
 
 from __future__ import unicode_literals
-from itertools import chain
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
@@ -99,14 +98,30 @@ from re2o.utils import (
     all_active_interfaces_count,
 )
 from re2o.base import re2o_paginator, SortTable
-from re2o.acl import can_view_all, can_view_app, can_edit_history
+from re2o.acl import (
+    can_view_all,
+    can_view_app,
+    can_edit_history,
+    can_view,
+    acl_error_message,
+)
+
+from .models import (
+    ActionsSearch,
+    RevisionAction,
+    MachineHistorySearch,
+    get_history_class,
+)
+
+from .forms import ActionsSearchForm, MachineHistorySearchForm
+
+from .acl import can_view as can_view_logs
 
 
 @login_required
 @can_view_app("logs")
 def index(request):
-    """Affiche les logs affinés, date reformatées, selectionne
-    les event importants (ajout de droits, ajout de ban/whitelist)"""
+    """View used to display summary of events about users."""
     pagination_number = GeneralOption.get_cached_value("pagination_number")
     # The types of content kept for display
     content_type_filter = ["ban", "whitelist", "vente", "interface", "user"]
@@ -147,28 +162,36 @@ def index(request):
 @login_required
 @can_view_all(GeneralOption)
 def stats_logs(request):
-    """Affiche l'ensemble des logs et des modifications sur les objets,
-    classés par date croissante, en vrac"""
-    pagination_number = GeneralOption.get_cached_value("pagination_number")
-    revisions = (
-        Revision.objects.all()
-        .select_related("user")
-        .prefetch_related("version_set__object")
+    """View used to do an advanced search through the logs."""
+    actions_form = ActionsSearchForm(request.GET or None)
+
+    if actions_form.is_valid():
+        actions = ActionsSearch()
+        revisions = actions.get(actions_form.cleaned_data)
+        revisions = SortTable.sort(
+            revisions,
+            request.GET.get("col"),
+            request.GET.get("order"),
+            SortTable.LOGS_STATS_LOGS,
+        )
+
+        pagination_number = GeneralOption.get_cached_value("pagination_number")
+        revisions = re2o_paginator(request, revisions, pagination_number)
+
+        # Only do this now so it's not applied to objects which aren't displayed
+        # It can take a bit of time because it has to compute the diff of each version
+        revisions.object_list = [RevisionAction(r) for r in revisions.object_list]
+        return render(request, "logs/stats_logs.html", {"revisions_list": revisions})
+
+    return render(
+        request, "logs/search_stats_logs.html", {"actions_form": actions_form}
     )
-    revisions = SortTable.sort(
-        revisions,
-        request.GET.get("col"),
-        request.GET.get("order"),
-        SortTable.LOGS_STATS_LOGS,
-    )
-    revisions = re2o_paginator(request, revisions, pagination_number)
-    return render(request, "logs/stats_logs.html", {"revisions_list": revisions})
 
 
 @login_required
 @can_edit_history
 def revert_action(request, revision_id):
-    """ Annule l'action en question """
+    """View used to revert actions."""
     try:
         revision = Revision.objects.get(id=revision_id)
     except Revision.DoesNotExist:
@@ -187,9 +210,10 @@ def revert_action(request, revision_id):
 @login_required
 @can_view_all(IpList, Interface, User)
 def stats_general(request):
-    """Statistiques générales affinées sur les ip, activées, utilisées par
-    range, et les statistiques générales sur les users : users actifs,
-    cotisants, activés, archivés, etc"""
+    """View used to display general statistics about users (activated,
+    disabled, archived etc.) and IP addresses (ranges, number of assigned
+    addresses etc.).
+    """
     ip_dict = dict()
     for ip_range in IpType.objects.select_related("vlan").all():
         all_ip = IpList.objects.filter(ip_type=ip_range)
@@ -284,6 +308,34 @@ def stats_general(request):
                     _all_whitelisted.exclude(adherent__isnull=True).count(),
                     _all_whitelisted.exclude(club__isnull=True).count(),
                 ],
+                "email_state_verified_users": [
+                    _("Users with a confirmed email"),
+                    User.objects.filter(email_state=User.EMAIL_STATE_VERIFIED).count(),
+                    Adherent.objects.filter(
+                        email_state=User.EMAIL_STATE_VERIFIED
+                    ).count(),
+                    Club.objects.filter(email_state=User.EMAIL_STATE_VERIFIED).count(),
+                ],
+                "email_state_unverified_users": [
+                    _("Users with an unconfirmed email"),
+                    User.objects.filter(
+                        email_state=User.EMAIL_STATE_UNVERIFIED
+                    ).count(),
+                    Adherent.objects.filter(
+                        email_state=User.EMAIL_STATE_UNVERIFIED
+                    ).count(),
+                    Club.objects.filter(
+                        email_state=User.EMAIL_STATE_UNVERIFIED
+                    ).count(),
+                ],
+                "email_state_pending_users": [
+                    _("Users pending email confirmation"),
+                    User.objects.filter(email_state=User.EMAIL_STATE_PENDING).count(),
+                    Adherent.objects.filter(
+                        email_state=User.EMAIL_STATE_PENDING
+                    ).count(),
+                    Club.objects.filter(email_state=User.EMAIL_STATE_PENDING).count(),
+                ],
                 "actives_interfaces": [
                     _("Active interfaces (with access to the network)"),
                     _all_active_interfaces_count.count(),
@@ -332,9 +384,9 @@ def stats_general(request):
 @login_required
 @can_view_app("users", "cotisations", "machines", "topologie")
 def stats_models(request):
-    """Statistiques générales, affiche les comptages par models:
-    nombre d'users, d'écoles, de droits, de bannissements,
-    de factures, de ventes, de banque, de machines, etc"""
+    """View used to display general statistics about the number of objects
+    stored in the database, for each model.
+    """
     stats = {
         _("Users (members and clubs)"): {
             "users": [User._meta.verbose_name, User.objects.count()],
@@ -407,38 +459,41 @@ def stats_models(request):
 @login_required
 @can_view_app("users")
 def stats_users(request):
-    """Affiche les statistiques base de données aggrégées par user :
-    nombre de machines par user, d'etablissements par user,
-    de moyens de paiements par user, de banque par user,
-    de bannissement par user, etc"""
+    """View used to display statistics aggregated by user (number of machines,
+    bans, whitelists, rights etc.).
+    """
     stats = {
         User._meta.verbose_name: {
-            Machine._meta.verbose_name_plural: User.objects.annotate(num=Count("machine")).order_by("-num")[
-                :10
-            ],
-            Facture._meta.verbose_name_plural: User.objects.annotate(num=Count("facture")).order_by("-num")[
-                :10
-            ],
-            Ban._meta.verbose_name_plural: User.objects.annotate(num=Count("ban")).order_by("-num")[:10],
-            Whitelist._meta.verbose_name_plural: User.objects.annotate(num=Count("whitelist")).order_by(
-                "-num"
-            )[:10],
+            Machine._meta.verbose_name_plural: User.objects.annotate(
+                num=Count("machine")
+            ).order_by("-num")[:10],
+            Facture._meta.verbose_name_plural: User.objects.annotate(
+                num=Count("facture")
+            ).order_by("-num")[:10],
+            Ban._meta.verbose_name_plural: User.objects.annotate(
+                num=Count("ban")
+            ).order_by("-num")[:10],
+            Whitelist._meta.verbose_name_plural: User.objects.annotate(
+                num=Count("whitelist")
+            ).order_by("-num")[:10],
             _("rights"): User.objects.annotate(num=Count("groups")).order_by("-num")[
                 :10
             ],
         },
         School._meta.verbose_name: {
-            User._meta.verbose_name_plural: School.objects.annotate(num=Count("user")).order_by("-num")[:10]
+            User._meta.verbose_name_plural: School.objects.annotate(
+                num=Count("user")
+            ).order_by("-num")[:10]
         },
         Paiement._meta.verbose_name: {
-            User._meta.verbose_name_plural: Paiement.objects.annotate(num=Count("facture")).order_by("-num")[
-                :10
-            ]
+            User._meta.verbose_name_plural: Paiement.objects.annotate(
+                num=Count("facture")
+            ).order_by("-num")[:10]
         },
         Banque._meta.verbose_name: {
-            User._meta.verbose_name_plural: Banque.objects.annotate(num=Count("facture")).order_by("-num")[
-                :10
-            ]
+            User._meta.verbose_name_plural: Banque.objects.annotate(
+                num=Count("facture")
+            ).order_by("-num")[:10]
         },
     }
     return render(request, "logs/stats_users.html", {"stats_list": stats})
@@ -447,9 +502,7 @@ def stats_users(request):
 @login_required
 @can_view_app("users")
 def stats_actions(request):
-    """Vue qui affiche les statistiques de modifications d'objets par
-    utilisateurs.
-    Affiche le nombre de modifications aggrégées par utilisateurs"""
+    """View used to display the number of actions, aggregated by user."""
     stats = {
         User._meta.verbose_name: {
             _("actions"): User.objects.annotate(num=Count("revision")).order_by("-num")[
@@ -460,12 +513,63 @@ def stats_actions(request):
     return render(request, "logs/stats_users.html", {"stats_list": stats})
 
 
+@login_required
+@can_view_app("users")
+def stats_search_machine_history(request):
+    """View used to display the history of machines with the given IP or MAC
+    address.
+    """
+    history_form = MachineHistorySearchForm(request.GET or None)
+    if history_form.is_valid():
+        history = MachineHistorySearch()
+        events = history.get(
+            history_form.cleaned_data.get("q", ""), history_form.cleaned_data
+        )
+        max_result = GeneralOption.get_cached_value("pagination_number")
+        events = re2o_paginator(request, events, max_result)
+
+        return render(request, "logs/machine_history.html", {"events": events},)
+    return render(
+        request, "logs/search_machine_history.html", {"history_form": history_form}
+    )
+
+
+def get_history_object(request, model, object_name, object_id):
+    """Get the objet of type model with the given object_id
+    Handles permissions and DoesNotExist errors
+    """
+    try:
+        instance = model.get_instance(object_id)
+    except model.DoesNotExist:
+        instance = None
+
+    if instance is None:
+        authorized, msg, permissions = can_view_logs(request.user)
+    else:
+        authorized, msg, permissions = instance.can_view(request.user)
+
+    msg = acl_error_message(msg, permissions)
+
+    if not authorized:
+        messages.error(
+            request, msg or _("You don't have the right to access this menu.")
+        )
+        return (
+            False,
+            redirect(reverse("users:profil", kwargs={"userid": str(request.user.id)})),
+        )
+
+    return True, instance
+
+
+@login_required
 def history(request, application, object_name, object_id):
     """Render history for a model.
 
     The model is determined using the `HISTORY_BIND` dictionnary if none is
     found, raises a Http404. The view checks if the user is allowed to see the
-    history using the `can_view` method of the model.
+    history using the `can_view` method of the model, or the generic
+    `can_view_app("logs")` for deleted objects (see `get_history_object`).
 
     Args:
         request: The request sent by the user.
@@ -484,29 +588,30 @@ def history(request, application, object_name, object_id):
         model = apps.get_model(application, object_name)
     except LookupError:
         raise Http404(_("No model found."))
-    object_name_id = object_name + "id"
-    kwargs = {object_name_id: object_id}
-    try:
-        instance = model.get_instance(**kwargs)
-    except model.DoesNotExist:
+
+    authorized, instance = get_history_object(request, model, object_name, object_id)
+    if not authorized:
+        return instance
+
+    history = get_history_class(model)
+    events = history.get(int(object_id), model)
+
+    # Events is None if object wasn't found
+    if events is None:
         messages.error(request, _("Nonexistent entry."))
         return redirect(
             reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )
-    can, msg, _permissions = instance.can_view(request.user)
-    if not can:
-        messages.error(
-            request, msg or _("You don't have the right to access this menu.")
-        )
-        return redirect(
-            reverse("users:profil", kwargs={"userid": str(request.user.id)})
-        )
-    pagination_number = GeneralOption.get_cached_value("pagination_number")
-    reversions = Version.objects.get_for_object(instance)
-    if hasattr(instance, "linked_objects"):
-        for related_object in chain(instance.linked_objects()):
-            reversions = reversions | Version.objects.get_for_object(related_object)
-    reversions = re2o_paginator(request, reversions, pagination_number)
+
+    # Generate the pagination with the objects
+    max_result = GeneralOption.get_cached_value("pagination_number")
+    events = re2o_paginator(request, events, max_result)
+
+    # Add a default title in case the object was deleted
+    title = instance or "{} ({})".format(history.name, _("Deleted"))
+
     return render(
-        request, "re2o/history.html", {"reversions": reversions, "object": instance}
+        request,
+        "re2o/history.html",
+        {"title": title, "events": events, "related_history": history.related},
     )

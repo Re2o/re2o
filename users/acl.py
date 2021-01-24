@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -28,7 +28,7 @@ Here are defined some functions to check acl on the application.
 from django.utils.translation import ugettext as _
 
 
-def can_view(user):
+def can_view(user, *args, **kwargs):
     """Check if an user can view the application.
 
     Args:

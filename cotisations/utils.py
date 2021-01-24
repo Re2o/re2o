@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -23,6 +23,7 @@ import os
 
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
+from re2o.mail_utils import send_mail_object
 
 from .tex import create_pdf
 from preferences.models import AssoOption, GeneralOption, CotisationsOption, Mandate
@@ -43,7 +44,7 @@ def find_payment_method(payment):
     return None
 
 
-def send_mail_invoice(invoice):
+def send_mail_invoice(invoice, request=None):
     """Creates the pdf of the invoice and sends it by email to the client"""
     purchases_info = []
     for purchase in invoice.vente_set.all():
@@ -73,7 +74,8 @@ def send_mail_invoice(invoice):
         "tpl_path": os.path.join(settings.BASE_DIR, LOGO_PATH),
     }
 
-    pdf = create_pdf("cotisations/factures.tex", ctx)
+    template = CotisationsOption.get_cached_value("invoice_template").template.name.split("/")[-1]
+    pdf = create_pdf(template, ctx)
     template = get_template("cotisations/email_invoice")
 
     ctx = {
@@ -89,10 +91,11 @@ def send_mail_invoice(invoice):
         [invoice.user.get_mail],
         attachments=[("invoice.pdf", pdf, "application/pdf")],
     )
-    mail.send()
+
+    send_mail_object(mail, request)
 
 
-def send_mail_voucher(invoice):
+def send_mail_voucher(invoice, request=None):
     """Creates a voucher from an invoice and sends it by email to the client"""
     president = Mandate.get_mandate(invoice.date).president
     ctx = {
@@ -102,8 +105,8 @@ def send_mail_voucher(invoice):
         "lastname": invoice.user.surname,
         "email": invoice.user.email,
         "phone": invoice.user.telephone,
-        "date_end": invoice.get_subscription().latest("date_end").date_end,
-        "date_begin": invoice.get_subscription().earliest("date_start").date_start,
+        "date_end": invoice.get_subscription().latest("date_end_memb").date_end_memb,
+        "date_begin": invoice.get_subscription().earliest("date_start_memb").date_start_memb,
     }
     templatename = CotisationsOption.get_cached_value(
         "voucher_template"
@@ -115,7 +118,7 @@ def send_mail_voucher(invoice):
         "name": "{} {}".format(invoice.user.name, invoice.user.surname),
         "asso_email": AssoOption.get_cached_value("contact"),
         "asso_name": AssoOption.get_cached_value("name"),
-        "date_end": invoice.get_subscription().latest("date_end").date_end,
+        "date_end": invoice.get_subscription().latest("date_end_memb").date_end_memb,
     }
 
     mail = EmailMessage(
@@ -125,4 +128,5 @@ def send_mail_voucher(invoice):
         [invoice.user.get_mail],
         attachments=[("voucher.pdf", pdf, "application/pdf")],
     )
-    mail.send()
+
+    send_mail_object(mail, request)

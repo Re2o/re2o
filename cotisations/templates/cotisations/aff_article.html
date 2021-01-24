@@ -1,5 +1,5 @@
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
@@ -32,9 +32,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <th>{% trans "Article" %}</th>
             <th>{% trans "Price" %}</th>
-            <th>{% trans "Subscription type" %}</th>
-            <th>{% trans "Duration (in months)" %}</th>
-            <th>{% trans "Duration (in days)" %}</th>
+            <th>{% trans "Duration membership (in months)" %}</th>
+            <th>{% trans "Duration membership (in days)" %}</th>
+            <th>{% trans "Duration connection (in months)" %}</th>
+            <th>{% trans "Duration connection (in days)" %}</th>
             <th>{% trans "Concerned users" %}</th>
             <th>{% trans "Available for everyone" %}</th>
             <th></th>
@@ -44,9 +45,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <tr>
         <td>{{ article.name }}</td>
         <td>{{ article.prix }}</td>
-        <td>{{ article.type_cotisation }}</td>
-        <td>{{ article.duration }}</td>
-        <td>{{ article.duration_days }}</td>
+        <td>{{ article.duration_membership }}</td>
+        <td>{{ article.duration_days_membership }}</td>
+        <td>{{ article.duration_connection }}</td>
+        <td>{{ article.duration_days_connection }}</td>
         <td>{{ article.type_user }}</td>
         <td>{{ article.available_for_everyone | tick }}</td>
         <td class="text-right">

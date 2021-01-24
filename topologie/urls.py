@@ -1,4 +1,4 @@
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -19,11 +19,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""
-Definition des urls de l'application topologie.
-Inclu dans urls de re2o.
-
-Fait référence aux fonctions du views
+"""topologie.urls
+The defined URLs for topologie app. Included in re2o.urls.
 """
 
 from __future__ import unicode_literals
@@ -31,6 +28,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from . import views
+from . import views_autocomplete
 
 urlpatterns = [
     url(r"^$", views.index, name="index"),
@@ -52,9 +50,24 @@ urlpatterns = [
     url(r"^edit_switch/(?P<switchid>[0-9]+)$", views.edit_switch, name="edit-switch"),
     url(r"^new_stack/$", views.new_stack, name="new-stack"),
     url(
-        r"^index_physical_grouping/$",
-        views.index_physical_grouping,
-        name="index-physical-grouping",
+        r"^index_stack/$",
+        views.index_stack,
+        name="index-stack",
+    ),
+    url(
+        r"^index_switch_bay/$",
+        views.index_switch_bay,
+        name="index-switch-bay",
+    ),
+    url(
+        r"^index_building/$",
+        views.index_building,
+        name="index-building",
+    ),
+    url(
+        r"^index_dormitory/$",
+        views.index_dormitory,
+        name="index-dormitory",
     ),
     url(r"^edit_stack/(?P<stackid>[0-9]+)$", views.edit_stack, name="edit-stack"),
     url(r"^del_stack/(?P<stackid>[0-9]+)$", views.del_stack, name="del-stack"),
@@ -157,4 +170,12 @@ urlpatterns = [
         views.del_module_on,
         name="del-module-on",
     ),
+    ### Autocomplete Views
+    url(r'^room-autocomplete/$', views_autocomplete.RoomAutocomplete.as_view(), name='room-autocomplete',),
+    url(r'^building-autocomplete/$', views_autocomplete.BuildingAutocomplete.as_view(), name='building-autocomplete',),
+    url(r'^dormitory-autocomplete/$', views_autocomplete.DormitoryAutocomplete.as_view(), name='dormitory-autocomplete',),
+    url(r'^switch-autocomplete/$', views_autocomplete.SwitchAutocomplete.as_view(), name='switch-autocomplete',),
+    url(r'^port-autocomplete/$', views_autocomplete.PortAutocomplete.as_view(), name='profile-autocomplete',),
+    url(r'^portprofile-autocomplete/$', views_autocomplete.PortProfileAutocomplete.as_view(), name='portprofile-autocomplete',),
+    url(r'^switchbay-autocomplete/$', views_autocomplete.SwitchBayAutocomplete.as_view(), name='switchbay-autocomplete',),
 ]

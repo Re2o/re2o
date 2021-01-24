@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -29,6 +29,7 @@ from __future__ import unicode_literals
 from django.conf.urls import url
 
 from . import views
+from . import views_autocomplete
 
 urlpatterns = [
     url(r"^new_machine/(?P<userid>[0-9]+)$", views.new_machine, name="new-machine"),
@@ -136,18 +137,6 @@ urlpatterns = [
     url(r"^del_nas/$", views.del_nas, name="del-nas"),
     url(r"^index_nas/$", views.index_nas, name="index-nas"),
     url(r"^$", views.index, name="index"),
-    url(r"^rest/mac-ip/$", views.mac_ip, name="mac-ip"),
-    url(r"^rest/regen-achieved/$", views.regen_achieved, name="regen-achieved"),
-    url(r"^rest/mac-ip-dns/$", views.mac_ip_dns, name="mac-ip-dns"),
-    url(r"^rest/alias/$", views.alias, name="alias"),
-    url(r"^rest/corresp/$", views.corresp, name="corresp"),
-    url(r"^rest/mx/$", views.mx, name="mx"),
-    url(r"^rest/ns/$", views.ns, name="ns"),
-    url(r"^rest/txt/$", views.txt, name="txt"),
-    url(r"^rest/srv/$", views.srv, name="srv"),
-    url(r"^rest/zones/$", views.zones, name="zones"),
-    url(r"^rest/service_servers/$", views.service_servers, name="service-servers"),
-    url(r"^rest/ouverture_ports/$", views.ouverture_ports, name="ouverture-ports"),
     url(r"index_portlist/$", views.index_portlist, name="index-portlist"),
     url(
         r"^edit_portlist/(?P<ouvertureportlistid>[0-9]+)$",
@@ -165,4 +154,14 @@ urlpatterns = [
         views.configure_ports,
         name="port-config",
     ),
+    ### Autocomplete Views
+    url(r'^vlan-autocomplete/$', views_autocomplete.VlanAutocomplete.as_view(), name='vlan-autocomplete',),
+    url(r'^interface-autocomplete/$', views_autocomplete.InterfaceAutocomplete.as_view(), name='interface-autocomplete',),
+    url(r'^machine-autocomplete/$', views_autocomplete.MachineAutocomplete.as_view(), name='machine-autocomplete',),
+    url(r'^machinetype-autocomplete/$', views_autocomplete.MachineTypeAutocomplete.as_view(), name='machinetype-autocomplete',),
+    url(r'^iptype-autocomplete/$', views_autocomplete.IpTypeAutocomplete.as_view(), name='iptype-autocomplete',),
+    url(r'^extension-autocomplete/$', views_autocomplete.ExtensionAutocomplete.as_view(), name='extension-autocomplete',),
+    url(r'^domain-autocomplete/$', views_autocomplete.DomainAutocomplete.as_view(), name='domain-autocomplete',),
+    url(r'^ouvertureportlist-autocomplete/$', views_autocomplete.OuverturePortListAutocomplete.as_view(), name='ouvertureportlist-autocomplete',),
+    url(r'^iplist-autocomplete/$', views_autocomplete.IpListAutocomplete.as_view(), name='iplist-autocomplete',),
 ]

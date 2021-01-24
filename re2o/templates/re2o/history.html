@@ -1,12 +1,13 @@
 {% extends 're2o/sidebar.html' %}
 {% comment %}
-Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
 quelques clics.
 
 Copyright © 2017  Gabriel Détraz
 Copyright © 2017  Lara Kermarec
 Copyright © 2017  Augustin Lemesle
+Copyright © 2020  Jean-Romain Garnier
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,8 +30,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% block title %}{% trans "History" %}{% endblock %}
 
 {% block content %}
-<h2>{% blocktrans %}History of {{ object }}{% endblocktrans %}</h2>
-    {% include 're2o/aff_history.html' with reversions=reversions %}
+<h2>{% blocktrans %}History of {{ title }}{% endblocktrans %}</h2>
+    {% include 're2o/aff_history.html' with events=events related_history=related_history %}
     <br />
     <br />
     <br />

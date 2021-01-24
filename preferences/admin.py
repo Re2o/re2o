@@ -1,5 +1,5 @@
 # -*- mode: python; coding: utf-8 -*-
-# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -21,7 +21,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Classes admin pour les models de preferences
+Admin classes for models of preferences app.
 """
 from __future__ import unicode_literals
 
@@ -46,79 +46,79 @@ from .models import (
 
 
 class OptionalUserAdmin(VersionAdmin):
-    """Class admin options user"""
+    """Admin class for user options."""
 
     pass
 
 
 class OptionalTopologieAdmin(VersionAdmin):
-    """Class admin options topologie"""
+    """Admin class for topology options."""
 
     pass
 
 
 class OptionalMachineAdmin(VersionAdmin):
-    """Class admin options machines"""
+    """Admin class for machines options."""
 
     pass
 
 
 class GeneralOptionAdmin(VersionAdmin):
-    """Class admin options générales"""
+    """Admin class for general options."""
 
     pass
 
 
 class ServiceAdmin(VersionAdmin):
-    """Class admin gestion des services de la page d'accueil"""
+    """Admin class for services (on the homepage)."""
 
     pass
 
 
 class MailContactAdmin(VersionAdmin):
-    """Admin class for contact email adresses"""
+    """Admin class for contact email addresses."""
 
     pass
 
 
 class AssoOptionAdmin(VersionAdmin):
-    """Class admin options de l'asso"""
+    """Admin class for organisation options."""
 
     pass
 
 
 class MailMessageOptionAdmin(VersionAdmin):
-    """Class admin options mail"""
+    """Admin class for email messages options."""
 
     pass
 
 
 class HomeOptionAdmin(VersionAdmin):
-    """Class admin options home"""
+    """Admin class for home options."""
 
     pass
 
 
 class RadiusKeyAdmin(VersionAdmin):
-    """Class radiuskey"""
+    """Admin class for RADIUS keys options."""
 
     pass
 
 
 class SwitchManagementCredAdmin(VersionAdmin):
-    """Class managementcred for switch"""
+    """Admin class for switch management credentials options."""
 
     pass
 
 
 class ReminderAdmin(VersionAdmin):
-    """Class reminder for switch"""
+    """Admin class for reminder options."""
 
     pass
 
 
 class DocumentTemplateAdmin(VersionAdmin):
-    """Admin class for DocumentTemplate"""
+    """Admin class for document templates."""
 
     pass
 
