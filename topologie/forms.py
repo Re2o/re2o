@@ -70,7 +70,7 @@ class PortForm(FormRevMixin, ModelForm):
             "switch": AutocompleteModelWidget(url="/topologie/switch-autocomplete"),
             "room": AutocompleteModelWidget(url="/topologie/room-autocomplete"),
             "machine_interface": AutocompleteModelWidget(
-                url="/machine/machine-autocomplete"
+                url="/machines/interface-autocomplete"
             ),
             "related": AutocompleteModelWidget(url="/topologie/port-autocomplete"),
             "custom_profile": AutocompleteModelWidget(
