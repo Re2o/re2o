@@ -3,7 +3,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2019  Gabriel Détraz
+# Copyright © 2021  Yohann D'ANELLO
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

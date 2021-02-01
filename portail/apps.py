@@ -3,11 +3,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2017-2020  Gabriel Détraz
-# Copyright © 2017-2020  Lara Kermarec
-# Copyright © 2017-2020  Augustin Lemesle
-# Copyright © 2017-2020  Hugo Levy--Falk
-# Copyright © 2017-2020  Jean-Romain Garnier
+# Copyright © 2021  Yohann D'ANELLO
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
