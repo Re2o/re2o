@@ -26,9 +26,11 @@ This is only sugar, this does not provide any model.
 """
 
 from django.conf.urls import url
+from django.contrib.auth.views import LoginView
 
 from .views import SignUpView
 
 urlpatterns = [
     url(r"^signup/$", SignUpView.as_view(), name="signup"),
+    url(r"^login/$", LoginView.as_view(), name="login"),
 ]
