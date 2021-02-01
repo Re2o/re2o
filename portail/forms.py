@@ -61,6 +61,8 @@ class MembershipForm(forms.Form):
 
     article = forms.ModelChoiceField(
         Article.objects.filter(Q(duration_connection__gt=0) | Q(duration_days_connection__gt=0),
-                               available_for_everyone=True,
-                               need_membership=False),
+                               Q(need_membership=False)
+                               | Q(duration_membership__gt=0)
+                               | Q(duration_days_membership__gt=0),
+                               available_for_everyone=True),
     )
