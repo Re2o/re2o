@@ -19,12 +19,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from cotisations.models import Article, Paiement
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Q
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-
-from cotisations.models import Article, Paiement
+from preferences.models import GeneralOption
 from re2o.widgets import AutocompleteModelWidget
 from users.models import Adherent
 
@@ -39,10 +40,28 @@ class AdherentForm(UserCreationForm):
                     "login page or contacting support.")
     )
 
+    # Checkbox for GTU
+    gtu_check = forms.BooleanField(
+        required=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        gtu_file = GeneralOption.get_cached_value("GTU")
+        self.fields["email"].required = True
+        self.fields["gtu_check"].label = mark_safe(
+            "%s <a href='%s' download='CGU'>%s</a>."
+            % (
+                _("I commit to accept the"),
+                gtu_file.url if gtu_file else "#",
+                _("General Terms of Use"),
+            )
+        )
+
     class Meta:
         model = Adherent
         fields = ("name", "surname", "pseudo", "email", "telephone", "password1", "password2", "room", "school",
-                  "former_user_check",)
+                  "former_user_check", "gtu_check",)
         widgets = {
             "school": AutocompleteModelWidget(url="/users/school-autocomplete"),
             "room": AutocompleteModelWidget(
