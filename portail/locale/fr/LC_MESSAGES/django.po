@@ -1,0 +1,90 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-02-01 04:32+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: forms.py:35
+msgid "I certify that I have not had an account before."
+msgstr "Je certifie sur l'honneur ne pas déjà avoir de compte."
+
+#: forms.py:37
+msgid ""
+"If you already have an account, please use it. If your lost access to it, "
+"please consider using the forgotten password button on the login page or "
+"contacting support."
+msgstr ""
+"Si vous avez déjà un compte ou avez déjà eu accès aux services, vous devez "
+"l'utiliser. Si vous avez oublié votre mot de passe, un formulaire mot de "
+"passe oublié est à votre disposition. Si vous avez oublié votre login, "
+"contactez le support."
+
+#: templates/portail/index.html:29
+#, python-format
+msgid "Welcome onto the captive portal of %(asso_name)s!"
+msgstr "Bienvenue sur le portail captif de %(asso_name)s !"
+
+#: templates/portail/index.html:38
+msgid "Registration"
+msgstr "Inscription"
+
+#: templates/portail/index.html:39
+msgid ""
+"If you don't have an account yet and you want to access the Internet and the "
+"organisation's services, create your own personal account."
+msgstr ""
+"Si vous n'avez pas encore de compte et que vous voulez accéder à Internet et "
+"aux services de l'association, créez votre espace personnel."
+
+#: templates/portail/index.html:40 templates/portail/signup.html:32
+msgid "Sign up"
+msgstr "Inscription"
+
+#: templates/portail/index.html:49
+msgid "Logging in"
+msgstr "Se connecter"
+
+#: templates/portail/index.html:50
+msgid ""
+"If you already have an account, log in. You can manage your subscriptions to "
+"the organisation."
+msgstr ""
+"Si vous avez déjà un compte, identifiez-vous. Vous pouvez gérer vos "
+"cotisations à l'association."
+
+#: templates/portail/index.html:51
+msgid "Log in"
+msgstr "Se connecter"
+
+#: templates/portail/index.html:61
+msgid "My subscriptions"
+msgstr "Mes cotisations"
+
+#: templates/portail/index.html:62
+msgid ""
+"To renew your Internet connection, you can extend your current connection."
+msgstr ""
+"Pour renouveler votre connexion Internet, vous devez étendre votre connexion "
+"actuelle."
+
+#: templates/portail/index.html:63
+msgid "Buy a new subscription"
+msgstr "Payer une nouvelle adhésion"
+
+#: templates/portail/signup.html:37
+msgid "Confirm"
+msgstr "Confirmer"
