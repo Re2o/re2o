@@ -87,6 +87,7 @@ class MembershipForm(forms.Form):
                                Q(need_membership=False)
                                | Q(duration_membership__gt=0)
                                | Q(duration_days_membership__gt=0),
+                               ~Q(type_user="Club"),
                                available_for_everyone=True),
         label=_("Article"),
         empty_label=_("Select an article"),
