@@ -34,6 +34,7 @@ accessing to the full Re2o.
 from cotisations.views import new_facture
 from django.conf.urls import url
 from django.contrib.auth.views import LoginView
+from re2o.views import about_page
 
 from .views import IndexView, SignUpView
 
@@ -42,4 +43,5 @@ urlpatterns = [
     url(r"^signup/$", SignUpView.as_view(), name="signup"),
     url(r"^login/$", LoginView.as_view(), name="login"),
     url(r"^extend-connection/(?P<userid>[0-9]+)/$", new_facture, name="extend-connection"),
+    url(r"^about/$", about_page, name="about"),
 ]

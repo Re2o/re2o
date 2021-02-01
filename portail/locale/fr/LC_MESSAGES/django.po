@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-01 12:03+0100\n"
+"POT-Creation-Date: 2021-02-01 12:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -116,6 +116,10 @@ msgstr ""
 #: templates/portail/index.html:63
 msgid "Buy a new subscription"
 msgstr "Payer une nouvelle adhésion"
+
+#: templates/portail/index.html:71
+msgid "About Re2o..."
+msgstr "À propos de Re2o ..."
 
 #: templates/portail/signup.html:37
 msgid "Confirm"
