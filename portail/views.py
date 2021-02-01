@@ -33,7 +33,7 @@ accessing to the full Re2o.
 
 from cotisations.models import Facture, Vente
 from cotisations.utils import find_payment_method
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
 from django.db import transaction
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView
@@ -68,7 +68,6 @@ class SignUpView(CreateView):
 
         # Login automatically into the new account
         user = form.instance
-        login(self.request, form.instance)
 
         # Buy the new membership
         payment_method = membership_form.cleaned_data["payment_method"]
@@ -98,6 +97,9 @@ class SignUpView(CreateView):
         )
 
         super().form_valid(form)
+
+        user = authenticate(username=user.pseudo, password=form.cleaned_data["password1"])
+        login(self.request, user)
 
         # POOP CODE, pliz Re2o
         # End the payment process, it mays redirect to ComNPay
