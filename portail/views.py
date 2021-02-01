@@ -19,12 +19,14 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from cotisations.models import Facture, Vente
+from cotisations.utils import find_payment_method
 from django.contrib.auth import login
 from django.db import transaction
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
-from .forms import AdherentForm
+from .forms import AdherentForm, MembershipForm
 
 
 class SignUpView(CreateView):
@@ -33,13 +35,51 @@ class SignUpView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["membership_form"] = MembershipForm(self.request.POST or None)
         return context
 
     @transaction.atomic
     def form_valid(self, form):
-        ret = super().form_valid(form)
+        membership_form = MembershipForm(self.request.POST or None)
+
+        if not membership_form.is_valid():
+            return self.form_invalid(form)
+
+        form.save()
+
+        user = form.instance
         login(self.request, form.instance)
-        return ret
+
+        payment_method = membership_form.cleaned_data["payment_method"]
+        article = membership_form.cleaned_data["article"]
+
+        true_payment_method = find_payment_method(payment_method)
+        if hasattr(true_payment_method, "check_price"):
+            price_ok, msg = true_payment_method.check_price(article.prix, user)
+            if not price_ok:
+                membership_form.add_error(None, msg)
+                return self.form_invalid(membership_form)
+
+        invoice = Facture.objects.create(
+            user=user,
+            paiement=payment_method,
+        )
+
+        Vente.objects.create(
+            facture=invoice,
+            name=article.name,
+            prix=article.prix,
+            duration_connection=article.duration_connection,
+            duration_days_connection=article.duration_days_connection,
+            duration_membership=article.duration_membership,
+            duration_days_membership=article.duration_days_membership,
+            number=1,
+        )
+
+        super().form_valid(form)
+
+        # POOP CODE, pliz Re2o
+        return payment_method.end_payment(invoice, self.request)
 
     def get_success_url(self):
         return reverse_lazy("users:profil", args=(self.object.pk,))

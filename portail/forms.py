@@ -21,7 +21,10 @@
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+
+from cotisations.models import Article, Paiement
 from re2o.widgets import AutocompleteModelWidget
 from users.models import Adherent
 
@@ -49,3 +52,15 @@ class AdherentForm(UserCreationForm):
                 },
             ),
         }
+
+
+class MembershipForm(forms.Form):
+    payment_method = forms.ModelChoiceField(
+        Paiement.objects.filter(available_for_everyone=True),
+    )
+
+    article = forms.ModelChoiceField(
+        Article.objects.filter(Q(duration_connection__gt=0) | Q(duration_days_connection__gt=0),
+                               available_for_everyone=True,
+                               need_membership=False),
+    )

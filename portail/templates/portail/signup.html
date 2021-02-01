@@ -11,6 +11,7 @@
     <form class="form" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}
+        {% bootstrap_form membership_form %}
         {% trans "Confirm" as tr_confirm %}
         {% bootstrap_button tr_confirm button_type="submit" icon='ok' button_class='btn-success' %}
     </form>
