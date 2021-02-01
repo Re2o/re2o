@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% load bootstrap3 i18n %}
+
+{% block custom_js %}
+    {{ form.media }}
+{% endblock %}
+
+{% block content %}
+    <h3>{% trans "Sign up" %}</h3>
+    <form class="form" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% trans "Confirm" as tr_confirm %}
+        {% bootstrap_button tr_confirm button_type="submit" icon='ok' button_class='btn-success' %}
+    </form>
+{% endblock %}
