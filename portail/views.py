@@ -24,7 +24,8 @@ from cotisations.utils import find_payment_method
 from django.contrib.auth import login
 from django.db import transaction
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, TemplateView
+from preferences.models import AssoOption
 
 from .forms import AdherentForm, MembershipForm
 
@@ -83,3 +84,12 @@ class SignUpView(CreateView):
 
     def get_success_url(self):
         return reverse_lazy("users:profil", args=(self.object.pk,))
+
+
+class IndexView(TemplateView):
+    template_name = "portail/index.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["asso"] = AssoOption.objects.get_or_create()[0]
+        return context

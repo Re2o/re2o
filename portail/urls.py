@@ -29,9 +29,10 @@ from cotisations.views import new_facture
 from django.conf.urls import url
 from django.contrib.auth.views import LoginView
 
-from .views import SignUpView
+from .views import IndexView, SignUpView
 
 urlpatterns = [
+    url(r"^$", IndexView.as_view(), name="index"),
     url(r"^signup/$", SignUpView.as_view(), name="signup"),
     url(r"^login/$", LoginView.as_view(), name="login"),
     url(r"^extend-connection/(?P<userid>[0-9]+)/$", new_facture, name="extend-connection"),
