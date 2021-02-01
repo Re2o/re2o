@@ -239,17 +239,19 @@ class User(
         (2, _("Waiting for email confirmation")),
     )
 
-    surname = models.CharField(max_length=255)
+    surname = models.CharField(max_length=255, verbose_name=_("Surname"))
     pseudo = models.CharField(
         max_length=32,
         unique=True,
         help_text=_("Must only contain letters, numerals or dashes."),
         validators=[linux_user_validator],
+        verbose_name=_("Pseudo"),
     )
     email = models.EmailField(
         blank=True,
         default="",
         help_text=_("External email address allowing us to contact you."),
+        verbose_name=_("Email"),
     )
     local_email_redirect = models.BooleanField(
         default=False,
@@ -267,7 +269,8 @@ class User(
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        help_text=_("Education institute.")
+        help_text=_("Education institute."),
+        verbose_name=_("School"),
     )
     shell = models.ForeignKey(
         "ListShell",
@@ -287,7 +290,7 @@ class User(
     )
     email_state = models.IntegerField(choices=EMAIL_STATES, default=EMAIL_STATE_PENDING)
     registered = models.DateTimeField(auto_now_add=True)
-    telephone = models.CharField(max_length=15, blank=True, null=True)
+    telephone = models.CharField(max_length=15, blank=True, null=True, verbose_name=_("Telephone number"))
     uid_number = models.PositiveIntegerField(default=get_fresh_user_uid, unique=True)
     legacy_uid = models.PositiveIntegerField(
         unique=True,
@@ -1875,11 +1878,23 @@ class Adherent(User):
 
     """
 
-    name = models.CharField(max_length=255)
-    room = models.OneToOneField(
-        "topologie.Room", on_delete=models.PROTECT, blank=True, null=True
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_("First name"),
     )
-    gpg_fingerprint = models.CharField(max_length=49, blank=True, null=True)
+    room = models.OneToOneField(
+        "topologie.Room",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        verbose_name=_("room"),
+    )
+    gpg_fingerprint = models.CharField(
+        max_length=49,
+        blank=True,
+        null=True,
+        verbose_name=_("GPG fingerprint"),
+    )
 
     class Meta(User.Meta):
         verbose_name = _("member")

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-01 04:32+0100\n"
+"POT-Creation-Date: 2021-02-01 12:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: forms.py:35
+#: forms.py:36
 msgid "I certify that I have not had an account before."
 msgstr "Je certifie sur l'honneur ne pas déjà avoir de compte."
 
-#: forms.py:37
+#: forms.py:38
 msgid ""
 "If you already have an account, please use it. If your lost access to it, "
 "please consider using the forgotten password button on the login page or "
@@ -32,6 +32,38 @@ msgstr ""
 "l'utiliser. Si vous avez oublié votre mot de passe, un formulaire mot de "
 "passe oublié est à votre disposition. Si vous avez oublié votre login, "
 "contactez le support."
+
+#: forms.py:55
+msgid "I commit to accept the"
+msgstr "J'accepte les"
+
+#: forms.py:57
+msgid "General Terms of Use"
+msgstr "Conditions Générales d'Utilisation"
+
+#: forms.py:60
+msgid "No room"
+msgstr "Pas de chambre"
+
+#: forms.py:61
+msgid "Select a school"
+msgstr "Sélectionnez une école"
+
+#: forms.py:81
+msgid "Payment method"
+msgstr "Moyen de paiement"
+
+#: forms.py:82
+msgid "Select a payment method"
+msgstr "Sélectionnez un moyen de paiement"
+
+#: forms.py:91
+msgid "Article"
+msgstr "Article"
+
+#: forms.py:92
+msgid "Select an article"
+msgstr "Sélectionnez un article"
 
 #: templates/portail/index.html:29
 #, python-format

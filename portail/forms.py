@@ -57,6 +57,8 @@ class AdherentForm(UserCreationForm):
                 _("General Terms of Use"),
             )
         )
+        self.fields["room"].empty_label = _("No room")
+        self.fields["school"].empty_label = _("Select a school")
 
     class Meta:
         model = Adherent
@@ -76,6 +78,8 @@ class AdherentForm(UserCreationForm):
 class MembershipForm(forms.Form):
     payment_method = forms.ModelChoiceField(
         Paiement.objects.filter(available_for_everyone=True),
+        label=_("Payment method"),
+        empty_label=_("Select a payment method"),
     )
 
     article = forms.ModelChoiceField(
@@ -84,4 +88,6 @@ class MembershipForm(forms.Form):
                                | Q(duration_membership__gt=0)
                                | Q(duration_days_membership__gt=0),
                                available_for_everyone=True),
+        label=_("Article"),
+        empty_label=_("Select an article"),
     )
