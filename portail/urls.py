@@ -25,6 +25,7 @@ to make a captive portal.
 This is only sugar, this does not provide any model.
 """
 
+from cotisations.views import new_facture
 from django.conf.urls import url
 from django.contrib.auth.views import LoginView
 
@@ -33,4 +34,5 @@ from .views import SignUpView
 urlpatterns = [
     url(r"^signup/$", SignUpView.as_view(), name="signup"),
     url(r"^login/$", LoginView.as_view(), name="login"),
+    url(r"^extend-connection/(?P<userid>[0-9]+)/$", new_facture, name="extend-connection"),
 ]
