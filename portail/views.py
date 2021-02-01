@@ -18,6 +18,18 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+This app provides a clean way to make a subscription,
+to make a captive portal.
+
+This is only sugar, this does not provide any model.
+
+To use this app, simply install the app into the Django project
+(this is completely optional), then configure your reverse proxy
+to redirect all requests to /portail/.
+The app provides new views to sign in and buy articles, to avoid
+accessing to the full Re2o.
+"""
 
 from cotisations.models import Facture, Vente
 from cotisations.utils import find_payment_method
@@ -31,6 +43,9 @@ from .forms import AdherentForm, MembershipForm
 
 
 class SignUpView(CreateView):
+    """
+    Enable users to sign up and automatically buy a new membership and a connection.
+    """
     form_class = AdherentForm
     template_name = "portail/signup.html"
 
@@ -41,6 +56,9 @@ class SignUpView(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
+        """
+        When the registration form is submitted, a new account is created and a membership is bought.
+        """
         membership_form = MembershipForm(self.request.POST or None)
 
         if not membership_form.is_valid():
@@ -48,9 +66,11 @@ class SignUpView(CreateView):
 
         form.save()
 
+        # Login automatically into the new account
         user = form.instance
         login(self.request, form.instance)
 
+        # Buy the new membership
         payment_method = membership_form.cleaned_data["payment_method"]
         article = membership_form.cleaned_data["article"]
 
@@ -80,6 +100,7 @@ class SignUpView(CreateView):
         super().form_valid(form)
 
         # POOP CODE, pliz Re2o
+        # End the payment process, it mays redirect to ComNPay
         return payment_method.end_payment(invoice, self.request)
 
     def get_success_url(self):
@@ -87,6 +108,9 @@ class SignUpView(CreateView):
 
 
 class IndexView(TemplateView):
+    """
+    Custom index page for the captive portal.
+    """
     template_name = "portail/index.html"
 
     def get_context_data(self, **kwargs):

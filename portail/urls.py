@@ -23,6 +23,12 @@ This app provides a clean way to make a subscription,
 to make a captive portal.
 
 This is only sugar, this does not provide any model.
+
+To use this app, simply install the app into the Django project
+(this is completely optional), then configure your reverse proxy
+to redirect all requests to /portail/.
+The app provides new views to sign in and buy articles, to avoid
+accessing to the full Re2o.
 """
 
 from cotisations.views import new_facture
