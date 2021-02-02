@@ -153,7 +153,8 @@ def new_facture(request, user, userid):
                     p.save()
 
                 return new_invoice_instance.paiement.end_payment(
-                    new_invoice_instance, request
+                    new_invoice_instance,request,
+                    ipn_host=settings.ALLOWED_HOSTS[0] if request.path.contains("portail") else None,
                 )
         else:
             messages.error(request, _("You need to choose at least one article."))
