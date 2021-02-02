@@ -23,10 +23,10 @@
 class PaymentMethodMixin:
     """A simple mixin to avoid redefining end_payment if you don't need to"""
 
-    def end_payment(self, invoice, request):
+    def end_payment(self, invoice, request, *args, **kwargs):
         """Redefine this method in order to get a different ending to the
         payment session if you whish.
 
         Must return a HttpResponse-like object.
         """
-        return self.payment.end_payment(invoice, request, use_payment_method=False)
+        return self.payment.end_payment(invoice, request, use_payment_method=False, *args, **kwargs)

@@ -101,7 +101,7 @@ But this payment method is not really usefull, since it does noting !
 You have to redefine the `end_payment` method. Here is its prototype :
 
 ```python
-def end_payment(self, invoice, request):
+def end_payment(self, invoice, request, *args, **kwargs):
     pass
 ```
 

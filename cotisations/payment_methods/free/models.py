@@ -42,7 +42,7 @@ class FreePayment(PaymentMethodMixin, models.Model):
         editable=False,
     )
 
-    def end_payment(self, invoice, request):
+    def end_payment(self, invoice, request, *args, **kwargs):
         """Ends the payment normally.
         """
         return invoice.paiement.end_payment(invoice, request, use_payment_method=False)

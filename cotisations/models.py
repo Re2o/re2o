@@ -871,7 +871,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
         """
         self.moyen = self.moyen.title()
 
-    def end_payment(self, invoice, request, use_payment_method=True):
+    def end_payment(self, invoice, request, use_payment_method=True, *args, **kwargs):
         """
         The general way of ending a payment.
 
@@ -887,7 +887,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
         """
         payment_method = find_payment_method(self)
         if payment_method is not None and use_payment_method:
-            return payment_method.end_payment(invoice, request)
+            return payment_method.end_payment(invoice, request, *args, **kwargs)
 
         # So make this invoice valid, trigger send mail
         invoice.valid = True

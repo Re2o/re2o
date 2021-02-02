@@ -42,7 +42,7 @@ class ChequePayment(PaymentMethodMixin, models.Model):
         editable=False,
     )
 
-    def end_payment(self, invoice, request):
+    def end_payment(self, invoice, request, *args, **kwargs):
         """Invalidates the invoice then redirect the user towards a view asking
         for informations to add to the invoice before validating it.
         """

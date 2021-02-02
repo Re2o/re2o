@@ -66,7 +66,7 @@ class BalancePayment(PaymentMethodMixin, models.Model):
         verbose_name=_("allow user to credit their balance"), default=False
     )
 
-    def end_payment(self, invoice, request):
+    def end_payment(self, invoice, request, *args, **kwargs):
         """Changes the user's balance to pay the invoice. If it is not
         possible, shows an error and invalidates the invoice.
         """

@@ -49,7 +49,7 @@ class NotePayment(PaymentMethodMixin, models.Model):
     port = models.PositiveIntegerField(blank=True, null=True)
     id_note = models.PositiveIntegerField(blank=True, null=True)
 
-    def end_payment(self, invoice, request):
+    def end_payment(self, invoice, request, *args, **kwargs):
         return redirect(
             reverse(
                 "cotisations:note_kfet:note_payment", kwargs={"factureid": invoice.id}
