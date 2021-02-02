@@ -30,6 +30,7 @@ to redirect all requests to /portail/.
 The app provides new views to sign in and buy articles, to avoid
 accessing to the full Re2o.
 """
+from django.conf import settings
 
 from cotisations.models import Facture, Vente
 from cotisations.utils import find_payment_method
@@ -103,7 +104,9 @@ class SignUpView(CreateView):
 
         # POOP CODE, pliz Re2o
         # End the payment process, it mays redirect to ComNPay
-        return payment_method.end_payment(invoice, self.request)
+        # We don't assume that the captive portal can be accessed from the whole web,
+        # then we provide to ComNPay another domain to validate the invoice
+        return payment_method.end_payment(invoice, self.request, settings.ALLOWED_HOSTS[0])
 
     def get_success_url(self):
         return reverse_lazy("users:profil", args=(self.object.pk,))

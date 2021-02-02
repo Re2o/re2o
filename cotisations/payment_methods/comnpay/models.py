@@ -73,7 +73,7 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         else:
             return "https://secure.homologation.comnpay.com"
 
-    def end_payment(self, invoice, request):
+    def end_payment(self, invoice, request, accept_host=None, refuse_host=None, ipn_host=None):
         """
         Build a request to start the negociation with Comnpay by using
         a facture id, the price and the secret transaction data stored in
@@ -84,12 +84,12 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
             str(self.payment_credential),
             str(self.payment_pass),
             "https://"
-            + host
+            + (accept_host or host)
             + reverse(
                 "cotisations:comnpay:accept_payment", kwargs={"factureid": invoice.id}
             ),
-            "https://" + host + reverse("cotisations:comnpay:refuse_payment"),
-            "https://" + host + reverse("cotisations:comnpay:ipn"),
+            "https://" + (refuse_host or host) + reverse("cotisations:comnpay:refuse_payment"),
+            "https://" + (ipn_host or host) + reverse("cotisations:comnpay:ipn"),
             "",
             "D",
         )
