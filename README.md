@@ -16,7 +16,7 @@ Il est possible d'activer très facilement des services qui améliorerons les po
 
 ## Installation
 
-Un tutoriel pour installer le projet est disponible [sur le wiki](https://gitlab.federez.net/federez/re2o/wikis/User%20Documentation/Quick%20Start).
+Un tutoriel pour installer le projet est disponible [sur le wiki](https://gitlab.federez.net/re2o/re2o/wikis/User%20Documentation/Quick%20Start).
 
 ## Fonctionnement Général
 
@@ -30,7 +30,7 @@ Les données stockées dans Re2o sont disponibles via un API Rest. Les services 
 
 # Wiki
 
-Le [Wiki](https://gitlab.federez.net/federez/re2o/-/wikis/home) est accessible sur le gitlab de Federez. Il regroupe les informations et instructions pour la plupart des composants de Re2o.
+Le [Wiki](https://gitlab.federez.net/re2o/re2o/-/wikis/home) est accessible sur le gitlab de Federez. Il regroupe les informations et instructions pour la plupart des composants de Re2o.
 
 ----
 
@@ -47,7 +47,7 @@ On top of this, it is possible to plug services to enhance the possibilities and
 
 # Setup
 
-A tutorial is available on the [Wiki](https://gitlab.federez.net/federez/re2o/wikis/User%20Documentation/Quick%20Start) to describe the setup process.
+A tutorial is available on the [Wiki](https://gitlab.federez.net/re2o/re2o/wikis/User%20Documentation/Quick%20Start) to describe the setup process.
 
 # General Functioning
 
@@ -61,4 +61,4 @@ Re2o provide a Rest API to allow external services (dhcp, dns, firewall,...) ins
 
 # Wiki
 
-The [Wiki](https://gitlab.federez.net/federez/re2o/-/wikis/home) is available to provide information and instruction for most components of Re2o.
+The [Wiki](https://gitlab.federez.net/re2o/re2o/-/wikis/home) is available to provide information and instruction for most components of Re2o.
