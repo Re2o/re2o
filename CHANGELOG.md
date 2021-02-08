@@ -105,7 +105,7 @@ mkdir -p media/images
 ## MR 163: Fix install re2o
 
 Refactored install_re2o.sh script.
-* There are more tools available with it but some function have changed, report to [the dedicated wiki page](https://gitlab.federez.net/federez/re2o/wikis/User%20Documentation/Setup%20script)for more informations or run:
+* There are more tools available with it but some function have changed, report to [the dedicated wiki page](https://gitlab.federez.net/re2o/re2o/wikis/User%20Documentation/Setup%20script)for more informations or run:
 ```
 install_re2o.sh help
 ```
@@ -121,7 +121,7 @@ python3 manage.py collectstatic
 
 ## MR 172: Refactor API
 
-Creates a new (nearly) REST API to expose all models of Re2o. See [the dedicated wiki page](https://gitlab.federez.net/federez/re2o/wikis/API/Raw-Usage) for more details on how to use it.
+Creates a new (nearly) REST API to expose all models of Re2o. See [the dedicated wiki page](https://gitlab.federez.net/re2o/re2o/wikis/API/Raw-Usage) for more details on how to use it.
 * For testing purpose, add `volatildap` package:
 ```
 pip3 install volatildap
