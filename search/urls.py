@@ -24,11 +24,13 @@
 
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
+app_name = "search"
+
 urlpatterns = [
-    url(r"^$", views.search, name="search"),
-    url(r"^advanced/$", views.searchp, name="searchp"),
+    path("", views.search, name="search"),
+    path("advanced", views.searchp, name="searchp"),
 ]

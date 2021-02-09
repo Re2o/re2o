@@ -84,16 +84,15 @@ LOCAL_APPS = (
 INSTALLED_APPS = (
     EARLY_EXTERNAL_CONTRIB_APPS + DJANGO_CONTRIB_APPS + EXTERNAL_CONTRIB_APPS + LOCAL_APPS + OPTIONNAL_APPS 
 )
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
+    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.security.SecurityMiddleware",
     "reversion.middleware.RevisionMiddleware",
 )
 
@@ -194,6 +193,21 @@ GRAPH_MODELS = {"all_applications": True, "group_models": True}
 
 # Timeout when sending emails through Django (in seconds)
 EMAIL_TIMEOUT = 10
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]   
 
 # Activate API
 if "api" in INSTALLED_APPS:

@@ -53,7 +53,7 @@ def context_user(request):
         else:
             if global_message not in [msg.message for msg in get_messages(request._request)]:
                 messages.warning(request._request, global_message)
-    if user.is_authenticated():
+    if user.is_authenticated:
         interfaces = user.user_interfaces()
     else:
         interfaces = None

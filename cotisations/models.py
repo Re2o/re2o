@@ -62,9 +62,6 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     class Meta:
         abstract = False
-        permissions = (
-            ("view_baseinvoice", _("Can view an base invoice object")),
-        )
 
     # TODO : change prix to price
     def prix(self):
@@ -157,7 +154,6 @@ class Facture(BaseInvoice):
         permissions = (
             # TODO : change facture to invoice
             ("change_facture_control", _('Can edit the "controlled" state')),
-            ("view_facture", _("Can view an invoice object")),
             ("change_all_facture", _("Can edit all the previous invoices")),
         )
         verbose_name = _("invoice")
@@ -377,8 +373,6 @@ def facture_post_delete(**kwargs):
 
 
 class CustomInvoice(BaseInvoice):
-    class Meta:
-        permissions = (("view_custominvoice", _("Can view a custom invoice object")),)
 
     recipient = models.CharField(max_length=255, verbose_name=_("recipient"))
     payment = models.CharField(max_length=255, verbose_name=_("payment type"))
@@ -388,8 +382,6 @@ class CustomInvoice(BaseInvoice):
 
 
 class CostEstimate(CustomInvoice):
-    class Meta:
-        permissions = (("view_costestimate", _("Can view a cost estimate object")),)
 
     validity = models.DurationField(
         verbose_name=_("period of validity"), help_text="DD HH:MM:SS"
@@ -490,7 +482,6 @@ class Vente(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_vente", _("Can view a purchase object")),
             ("change_all_vente", _("Can edit all the previous purchases")),
         )
         verbose_name = _("purchase")
@@ -750,7 +741,6 @@ class Article(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_article", _("Can view an article object")),
             ("buy_every_article", _("Can buy every article")),
         )
         verbose_name = "article"
@@ -824,7 +814,6 @@ class Banque(RevMixin, AclMixin, models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        permissions = (("view_banque", _("Can view a bank object")),)
         verbose_name = _("bank")
         verbose_name_plural = _("banks")
 
@@ -856,7 +845,6 @@ class Paiement(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_paiement", _("Can view a payment method object")),
             ("use_every_payment", _("Can use every payment method")),
         )
         verbose_name = _("payment method")
@@ -980,7 +968,6 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_cotisation", _("Can view a subscription object")),
             ("change_all_cotisation", _("Can edit the previous subscriptions")),
         )
         verbose_name = _("subscription")

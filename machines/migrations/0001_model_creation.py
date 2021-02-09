@@ -1098,7 +1098,7 @@ class Migration(migrations.Migration):
                 (
                     "cname",
                     models.ForeignKey(
-                        "self", null=True, blank=True, related_name="related_domain"
+                        "self", null=True, blank=True, related_name="related_domain", on_delete=models.CASCADE
                     ),
                 ),
                 (

@@ -28,111 +28,113 @@ The defined URLs for the Users app
 
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from . import views
 from . import views_autocomplete
 
+app_name = "users"
+
 urlpatterns = [
-    url(r"^new_user/$", views.new_user, name="new-user"),
-    url(r"^new_club/$", views.new_club, name="new-club"),
-    url(r"^edit_info/(?P<userid>[0-9]+)$", views.edit_info, name="edit-info"),
-    url(
-        r"^edit_club_admin_members/(?P<clubid>[0-9]+)$",
+    path("new_user", views.new_user, name="new-user"),
+    path("new_club", views.new_club, name="new-club"),
+    path("edit_info/<int:userid>", views.edit_info, name="edit-info"),
+    path(
+        "edit_club_admin_members/<int:clubid>",
         views.edit_club_admin_members,
         name="edit-club-admin-members",
     ),
-    url(r"^state/(?P<userid>[0-9]+)$", views.state, name="state"),
-    url(r"^groups/(?P<userid>[0-9]+)$", views.groups, name="groups"),
-    url(r"^password/(?P<userid>[0-9]+)$", views.password, name="password"),
-    url(r"^confirm_email/(?P<userid>[0-9]+)$", views.resend_confirmation_email, name="resend-confirmation-email"),
-    url(
-        r"^del_group/(?P<userid>[0-9]+)/(?P<listrightid>[0-9]+)$",
+    path("state/<int:userid>", views.state, name="state"),
+    path("groups/<int:userid>", views.groups, name="groups"),
+    path("password/<int:userid>", views.password, name="password"),
+    path("confirm_email/<int:userid>", views.resend_confirmation_email, name="resend-confirmation-email"),
+    path(
+        "del_group/<int:userid>/<int:listrightid>",
         views.del_group,
         name="del-group",
     ),
-    url(
-        r"^del_superuser/(?P<userid>[0-9]+)$", views.del_superuser, name="del-superuser"
+    path(
+        "del_superuser/<int:userid>", views.del_superuser, name="del-superuser"
     ),
-    url(r"^new_serviceuser/$", views.new_serviceuser, name="new-serviceuser"),
-    url(
-        r"^edit_serviceuser/(?P<serviceuserid>[0-9]+)$",
+    path("new_serviceuser", views.new_serviceuser, name="new-serviceuser"),
+    path(
+        "edit_serviceuser/<int:serviceuserid>",
         views.edit_serviceuser,
         name="edit-serviceuser",
     ),
-    url(
-        r"^del_serviceuser/(?P<serviceuserid>[0-9]+)$",
+    path(
+        "del_serviceuser/<int:serviceuserid>",
         views.del_serviceuser,
         name="del-serviceuser",
     ),
-    url(r"^add_ban/(?P<userid>[0-9]+)$", views.add_ban, name="add-ban"),
-    url(r"^edit_ban/(?P<banid>[0-9]+)$", views.edit_ban, name="edit-ban"),
-    url(r"^del-ban/(?P<banid>[0-9]+)$", views.del_ban, name="del-ban"),
-    url(
-        r"^add_whitelist/(?P<userid>[0-9]+)$", views.add_whitelist, name="add-whitelist"
+    path("add_ban/<int:userid>", views.add_ban, name="add-ban"),
+    path("edit_ban/<int:banid>", views.edit_ban, name="edit-ban"),
+    path("del-ban/<int:banid>", views.del_ban, name="del-ban"),
+    path(
+        "add_whitelist/<int:userid>", views.add_whitelist, name="add-whitelist"
     ),
-    url(
-        r"^edit_whitelist/(?P<whitelistid>[0-9]+)$",
+    path(
+        "edit_whitelist/<int:whitelistid>",
         views.edit_whitelist,
         name="edit-whitelist",
     ),
-    url(
-        r"^del_whitelist/(?P<whitelistid>[0-9]+)$",
+    path(
+        "del_whitelist/<int:whitelistid>",
         views.del_whitelist,
         name="del-whitelist",
     ),
-    url(
-        r"^add_emailaddress/(?P<userid>[0-9]+)$",
+    path(
+        "add_emailaddress/<int:userid>",
         views.add_emailaddress,
         name="add-emailaddress",
     ),
-    url(
-        r"^edit_emailaddress/(?P<emailaddressid>[0-9]+)$",
+    path(
+        "edit_emailaddress/<int:emailaddressid>",
         views.edit_emailaddress,
         name="edit-emailaddress",
     ),
-    url(
-        r"^del_emailaddress/(?P<emailaddressid>[0-9]+)$",
+    path(
+        "del_emailaddress/<int:emailaddressid>",
         views.del_emailaddress,
         name="del-emailaddress",
     ),
-    url(
-        r"^edit_email_settings/(?P<userid>[0-9]+)$",
+    path(
+        "edit_email_settings/<int:userid>",
         views.edit_email_settings,
         name="edit-email-settings",
     ),
-    url(r"^add_school/$", views.add_school, name="add-school"),
-    url(r"^edit_school/(?P<schoolid>[0-9]+)$", views.edit_school, name="edit-school"),
-    url(r"^del_school/$", views.del_school, name="del-school"),
-    url(r"^add_listright/$", views.add_listright, name="add-listright"),
-    url(
-        r"^edit_listright/(?P<listrightid>[0-9]+)$",
+    path("add_school", views.add_school, name="add-school"),
+    path("edit_school/<int:schoolid>", views.edit_school, name="edit-school"),
+    path("del_school", views.del_school, name="del-school"),
+    path("add_listright", views.add_listright, name="add-listright"),
+    path(
+        "edit_listright/<int:listrightid>",
         views.edit_listright,
         name="edit-listright",
     ),
-    url(r"^del_listright/$", views.del_listright, name="del-listright"),
-    url(r"^add_shell/$", views.add_shell, name="add-shell"),
-    url(r"^edit_shell/(?P<listshellid>[0-9]+)$", views.edit_shell, name="edit-shell"),
-    url(r"^del_shell/(?P<listshellid>[0-9]+)$", views.del_shell, name="del-shell"),
-    url(r"^profil/(?P<userid>[0-9]+)$", views.profil, name="profil"),
-    url(r"^index_ban/$", views.index_ban, name="index-ban"),
-    url(r"^index_white/$", views.index_white, name="index-white"),
-    url(r"^index_school/$", views.index_school, name="index-school"),
-    url(r"^index_shell/$", views.index_shell, name="index-shell"),
-    url(r"^index_listright/$", views.index_listright, name="index-listright"),
-    url(r"^index_serviceusers/$", views.index_serviceusers, name="index-serviceusers"),
-    url(r"^mon_profil/$", views.mon_profil, name="mon-profil"),
-    url(r"^process/(?P<token>[a-z0-9]{32})/$", views.process, name="process"),
-    url(r"^reset_password/$", views.reset_password, name="reset-password"),
-    url(r"^mass_archive/$", views.mass_archive, name="mass-archive"),
-    url(r"^$", views.index, name="index"),
-    url(r"^index_clubs/$", views.index_clubs, name="index-clubs"),
-    url(r"^initial_register/$", views.initial_register, name="initial-register"),
-    url(r"^edit_theme/(?P<userid>[0-9]+)$", views.edit_theme, name="edit-theme"),
+    path("del_listright", views.del_listright, name="del-listright"),
+    path("add_shell", views.add_shell, name="add-shell"),
+    path("edit_shell/<int:listshellid>", views.edit_shell, name="edit-shell"),
+    path("del_shell/<int:listshellid>", views.del_shell, name="del-shell"),
+    path("profil/<int:userid>", views.profil, name="profil"),
+    path("index_ban", views.index_ban, name="index-ban"),
+    path("index_white", views.index_white, name="index-white"),
+    path("index_school", views.index_school, name="index-school"),
+    path("index_shell", views.index_shell, name="index-shell"),
+    path("index_listright", views.index_listright, name="index-listright"),
+    path("index_serviceusers", views.index_serviceusers, name="index-serviceusers"),
+    path("mon_profil", views.mon_profil, name="mon-profil"),
+    re_path(r"^process/(?P<token>[a-z0-9]{32})/$", views.process, name="process"),
+    path("reset_password", views.reset_password, name="reset-password"),
+    path("mass_archive", views.mass_archive, name="mass-archive"),
+    path("", views.index, name="index"),
+    path("index_clubs", views.index_clubs, name="index-clubs"),
+    path("initial_register", views.initial_register, name="initial-register"),
+    path("edit_theme/<int:userid>", views.edit_theme, name="edit-theme"),
     ### Autocomplete Views
-    url(r'^user-autocomplete/$', views_autocomplete.UserAutocomplete.as_view(), name='user-autocomplete',),
-    url(r'^adherent-autocomplete/$', views_autocomplete.AdherentAutocomplete.as_view(), name='adherent-autocomplete',),
-    url(r'^club-autocomplete/$', views_autocomplete.ClubAutocomplete.as_view(), name='club-autocomplete',),
-    url(r'^school-autocomplete/$', views_autocomplete.SchoolAutocomplete.as_view(), name='school-autocomplete',),
-    url(r'^shell-autocomplete/$', views_autocomplete.ShellAutocomplete.as_view(), name='shell-autocomplete',),
+    path('user-autocomplete', views_autocomplete.UserAutocomplete.as_view(), name='user-autocomplete',),
+    path('adherent-autocomplete', views_autocomplete.AdherentAutocomplete.as_view(), name='adherent-autocomplete',),
+    path('club-autocomplete', views_autocomplete.ClubAutocomplete.as_view(), name='club-autocomplete',),
+    path('school-autocomplete', views_autocomplete.SchoolAutocomplete.as_view(), name='school-autocomplete',),
+    path('shell-autocomplete', views_autocomplete.ShellAutocomplete.as_view(), name='shell-autocomplete',),
 ]

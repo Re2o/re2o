@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                         unique=True,
                     ),
                 ),
-                ("interface_parent", models.ForeignKey(to="machines.Interface")),
+                ("interface_parent", models.ForeignKey(to="machines.Interface", on_delete=models.CASCADE)),
             ],
         )
     ]

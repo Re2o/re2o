@@ -70,7 +70,6 @@ class Stack(AclMixin, RevMixin, models.Model):
     member_id_max = models.PositiveIntegerField()
 
     class Meta:
-        permissions = (("view_stack", _("Can view a stack object")),)
         verbose_name = _("switches stack")
         verbose_name_plural = _("switches stacks")
 
@@ -106,7 +105,6 @@ class AccessPoint(Machine):
     )
 
     class Meta:
-        permissions = (("view_accesspoint", _("Can view an access point object")),)
         verbose_name = _("access point")
         verbose_name_plural = _("access points")
 
@@ -282,7 +280,6 @@ class Switch(Machine):
 
     class Meta:
         unique_together = ("stack", "stack_member_id")
-        permissions = (("view_switch", _("Can view a switch object")),)
         verbose_name = _("switch")
         verbose_name_plural = _("switches")
 
@@ -590,7 +587,6 @@ class ModelSwitch(AclMixin, RevMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_modelswitch", _("Can view a switch model object")),)
         verbose_name = _("switch model")
         verbose_name_plural = _("switch models")
 
@@ -623,7 +619,6 @@ class ModuleSwitch(AclMixin, RevMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_moduleswitch", _("Can view a switch module object")),)
         verbose_name = _("switch module")
         verbose_name_plural = _("switch modules")
 
@@ -647,12 +642,6 @@ class ModuleOnSwitch(AclMixin, RevMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            (
-                "view_moduleonswitch",
-                _("Can view a link between switch and module object"),
-            ),
-        )
         verbose_name = _("link between switch and module")
         verbose_name_plural = _("links between switch and module")
         unique_together = ["slot", "switch"]
@@ -673,9 +662,6 @@ class ConstructorSwitch(AclMixin, RevMixin, models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        permissions = (
-            ("view_constructorswitch", _("Can view a switch constructor object")),
-        )
         verbose_name = _("switch constructor")
         verbose_name_plural = _("switch constructors")
 
@@ -697,7 +683,6 @@ class SwitchBay(AclMixin, RevMixin, models.Model):
     info = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        permissions = (("view_switchbay", _("Can view a switch bay object")),)
         verbose_name = _("switch bay")
         verbose_name_plural = _("switch bays")
 
@@ -715,7 +700,6 @@ class Dormitory(AclMixin, RevMixin, models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        permissions = (("view_dormitory", _("Can view a dormitory object")),)
         verbose_name = _("dormitory")
         verbose_name_plural = _("dormitories")
 
@@ -764,7 +748,6 @@ class Building(AclMixin, RevMixin, models.Model):
     dormitory = models.ForeignKey("Dormitory", on_delete=models.PROTECT)
 
     class Meta:
-        permissions = (("view_building", _("Can view a building object")),)
         verbose_name = _("building")
         verbose_name_plural = _("buildings")
 
@@ -837,7 +820,7 @@ class Port(AclMixin, RevMixin, models.Model):
         "machines.Interface", on_delete=models.SET_NULL, blank=True, null=True
     )
     related = models.OneToOneField(
-        "self", null=True, blank=True, related_name="related_port"
+        "self", null=True, blank=True, related_name="related_port", on_delete=models.SET_NULL
     )
     custom_profile = models.ForeignKey(
         "PortProfile", on_delete=models.PROTECT, blank=True, null=True
@@ -851,7 +834,6 @@ class Port(AclMixin, RevMixin, models.Model):
 
     class Meta:
         unique_together = ("switch", "port")
-        permissions = (("view_port", _("Can view a port object")),)
         verbose_name = _("port")
         verbose_name_plural = _("ports")
 
@@ -971,7 +953,6 @@ class Room(AclMixin, RevMixin, models.Model):
 
     class Meta:
         ordering = ["building__name"]
-        permissions = (("view_room", _("Can view a room object")),)
         verbose_name = _("room")
         verbose_name_plural = _("rooms")
         unique_together = ("name", "building")
@@ -1121,7 +1102,6 @@ class PortProfile(AclMixin, RevMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_portprofile", _("Can view a port profile object")),)
         verbose_name = _("port profile")
         verbose_name_plural = _("port profiles")
         unique_together = ["on_dormitory", "profil_default"]

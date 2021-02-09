@@ -40,12 +40,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="cotisation",
             name="facture",
-            field=models.OneToOneField(to="cotisations.Facture"),
+            field=models.OneToOneField(to="cotisations.Facture", on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name="vente",
             name="facture",
-            field=models.ForeignKey(to="cotisations.Facture"),
+            field=models.ForeignKey(to="cotisations.Facture", on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name="vente",

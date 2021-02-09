@@ -185,7 +185,6 @@ class OptionalUser(AclMixin, PreferencesModel):
     )
 
     class Meta:
-        permissions = (("view_optionaluser", _("Can view the user preferences")),)
         verbose_name = _("user preferences")
 
     def clean(self):
@@ -241,7 +240,6 @@ class OptionalMachine(AclMixin, PreferencesModel):
         return not self.get_cached_value("ipv6_mode") == "DISABLED"
 
     class Meta:
-        permissions = (("view_optionalmachine", _("Can view the machine preferences")),)
         verbose_name = _("machine preferences")
 
 
@@ -421,9 +419,6 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         )
 
     class Meta:
-        permissions = (
-            ("view_optionaltopologie", _("Can view the topology preferences")),
-        )
         verbose_name = _("topology preferences")
 
 
@@ -453,7 +448,6 @@ class RadiusKey(AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_radiuskey", _("Can view a RADIUS key object")),)
         verbose_name = _("RADIUS key")
         verbose_name_plural = _("RADIUS keys")
 
@@ -483,12 +477,6 @@ class SwitchManagementCred(AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            (
-                "view_switchmanagementcred",
-                _("Can view a switch management credentials object"),
-            ),
-        )
         verbose_name = _("switch management credentials")
 
     def __str__(self):
@@ -518,7 +506,6 @@ class Reminder(AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_reminder", _("Can view a reminder object")),)
         verbose_name = _("reminder")
         verbose_name_plural = _("reminders")
 
@@ -582,7 +569,6 @@ class GeneralOption(AclMixin, PreferencesModel):
     GTU = models.FileField(upload_to="", default="", null=True, blank=True)
 
     class Meta:
-        permissions = (("view_generaloption", _("Can view the general preferences")),)
         verbose_name = _("general preferences")
 
 
@@ -609,7 +595,6 @@ class Service(AclMixin, models.Model):
     image = models.ImageField(upload_to="logo", blank=True)
 
     class Meta:
-        permissions = (("view_service", _("Can view the service preferences")),)
         verbose_name = _("service")
         verbose_name_plural = _("services")
 
@@ -641,9 +626,6 @@ class MailContact(AclMixin, models.Model):
         return self.address.split("@")[0]
 
     class Meta:
-        permissions = (
-            ("view_mailcontact", _("Can view a contact email address object")),
-        )
         verbose_name = _("contact email address")
         verbose_name_plural = _("contact email addresses")
 
@@ -664,7 +646,6 @@ class Mandate(RevMixin, AclMixin, models.Model):
     class Meta:
         verbose_name = _("mandate")
         verbose_name_plural = _("mandates")
-        permissions = (("view_mandate", _("Can view a mandate object")),)
 
     president = models.ForeignKey(
         "users.User",
@@ -740,7 +721,6 @@ class AssoOption(AclMixin, PreferencesModel):
     description = models.TextField(null=True, blank=True)
 
     class Meta:
-        permissions = (("view_assooption", _("Can view the organisation preferences")),)
         verbose_name = _("organisation preferences")
 
 
@@ -766,7 +746,6 @@ class HomeOption(AclMixin, PreferencesModel):
     twitter_account_name = models.CharField(max_length=32, null=True, blank=True)
 
     class Meta:
-        permissions = (("view_homeoption", _("Can view the homepage preferences")),)
         verbose_name = _("homepage preferences")
 
 
@@ -793,9 +772,6 @@ class MailMessageOption(AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            ("view_mailmessageoption", _("Can view the email message preferences")),
-        )
         verbose_name = _("email message preferences")
 
 

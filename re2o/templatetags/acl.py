@@ -382,7 +382,7 @@ class AclNode(Node):
 
     def render(self, context):
         resolved_args = [arg.resolve(context) for arg in self.args]
-        if context["user"].is_anonymous():
+        if context["user"].is_anonymous:
             can = False
         else:
             can, _, _ = self.callback(context["user"], *(resolved_args))
@@ -407,7 +407,7 @@ class AclInstanceNode(Node):
     def render(self, context):
         callback = get_callback(self.tag_name, self.instance.resolve(context))
         resolved_args = [arg.resolve(context) for arg in self.args]
-        if context["user"].is_anonymous():
+        if context["user"].is_anonymous:
             can = False
         else:
             can, _, _ = callback(context["user"], *(resolved_args))

@@ -28,12 +28,14 @@ can also be register. That way a complete API root page presenting all URLs
 can be generated automatically.
 """
 
-from django.conf.urls import url, include
+from django.urls import path, include
 from importlib import import_module
 
 from . import views
 from .routers import AllViewsRouter
 from django.conf import settings
+
+app_name = "api"
 
 router = AllViewsRouter()
 
@@ -65,4 +67,4 @@ for _url, view, name in urls_functional_view:
 # TOKEN AUTHENTICATION
 router.register_view(r"token-auth", views.ObtainExpiringAuthToken)
 
-urlpatterns = [url(r"^", include(router.urls))]
+urlpatterns = [path("", include(router.urls))]
