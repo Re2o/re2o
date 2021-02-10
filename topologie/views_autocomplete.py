@@ -31,12 +31,13 @@ Here are defined the autocomplete class based view.
 """
 from __future__ import unicode_literals
 
-from django.db.models import Q, Value, CharField
+from django.db.models import CharField, Q, Value
 from django.db.models.functions import Concat
 
-from .models import Room, Dormitory, Building, Switch, PortProfile, Port, SwitchBay
+from re2o.views import AutocompleteLoggedOutViewMixin, AutocompleteViewMixin
 
-from re2o.views import AutocompleteViewMixin, AutocompleteLoggedOutViewMixin
+from .models import (Building, Dormitory, Port, PortProfile, Room, Switch,
+                     SwitchBay)
 
 
 class RoomAutocomplete(AutocompleteLoggedOutViewMixin):
@@ -134,12 +135,8 @@ class SwitchBayAutocomplete(AutocompleteViewMixin):
     def filter_results(self):
         # See RoomAutocomplete.filter_results
         self.query_set = self.query_set.annotate(
-            full_name=Concat(
-                "building__name", Value(" "), "name"
-            ),
-            dorm_name=Concat(
-                "building__dormitory__name", Value(" "), "name"
-            ),
+            full_name=Concat("building__name", Value(" "), "name"),
+            dorm_name=Concat("building__dormitory__name", Value(" "), "name"),
             dorm_full_name=Concat(
                 "building__dormitory__name",
                 Value(" "),

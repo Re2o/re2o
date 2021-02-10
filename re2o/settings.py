@@ -36,7 +36,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 from __future__ import unicode_literals
 
 import os
+
 from .settings_default import *
+
 try:
     from .settings_local import *
 except ImportError:
@@ -60,7 +62,11 @@ LOGIN_REDIRECT_URL = "/"  # The URL for redirecting after login
 
 # Application definition
 # dal_legacy_static only needed for Django < 2.0 (https://django-autocomplete-light.readthedocs.io/en/master/install.html#django-versions-earlier-than-2-0)
-EARLY_EXTERNAL_CONTRIB_APPS = ("dal", "dal_select2", "dal_legacy_static")  # Need to be added before django.contrib.admin (https://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration)
+EARLY_EXTERNAL_CONTRIB_APPS = (
+    "dal",
+    "dal_select2",
+    "dal_legacy_static",
+)  # Need to be added before django.contrib.admin (https://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration)
 DJANGO_CONTRIB_APPS = (
     "django.contrib.admin",
     "django.contrib.auth",
@@ -82,7 +88,11 @@ LOCAL_APPS = (
     "logs",
 )
 INSTALLED_APPS = (
-    EARLY_EXTERNAL_CONTRIB_APPS + DJANGO_CONTRIB_APPS + EXTERNAL_CONTRIB_APPS + LOCAL_APPS + OPTIONNAL_APPS 
+    EARLY_EXTERNAL_CONTRIB_APPS
+    + DJANGO_CONTRIB_APPS
+    + EXTERNAL_CONTRIB_APPS
+    + LOCAL_APPS
+    + OPTIONNAL_APPS
 )
 MIDDLEWARE = (
     "django.middleware.security.SecurityMiddleware",
@@ -196,18 +206,18 @@ EMAIL_TIMEOUT = 10
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
-]   
+]
 
 # Activate API
 if "api" in INSTALLED_APPS:

@@ -29,24 +29,10 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import (
-    Extension,
-    SOA,
-    Mx,
-    Ns,
-    Vlan,
-    Txt,
-    DName,
-    Srv,
-    SshFp,
-    Nas,
-    Service,
-    Role,
-    OuverturePort,
-    Ipv6List,
-    OuverturePortList,
-)
-from .models import IpType, Machine, MachineType, Domain, IpList, Interface
+from .models import (SOA, DName, Domain, Extension, Interface, IpList, IpType,
+                     Ipv6List, Machine, MachineType, Mx, Nas, Ns,
+                     OuverturePort, OuverturePortList, Role, Service, Srv,
+                     SshFp, Txt, Vlan)
 
 
 class MachineAdmin(VersionAdmin):

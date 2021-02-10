@@ -32,12 +32,12 @@ import binascii
 import crypt
 import hashlib
 import os
-from base64 import encodestring, decodestring, b64encode, b64decode
+from base64 import b64decode, b64encode, decodestring, encodestring
 from collections import OrderedDict
-from django.contrib.auth import hashers
-from django.contrib.auth.backends import ModelBackend
 from hmac import compare_digest as constant_time_compare
 
+from django.contrib.auth import hashers
+from django.contrib.auth.backends import ModelBackend
 
 ALGO_NAME = "{SSHA}"
 ALGO_LEN = len(ALGO_NAME + "$")
@@ -45,7 +45,7 @@ DIGEST_LEN = 20
 
 
 def makeSecret(password):
-    """ Build a hashed and salted version of the password with SSHA
+    """Build a hashed and salted version of the password with SSHA
 
     Parameters:
     password (string): Password to hash
@@ -60,7 +60,7 @@ def makeSecret(password):
 
 
 def hashNT(password):
-    """ Build a md4 hash of the password to use as the NT-password 
+    """Build a md4 hash of the password to use as the NT-password
 
     Parameters:
     password (string): Password to hash
@@ -78,7 +78,7 @@ def checkPassword(challenge_password, password):
 
     Parameters:
         challenge_password (string): Password to verify with hash
-        password (string): Hashed password to verify 
+        password (string): Hashed password to verify
 
     Returns:
         boolean: True if challenge_password and password match
@@ -93,7 +93,7 @@ def checkPassword(challenge_password, password):
 
 
 def hash_password_salt(hashed_password):
-    """ Extract the salt from a given hashed password 
+    """Extract the salt from a given hashed password
 
     Parameters:
         hashed_password (string): Hashed password to extract salt
@@ -277,15 +277,17 @@ class SSHAPasswordHasher(hashers.BasePasswordHasher):
 class RecryptBackend(ModelBackend):
     """Function for legacy users. During auth, if their hash password is different from SSHA or ntlm
     password is empty, rehash in SSHA or NTLM
-    
+
     Returns:
         model user instance: Instance of the user logged
-        
+
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         # we obtain from the classical auth backend the user
-        user = super(RecryptBackend, self).authenticate(request, username, password, **kwargs)
+        user = super(RecryptBackend, self).authenticate(
+            request, username, password, **kwargs
+        )
         if user:
             if not (user.pwd_ntlm):
                 # if we dont have NT hash, we create it

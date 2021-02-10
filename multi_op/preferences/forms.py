@@ -27,8 +27,9 @@ each.
 
 
 from django import forms
-from django.forms import ModelForm, Form
+from django.forms import Form, ModelForm
 from django.utils.translation import ugettext_lazy as _
+
 from re2o.widgets import AutocompleteMultipleModelWidget
 
 from .models import MultiopOption

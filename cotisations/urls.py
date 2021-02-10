@@ -27,23 +27,18 @@ from __future__ import unicode_literals
 
 from django.urls import path
 
-from . import views, views_autocomplete
-from . import payment_methods
+from . import payment_methods, views, views_autocomplete
 
-app_name ="cotisations"
+app_name = "cotisations"
 
 urlpatterns = [
     path("new_facture/<int:userid>", views.new_facture, name="new-facture"),
-    path(
-        "edit_facture/<int:factureid>", views.edit_facture, name="edit-facture"
-    ),
+    path("edit_facture/<int:factureid>", views.edit_facture, name="edit-facture"),
     path("del_facture/<int:factureid>", views.del_facture, name="del-facture"),
     path("facture_pdf/<int:factureid>", views.facture_pdf, name="facture-pdf"),
     path("voucher_pdf/<int:factureid>", views.voucher_pdf, name="voucher-pdf"),
     path("new_cost_estimate", views.new_cost_estimate, name="new-cost-estimate"),
-    path(
-        "index_cost_estimate", views.index_cost_estimate, name="index-cost-estimate"
-    ),
+    path("index_cost_estimate", views.index_cost_estimate, name="index-cost-estimate"),
     path(
         "cost_estimate_pdf/<int:costestimateid>",
         views.cost_estimate_pdf,
@@ -87,9 +82,7 @@ urlpatterns = [
     ),
     path("credit_solde/<int:userid>", views.credit_solde, name="credit-solde"),
     path("add_article", views.add_article, name="add-article"),
-    path(
-        "edit_article/<int:articleid>", views.edit_article, name="edit-article"
-    ),
+    path("edit_article/<int:articleid>", views.edit_article, name="edit-article"),
     path("del_article", views.del_article, name="del-article"),
     path("add_paiement", views.add_paiement, name="add-paiement"),
     path(
@@ -107,5 +100,9 @@ urlpatterns = [
     path("control", views.control, name="control"),
     path("", views.index, name="index"),
     ### Autocomplete Views
-    path('banque-autocomplete', views_autocomplete.BanqueAutocomplete.as_view(), name='banque-autocomplete',),
+    path(
+        "banque-autocomplete",
+        views_autocomplete.BanqueAutocomplete.as_view(),
+        name="banque-autocomplete",
+    ),
 ] + payment_methods.urls.urlpatterns

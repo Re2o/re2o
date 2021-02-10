@@ -29,19 +29,9 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import (
-    Port,
-    Room,
-    Switch,
-    Stack,
-    ModelSwitch,
-    ConstructorSwitch,
-    AccessPoint,
-    SwitchBay,
-    Building,
-    Dormitory,
-    PortProfile,
-)
+from .models import (AccessPoint, Building, ConstructorSwitch, Dormitory,
+                     ModelSwitch, Port, PortProfile, Room, Stack, Switch,
+                     SwitchBay)
 
 
 class StackAdmin(VersionAdmin):

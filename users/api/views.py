@@ -19,29 +19,28 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from rest_framework import viewsets, generics, views
-from django.db.models import Q
 from django.contrib.auth.models import Group
+from django.db.models import Q
+from rest_framework import generics, views, viewsets
 
-from . import serializers
+import preferences.models as preferences
+import users.models as users
 from api.pagination import PageSizedPagination
 from api.permissions import ACLPermission
 from re2o.utils import all_has_access
-import users.models as users
-import preferences.models as preferences
+
+from . import serializers
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.Users` objects.
-    """
+    """Exposes list and details of `users.models.Users` objects."""
 
     queryset = users.User.objects.all()
     serializer_class = serializers.UserSerializer
 
 
 class HomeCreationViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes infos of `users.models.Users` objects to create homes.
-    """
+    """Exposes infos of `users.models.Users` objects to create homes."""
 
     queryset = users.User.objects.exclude(
         Q(state=users.User.STATE_DISABLED)
@@ -66,72 +65,63 @@ class CriticalUserViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ClubViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.Club` objects.
-    """
+    """Exposes list and details of `users.models.Club` objects."""
 
     queryset = users.Club.objects.all()
     serializer_class = serializers.ClubSerializer
 
 
 class AdherentViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.Adherent` objects.
-    """
+    """Exposes list and details of `users.models.Adherent` objects."""
 
     queryset = users.Adherent.objects.all()
     serializer_class = serializers.AdherentSerializer
 
 
 class ServiceUserViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.ServiceUser` objects.
-    """
+    """Exposes list and details of `users.models.ServiceUser` objects."""
 
     queryset = users.ServiceUser.objects.all()
     serializer_class = serializers.ServiceUserSerializer
 
 
 class SchoolViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.School` objects.
-    """
+    """Exposes list and details of `users.models.School` objects."""
 
     queryset = users.School.objects.all()
     serializer_class = serializers.SchoolSerializer
 
 
 class ListRightViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.ListRight` objects.
-    """
+    """Exposes list and details of `users.models.ListRight` objects."""
 
     queryset = users.ListRight.objects.all()
     serializer_class = serializers.ListRightSerializer
 
 
 class ShellViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.ListShell` objects.
-    """
+    """Exposes list and details of `users.models.ListShell` objects."""
 
     queryset = users.ListShell.objects.all()
     serializer_class = serializers.ShellSerializer
 
 
 class BanViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.Ban` objects.
-    """
+    """Exposes list and details of `users.models.Ban` objects."""
 
     queryset = users.Ban.objects.all()
     serializer_class = serializers.BanSerializer
 
 
 class WhitelistViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.Whitelist` objects.
-    """
+    """Exposes list and details of `users.models.Whitelist` objects."""
 
     queryset = users.Whitelist.objects.all()
     serializer_class = serializers.WhitelistSerializer
 
 
 class EMailAddressViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `users.models.EMailAddress` objects.
-    """
+    """Exposes list and details of `users.models.EMailAddress` objects."""
 
     serializer_class = serializers.EMailAddressSerializer
     queryset = users.EMailAddress.objects.none()
@@ -144,8 +134,7 @@ class EMailAddressViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class LocalEmailUsersView(generics.ListAPIView):
-    """Exposes all the aliases of the users that activated the internal address
-    """
+    """Exposes all the aliases of the users that activated the internal address"""
 
     serializer_class = serializers.LocalEmailUsersSerializer
 
@@ -169,7 +158,7 @@ class StandardMailingView(views.APIView):
         adherents_data = serializers.MailingMemberSerializer(
             all_has_access(), many=True
         ).data
-        
+
         data = [{"name": "adherents", "members": adherents_data}]
         groups = Group.objects.all()
         for group in groups:

@@ -37,25 +37,18 @@ of each of the method.
 from __future__ import unicode_literals
 
 from django import forms
-from django.db.models import Q
-from django.forms import ModelForm, Form
 from django.core.validators import MinValueValidator
-
-from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
+from django.forms import Form, ModelForm
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 from re2o.widgets import AutocompleteModelWidget
-from .models import (
-    Article,
-    Paiement,
-    Facture,
-    Banque,
-    CustomInvoice,
-    Vente,
-    CostEstimate,
-)
+
+from .models import (Article, Banque, CostEstimate, CustomInvoice, Facture,
+                     Paiement, Vente)
 from .payment_methods import balance
 
 

@@ -28,22 +28,22 @@ Module defining a AESEncryptedField object that can be used in forms
 to handle the use of properly encrypting and decrypting AES keys
 """
 
-import string
 import binascii
+import string
 from random import choice
-from Crypto.Cipher import AES
 
-from django.db import models
+from Crypto.Cipher import AES
 from django import forms
 from django.conf import settings
+from django.db import models
 
 EOD_asbyte = b"`%EofD%`"  # This should be something that will not occur in strings
 EOD = EOD_asbyte.decode("utf-8")
 
 
 def genstring(length=16, chars=string.printable):
-    """ Generate a random string of length `length` and composed of
-    the characters in `chars` """
+    """Generate a random string of length `length` and composed of
+    the characters in `chars`"""
     return "".join([choice(chars) for i in range(length)])
 
 
@@ -71,8 +71,8 @@ class AESEncryptedFormField(forms.CharField):
 
 
 class AESEncryptedField(models.CharField):
-    """ A Field that can be used in forms for adding the support
-    of AES ecnrypted fields """
+    """A Field that can be used in forms for adding the support
+    of AES ecnrypted fields"""
 
     def save_form_data(self, instance, data):
         setattr(

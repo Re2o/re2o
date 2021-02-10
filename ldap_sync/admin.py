@@ -1,11 +1,8 @@
 from django.contrib import admin
 
-from .models import (
-    LdapUser,
-    LdapServiceUser,
-    LdapServiceUserGroup,
-    LdapUserGroup,
-)
+from .models import (LdapServiceUser, LdapServiceUserGroup, LdapUser,
+                     LdapUserGroup)
+
 
 class LdapUserAdmin(admin.ModelAdmin):
     """LdapUser Admin view. Can't change password, manage
@@ -15,6 +12,7 @@ class LdapUserAdmin(admin.ModelAdmin):
         Django ModelAdmin: Apply on django ModelAdmin
 
     """
+
     list_display = ("name", "uidNumber", "login_shell")
     exclude = ("user_password", "sambat_nt_password")
     search_fields = ("name",)

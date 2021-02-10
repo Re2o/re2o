@@ -26,20 +26,19 @@ Used to generated PDF invoice.
 """
 
 
-import tempfile
-from subprocess import Popen, PIPE
 import os
+import tempfile
 from datetime import datetime
+from subprocess import PIPE, Popen
 
-from django.db import models
-from django.template.loader import get_template
-from django.http import HttpResponse
 from django.conf import settings
+from django.db import models
+from django.http import HttpResponse
+from django.template.loader import get_template
 from django.utils.text import slugify
 
-from re2o.mixins import AclMixin, RevMixin
 from preferences.models import CotisationsOption
-
+from re2o.mixins import AclMixin, RevMixin
 
 TEMP_PREFIX = getattr(settings, "TEX_TEMP_PREFIX", "render_tex-")
 CACHE_PREFIX = getattr(settings, "TEX_CACHE_PREFIX", "render-tex")

@@ -26,34 +26,28 @@ Welcom main page view, and several template widely used in re2o views
 
 from __future__ import unicode_literals
 
-import git
+from importlib import import_module
 
+import git
+from dal import autocomplete
+from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.template.context_processors import csrf
-from django.conf import settings
-from django.utils.translation import ugettext as _
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
-from dal import autocomplete
+from django.utils.translation import ugettext as _
 
-from preferences.models import (
-    Service,
-    MailContact,
-    AssoOption,
-    HomeOption,
-    GeneralOption,
-    Mandate,
-)
+from preferences.models import (AssoOption, GeneralOption, HomeOption,
+                                MailContact, Mandate, Service)
+from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 from .contributors import CONTRIBUTORS
-from importlib import import_module
-from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def form(ctx, template, request):
     """Global template function, used in all re2o views, for building a render with context,
     template and request. Adding csrf.
- 
+
     Parameters:
         ctx (dict): Dict of values to transfer to template
         template (django template): The django template of this view
@@ -70,8 +64,8 @@ def form(ctx, template, request):
 def index(request):
     """Display all services provided on main page
 
-        Returns: a form with all services linked and description, and social media
-        link if provided.
+    Returns: a form with all services linked and description, and social media
+    link if provided.
 
     """
     services = [[], [], []]
@@ -95,9 +89,9 @@ def index(request):
 
 
 def about_page(request):
-    """ The view for the about page.
+    """The view for the about page.
     Fetch some info about the configuration of the project. If it can't
-    get the info from the Git repository, fallback to default string """
+    get the info from the Git repository, fallback to default string"""
     option = AssoOption.objects.get()
     general = GeneralOption.objects.get()
     git_info_contributors = CONTRIBUTORS
@@ -197,4 +191,3 @@ class AutocompleteLoggedOutViewMixin(autocomplete.Select2QuerySetView):
 
 class AutocompleteViewMixin(LoginRequiredMixin, AutocompleteLoggedOutViewMixin):
     pass
-

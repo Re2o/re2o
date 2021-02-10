@@ -22,11 +22,12 @@
 from rest_framework import serializers
 
 import users.models as users
-from api.serializers import NamespacedHRField, NamespacedHIField, NamespacedHMSerializer
+from api.serializers import (NamespacedHIField, NamespacedHMSerializer,
+                             NamespacedHRField)
+
 
 class UserSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.User` objects.
-    """
+    """Serialize `users.models.User` objects."""
 
     access = serializers.BooleanField(source="has_access")
     uid = serializers.IntegerField(source="uid_number")
@@ -56,8 +57,7 @@ class UserSerializer(NamespacedHMSerializer):
 
 
 class ClubSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.Club` objects.
-    """
+    """Serialize `users.models.Club` objects."""
 
     name = serializers.CharField(source="surname")
     access = serializers.BooleanField(source="has_access")
@@ -91,8 +91,7 @@ class ClubSerializer(NamespacedHMSerializer):
 
 
 class AdherentSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.Adherent` objects.
-    """
+    """Serialize `users.models.Adherent` objects."""
 
     access = serializers.BooleanField(source="has_access")
     uid = serializers.IntegerField(source="uid_number")
@@ -135,8 +134,7 @@ class BasicUserSerializer(NamespacedHMSerializer):
 
 
 class ServiceUserSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.ServiceUser` objects.
-    """
+    """Serialize `users.models.ServiceUser` objects."""
 
     class Meta:
         model = users.ServiceUser
@@ -144,8 +142,7 @@ class ServiceUserSerializer(NamespacedHMSerializer):
 
 
 class SchoolSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.School` objects.
-    """
+    """Serialize `users.models.School` objects."""
 
     class Meta:
         model = users.School
@@ -153,8 +150,7 @@ class SchoolSerializer(NamespacedHMSerializer):
 
 
 class ListRightSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.ListRight` objects.
-    """
+    """Serialize `users.models.ListRight` objects."""
 
     class Meta:
         model = users.ListRight
@@ -162,8 +158,7 @@ class ListRightSerializer(NamespacedHMSerializer):
 
 
 class ShellSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.ListShell` objects.
-    """
+    """Serialize `users.models.ListShell` objects."""
 
     class Meta:
         model = users.ListShell
@@ -172,8 +167,7 @@ class ShellSerializer(NamespacedHMSerializer):
 
 
 class BanSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.Ban` objects.
-    """
+    """Serialize `users.models.Ban` objects."""
 
     active = serializers.BooleanField(source="is_active")
 
@@ -191,8 +185,7 @@ class BanSerializer(NamespacedHMSerializer):
 
 
 class WhitelistSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.Whitelist` objects.
-    """
+    """Serialize `users.models.Whitelist` objects."""
 
     active = serializers.BooleanField(source="is_active")
 
@@ -202,15 +195,14 @@ class WhitelistSerializer(NamespacedHMSerializer):
 
 
 class EMailAddressSerializer(NamespacedHMSerializer):
-    """Serialize `users.models.EMailAddress` objects.
-    """
+    """Serialize `users.models.EMailAddress` objects."""
 
     user = serializers.CharField(source="user.pseudo", read_only=True)
 
     class Meta:
         model = users.EMailAddress
         fields = ("user", "local_part", "complete_email_address", "api_url")
-    
+
 
 class LocalEmailUsersSerializer(NamespacedHMSerializer):
     email_address = EMailAddressSerializer(read_only=True, many=True)
@@ -226,16 +218,14 @@ class LocalEmailUsersSerializer(NamespacedHMSerializer):
 
 
 class MailingMemberSerializer(UserSerializer):
-    """Serialize the data about a mailing member.
-    """
+    """Serialize the data about a mailing member."""
 
     class Meta(UserSerializer.Meta):
         fields = ("name", "pseudo", "get_mail")
 
 
 class MailingSerializer(ClubSerializer):
-    """Serialize the data about a mailing.
-    """
+    """Serialize the data about a mailing."""
 
     members = MailingMemberSerializer(many=True)
     admins = MailingMemberSerializer(source="administrators", many=True)

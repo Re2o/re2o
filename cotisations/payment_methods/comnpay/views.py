@@ -25,16 +25,17 @@ Here are the views needed by comnpay
 
 from collections import OrderedDict
 
-from django.urls import reverse
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 
 from cotisations.models import Facture
+
 from .comnpay import Transaction
 from .models import ComnpayPayment
 
@@ -55,7 +56,10 @@ def accept_payment(request, factureid):
         )
         # In case a cotisation was bought, inform the user, the
         # cotisation time has been extended too
-        if any(purchase.test_membership_or_connection() for purchase in invoice.vente_set.all()):
+        if any(
+            purchase.test_membership_or_connection()
+            for purchase in invoice.vente_set.all()
+        ):
             messages.success(
                 request,
                 _(

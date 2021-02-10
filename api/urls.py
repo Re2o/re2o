@@ -28,12 +28,13 @@ can also be register. That way a complete API root page presenting all URLs
 can be generated automatically.
 """
 
-from django.urls import path, include
 from importlib import import_module
+
+from django.conf import settings
+from django.urls import include, path
 
 from . import views
 from .routers import AllViewsRouter
-from django.conf import settings
 
 app_name = "api"
 

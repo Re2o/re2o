@@ -30,8 +30,7 @@ from __future__ import unicode_literals
 
 from django.urls import path, re_path
 
-from . import views
-from . import views_autocomplete
+from . import views, views_autocomplete
 
 app_name = "users"
 
@@ -47,15 +46,17 @@ urlpatterns = [
     path("state/<int:userid>", views.state, name="state"),
     path("groups/<int:userid>", views.groups, name="groups"),
     path("password/<int:userid>", views.password, name="password"),
-    path("confirm_email/<int:userid>", views.resend_confirmation_email, name="resend-confirmation-email"),
+    path(
+        "confirm_email/<int:userid>",
+        views.resend_confirmation_email,
+        name="resend-confirmation-email",
+    ),
     path(
         "del_group/<int:userid>/<int:listrightid>",
         views.del_group,
         name="del-group",
     ),
-    path(
-        "del_superuser/<int:userid>", views.del_superuser, name="del-superuser"
-    ),
+    path("del_superuser/<int:userid>", views.del_superuser, name="del-superuser"),
     path("new_serviceuser", views.new_serviceuser, name="new-serviceuser"),
     path(
         "edit_serviceuser/<int:serviceuserid>",
@@ -70,9 +71,7 @@ urlpatterns = [
     path("add_ban/<int:userid>", views.add_ban, name="add-ban"),
     path("edit_ban/<int:banid>", views.edit_ban, name="edit-ban"),
     path("del-ban/<int:banid>", views.del_ban, name="del-ban"),
-    path(
-        "add_whitelist/<int:userid>", views.add_whitelist, name="add-whitelist"
-    ),
+    path("add_whitelist/<int:userid>", views.add_whitelist, name="add-whitelist"),
     path(
         "edit_whitelist/<int:whitelistid>",
         views.edit_whitelist,
@@ -132,9 +131,29 @@ urlpatterns = [
     path("initial_register", views.initial_register, name="initial-register"),
     path("edit_theme/<int:userid>", views.edit_theme, name="edit-theme"),
     ### Autocomplete Views
-    path('user-autocomplete', views_autocomplete.UserAutocomplete.as_view(), name='user-autocomplete',),
-    path('adherent-autocomplete', views_autocomplete.AdherentAutocomplete.as_view(), name='adherent-autocomplete',),
-    path('club-autocomplete', views_autocomplete.ClubAutocomplete.as_view(), name='club-autocomplete',),
-    path('school-autocomplete', views_autocomplete.SchoolAutocomplete.as_view(), name='school-autocomplete',),
-    path('shell-autocomplete', views_autocomplete.ShellAutocomplete.as_view(), name='shell-autocomplete',),
+    path(
+        "user-autocomplete",
+        views_autocomplete.UserAutocomplete.as_view(),
+        name="user-autocomplete",
+    ),
+    path(
+        "adherent-autocomplete",
+        views_autocomplete.AdherentAutocomplete.as_view(),
+        name="adherent-autocomplete",
+    ),
+    path(
+        "club-autocomplete",
+        views_autocomplete.ClubAutocomplete.as_view(),
+        name="club-autocomplete",
+    ),
+    path(
+        "school-autocomplete",
+        views_autocomplete.SchoolAutocomplete.as_view(),
+        name="school-autocomplete",
+    ),
+    path(
+        "shell-autocomplete",
+        views_autocomplete.ShellAutocomplete.as_view(),
+        name="shell-autocomplete",
+    ),
 ]

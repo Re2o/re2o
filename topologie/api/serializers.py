@@ -21,15 +21,15 @@
 
 from rest_framework import serializers
 
-import topologie.models as topologie
 import machines.models as machines
-from machines.api.serializers import VlanSerializer, Ipv6ListSerializer
-from api.serializers import NamespacedHRField, NamespacedHIField, NamespacedHMSerializer
+import topologie.models as topologie
+from api.serializers import (NamespacedHIField, NamespacedHMSerializer,
+                             NamespacedHRField)
+from machines.api.serializers import Ipv6ListSerializer, VlanSerializer
 
 
 class StackSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.Stack` objects
-    """
+    """Serialize `topologie.models.Stack` objects"""
 
     class Meta:
         model = topologie.Stack
@@ -44,8 +44,7 @@ class StackSerializer(NamespacedHMSerializer):
 
 
 class AccessPointSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.AccessPoint` objects
-    """
+    """Serialize `topologie.models.AccessPoint` objects"""
 
     class Meta:
         model = topologie.AccessPoint
@@ -53,8 +52,7 @@ class AccessPointSerializer(NamespacedHMSerializer):
 
 
 class SwitchSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.Switch` objects
-    """
+    """Serialize `topologie.models.Switch` objects"""
 
     port_amount = serializers.IntegerField(source="number")
 
@@ -74,8 +72,7 @@ class SwitchSerializer(NamespacedHMSerializer):
 
 
 class ServerSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.Server` objects
-    """
+    """Serialize `topologie.models.Server` objects"""
 
     class Meta:
         model = topologie.Server
@@ -83,8 +80,7 @@ class ServerSerializer(NamespacedHMSerializer):
 
 
 class ModelSwitchSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.ModelSwitch` objects
-    """
+    """Serialize `topologie.models.ModelSwitch` objects"""
 
     class Meta:
         model = topologie.ModelSwitch
@@ -92,8 +88,7 @@ class ModelSwitchSerializer(NamespacedHMSerializer):
 
 
 class ConstructorSwitchSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.ConstructorSwitch` objects
-    """
+    """Serialize `topologie.models.ConstructorSwitch` objects"""
 
     class Meta:
         model = topologie.ConstructorSwitch
@@ -101,8 +96,7 @@ class ConstructorSwitchSerializer(NamespacedHMSerializer):
 
 
 class SwitchBaySerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.SwitchBay` objects
-    """
+    """Serialize `topologie.models.SwitchBay` objects"""
 
     class Meta:
         model = topologie.SwitchBay
@@ -110,23 +104,23 @@ class SwitchBaySerializer(NamespacedHMSerializer):
 
 
 class BuildingSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.Building` objects
-    """
+    """Serialize `topologie.models.Building` objects"""
 
     class Meta:
         model = topologie.Building
         fields = ("name", "dormitory", "api_url")
 
+
 class DormitorySerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.Dormitory` objects
-    """
+    """Serialize `topologie.models.Dormitory` objects"""
+
     class Meta:
         model = topologie.Dormitory
         fields = ("name", "api_url")
 
+
 class PortProfileSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.Room` objects
-    """
+    """Serialize `topologie.models.Room` objects"""
 
     class Meta:
         model = topologie.PortProfile
@@ -151,8 +145,7 @@ class PortProfileSerializer(NamespacedHMSerializer):
 
 
 class RoomSerializer(NamespacedHMSerializer):
-    """Serialize `topologie.models.Room` objects
-    """
+    """Serialize `topologie.models.Room` objects"""
 
     class Meta:
         model = topologie.Room
@@ -208,8 +201,7 @@ class InterfaceRoleSerializer(NamespacedHMSerializer):
 
 
 class RoleSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.OuverturePort` objects.
-    """
+    """Serialize `machines.models.OuverturePort` objects."""
 
     servers = InterfaceRoleSerializer(read_only=True, many=True)
 
@@ -265,8 +257,7 @@ class SwitchBaySerializer(NamespacedHMSerializer):
 
 
 class PortsSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Ipv6List` objects.
-    """
+    """Serialize `machines.models.Ipv6List` objects."""
 
     get_port_profile = ProfilSerializer(read_only=True)
 
@@ -301,5 +292,3 @@ class SwitchPortSerializer(serializers.ModelSerializer):
             "get_radius_servers",
             "list_modules",
         )
-
-

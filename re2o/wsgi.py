@@ -32,11 +32,10 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 from __future__ import unicode_literals
 
 import os
-from os.path import dirname
 import sys
+from os.path import dirname
 
 from django.core.wsgi import get_wsgi_application
-
 
 sys.path.append(dirname(dirname(__file__)))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "re2o.settings")

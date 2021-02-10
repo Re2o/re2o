@@ -25,11 +25,13 @@
 All functions linked with emails here. Non model or app dependant
 """
 
-from django.utils.translation import ugettext_lazy as _
-from django.core.mail import send_mail as django_send_mail
-from django.contrib import messages
 from smtplib import SMTPException
-from socket import herror, gaierror
+from socket import gaierror, herror
+
+from django.contrib import messages
+from django.core.mail import send_mail as django_send_mail
+from django.utils.translation import ugettext_lazy as _
+
 
 def send_mail(request, *args, **kwargs):
     """Wrapper for Django's send_mail which handles errors"""
@@ -39,7 +41,8 @@ def send_mail(request, *args, **kwargs):
     except (SMTPException, ConnectionError, herror, gaierror) as e:
         messages.error(
             request,
-            _("Failed to send email: %(error)s.") % {
+            _("Failed to send email: %(error)s.")
+            % {
                 "error": e,
             },
         )
@@ -53,7 +56,8 @@ def send_mail_object(mail, request):
         if request:
             messages.error(
                 request,
-                _("Failed to send email: %(error)s.") % {
+                _("Failed to send email: %(error)s.")
+                % {
                     "error": e,
                 },
             )

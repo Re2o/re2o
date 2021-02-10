@@ -24,21 +24,22 @@
 from __future__ import unicode_literals
 
 import datetime
+from importlib import import_module
 
 from django.contrib import messages
 from django.contrib.messages import get_messages
 from django.http import HttpRequest
-from preferences.models import GeneralOption, OptionalMachine
 from django.utils.translation import get_language
-from importlib import import_module
+
+from preferences.models import GeneralOption, OptionalMachine
 from re2o.settings_local import OPTIONNAL_APPS_RE2O
 
 
 def context_user(request):
     """Global Context function
 
-        Returns:
-        dict:Containing user's interfaces and himself if logged, else None
+    Returns:
+    dict:Containing user's interfaces and himself if logged, else None
 
     """
     user = request.user
@@ -51,7 +52,9 @@ def context_user(request):
             if global_message not in [msg.message for msg in get_messages(request)]:
                 messages.warning(request, global_message)
         else:
-            if global_message not in [msg.message for msg in get_messages(request._request)]:
+            if global_message not in [
+                msg.message for msg in get_messages(request._request)
+            ]:
                 messages.warning(request._request, global_message)
     if user.is_authenticated:
         interfaces = user.user_interfaces()
@@ -70,9 +73,9 @@ def context_user(request):
 def context_optionnal_apps(request):
     """Context functions. Called to add optionnal apps buttons in navbari
 
-        Returns:
-        dict:Containing optionnal template list of functions for navbar found
-        in optional apps
+    Returns:
+    dict:Containing optionnal template list of functions for navbar found
+    in optional apps
 
     """
     optionnal_apps = [import_module(app) for app in OPTIONNAL_APPS_RE2O]

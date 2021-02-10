@@ -26,11 +26,10 @@ Global independant usefull functions
 
 import smtplib
 
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils.translation import ugettext_lazy as _
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from re2o.settings import EMAIL_HOST
-
 
 # Mapping of srtftime format for better understanding
 # https://docs.python.org/3.6/library/datetime.html#strftime-strptime-behavior
@@ -64,7 +63,7 @@ datetime_mapping = {
 
 def smtp_check(local_part):
     """Return True if the local_part is already taken
-       False if available"""
+    False if available"""
     try:
         srv = smtplib.SMTP(EMAIL_HOST)
         srv.putcmd("vrfy", local_part)
@@ -108,9 +107,9 @@ def get_input_formats_help_text(input_formats):
 
 
 class SortTable:
-    """ Class gathering uselful stuff to sort the colums of a table, according
+    """Class gathering uselful stuff to sort the colums of a table, according
     to the column and order requested. It's used with a dict of possible
-    values and associated model_fields """
+    values and associated model_fields"""
 
     # All the possible possible values
     # The naming convention is based on the URL or the views function
@@ -228,8 +227,8 @@ class SortTable:
 
     @staticmethod
     def sort(request, col, order, values):
-        """ Check if the given values are possible and add .order_by() and
-        a .reverse() as specified according to those values """
+        """Check if the given values are possible and add .order_by() and
+        a .reverse() as specified according to those values"""
         fields = values.get(col, None)
         if not fields:
             fields = values.get("default", [])

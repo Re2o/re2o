@@ -79,9 +79,7 @@ urlpatterns = [
         name="edit-options",
     ),
     path("add_service", views.add_service, name="add-service"),
-    path(
-        "edit_service/<int:serviceid>", views.edit_service, name="edit-service"
-    ),
+    path("edit_service/<int:serviceid>", views.edit_service, name="edit-service"),
     path("del_service/<int:serviceid>", views.del_service, name="del-service"),
     path("add_mailcontact", views.add_mailcontact, name="add-mailcontact"),
     path(
@@ -143,13 +141,9 @@ urlpatterns = [
         name="del-document-template",
     ),
     path("add_mandate", views.add_mandate, name="add-mandate"),
-    path(
-        "edit_mandate/<int:mandateid>", views.edit_mandate, name="edit-mandate"
-    ),
+    path("edit_mandate/<int:mandateid>", views.edit_mandate, name="edit-mandate"),
     path("del_mandate/<int:mandateid>", views.del_mandate, name="del-mandate"),
-    path(
-        "add_radiusattribute", views.add_radiusattribute, name="add-radiusattribute"
-    ),
+    path("add_radiusattribute", views.add_radiusattribute, name="add-radiusattribute"),
     path(
         "edit_radiusattribute/<int:radiusattributeid>",
         views.edit_radiusattribute,

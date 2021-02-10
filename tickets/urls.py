@@ -33,7 +33,11 @@ app_name = "tickets"
 urlpatterns = [
     path("", views.aff_tickets, name="aff-tickets"),
     path("<int:ticketid>", views.aff_ticket, name="aff-ticket"),
-    path("change_ticket_status/<int:ticketid>", views.change_ticket_status, name="change-ticket-status"),
+    path(
+        "change_ticket_status/<int:ticketid>",
+        views.change_ticket_status,
+        name="change-ticket-status",
+    ),
     path("edit_ticket/<int:ticketid>", views.edit_ticket, name="edit-ticket"),
     re_path(
         r"^edit_options/(?P<section>TicketOption)$",

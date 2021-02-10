@@ -34,14 +34,13 @@ urls_viewset = [
     (r"users/shell", views.ShellViewSet, "shell"),
     (r"users/ban", views.BanViewSet, None),
     (r"users/whitelist", views.WhitelistViewSet, None),
-    (r"users/emailaddress", views.EMailAddressViewSet, None)
+    (r"users/emailaddress", views.EMailAddressViewSet, None),
 ]
 
 urls_view = [
     (r"users/localemail", views.LocalEmailUsersView),
     (r"users/mailing-standard", views.StandardMailingView),
     (r"users/mailing-club", views.ClubMailingView),
-
     # Deprecated
     (r"localemail/users", views.LocalEmailUsersView),
     (r"mailing/standard", views.StandardMailingView),

@@ -5,8 +5,8 @@
 
 """ Module pour dialoguer avec la NoteKfet2015 """
 
-import socket
 import json
+import socket
 import ssl
 import traceback
 

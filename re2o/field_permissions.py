@@ -40,8 +40,8 @@ class FieldPermissionModelMixin:
     FIELD_PERMISSION_MISSING_DEFAULT = True
 
     def has_field_perm(self, user, field):
-        """ Checks if a `user` has the right to edit the `field`
-        of this model """
+        """Checks if a `user` has the right to edit the `field`
+        of this model"""
         if field in self.field_permissions:
             checks = self.field_permissions[field]
             if not isinstance(checks, (list, tuple)):

@@ -18,11 +18,12 @@
 import subprocess
 from base64 import decodebytes
 
-from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
-from users.models import User, ListRight
-from ldap_sync.models import synchronise_user, synchronise_serviceuser, synchronise_usergroup
+from ldap_sync.models import (synchronise_serviceuser, synchronise_user,
+                              synchronise_usergroup)
+from users.models import ListRight, User
 
 
 def split_lines(lines):

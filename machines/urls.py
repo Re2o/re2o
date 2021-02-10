@@ -28,8 +28,7 @@ from __future__ import unicode_literals
 
 from django.urls import path
 
-from . import views
-from . import views_autocomplete
+from . import views, views_autocomplete
 
 app_name = "machines"
 
@@ -96,9 +95,7 @@ urlpatterns = [
     path("add_alias/<int:interfaceid>", views.add_alias, name="add-alias"),
     path("edit_alias/<int:domainid>", views.edit_alias, name="edit-alias"),
     path("del_alias/<int:interfaceid>", views.del_alias, name="del-alias"),
-    path(
-        "index_alias/<int:interfaceid>", views.index_alias, name="index-alias"
-    ),
+    path("index_alias/<int:interfaceid>", views.index_alias, name="index-alias"),
     path(
         "new_ipv6list/<int:interfaceid>",
         views.new_ipv6list,
@@ -116,9 +113,7 @@ urlpatterns = [
     ),
     path("index_ipv6/<int:interfaceid>", views.index_ipv6, name="index-ipv6"),
     path("add_service", views.add_service, name="add-service"),
-    path(
-        "edit_service/<int:serviceid>", views.edit_service, name="edit-service"
-    ),
+    path("edit_service/<int:serviceid>", views.edit_service, name="edit-service"),
     path("del_service", views.del_service, name="del-service"),
     path(
         "regen_service/<int:serviceid>",
@@ -157,13 +152,49 @@ urlpatterns = [
         name="port-config",
     ),
     ### Autocomplete Views
-    path('vlan-autocomplete', views_autocomplete.VlanAutocomplete.as_view(), name='vlan-autocomplete',),
-    path('interface-autocomplete', views_autocomplete.InterfaceAutocomplete.as_view(), name='interface-autocomplete',),
-    path('machine-autocomplete', views_autocomplete.MachineAutocomplete.as_view(), name='machine-autocomplete',),
-    path('machinetype-autocomplete', views_autocomplete.MachineTypeAutocomplete.as_view(), name='machinetype-autocomplete',),
-    path('iptype-autocomplete', views_autocomplete.IpTypeAutocomplete.as_view(), name='iptype-autocomplete',),
-    path('extension-autocomplete', views_autocomplete.ExtensionAutocomplete.as_view(), name='extension-autocomplete',),
-    path('domain-autocomplete', views_autocomplete.DomainAutocomplete.as_view(), name='domain-autocomplete',),
-    path('ouvertureportlist-autocomplete', views_autocomplete.OuverturePortListAutocomplete.as_view(), name='ouvertureportlist-autocomplete',),
-    path('iplist-autocomplete', views_autocomplete.IpListAutocomplete.as_view(), name='iplist-autocomplete',),
+    path(
+        "vlan-autocomplete",
+        views_autocomplete.VlanAutocomplete.as_view(),
+        name="vlan-autocomplete",
+    ),
+    path(
+        "interface-autocomplete",
+        views_autocomplete.InterfaceAutocomplete.as_view(),
+        name="interface-autocomplete",
+    ),
+    path(
+        "machine-autocomplete",
+        views_autocomplete.MachineAutocomplete.as_view(),
+        name="machine-autocomplete",
+    ),
+    path(
+        "machinetype-autocomplete",
+        views_autocomplete.MachineTypeAutocomplete.as_view(),
+        name="machinetype-autocomplete",
+    ),
+    path(
+        "iptype-autocomplete",
+        views_autocomplete.IpTypeAutocomplete.as_view(),
+        name="iptype-autocomplete",
+    ),
+    path(
+        "extension-autocomplete",
+        views_autocomplete.ExtensionAutocomplete.as_view(),
+        name="extension-autocomplete",
+    ),
+    path(
+        "domain-autocomplete",
+        views_autocomplete.DomainAutocomplete.as_view(),
+        name="domain-autocomplete",
+    ),
+    path(
+        "ouvertureportlist-autocomplete",
+        views_autocomplete.OuverturePortListAutocomplete.as_view(),
+        name="ouvertureportlist-autocomplete",
+    ),
+    path(
+        "iplist-autocomplete",
+        views_autocomplete.IpListAutocomplete.as_view(),
+        name="iplist-autocomplete",
+    ),
 ]

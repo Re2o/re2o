@@ -23,17 +23,17 @@
 Here are defined some views dedicated to cheque payement.
 """
 
-from django.urls import reverse
-from django.shortcuts import redirect, render, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from cotisations.models import Facture as Invoice
 from cotisations.utils import find_payment_method
 
-from .models import ChequePayment
 from .forms import InvoiceForm
+from .models import ChequePayment
 
 
 @login_required

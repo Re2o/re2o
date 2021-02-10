@@ -27,7 +27,15 @@ remove an object from optionnal authentication backends, e.g. LDAP.
 
 import django.dispatch
 
-synchronise = django.dispatch.Signal(providing_args=["sender", "instance", "base", "access_refresh", "mac_refresh", "group_refresh"])
+synchronise = django.dispatch.Signal(
+    providing_args=[
+        "sender",
+        "instance",
+        "base",
+        "access_refresh",
+        "mac_refresh",
+        "group_refresh",
+    ]
+)
 remove = django.dispatch.Signal(providing_args=["sender", "instance"])
 remove_mass = django.dispatch.Signal(providing_args=["sender", "queryset"])
-

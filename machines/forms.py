@@ -36,37 +36,17 @@ Forms to create, edit and delete:
 from __future__ import unicode_literals
 
 from django import forms
-from django.forms import ModelForm, Form
+from django.forms import Form, ModelForm
 from django.utils.translation import ugettext_lazy as _
 
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
-from re2o.widgets import (
-    AutocompleteModelWidget,
-    AutocompleteMultipleModelWidget,
-)
-from .models import (
-    Domain,
-    Machine,
-    Interface,
-    IpList,
-    MachineType,
-    Extension,
-    SOA,
-    Mx,
-    Txt,
-    DName,
-    Ns,
-    Role,
-    Service,
-    Vlan,
-    Srv,
-    SshFp,
-    Nas,
-    IpType,
-    OuverturePortList,
-    Ipv6List,
-)
+from re2o.widgets import (AutocompleteModelWidget,
+                          AutocompleteMultipleModelWidget)
+
+from .models import (SOA, DName, Domain, Extension, Interface, IpList, IpType,
+                     Ipv6List, Machine, MachineType, Mx, Nas, Ns,
+                     OuverturePortList, Role, Service, Srv, SshFp, Txt, Vlan)
 
 
 class EditMachineForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
@@ -248,7 +228,9 @@ class IpTypeForm(FormRevMixin, ModelForm):
         fields = "__all__"
         widgets = {
             "vlan": AutocompleteModelWidget(url="/machines/vlan-autocomplete"),
-            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "extension": AutocompleteModelWidget(
+                url="/machines/extension-autocomplete"
+            ),
             "ouverture_ports": AutocompleteModelWidget(
                 url="/machines/ouvertureportlist-autocomplete"
             ),
@@ -525,7 +507,9 @@ class SrvForm(FormRevMixin, ModelForm):
         model = Srv
         fields = "__all__"
         widgets = {
-            "extension": AutocompleteModelWidget(url="/machines/extension-autocomplete"),
+            "extension": AutocompleteModelWidget(
+                url="/machines/extension-autocomplete"
+            ),
             "target": AutocompleteModelWidget(url="/machines/domain-autocomplete"),
         }
 

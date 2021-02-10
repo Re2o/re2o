@@ -25,11 +25,11 @@ The tests for the Users module.
 
 import os.path
 
-from django.test import TestCase
-from django.conf import settings
-from . import models
-
 import volatildap
+from django.conf import settings
+from django.test import TestCase
+
+from . import models
 
 
 class SchoolTestCase(TestCase):

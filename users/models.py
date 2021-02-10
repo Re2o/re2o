@@ -44,54 +44,42 @@ Here are defined the following django models :
 
 from __future__ import unicode_literals
 
-import re
-import uuid
 import datetime
+import re
 import sys
+import traceback
+import uuid
+from datetime import timedelta
+from io import BytesIO
 
-from django.db import models
-from django.db.models import Q
 from django import forms
-from django.forms import ValidationError
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+                                        Group, PermissionsMixin)
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.validators import RegexValidator
+from django.db import models, transaction
+from django.db.models import Q
+from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
-from django.utils.functional import cached_property
+from django.forms import ValidationError
 from django.template import loader
 from django.urls import reverse
-from django.db import transaction
 from django.utils import timezone
-from datetime import timedelta
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    BaseUserManager,
-    PermissionsMixin,
-    Group,
-)
-from django.core.validators import RegexValidator
-import traceback
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django.core.files.uploadedfile import InMemoryUploadedFile
-
+from PIL import Image
 from reversion import revisions as reversion
-
-
-from re2o.settings import LDAP, GID_RANGES, UID_RANGES
-from re2o.field_permissions import FieldPermissionModelMixin
-from re2o.mixins import AclMixin, RevMixin
-from re2o.base import smtp_check
-from re2o.mail_utils import send_mail
 
 from cotisations.models import Cotisation, Facture, Paiement, Vente
 from machines.models import Domain, Interface, Machine, regen
-from preferences.models import GeneralOption, AssoOption, OptionalUser
-from preferences.models import OptionalMachine, MailMessageOption
-
+from preferences.models import (AssoOption, GeneralOption, MailMessageOption,
+                                OptionalMachine, OptionalUser)
+from re2o.base import smtp_check
+from re2o.field_permissions import FieldPermissionModelMixin
+from re2o.mail_utils import send_mail
+from re2o.mixins import AclMixin, RevMixin
+from re2o.settings import GID_RANGES, LDAP, UID_RANGES
 from users import signals
-
-from PIL import Image
-from io import BytesIO
-import sys
-
 
 # General utilities
 
@@ -121,7 +109,7 @@ def linux_user_validator(login):
     """
     if not linux_user_check(login):
         raise forms.ValidationError(
-            _("The username \"%(label)s\" contains forbidden characters."),
+            _('The username "%(label)s" contains forbidden characters.'),
             params={"label": login},
         )
 
@@ -259,31 +247,28 @@ class User(
         ),
     )
     local_email_enabled = models.BooleanField(
-        default=False,
-        help_text=_("Enable the local email account.")
+        default=False, help_text=_("Enable the local email account.")
     )
     school = models.ForeignKey(
         "School",
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        help_text=_("Education institute.")
+        help_text=_("Education institute."),
     )
     shell = models.ForeignKey(
         "ListShell",
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        help_text=_("Unix shell.")
+        help_text=_("Unix shell."),
     )
     comment = models.CharField(
         help_text=_("Comment, school year."), max_length=255, blank=True
     )
     pwd_ntlm = models.CharField(max_length=255)
     state = models.IntegerField(
-        choices=STATES,
-        default=STATE_NOT_YET_ACTIVE,
-        help_text=_("Account state.")
+        choices=STATES, default=STATE_NOT_YET_ACTIVE, help_text=_("Account state.")
     )
     email_state = models.IntegerField(choices=EMAIL_STATES, default=EMAIL_STATE_PENDING)
     registered = models.DateTimeField(auto_now_add=True)
@@ -293,7 +278,7 @@ class User(
         unique=True,
         blank=True,
         null=True,
-        help_text=_("Optionnal legacy uid, for import and transition purpose")
+        help_text=_("Optionnal legacy uid, for import and transition purpose"),
     )
     shortcuts_enabled = models.BooleanField(
         verbose_name=_("enable shortcuts on Re2o website"), default=True
@@ -596,7 +581,10 @@ class User(
         Returns:
             shadow_expire (int) : Shadow expire value.
         """
-        if self.state == self.STATE_DISABLED or self.email_state == self.EMAIL_STATE_UNVERIFIED:
+        if (
+            self.state == self.STATE_DISABLED
+            or self.email_state == self.EMAIL_STATE_UNVERIFIED
+        ):
             return str(0)
         else:
             return None
@@ -675,14 +663,11 @@ class User(
         Returns:
             end_adhesion (date) : Date of the end of the membership.
         """
-        date_max = (
-            Cotisation.objects.filter(
-                vente__in=Vente.objects.filter(
-                    facture__in=Facture.objects.filter(user=self).exclude(valid=False)
-                )
+        date_max = Cotisation.objects.filter(
+            vente__in=Vente.objects.filter(
+                facture__in=Facture.objects.filter(user=self).exclude(valid=False)
             )
-            .aggregate(models.Max("date_end_memb"))["date_end_memb__max"]
-        )
+        ).aggregate(models.Max("date_end_memb"))["date_end_memb__max"]
         return date_max
 
     def end_connexion(self):
@@ -695,14 +680,11 @@ class User(
         Returns:
             end_adhesion (date) : Date of the end of the connection subscription.
         """
-        date_max = (
-            Cotisation.objects.filter(
-                vente__in=Vente.objects.filter(
-                    facture__in=Facture.objects.filter(user=self).exclude(valid=False)
-                )
+        date_max = Cotisation.objects.filter(
+            vente__in=Vente.objects.filter(
+                facture__in=Facture.objects.filter(user=self).exclude(valid=False)
             )
-            .aggregate(models.Max("date_end_con"))["date_end_con__max"]
-        )
+        ).aggregate(models.Max("date_end_con"))["date_end_con__max"]
         return date_max
 
     def is_adherent(self):
@@ -722,8 +704,8 @@ class User(
             return False
         else:
             return True
-        # it looks wrong, we should check if there is a cotisation where 
-        # were date_start_memb < timezone.now() < date_end_memb, 
+        # it looks wrong, we should check if there is a cotisation where
+        # were date_start_memb < timezone.now() < date_end_memb,
         # in case the user purshased a cotisation starting in the futur
         # somehow
 
@@ -745,8 +727,8 @@ class User(
             return False
         else:
             return self.is_adherent()
-        # it looks wrong, we should check if there is a cotisation where 
-        # were date_start_con < timezone.now() < date_end_con, 
+        # it looks wrong, we should check if there is a cotisation where
+        # were date_start_con < timezone.now() < date_end_con,
         # in case the user purshased a cotisation starting in the futur
         # somehow
 
@@ -910,10 +892,21 @@ class User(
         """
         if self.state == self.STATE_NOT_YET_ACTIVE:
             # Look for ventes with non 0 subscription duration in the invoices set
-            not_zero = self.facture_set.filter(valid=True).exclude(Q(vente__duration_membership=0)).exists()
-            days_not_zero = self.facture_set.filter(valid=True).exclude(Q(vente__duration_days_membership=0)).exists()
-            if(not_zero or days_not_zero\
-                    or OptionalUser.get_cached_value("all_users_active")):
+            not_zero = (
+                self.facture_set.filter(valid=True)
+                .exclude(Q(vente__duration_membership=0))
+                .exists()
+            )
+            days_not_zero = (
+                self.facture_set.filter(valid=True)
+                .exclude(Q(vente__duration_days_membership=0))
+                .exists()
+            )
+            if (
+                not_zero
+                or days_not_zero
+                or OptionalUser.get_cached_value("all_users_active")
+            ):
                 self.state = self.STATE_ACTIVE
                 self.save()
         if self.state == self.STATE_ARCHIVE or self.state == self.STATE_FULL_ARCHIVE:
@@ -1493,7 +1486,7 @@ class User(
                         False,
                         _(
                             "Impossible to edit the organisation's"
-                            " user without the \"change_all_users\" right."
+                            ' user without the "change_all_users" right.'
                         ),
                         ("users.change_all_users",),
                     )
@@ -1547,13 +1540,13 @@ class User(
                 )
 
     def check_selfpasswd(self, user_request, *_args, **_kwargs):
-        """ Returns (True, None, None) if user_request is self, else returns
+        """Returns (True, None, None) if user_request is self, else returns
         (False, None, None)
         """
         return user_request == self, None, None
 
     def can_change_room(self, user_request, *_args, **_kwargs):
-        """ Check if a user can change a room
+        """Check if a user can change a room
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -1562,7 +1555,8 @@ class User(
         if not (
             (
                 self.pk == user_request.pk
-                and OptionalUser.get_cached_value("self_room_policy") != OptionalUser.DISABLED
+                and OptionalUser.get_cached_value("self_room_policy")
+                != OptionalUser.DISABLED
             )
             or user_request.has_perm("users.change_user")
         ):
@@ -1576,7 +1570,7 @@ class User(
 
     @staticmethod
     def can_change_state(user_request, *_args, **_kwargs):
-        """ Check if a user can change a state
+        """Check if a user can change a state
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -1590,7 +1584,7 @@ class User(
         )
 
     def can_change_shell(self, user_request, *_args, **_kwargs):
-        """ Check if a user can change a shell
+        """Check if a user can change a shell
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -1612,7 +1606,7 @@ class User(
             return True, None, None
 
     def can_change_pseudo(self, user_request, *_args, **_kwargs):
-        """ Check if a user can change a pseudo
+        """Check if a user can change a pseudo
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -1636,7 +1630,7 @@ class User(
 
     @staticmethod
     def can_change_local_email_redirect(user_request, *_args, **_kwargs):
-        """ Check if a user can change local_email_redirect.
+        """Check if a user can change local_email_redirect.
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -1651,7 +1645,7 @@ class User(
 
     @staticmethod
     def can_change_local_email_enabled(user_request, *_args, **_kwargs):
-        """ Check if a user can change internal address.
+        """Check if a user can change internal address.
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -1666,7 +1660,7 @@ class User(
 
     @staticmethod
     def can_change_force(user_request, *_args, **_kwargs):
-        """ Check if a user can change a force
+        """Check if a user can change a force
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -1681,7 +1675,7 @@ class User(
 
     @staticmethod
     def can_change_groups(user_request, *_args, **_kwargs):
-        """ Check if a user can change a group
+        """Check if a user can change a group
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if the user has
@@ -1698,7 +1692,7 @@ class User(
 
     @staticmethod
     def can_change_is_superuser(user_request, *_args, **_kwargs):
-        """ Check if an user can change a is_superuser flag
+        """Check if an user can change a is_superuser flag
 
         :param user_request: The user who request
         :returns: a message and a boolean which is True if permission is granted.
@@ -1707,7 +1701,7 @@ class User(
         can = user_request.is_superuser
         return (
             can,
-            _("\"superuser\" right required to edit the superuser flag.")
+            _('"superuser" right required to edit the superuser flag.')
             if not can
             else None,
             [],
@@ -1826,9 +1820,7 @@ class User(
         """
         is_created = not self.pk
         if not self.email and (self.__original_email or is_created):
-            raise forms.ValidationError(
-                _("Email field cannot be empty.")
-            )
+            raise forms.ValidationError(_("Email field cannot be empty."))
 
         self.email = self.email.lower()
 
@@ -1937,9 +1929,7 @@ class Adherent(User):
 
         """
         if not user_request.is_authenticated:
-            if not OptionalUser.get_cached_value(
-                "self_adhesion"
-            ):
+            if not OptionalUser.get_cached_value("self_adhesion"):
                 return False, _("Self registration is disabled."), None
             else:
                 return True, None, None
@@ -1969,12 +1959,7 @@ class Adherent(User):
         """
         can, _message, _group = Club.can_view_all(user_request)
         if user_request.has_perm("users.view_user") or can:
-            return (
-                True,
-                None,
-                None,
-                cls.objects.all()
-            )
+            return (True, None, None, cls.objects.all())
         else:
             return (
                 True,
@@ -1997,7 +1982,7 @@ class Adherent(User):
 
 
 class Club(User):
-    """ A class representing a club (it is considered as a user
+    """A class representing a club (it is considered as a user
     with special informations)
 
     Attributes:
@@ -2098,7 +2083,13 @@ def user_post_save(**kwargs):
         user.notif_inscription(user.request)
         user.set_active()
     user.state_sync()
-    signals.synchronise.send(sender=User, instance=user, base=True, access_refresh=True, mac_refresh=False, group_refresh=True
+    signals.synchronise.send(
+        sender=User,
+        instance=user,
+        base=True,
+        access_refresh=True,
+        mac_refresh=False,
+        group_refresh=True,
     )
     regen("mailing")
 
@@ -2112,7 +2103,13 @@ def user_group_relation_changed(**kwargs):
     action = kwargs["action"]
     if action in ("post_add", "post_remove", "post_clear"):
         user = kwargs["instance"]
-        signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=False, mac_refresh=False, group_refresh=True
+        signals.synchronise.send(
+            sender=User,
+            instance=user,
+            base=False,
+            access_refresh=False,
+            mac_refresh=False,
+            group_refresh=True,
         )
 
 
@@ -2228,19 +2225,14 @@ class School(RevMixin, AclMixin, models.Model):
             message.
 
         """
-        return (
-            True,
-            None,
-            None,
-            cls.objects.all()
-        )
+        return (True, None, None, cls.objects.all())
 
     def __str__(self):
         return self.name
 
 
 class ListRight(RevMixin, AclMixin, Group):
-    """ A class representing a listright, inherit from basic django Group object.
+    """A class representing a listright, inherit from basic django Group object.
     Each listrights/groups gathers several users, and can have individuals django
     rights, like can_view, can_edit, etc.
     Moreover, a ListRight is also a standard unix group, usefull for creating linux
@@ -2332,19 +2324,14 @@ class ListShell(RevMixin, AclMixin, models.Model):
             message.
 
         """
-        return (
-            True,
-            None,
-            None,
-            cls.objects.all()
-        )
+        return (True, None, None, cls.objects.all())
 
     def __str__(self):
         return self.shell
 
 
 class Ban(RevMixin, AclMixin, models.Model):
-    """ A class representing a ban, which cuts internet access,
+    """A class representing a ban, which cuts internet access,
     as a sanction.
 
     Attributes:
@@ -2447,7 +2434,9 @@ def ban_post_save(**kwargs):
     ban = kwargs["instance"]
     is_created = kwargs["created"]
     user = ban.user
-    signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False)
+    signals.synchronise.send(
+        sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False
+    )
     regen("mailing")
     if is_created:
         ban.notif_ban(ban.request)
@@ -2465,14 +2454,16 @@ def ban_post_delete(**kwargs):
 
     """
     user = kwargs["instance"].user
-    signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False)
+    signals.synchronise.send(
+        sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False
+    )
     regen("mailing")
     regen("dhcp")
     regen("mac_ip_list")
 
 
 class Whitelist(RevMixin, AclMixin, models.Model):
-    """ A class representing a whitelist, which gives a free internet
+    """A class representing a whitelist, which gives a free internet
     access to a user for special reason.
     Is overrided by a ban object.
 
@@ -2536,7 +2527,9 @@ def whitelist_post_save(**kwargs):
     """
     whitelist = kwargs["instance"]
     user = whitelist.user
-    signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False)
+    signals.synchronise.send(
+        sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False
+    )
     is_created = kwargs["created"]
     regen("mailing")
     if is_created:
@@ -2554,14 +2547,16 @@ def whitelist_post_delete(**kwargs):
 
     """
     user = kwargs["instance"].user
-    signals.synchronise.send(sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False)
+    signals.synchronise.send(
+        sender=User, instance=user, base=False, access_refresh=True, mac_refresh=False
+    )
     regen("mailing")
     regen("dhcp")
     regen("mac_ip_list")
 
 
 class Request(models.Model):
-    """ A class representing for user's request of reset password by email, or
+    """A class representing for user's request of reset password by email, or
     confirm a new email address, with a link.
 
     Attributes:
@@ -2594,7 +2589,7 @@ class Request(models.Model):
 
 
 class EMailAddress(RevMixin, AclMixin, models.Model):
-    """ A class representing an EMailAddress, for local emailaccounts
+    """A class representing an EMailAddress, for local emailaccounts
     support. Each emailaddress belongs to a user.
 
     Attributes:

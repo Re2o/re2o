@@ -19,159 +19,142 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from rest_framework import viewsets, generics
+from rest_framework import generics, viewsets
 
-from . import serializers
 import machines.models as machines
 from re2o.utils import all_active_interfaces
 
+from . import serializers
+
+
 class MachineViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Machine` objects.
-    """
+    """Exposes list and details of `machines.models.Machine` objects."""
 
     queryset = machines.Machine.objects.all()
     serializer_class = serializers.MachineSerializer
 
 
 class MachineTypeViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.MachineType` objects.
-    """
+    """Exposes list and details of `machines.models.MachineType` objects."""
 
     queryset = machines.MachineType.objects.all()
     serializer_class = serializers.MachineTypeSerializer
 
 
 class IpTypeViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.IpType` objects.
-    """
+    """Exposes list and details of `machines.models.IpType` objects."""
 
     queryset = machines.IpType.objects.all()
     serializer_class = serializers.IpTypeSerializer
 
 
 class VlanViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Vlan` objects.
-    """
+    """Exposes list and details of `machines.models.Vlan` objects."""
 
     queryset = machines.Vlan.objects.all()
     serializer_class = serializers.VlanSerializer
 
 
 class NasViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Nas` objects.
-    """
+    """Exposes list and details of `machines.models.Nas` objects."""
 
     queryset = machines.Nas.objects.all()
     serializer_class = serializers.NasSerializer
 
 
 class SOAViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.SOA` objects.
-    """
+    """Exposes list and details of `machines.models.SOA` objects."""
 
     queryset = machines.SOA.objects.all()
     serializer_class = serializers.SOASerializer
 
 
 class ExtensionViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Extension` objects.
-    """
+    """Exposes list and details of `machines.models.Extension` objects."""
 
     queryset = machines.Extension.objects.all()
     serializer_class = serializers.ExtensionSerializer
 
 
 class MxViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Mx` objects.
-    """
+    """Exposes list and details of `machines.models.Mx` objects."""
 
     queryset = machines.Mx.objects.all()
     serializer_class = serializers.MxSerializer
 
 
 class NsViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Ns` objects.
-    """
+    """Exposes list and details of `machines.models.Ns` objects."""
 
     queryset = machines.Ns.objects.all()
     serializer_class = serializers.NsSerializer
 
 
 class TxtViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Txt` objects.
-    """
+    """Exposes list and details of `machines.models.Txt` objects."""
 
     queryset = machines.Txt.objects.all()
     serializer_class = serializers.TxtSerializer
 
 
 class DNameViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.DName` objects.
-    """
+    """Exposes list and details of `machines.models.DName` objects."""
 
     queryset = machines.DName.objects.all()
     serializer_class = serializers.DNameSerializer
 
 
 class SrvViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Srv` objects.
-    """
+    """Exposes list and details of `machines.models.Srv` objects."""
 
     queryset = machines.Srv.objects.all()
     serializer_class = serializers.SrvSerializer
 
 
 class SshFpViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.SshFp` objects.
-    """
+    """Exposes list and details of `machines.models.SshFp` objects."""
 
     queryset = machines.SshFp.objects.all()
     serializer_class = serializers.SshFpSerializer
 
 
 class InterfaceViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Interface` objects.
-    """
+    """Exposes list and details of `machines.models.Interface` objects."""
 
     queryset = machines.Interface.objects.all()
     serializer_class = serializers.InterfaceSerializer
 
 
 class Ipv6ListViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Ipv6List` objects.
-    """
+    """Exposes list and details of `machines.models.Ipv6List` objects."""
 
     queryset = machines.Ipv6List.objects.all()
     serializer_class = serializers.Ipv6ListSerializer
 
 
 class DomainViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Domain` objects.
-    """
+    """Exposes list and details of `machines.models.Domain` objects."""
 
     queryset = machines.Domain.objects.all()
     serializer_class = serializers.DomainSerializer
 
 
 class IpListViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.IpList` objects.
-    """
+    """Exposes list and details of `machines.models.IpList` objects."""
 
     queryset = machines.IpList.objects.all()
     serializer_class = serializers.IpListSerializer
 
 
 class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Service` objects.
-    """
+    """Exposes list and details of `machines.models.Service` objects."""
 
     queryset = machines.Service.objects.all()
     serializer_class = serializers.ServiceSerializer
 
 
 class ServiceLinkViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Service_link` objects.
-    """
+    """Exposes list and details of `machines.models.Service_link` objects."""
 
     queryset = machines.Service_link.objects.all()
     serializer_class = serializers.ServiceLinkSerializer
@@ -187,24 +170,21 @@ class OuverturePortListViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class OuverturePortViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.OuverturePort` objects.
-    """
+    """Exposes list and details of `machines.models.OuverturePort` objects."""
 
     queryset = machines.OuverturePort.objects.all()
     serializer_class = serializers.OuverturePortSerializer
 
 
 class RoleViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `machines.models.Machine` objects.
-    """
+    """Exposes list and details of `machines.models.Machine` objects."""
 
     queryset = machines.Role.objects.all()
     serializer_class = serializers.RoleSerializer
 
 
 class ServiceRegenViewSet(viewsets.ModelViewSet):
-    """Exposes list and details of the services to regen
-    """
+    """Exposes list and details of the services to regen"""
 
     serializer_class = serializers.ServiceRegenSerializer
 
@@ -237,6 +217,7 @@ class SubnetPortsOpenView(generics.ListAPIView):
 class InterfacePortsOpenView(generics.ListAPIView):
     queryset = machines.Interface.objects.filter(port_lists__isnull=False).distinct()
     serializer_class = serializers.InterfacePortsOpenSerializer
+
 
 class DNSZonesView(generics.ListAPIView):
     """Exposes the detailed information about each extension (hostnames,

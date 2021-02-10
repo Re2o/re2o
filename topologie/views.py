@@ -34,70 +34,39 @@ They are used to create, edit and delete:
 """
 from __future__ import unicode_literals
 
-from django.urls import reverse
-from django.shortcuts import render, redirect
+import tempfile
+from os.path import isfile
+from subprocess import PIPE, Popen
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
-from django.db.models import ProtectedError, Prefetch
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django.db.models import Prefetch, ProtectedError
+from django.shortcuts import redirect, render
 from django.template import Context, Template, loader
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
-import tempfile
-
-from users.views import form
-from re2o.base import re2o_paginator, SortTable
-from re2o.acl import can_create, can_edit, can_delete, can_view, can_view_all
-from re2o.settings import MEDIA_ROOT
-from machines.forms import (
-    DomainForm,
-    EditInterfaceForm,
-    AddInterfaceForm,
-    EditOptionVlanForm,
-)
+from machines.forms import (AddInterfaceForm, DomainForm, EditInterfaceForm,
+                            EditOptionVlanForm)
 from machines.models import Interface, Service_link, Vlan
 from preferences.models import AssoOption, GeneralOption
+from re2o.acl import can_create, can_delete, can_edit, can_view, can_view_all
+from re2o.base import SortTable, re2o_paginator
+from re2o.settings import MEDIA_ROOT
+from users.views import form
 
-from .models import (
-    Switch,
-    Port,
-    Room,
-    Stack,
-    ModelSwitch,
-    ConstructorSwitch,
-    AccessPoint,
-    SwitchBay,
-    Building,
-    Dormitory,
-    Server,
-    PortProfile,
-    ModuleSwitch,
-    ModuleOnSwitch,
-)
-from .forms import (
-    EditPortForm,
-    NewSwitchForm,
-    EditSwitchForm,
-    AddPortForm,
-    EditRoomForm,
-    StackForm,
-    EditModelSwitchForm,
-    EditConstructorSwitchForm,
-    CreatePortsForm,
-    AddAccessPointForm,
-    EditAccessPointForm,
-    EditSwitchBayForm,
-    EditBuildingForm,
-    EditDormitoryForm,
-    EditPortProfileForm,
-    EditModuleForm,
-    EditSwitchModuleForm,
-)
-
-from subprocess import Popen, PIPE
-
-from os.path import isfile
+from .forms import (AddAccessPointForm, AddPortForm, CreatePortsForm,
+                    EditAccessPointForm, EditBuildingForm,
+                    EditConstructorSwitchForm, EditDormitoryForm,
+                    EditModelSwitchForm, EditModuleForm, EditPortForm,
+                    EditPortProfileForm, EditRoomForm, EditSwitchBayForm,
+                    EditSwitchForm, EditSwitchModuleForm, NewSwitchForm,
+                    StackForm)
+from .models import (AccessPoint, Building, ConstructorSwitch, Dormitory,
+                     ModelSwitch, ModuleOnSwitch, ModuleSwitch, Port,
+                     PortProfile, Room, Server, Stack, Switch, SwitchBay)
 
 
 @login_required
@@ -261,6 +230,7 @@ def index_switch_bay(request):
         },
     )
 
+
 @login_required
 @can_view_all(Stack)
 def index_stack(request):
@@ -275,6 +245,7 @@ def index_stack(request):
             "stack_list": stack_list,
         },
     )
+
 
 @login_required
 @can_view_all(Building)
@@ -295,6 +266,7 @@ def index_building(request):
         },
     )
 
+
 @login_required
 @can_view_all(Dormitory)
 def index_dormitory(request):
@@ -313,6 +285,7 @@ def index_dormitory(request):
             "dormitory_list": dormitory_list,
         },
     )
+
 
 @login_required
 @can_view_all(ModelSwitch, ConstructorSwitch)

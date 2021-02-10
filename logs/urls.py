@@ -47,5 +47,9 @@ urlpatterns = [
     path("stats_models", views.stats_models, name="stats-models"),
     path("stats_users", views.stats_users, name="stats-users"),
     path("stats_actions", views.stats_actions, name="stats-actions"),
-    path("stats_search_machine", views.stats_search_machine_history, name="stats-search-machine"),
+    path(
+        "stats_search_machine",
+        views.stats_search_machine_history,
+        name="stats-search-machine",
+    ),
 ]

@@ -29,9 +29,9 @@ the response (JSON or other), the CSRF exempting, ...
 import datetime
 
 from django.conf import settings
-from django.db.models import Q
 from django.contrib.auth.models import Group
-from rest_framework import viewsets, generics, views
+from django.db.models import Q
+from rest_framework import generics, views, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
@@ -39,7 +39,6 @@ from rest_framework.response import Response
 from . import serializers
 from .pagination import PageSizedPagination
 from .permissions import ACLPermission
-
 
 
 class ObtainExpiringAuthToken(ObtainAuthToken):

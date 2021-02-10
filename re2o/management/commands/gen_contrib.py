@@ -25,6 +25,7 @@ commits. This list is extracted from the current gitlab repository.
 """
 
 import os
+
 from django.core.management.base import BaseCommand
 
 

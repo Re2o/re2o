@@ -27,8 +27,7 @@ from __future__ import unicode_literals
 
 from django.urls import path
 
-from . import views
-from . import views_autocomplete
+from . import views, views_autocomplete
 
 app_name = "topologie"
 
@@ -37,9 +36,7 @@ urlpatterns = [
     path("index_ap", views.index_ap, name="index-ap"),
     path("new_ap", views.new_ap, name="new-ap"),
     path("edit_ap/<int:accesspointid>", views.edit_ap, name="edit-ap"),
-    path(
-        "create_ports/<int:switchid>", views.create_ports, name="create-ports"
-    ),
+    path("create_ports/<int:switchid>", views.create_ports, name="create-ports"),
     path("index_room", views.index_room, name="index-room"),
     path("new_room", views.new_room, name="new-room"),
     path("edit_room/<int:roomid>", views.edit_room, name="edit-room"),
@@ -157,9 +154,7 @@ urlpatterns = [
         views.edit_module,
         name="edit-module",
     ),
-    path(
-        "del_module/<int:moduleswitchid>", views.del_module, name="del-module"
-    ),
+    path("del_module/<int:moduleswitchid>", views.del_module, name="del-module"),
     path("index_module", views.index_module, name="index-module"),
     path("add_module_on", views.add_module_on, name="add-module-on"),
     path(
@@ -173,11 +168,39 @@ urlpatterns = [
         name="del-module-on",
     ),
     ### Autocomplete Views
-    path('room-autocomplete', views_autocomplete.RoomAutocomplete.as_view(), name='room-autocomplete',),
-    path('building-autocomplete', views_autocomplete.BuildingAutocomplete.as_view(), name='building-autocomplete',),
-    path('dormitory-autocomplete', views_autocomplete.DormitoryAutocomplete.as_view(), name='dormitory-autocomplete',),
-    path('switch-autocomplete', views_autocomplete.SwitchAutocomplete.as_view(), name='switch-autocomplete',),
-    path('port-autocomplete', views_autocomplete.PortAutocomplete.as_view(), name='profile-autocomplete',),
-    path('portprofile-autocomplete', views_autocomplete.PortProfileAutocomplete.as_view(), name='portprofile-autocomplete',),
-    path('switchbay-autocomplete', views_autocomplete.SwitchBayAutocomplete.as_view(), name='switchbay-autocomplete',),
+    path(
+        "room-autocomplete",
+        views_autocomplete.RoomAutocomplete.as_view(),
+        name="room-autocomplete",
+    ),
+    path(
+        "building-autocomplete",
+        views_autocomplete.BuildingAutocomplete.as_view(),
+        name="building-autocomplete",
+    ),
+    path(
+        "dormitory-autocomplete",
+        views_autocomplete.DormitoryAutocomplete.as_view(),
+        name="dormitory-autocomplete",
+    ),
+    path(
+        "switch-autocomplete",
+        views_autocomplete.SwitchAutocomplete.as_view(),
+        name="switch-autocomplete",
+    ),
+    path(
+        "port-autocomplete",
+        views_autocomplete.PortAutocomplete.as_view(),
+        name="profile-autocomplete",
+    ),
+    path(
+        "portprofile-autocomplete",
+        views_autocomplete.PortProfileAutocomplete.as_view(),
+        name="portprofile-autocomplete",
+    ),
+    path(
+        "switchbay-autocomplete",
+        views_autocomplete.SwitchBayAutocomplete.as_view(),
+        name="switchbay-autocomplete",
+    ),
 ]

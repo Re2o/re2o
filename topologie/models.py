@@ -36,19 +36,18 @@ from __future__ import unicode_literals
 
 import itertools
 
-from django.db import models
-from django.db.models.signals import post_save, post_delete
-from django.utils.functional import cached_property
 from django.core.cache import cache
-from django.dispatch import receiver
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
-from django.db import transaction
+from django.db import IntegrityError, models, transaction
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from reversion import revisions as reversion
 
-from preferences.models import OptionalTopologie, RadiusKey, SwitchManagementCred
-from machines.models import Machine, regen, Role, MachineType, Ipv6List
+from machines.models import Ipv6List, Machine, MachineType, Role, regen
+from preferences.models import (OptionalTopologie, RadiusKey,
+                                SwitchManagementCred)
 from re2o.mixins import AclMixin, RevMixin
 
 
@@ -364,7 +363,7 @@ class Switch(Machine):
     @cached_property
     def get_radius_servers_objects(self):
         """Return radius servers objects for Switchs provisioning, via REST API.
-        
+
         Returns :
             Interfaces objects query_set for the Role type radius-server
         """
@@ -378,16 +377,17 @@ class Switch(Machine):
     def get_radius_servers(self):
         """Return radius servers string, ipv4 and ipv6 for Switchs provisioning,
         via REST API.
-        
+
         Returns :
             Ip dict of interfaces for the Role type radius-server
         """
+
         def return_ips_dict(interfaces):
             return {
                 "ipv4": [str(interface.ipv4) for interface in interfaces],
-                "ipv6": Ipv6List.objects.filter(interface__in=interfaces).filter(active=True).values_list(
-                    "ipv6", flat=True
-                ),
+                "ipv6": Ipv6List.objects.filter(interface__in=interfaces)
+                .filter(active=True)
+                .values_list("ipv6", flat=True),
             }
 
         return return_ips_dict(self.get_radius_servers_objects)
@@ -724,12 +724,7 @@ class Dormitory(AclMixin, RevMixin, models.Model):
             message.
 
         """
-        return (
-            True,
-            None,
-            None,
-            cls.objects.all()
-        )
+        return (True, None, None, cls.objects.all())
 
     def __str__(self):
         return self.name
@@ -770,12 +765,7 @@ class Building(AclMixin, RevMixin, models.Model):
             message.
 
         """
-        return (
-            True,
-            None,
-            None,
-            cls.objects.all()
-        )
+        return (True, None, None, cls.objects.all())
 
     @cached_property
     def cached_name(self):
@@ -820,7 +810,11 @@ class Port(AclMixin, RevMixin, models.Model):
         "machines.Interface", on_delete=models.SET_NULL, blank=True, null=True
     )
     related = models.OneToOneField(
-        "self", null=True, blank=True, related_name="related_port", on_delete=models.SET_NULL
+        "self",
+        null=True,
+        blank=True,
+        related_name="related_port",
+        on_delete=models.SET_NULL,
     )
     custom_profile = models.ForeignKey(
         "PortProfile", on_delete=models.PROTECT, blank=True, null=True
@@ -966,12 +960,7 @@ class Room(AclMixin, RevMixin, models.Model):
             message.
 
         """
-        return (
-            True,
-            None,
-            None,
-            cls.objects.all()
-        )
+        return (True, None, None, cls.objects.all())
 
     def __str__(self):
         return self.building.cached_name + " " + self.name

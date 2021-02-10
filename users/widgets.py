@@ -1,23 +1,18 @@
-from django.forms.widgets import Input
+from django.conf import settings
 from django.forms.utils import flatatt
-from django.utils.safestring import mark_safe
+from django.forms.widgets import Input
 from django.template import Template
 from django.template.loader import get_template
-from django.conf import settings
-from django.utils.translation import ugettext_lazy as _, get_language_bidi
-from django.utils.dates import (
-    WEEKDAYS,
-    WEEKDAYS_ABBR,
-    MONTHS,
-    MONTHS_3,
-    MONTHS_AP,
-    MONTHS_ALT,
-)
+from django.utils.dates import (MONTHS, MONTHS_3, MONTHS_ALT, MONTHS_AP,
+                                WEEKDAYS, WEEKDAYS_ABBR)
+from django.utils.safestring import mark_safe
+from django.utils.translation import get_language_bidi
+from django.utils.translation import ugettext_lazy as _
 
 
 def list2str(str_iterable):
     """
-    Utility function to return a string representing a list of string 
+    Utility function to return a string representing a list of string
 
     :params str_iterable: An iterable object where each element is of type str
     :returns: A representation of the iterable as a list (e.g '["a", "b"]')

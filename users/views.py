@@ -55,83 +55,46 @@ without code duplication.
 
 from __future__ import unicode_literals
 
-from django.urls import reverse
-from django.shortcuts import get_object_or_404, render, redirect
+import os
+from importlib import import_module
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError, Count, Max
-from django.utils import timezone
 from django.db import transaction
-from django.http import HttpResponse
-from django.http import HttpResponseRedirect
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.translation import ugettext as _
+from django.db.models import Count, Max, ProtectedError
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import loader
-
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from reversion import revisions as reversion
 
 from cotisations.models import Facture, Paiement
-from machines.models import Machine
-
-from preferences.models import OptionalUser, GeneralOption, AssoOption
-from importlib import import_module
-from django.conf import settings
-from re2o.settings import LOCAL_APPS, OPTIONNAL_APPS_RE2O
-from re2o.views import form
-from re2o.utils import all_has_access, permission_tree
-from re2o.base import re2o_paginator, SortTable
-from re2o.acl import (
-    can_create,
-    can_edit,
-    can_delete_set,
-    can_delete,
-    can_view,
-    can_view_all,
-    can_change,
-)
 from cotisations.utils import find_payment_method
+from machines.models import Machine
+from preferences.models import AssoOption, GeneralOption, OptionalUser
+from re2o.acl import (can_change, can_create, can_delete, can_delete_set,
+                      can_edit, can_view, can_view_all)
+from re2o.base import SortTable, re2o_paginator
+from re2o.settings import LOCAL_APPS, OPTIONNAL_APPS_RE2O
+from re2o.utils import all_has_access, permission_tree
+from re2o.views import form
 from topologie.models import Port
-from .models import (
-    User,
-    Ban,
-    Whitelist,
-    School,
-    ListRight,
-    Request,
-    ServiceUser,
-    Adherent,
-    Club,
-    ListShell,
-    EMailAddress,
-)
-from .forms import (
-    BanForm,
-    WhitelistForm,
-    EMailAddressForm,
-    EmailSettingsForm,
-    DelSchoolForm,
-    DelListRightForm,
-    NewListRightForm,
-    StateForm,
-    SchoolForm,
-    ShellForm,
-    EditServiceUserForm,
-    ServiceUserForm,
-    ListRightForm,
-    AdherentCreationForm,
-    AdherentEditForm,
-    ClubForm,
-    MassArchiveForm,
-    PassForm,
-    ResetPasswordForm,
-    ClubAdminandMembersForm,
-    GroupForm,
-    InitialRegisterForm,
-    ThemeForm
-)
 
-import os
+from .forms import (AdherentCreationForm, AdherentEditForm, BanForm,
+                    ClubAdminandMembersForm, ClubForm, DelListRightForm,
+                    DelSchoolForm, EditServiceUserForm, EMailAddressForm,
+                    EmailSettingsForm, GroupForm, InitialRegisterForm,
+                    ListRightForm, MassArchiveForm, NewListRightForm, PassForm,
+                    ResetPasswordForm, SchoolForm, ServiceUserForm, ShellForm,
+                    StateForm, ThemeForm, WhitelistForm)
+from .models import (Adherent, Ban, Club, EMailAddress, ListRight, ListShell,
+                     Request, School, ServiceUser, User, Whitelist)
+
 
 @can_create(Adherent)
 def new_user(request):
@@ -146,7 +109,9 @@ def new_user(request):
         Django User form.
 
     """
-    user = AdherentCreationForm(request.POST or None, request.FILES or None, user=request.user)
+    user = AdherentCreationForm(
+        request.POST or None, request.FILES or None, user=request.user
+    )
     user.request = request
 
     GTU_sum_up = GeneralOption.get_cached_value("GTU_sum_up")
@@ -238,7 +203,9 @@ def edit_club_admin_members(request, club_instance, **_kwargs):
         Django User form.
 
     """
-    club = ClubAdminandMembersForm(request.POST or None, request.FILES or None, instance=club_instance)
+    club = ClubAdminandMembersForm(
+        request.POST or None, request.FILES or None, instance=club_instance
+    )
     if club.is_valid():
         if club.changed_data:
             club.save()
@@ -247,7 +214,11 @@ def edit_club_admin_members(request, club_instance, **_kwargs):
             reverse("users:profil", kwargs={"userid": str(club_instance.id)})
         )
     return form(
-        {"userform": club, "showCGU": False, "action_name": _("Edit"),},
+        {
+            "userform": club,
+            "showCGU": False,
+            "action_name": _("Edit"),
+        },
         "users/user.html",
         request,
     )
@@ -269,11 +240,17 @@ def edit_info(request, user, userid):
     """
     if user.is_class_adherent:
         user_form = AdherentEditForm(
-            request.POST or None, request.FILES or None, instance=user.adherent, user=request.user
+            request.POST or None,
+            request.FILES or None,
+            instance=user.adherent,
+            user=request.user,
         )
     else:
         user_form = ClubForm(
-            request.POST or None, request.FILES or None,instance=user.club, user=request.user
+            request.POST or None,
+            request.FILES or None,
+            instance=user.club,
+            user=request.user,
         )
     if user_form.is_valid():
         if user_form.changed_data:
@@ -286,7 +263,9 @@ def edit_info(request, user, userid):
 
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": user_form, "action_name": _("Edit")}, "users/user.html", request,
+        {"userform": user_form, "action_name": _("Edit")},
+        "users/user.html",
+        request,
     )
 
 
@@ -316,7 +295,9 @@ def state(request, user, userid):
                 )
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": state_form, "action_name": _("Edit")}, "users/user.html", request,
+        {"userform": state_form, "action_name": _("Edit")},
+        "users/user.html",
+        request,
     )
 
 
@@ -342,7 +323,9 @@ def groups(request, user, userid):
             messages.success(request, _("The groups were edited."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": group_form, "action_name": _("Edit")}, "users/user.html", request,
+        {"userform": group_form, "action_name": _("Edit")},
+        "users/user.html",
+        request,
     )
 
 
@@ -441,7 +424,9 @@ def new_serviceuser(request):
         messages.success(request, _("The service user was created."))
         return redirect(reverse("users:index-serviceusers"))
     return form(
-        {"userform": user, "action_name": _("Add")}, "users/user.html", request,
+        {"userform": user, "action_name": _("Add")},
+        "users/user.html",
+        request,
     )
 
 
@@ -468,7 +453,9 @@ def edit_serviceuser(request, serviceuser, **_kwargs):
         messages.success(request, _("The service user was edited."))
         return redirect(reverse("users:index-serviceusers"))
     return form(
-        {"userform": serviceuser, "action_name": _("Edit")}, "users/user.html", request,
+        {"userform": serviceuser, "action_name": _("Edit")},
+        "users/user.html",
+        request,
     )
 
 
@@ -606,7 +593,9 @@ def add_whitelist(request, user, userid):
             request, _("Warning: this user already has an active whitelist.")
         )
     return form(
-        {"userform": whitelist, "action_name": _("Add")}, "users/user.html", request,
+        {"userform": whitelist, "action_name": _("Add")},
+        "users/user.html",
+        request,
     )
 
 
@@ -633,7 +622,9 @@ def edit_whitelist(request, whitelist_instance, **_kwargs):
             messages.success(request, _("The whitelist was edited."))
         return redirect(reverse("users:index"))
     return form(
-        {"userform": whitelist, "action_name": _("Edit")}, "users/user.html", request,
+        {"userform": whitelist, "action_name": _("Edit")},
+        "users/user.html",
+        request,
     )
 
 
@@ -688,7 +679,11 @@ def add_emailaddress(request, user, userid):
         messages.success(request, _("The local email account was created."))
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": emailaddress, "showCGU": False, "action_name": _("Add"),},
+        {
+            "userform": emailaddress,
+            "showCGU": False,
+            "action_name": _("Add"),
+        },
         "users/user.html",
         request,
     )
@@ -722,7 +717,11 @@ def edit_emailaddress(request, emailaddress_instance, **_kwargs):
             )
         )
     return form(
-        {"userform": emailaddress, "showCGU": False, "action_name": _("Edit"),},
+        {
+            "userform": emailaddress,
+            "showCGU": False,
+            "action_name": _("Edit"),
+        },
         "users/user.html",
         request,
     )
@@ -819,7 +818,9 @@ def add_school(request):
         messages.success(request, _("The school was added."))
         return redirect(reverse("users:index-school"))
     return form(
-        {"userform": school, "action_name": _("Add")}, "users/user.html", request,
+        {"userform": school, "action_name": _("Add")},
+        "users/user.html",
+        request,
     )
 
 
@@ -845,7 +846,9 @@ def edit_school(request, school_instance, **_kwargs):
             messages.success(request, _("The school was edited."))
         return redirect(reverse("users:index-school"))
     return form(
-        {"userform": school, "action_name": _("Edit")}, "users/user.html", request,
+        {"userform": school, "action_name": _("Edit")},
+        "users/user.html",
+        request,
     )
 
 
@@ -934,7 +937,9 @@ def edit_shell(request, shell_instance, **_kwargs):
             messages.success(request, _("The shell was edited."))
         return redirect(reverse("users:index-shell"))
     return form(
-        {"userform": shell, "action_name": _("Edit")}, "users/user.html", request,
+        {"userform": shell, "action_name": _("Edit")},
+        "users/user.html",
+        request,
     )
 
 
@@ -1310,7 +1315,7 @@ def index_serviceusers(request):
 def mon_profil(request):
     """Shortcuts view to profil view, with correct arguments.
     Returns the view profil with users argument, users is set to
-    default request.user. 
+    default request.user.
 
     Parameters:
         request (django request): Standard django request.
@@ -1335,7 +1340,7 @@ def profil(request, users, **_kwargs):
         * Email Settings of User instance
         * Tickets belonging to User instance.
     Requires the acl can_view on user instance.
- 
+
     Parameters:
         request (django request): Standard django request.
         users: User instance to display profil
@@ -1353,7 +1358,7 @@ def profil(request, users, **_kwargs):
     ]
 
     nb_machines = users.user_interfaces().count()
-    
+
     bans = Ban.objects.filter(user=users)
     bans = SortTable.sort(
         bans,
@@ -1379,7 +1384,7 @@ def profil(request, users, **_kwargs):
         "users/profil.html",
         {
             "users": users,
-            "nb_machines":nb_machines,
+            "nb_machines": nb_machines,
             "apps_templates_list": apps_templates_list,
             "ban_list": bans,
             "white_list": whitelists,
@@ -1398,7 +1403,7 @@ def reset_password(request):
     """Reset password form, linked to form forgotten password.
     If an user is found, send an email to him with a link
     to reset its password.
-    
+
     Parameters:
         request (django request): Standard django request.
 
@@ -1594,6 +1599,7 @@ def initial_register(request):
         request,
     )
 
+
 @login_required
 @can_edit(User)
 def edit_theme(request, user, userid):
@@ -1608,7 +1614,7 @@ def edit_theme(request, user, userid):
         Django User form.
 
     """
-    theme_form = ThemeForm(request.POST or None, initial={'theme':user.theme})
+    theme_form = ThemeForm(request.POST or None, initial={"theme": user.theme})
     if theme_form.is_valid():
         user.theme = theme_form.cleaned_data["theme"]
         user.save()
@@ -1616,5 +1622,7 @@ def edit_theme(request, user, userid):
 
         return redirect(reverse("users:profil", kwargs={"userid": str(userid)}))
     return form(
-        {"userform": theme_form, "action_name": _("Edit")}, "users/user.html", request,
+        {"userform": theme_form, "action_name": _("Edit")},
+        "users/user.html",
+        request,
     )

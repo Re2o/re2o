@@ -1,11 +1,12 @@
-from django.test import TestCase
-
 import datetime
-from django.utils import timezone
+
 from dateutil.relativedelta import relativedelta
+from django.test import TestCase
+from django.utils import timezone
 
 from users.models import User
-from .models import Vente, Facture, Cotisation, Paiement
+
+from .models import Cotisation, Facture, Paiement, Vente
 
 
 class VenteModelTests(TestCase):
@@ -74,7 +75,7 @@ class VenteModelTests(TestCase):
     def test_one_month_and_one_week_cotisation(self):
         """
         It should be possible to have one day membership.
-        Add one mounth and one week of membership and one mounth 
+        Add one mounth and one week of membership and one mounth
         and one week of connection
         """
         date = timezone.now()
@@ -111,12 +112,21 @@ class VenteModelTests(TestCase):
             duration_days_connection=1,
             duration_membership=0,
             duration_deys_membership=1,
-            prix=0
+            prix=0,
         )
-        v.create_cotis(date_start_con=timezone.make_aware(datetime.datetime(1998, 10, 16)), date_start_memb=timezone.make_aware(datetime.datetime(1998, 10, 16)))
+        v.create_cotis(
+            date_start_con=timezone.make_aware(datetime.datetime(1998, 10, 16)),
+            date_start_memb=timezone.make_aware(datetime.datetime(1998, 10, 16)),
+        )
         v.save()
-        self.assertEqual(v.cotisation.date_end_con, timezone.make_aware(datetime.datetime(1998, 10, 17)))
-        self.assertEqual(v.cotisation.date_end_memb, timezone.make_aware(datetime.datetime(1998, 10, 17)))
+        self.assertEqual(
+            v.cotisation.date_end_con,
+            timezone.make_aware(datetime.datetime(1998, 10, 17)),
+        )
+        self.assertEqual(
+            v.cotisation.date_end_memb,
+            timezone.make_aware(datetime.datetime(1998, 10, 17)),
+        )
 
     def test_one_day_cotisation_membership_only(self):
         """
@@ -207,12 +217,21 @@ class VenteModelTests(TestCase):
             duration_days_connection=0,
             duration_membership=0,
             duration_days_membership=1,
-            prix=0
+            prix=0,
         )
-        v.create_cotis(date_start_con=timezone.make_aware(datetime.datetime(1998, 10, 16)), date_start_memb=timezone.make_aware(datetime.datetime(1998, 10, 16)))
+        v.create_cotis(
+            date_start_con=timezone.make_aware(datetime.datetime(1998, 10, 16)),
+            date_start_memb=timezone.make_aware(datetime.datetime(1998, 10, 16)),
+        )
         v.save()
-        self.assertEqual(v.cotisation.date_end_con, timezone.make_aware(datetime.datetime(1998, 10, 17)))
-        self.assertEqual(v.cotisation.date_end_memb, timezone.make_aware(datetime.datetime(1998, 10, 16)))
+        self.assertEqual(
+            v.cotisation.date_end_con,
+            timezone.make_aware(datetime.datetime(1998, 10, 17)),
+        )
+        self.assertEqual(
+            v.cotisation.date_end_memb,
+            timezone.make_aware(datetime.datetime(1998, 10, 16)),
+        )
 
     def test_cotisation_membership_diff_connection(self):
         """
@@ -252,9 +271,11 @@ class FactureModelTests(TestCase):
     def setUp(self):
         self.user = User.objects.create(pseudo="testUserPlop", email="test@example.org")
         self.paiement = Paiement.objects.create(moyen="test payment")
+
     def tearDown(self):
         self.user.delete()
         self.paiement.delete()
+
     def test_cotisations_prolongation(self):
         """When user already have one valid cotisation, the new one should be
         added at the end of the existing one."""
@@ -300,4 +321,3 @@ class FactureModelTests(TestCase):
             raise e
         invoice1.delete()
         invoice2.delete()
-

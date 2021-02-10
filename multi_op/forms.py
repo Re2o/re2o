@@ -27,11 +27,11 @@ Select a dorm
 
 
 from django import forms
-from django.forms import ModelForm, Form
-from re2o.field_permissions import FieldPermissionFormMixin
-from re2o.mixins import FormRevMixin
+from django.forms import Form, ModelForm
 from django.utils.translation import ugettext_lazy as _
 
+from re2o.field_permissions import FieldPermissionFormMixin
+from re2o.mixins import FormRevMixin
 from topologie.models import Dormitory
 
 from .preferences.models import MultiopOption
@@ -49,4 +49,6 @@ class DormitoryForm(FormRevMixin, Form):
 
     def __init__(self, *args, **kwargs):
         super(DormitoryForm, self).__init__(*args, **kwargs)
-        self.fields["dormitory"].queryset = MultiopOption.get_cached_value("enabled_dorm").all()
+        self.fields["dormitory"].queryset = MultiopOption.get_cached_value(
+            "enabled_dorm"
+        ).all()

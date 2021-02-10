@@ -24,14 +24,13 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.urls import include, path
 from django.contrib import admin
+from django.urls import include, path
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView
 
 from .settings_local import OPTIONNAL_APPS_RE2O
-
-from .views import index, about_page, contact_page, handler404, handler500
+from .views import about_page, contact_page, handler404, handler500, index
 
 # Admin site configuration
 admin.site.index_title = _("Homepage")

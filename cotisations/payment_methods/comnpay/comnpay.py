@@ -3,15 +3,15 @@ The module in charge of handling the negociation with Comnpay
 for online payment
 """
 
-import time
-from random import randrange
 import base64
 import hashlib
+import time
 from collections import OrderedDict
+from random import randrange
 
 
 class Transaction:
-    """ The class representing a transaction with all the functions
+    """The class representing a transaction with all the functions
     used during the negociation
     """
 
@@ -35,7 +35,7 @@ class Transaction:
         self.idTransaction = ""
 
     def buildSecretHTML(self, produit="Produit", montant="0.00", idTransaction=""):
-        """ Build an HTML hidden form with the different parameters for the
+        """Build an HTML hidden form with the different parameters for the
         transaction
         """
         if idTransaction == "":

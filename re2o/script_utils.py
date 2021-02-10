@@ -24,17 +24,16 @@ with Re2o throught the CLI
 """
 
 import os
-from os.path import dirname
-import sys
 import pwd
-
+import sys
 from getpass import getpass
-from reversion import revisions as reversion
+from os.path import dirname
 
-from django.core.wsgi import get_wsgi_application
 from django.core.management.base import CommandError
+from django.core.wsgi import get_wsgi_application
 from django.db import transaction
 from django.utils.html import strip_tags
+from reversion import revisions as reversion
 
 from users.models import User
 
@@ -48,27 +47,24 @@ application = get_wsgi_application()
 
 def get_user(pseudo):
     """Find a user from its pseudo
-    
+
     Parameters:
         pseudo (string): pseudo of this user
 
     Returns:
         user instance:Instance of user
-    
+
     """
     user = User.objects.filter(pseudo=pseudo)
     if len(user) == 0:
         raise CommandError("Invalid user.")
     if len(user) > 1:
-        raise CommandError(
-            "Several users match this username. This SHOULD NOT happen."
-        )
+        raise CommandError("Several users match this username. This SHOULD NOT happen.")
     return user[0]
 
 
 def get_system_user():
-    """Find the system user login who used the command    
-    """
+    """Find the system user login who used the command"""
     return pwd.getpwuid(int(os.getenv("SUDO_UID") or os.getuid())).pw_name
 
 
@@ -80,7 +76,7 @@ def form_cli(Form, user, action, *args, **kwargs):
         Form : a django class form to fill-in
         user : a re2o user doign the modification
         action: the action done with that form, for logs purpose
-    
+
     """
     data = {}
     dumb_form = Form(user=user, *args, **kwargs)
@@ -105,6 +101,4 @@ def form_cli(Form, user, action, *args, **kwargs):
         reversion.set_user(user)
         reversion.set_comment(action)
 
-    sys.stdout.write(
-        "%s: done. The edit may take several minutes to apply.\n" % action
-    )
+    sys.stdout.write("%s: done. The edit may take several minutes to apply.\n" % action)

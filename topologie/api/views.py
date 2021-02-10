@@ -19,48 +19,44 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from rest_framework import viewsets, generics
+from rest_framework import generics, viewsets
+
+import machines.models as machines
+import topologie.models as topologie
 
 from . import serializers
-import topologie.models as topologie
-import machines.models as machines
 
 
 class StackViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.Stack` objects.
-    """
+    """Exposes list and details of `topologie.models.Stack` objects."""
 
     queryset = topologie.Stack.objects.all()
     serializer_class = serializers.StackSerializer
 
 
 class AccessPointViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.AccessPoint` objects.
-    """
+    """Exposes list and details of `topologie.models.AccessPoint` objects."""
 
     queryset = topologie.AccessPoint.objects.all()
     serializer_class = serializers.AccessPointSerializer
 
 
 class SwitchViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.Switch` objects.
-    """
+    """Exposes list and details of `topologie.models.Switch` objects."""
 
     queryset = topologie.Switch.objects.all()
     serializer_class = serializers.SwitchSerializer
 
 
 class ServerViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.Server` objects.
-    """
+    """Exposes list and details of `topologie.models.Server` objects."""
 
     queryset = topologie.Server.objects.all()
     serializer_class = serializers.ServerSerializer
 
 
 class ModelSwitchViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.ModelSwitch` objects.
-    """
+    """Exposes list and details of `topologie.models.ModelSwitch` objects."""
 
     queryset = topologie.ModelSwitch.objects.all()
     serializer_class = serializers.ModelSwitchSerializer
@@ -76,55 +72,51 @@ class ConstructorSwitchViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SwitchBayViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.SwitchBay` objects.
-    """
+    """Exposes list and details of `topologie.models.SwitchBay` objects."""
 
     queryset = topologie.SwitchBay.objects.all()
     serializer_class = serializers.SwitchBaySerializer
 
 
 class BuildingViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.Building` objects.
-    """
+    """Exposes list and details of `topologie.models.Building` objects."""
 
     queryset = topologie.Building.objects.all()
     serializer_class = serializers.BuildingSerializer
 
 
 class SwitchPortViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.Port` objects.
-    """
+    """Exposes list and details of `topologie.models.Port` objects."""
 
     queryset = topologie.Port.objects.all()
     serializer_class = serializers.SwitchPortSerializer
 
 
 class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.PortProfile` objects.
-    """
+    """Exposes list and details of `topologie.models.PortProfile` objects."""
 
     queryset = topologie.PortProfile.objects.all()
     serializer_class = serializers.PortProfileSerializer
 
 
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.Room` objects.
-    """
+    """Exposes list and details of `topologie.models.Room` objects."""
 
     queryset = topologie.Room.objects.all()
     serializer_class = serializers.RoomSerializer
 
+
 class DormitoryViewSet(viewsets.ReadOnlyModelViewSet):
     """Exposes list and details of `topologie.models.Dormitory`
-       objects.
+    objects.
     """
 
     queryset = topologie.Dormitory.objects.all()
     serializer_class = serializers.DormitorySerializer
 
+
 class PortProfileViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `topologie.models.PortProfile` objects.
-    """
+    """Exposes list and details of `topologie.models.PortProfile` objects."""
 
     queryset = topologie.PortProfile.objects.all()
     serializer_class = serializers.PortProfileSerializer
@@ -149,8 +141,7 @@ class SwitchPortView(generics.ListAPIView):
 
 
 class RoleView(generics.ListAPIView):
-    """Output of roles for each server
-    """
+    """Output of roles for each server"""
 
     queryset = machines.Role.objects.all().prefetch_related("servers")
     serializer_class = serializers.RoleSerializer

@@ -30,8 +30,8 @@ from __future__ import unicode_literals
 import sys
 from itertools import chain
 
-from django.db.models import Model
 from django.contrib import messages
+from django.db.models import Model
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext as _

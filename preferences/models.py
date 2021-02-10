@@ -25,23 +25,22 @@ Models defining the preferences for users, machines, emails, general settings
 etc.
 """
 from __future__ import unicode_literals
-import os
 
-from django.utils.functional import cached_property
-from django.utils import timezone
+import os
+from datetime import timedelta
+
+from django.core.cache import cache
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.cache import cache
 from django.forms import ValidationError
+from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 import machines.models
-
-from re2o.mixins import AclMixin, RevMixin
 from re2o.aes_field import AESEncryptedField
-
-from datetime import timedelta
+from re2o.mixins import AclMixin, RevMixin
 
 
 class PreferencesModel(models.Model):
@@ -328,7 +327,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         configuration.
         """
         if self.switchs_ip_type:
-            from machines.models import Role, Interface
+            from machines.models import Interface, Role
 
             return (
                 Interface.objects.filter(
@@ -364,14 +363,14 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         """Get the dictionary of IP addresses for the configuration of
         switches.
         """
-        from machines.models import Role, Ipv6List, Interface
+        from machines.models import Interface, Ipv6List, Role
 
         def return_ips_dict(interfaces):
             return {
                 "ipv4": [str(interface.ipv4) for interface in interfaces],
-                "ipv6": Ipv6List.objects.filter(interface__in=interfaces).filter(active=True).values_list(
-                    "ipv6", flat=True
-                ),
+                "ipv6": Ipv6List.objects.filter(interface__in=interfaces)
+                .filter(active=True)
+                .values_list("ipv6", flat=True),
             }
 
         ntp_servers = Role.all_interfaces_for_roletype("ntp-server").filter(
@@ -660,7 +659,7 @@ class Mandate(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def get_mandate(cls, date=timezone.now):
-        """"Get the mandate taking place at the given date.
+        """ "Get the mandate taking place at the given date.
 
         Args:
             date: the date used to find the mandate (default: timezone.now).
