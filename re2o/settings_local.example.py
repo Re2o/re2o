@@ -106,6 +106,7 @@ GID_RANGES = {"posix": [501, 600]}
 # If you want to add a database routers, please fill in above and add your databse.
 # Then, add a file "local_routers.py" in folder app re2o, and add your router path in
 # the LOCAL_ROUTERS var as "re2o.local_routers.DbRouter". You can also add extra routers.
+# To use ldap you need to add "ldapdb.router.Router"
 LOCAL_ROUTERS = []
 
 # Some optionnal Re2o Apps

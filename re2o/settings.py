@@ -168,7 +168,7 @@ LANGUAGES = [("en", _("English")), ("fr", _("French"))]
 USE_TZ = True
 
 # Router config for database
-DATABASE_ROUTERS = ["ldapdb.router.Router"]
+DATABASE_ROUTERS = []
 if "LOCAL_ROUTERS" in globals():
     DATABASE_ROUTERS += LOCAL_ROUTERS
 
