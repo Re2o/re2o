@@ -44,4 +44,3 @@ class TicketOption(AclMixin, PreferencesModel):
 
     class Meta:
         verbose_name = _("tickets options")
-        permissions = (("view_ticketoption", _("Can view tickets options")),)

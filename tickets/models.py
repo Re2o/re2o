@@ -87,7 +87,6 @@ class Ticket(AclMixin, models.Model):
     request = None
 
     class Meta:
-        permissions = (("view_ticket", _("Can view a ticket object")),)
         verbose_name = _("ticket")
         verbose_name_plural = _("tickets")
 
@@ -197,7 +196,6 @@ class CommentTicket(AclMixin, models.Model):
     request = None
 
     class Meta:
-        permissions = (("view_commentticket", _("Can view a ticket object")),)
         verbose_name = _("ticket")
         verbose_name_plural = _("tickets")
 
