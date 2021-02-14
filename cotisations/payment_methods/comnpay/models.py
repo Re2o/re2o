@@ -25,8 +25,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from cotisations.models import Paiement
 from cotisations.payment_methods.mixins import PaymentMethodMixin
-
 from re2o.aes_field import AESEncryptedField
+
 from .comnpay import Transaction
 
 
@@ -53,8 +53,7 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
     minimum_payment = models.DecimalField(
         verbose_name=_("minimum payment"),
         help_text=_(
-            "The minimal amount of money you have to use when paying with"
-            " ComNpay."
+            "The minimal amount of money you have to use when paying with" " ComNpay."
         ),
         max_digits=5,
         decimal_places=2,
@@ -107,8 +106,7 @@ class ComnpayPayment(PaymentMethodMixin, models.Model):
         return render(request, "cotisations/payment.html", r)
 
     def check_price(self, price, *args, **kwargs):
-        """Checks that the price meets the requirement to be paid with ComNpay.
-        """
+        """Checks that the price meets the requirement to be paid with ComNpay."""
         return (
             (price >= self.minimum_payment),
             _(

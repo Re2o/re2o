@@ -21,8 +21,9 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from . import PAYMENT_METHODS
 from cotisations.utils import find_payment_method
+
+from . import PAYMENT_METHODS
 
 
 def payment_method_factory(payment, *args, creation=True, **kwargs):

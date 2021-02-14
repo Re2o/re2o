@@ -39,6 +39,7 @@ class Migration(migrations.Migration):
                 null=True,
                 to="machines.Domain",
                 blank=True,
+                on_delete=models.CASCADE   
             ),
         )
     ]

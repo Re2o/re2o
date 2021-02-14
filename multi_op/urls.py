@@ -25,35 +25,37 @@ For further details on each of those models, see the documentation details for
 each.
 """
 
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from . import views
 from .preferences.views import edit_options
 
+app_name = "multi_op"
+
 urlpatterns = [
-    url(r"^$", views.aff_state_global, name="aff-state-global"),
-    url(
-        r"^(?P<dormitoryid>[0-9]+)$",
+    path("", views.aff_state_global, name="aff-state-global"),
+    path(
+        "<int:dormitoryid>",
         views.aff_state_dormitory,
         name="aff-state-dormitory",
     ),
-    url(
+    re_path(
         r"^edit_options/(?P<section>MultiopOption)$",
         edit_options,
         name="edit-options",
     ),
-    url(
-        r"^pending-connection$",
+    path(
+        "pending-connection",
         views.aff_pending_connection,
         name="aff-pending-connection",
     ),
-    url(
-        r"^pending-disconnection$",
+    path(
+        "pending-disconnection",
         views.aff_pending_disconnection,
         name="aff-pending-disconnection",
     ),
-    url(
-        r"^disconnect-room/(?P<roomid>[0-9]+)$",
+    path(
+        "disconnect-room/<int:roomid>",
         views.disconnect_room,
         name="disconnect-room",
     ),

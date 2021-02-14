@@ -31,12 +31,12 @@ Here are defined the autocomplete class based view.
 """
 from __future__ import unicode_literals
 
-from .models import User, School, Adherent, Club, ListShell
-
-from re2o.views import AutocompleteViewMixin, AutocompleteLoggedOutViewMixin
-
-from django.db.models import Q, Value, CharField
+from django.db.models import CharField, Q, Value
 from django.db.models.functions import Concat
+
+from re2o.views import AutocompleteLoggedOutViewMixin, AutocompleteViewMixin
+
+from .models import Adherent, Club, ListShell, School, User
 
 
 class SchoolAutocomplete(AutocompleteLoggedOutViewMixin):

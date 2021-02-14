@@ -21,9 +21,7 @@
 
 from . import views
 
-urls_viewset = [
-    (r"preferences/service", views.HomeServiceViewSet, "homeservice")
-]
+urls_viewset = [(r"preferences/service", views.HomeServiceViewSet, "homeservice")]
 
 urls_view = [
     (r"preferences/optionaluser", views.OptionalUserView),
@@ -33,5 +31,5 @@ urls_view = [
     (r"preferences/generaloption", views.GeneralOptionView),
     (r"preferences/assooption", views.AssoOptionView),
     (r"preferences/homeoption", views.HomeOptionView),
-    (r"preferences/mailmessageoption", views.MailMessageOptionView)
+    (r"preferences/mailmessageoption", views.MailMessageOptionView),
 ]

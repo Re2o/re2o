@@ -1,15 +1,16 @@
-from django.core.management.base import BaseCommand
-from users.models import User, School, Adherent, Club
-from machines.models import Domain, Machine
-from reversion.models import Revision
-from django.db.models import F, Value
-from django.db.models import Q
-from django.db.models.functions import Concat
-
-from re2o.login import hashNT, makeSecret
-
-import os, random, string
+import os
+import random
+import string
 from random import randint
+
+from django.core.management.base import BaseCommand
+from django.db.models import F, Q, Value
+from django.db.models.functions import Concat
+from reversion.models import Revision
+
+from machines.models import Domain, Machine
+from re2o.login import hashNT, makeSecret
+from users.models import Adherent, Club, School, User
 
 
 class Command(BaseCommand):

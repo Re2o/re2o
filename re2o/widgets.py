@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2021  Gabriel Détraz
-# Copyright © 2021  Jean-Romain Garnier 
+# Copyright © 2021  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,12 +25,12 @@ Re2o Forms and ModelForms Widgets.
 Used in others forms for using autocomplete engine.
 """
 
-from django.utils.translation import ugettext as _
 from dal import autocomplete
+from django.utils.translation import ugettext as _
 
 
 class AutocompleteModelWidget(autocomplete.ModelSelect2):
-    """ A mixin subclassing django-autocomplete-light's Select2 model to pass default options
+    """A mixin subclassing django-autocomplete-light's Select2 model to pass default options
     See https://django-autocomplete-light.readthedocs.io/en/master/tutorial.html#passing-options-to-select2
     """
 
@@ -54,7 +54,7 @@ class AutocompleteModelWidget(autocomplete.ModelSelect2):
 
 
 class AutocompleteMultipleModelWidget(autocomplete.ModelSelect2Multiple):
-    """ A mixin subclassing django-autocomplete-light's Select2 model to pass default options
+    """A mixin subclassing django-autocomplete-light's Select2 model to pass default options
     See https://django-autocomplete-light.readthedocs.io/en/master/tutorial.html#passing-options-to-select2
     """
 

@@ -23,13 +23,13 @@ from rest_framework import serializers
 
 import cotisations.models as cotisations
 import preferences.models as preferences
-from api.serializers import NamespacedHRField, NamespacedHIField, NamespacedHMSerializer
+from api.serializers import (NamespacedHIField, NamespacedHMSerializer,
+                             NamespacedHRField)
 from users.api.serializers import UserSerializer
 
 
 class FactureSerializer(NamespacedHMSerializer):
-    """Serialize `cotisations.models.Facture` objects.
-    """
+    """Serialize `cotisations.models.Facture` objects."""
 
     class Meta:
         model = cotisations.Facture
@@ -54,8 +54,7 @@ class BaseInvoiceSerializer(NamespacedHMSerializer):
 
 
 class VenteSerializer(NamespacedHMSerializer):
-    """Serialize `cotisations.models.Vente` objects.
-    """
+    """Serialize `cotisations.models.Vente` objects."""
 
     class Meta:
         model = cotisations.Vente
@@ -74,17 +73,24 @@ class VenteSerializer(NamespacedHMSerializer):
 
 
 class ArticleSerializer(NamespacedHMSerializer):
-    """Serialize `cotisations.models.Article` objects.
-    """
+    """Serialize `cotisations.models.Article` objects."""
 
     class Meta:
         model = cotisations.Article
-        fields = ("name", "prix", "duration_membership", "duration_days_membership", "duration_connection", "duration_days_connection", "type_user", "api_url")
+        fields = (
+            "name",
+            "prix",
+            "duration_membership",
+            "duration_days_membership",
+            "duration_connection",
+            "duration_days_connection",
+            "type_user",
+            "api_url",
+        )
 
 
 class BanqueSerializer(NamespacedHMSerializer):
-    """Serialize `cotisations.models.Banque` objects.
-    """
+    """Serialize `cotisations.models.Banque` objects."""
 
     class Meta:
         model = cotisations.Banque
@@ -92,8 +98,7 @@ class BanqueSerializer(NamespacedHMSerializer):
 
 
 class PaiementSerializer(NamespacedHMSerializer):
-    """Serialize `cotisations.models.Paiement` objects.
-    """
+    """Serialize `cotisations.models.Paiement` objects."""
 
     class Meta:
         model = cotisations.Paiement
@@ -101,17 +106,23 @@ class PaiementSerializer(NamespacedHMSerializer):
 
 
 class CotisationSerializer(NamespacedHMSerializer):
-    """Serialize `cotisations.models.Cotisation` objects.
-    """
+    """Serialize `cotisations.models.Cotisation` objects."""
 
     class Meta:
         model = cotisations.Cotisation
-        fields = ("vente", "type_cotisation", "date_start_con", "date_end_con", "date_start_memb", "date_end_memb", "api_url")
+        fields = (
+            "vente",
+            "type_cotisation",
+            "date_start_con",
+            "date_end_con",
+            "date_start_memb",
+            "date_end_memb",
+            "api_url",
+        )
 
 
 class ReminderUsersSerializer(UserSerializer):
-    """Serialize the data about a mailing member.
-    """
+    """Serialize the data about a mailing member."""
 
     class Meta(UserSerializer.Meta):
         fields = ("get_full_name", "get_mail")

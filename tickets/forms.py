@@ -25,14 +25,15 @@ Ticket form
 
 
 from django import forms
+from django.forms import Form, ModelForm
 from django.template.loader import render_to_string
-from django.forms import ModelForm, Form
+from django.utils.translation import ugettext_lazy as _
+
 from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 from re2o.widgets import AutocompleteModelWidget
-from django.utils.translation import ugettext_lazy as _
 
-from .models import Ticket, CommentTicket
+from .models import CommentTicket, Ticket
 
 
 class NewTicketForm(FormRevMixin, ModelForm):
@@ -46,10 +47,12 @@ class NewTicketForm(FormRevMixin, ModelForm):
         request = kwargs.pop("request", None)
         super(NewTicketForm, self).__init__(*args, **kwargs)
         if request.user.is_authenticated:
-            self.fields.pop('email')
+            self.fields.pop("email")
             self.instance.user = request.user
-        self.fields['description'].help_text = render_to_string('tickets/help_text.html')
-        self.instance.language = getattr(request, "LANGUAGE_CODE", "en") 
+        self.fields["description"].help_text = render_to_string(
+            "tickets/help_text.html"
+        )
+        self.instance.language = getattr(request, "LANGUAGE_CODE", "en")
         self.instance.request = request
 
 
@@ -67,7 +70,7 @@ class EditTicketForm(FormRevMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(EditTicketForm, self).__init__(*args, **kwargs)
-        self.fields['email'].required = False
+        self.fields["email"].required = False
 
 
 class CommentTicketForm(FormRevMixin, ModelForm):
@@ -83,4 +86,3 @@ class CommentTicketForm(FormRevMixin, ModelForm):
         super(CommentTicketForm, self).__init__(*args, prefix=prefix, **kwargs)
         self.fields["comment"].label = _("comment")
         self.instance.request = request
-

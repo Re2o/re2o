@@ -34,12 +34,12 @@ https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_pyth
 Inspired by Daniel Stan in Crans
 """
 
+import logging
 import os
 import sys
-import logging
 import traceback
-import radiusd  # Magic module freeradius (radiusd.py is dummy)
 
+import radiusd  # Magic module freeradius (radiusd.py is dummy)
 from django.core.wsgi import get_wsgi_application
 from django.db.models import Q
 
@@ -54,11 +54,10 @@ os.chdir(proj_path)
 # This is so models get loaded.
 application = get_wsgi_application()
 
-from machines.models import Interface, IpList, Nas, Domain
+from machines.models import Domain, Interface, IpList, Nas
+from preferences.models import RadiusOption
 from topologie.models import Port, Switch
 from users.models import User
-from preferences.models import RadiusOption
-
 
 
 # Logging
@@ -76,7 +75,7 @@ class RadiusdHandler(logging.Handler):
         radiusd.radlog(rad_sig, str(record.msg))
 
 
-# Init for logging 
+# Init for logging
 logger = logging.getLogger("auth.py")
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(name)s: [%(levelname)s] %(message)s")
@@ -132,10 +131,10 @@ def authorize(data):
     - If the nas is known, we apply the 802.1X if enabled,
     - It the nas is known AND nas auth is enabled with mac address, returns
     accept here"""
-    # For proxified request, split 
+    # For proxified request, split
     nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
     nas_instance = find_nas_from_request(nas)
-    # For none proxified requests 
+    # For none proxified requests
     nas_type = None
     if nas_instance:
         nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
@@ -162,12 +161,11 @@ def authorize(data):
 
 @radius_event
 def post_auth(data):
-    """ Function called after the user is authenticated
-    """
+    """Function called after the user is authenticated"""
 
     nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
     nas_instance = find_nas_from_request(nas)
-    # All non proxified requests 
+    # All non proxified requests
     if not nas_instance:
         logger.info("Proxified request, nas unknown")
         return radiusd.RLM_MODULE_OK
@@ -309,7 +307,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
             - no room : Decision set in Re2o RadiusOption,
             - no user in this room : Reject,
             - user of this room is banned or disable : Reject,
-            - user of this room non-contributor and not whitelisted: 
+            - user of this room non-contributor and not whitelisted:
             Decision set in Re2o RadiusOption
         - mode common :
             - mac-address already registered:
@@ -336,7 +334,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
     }
     # Get port from switch and port number
     extra_log = ""
-    # If NAS is unknown, go to default vlan 
+    # If NAS is unknown, go to default vlan
     if not nas_machine:
         return (
             "?",
@@ -366,7 +364,7 @@ def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
             RadiusOption.get_cached_value("unknown_port") != RadiusOption.REJECT,
             RadiusOption.get_attributes("unknown_port_attributes", attributes_kwargs),
         )
- 
+
     # Retrieve port profile
     port_profile = port.get_port_profile
 

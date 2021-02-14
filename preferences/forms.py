@@ -25,35 +25,21 @@ Forms to edit preferences: users, machines, topology, organisation etc.
 
 from __future__ import unicode_literals
 
-from django.forms import ModelForm, Form
-from django.db.models import Q
 from django import forms
+from django.db.models import Q
+from django.forms import Form, ModelForm
 from django.utils.translation import ugettext_lazy as _
+
 from re2o.mixins import FormRevMixin
-from re2o.widgets import (
-    AutocompleteModelWidget,
-    AutocompleteMultipleModelWidget
-)
-from .models import (
-    OptionalUser,
-    OptionalMachine,
-    OptionalTopologie,
-    GeneralOption,
-    AssoOption,
-    MailMessageOption,
-    HomeOption,
-    Service,
-    MailContact,
-    Reminder,
-    RadiusKey,
-    SwitchManagementCred,
-    RadiusOption,
-    CotisationsOption,
-    DocumentTemplate,
-    RadiusAttribute,
-    Mandate,
-)
+from re2o.widgets import (AutocompleteModelWidget,
+                          AutocompleteMultipleModelWidget)
 from topologie.models import Switch
+
+from .models import (AssoOption, CotisationsOption, DocumentTemplate,
+                     GeneralOption, HomeOption, MailContact, MailMessageOption,
+                     Mandate, OptionalMachine, OptionalTopologie, OptionalUser,
+                     RadiusAttribute, RadiusKey, RadiusOption, Reminder,
+                     Service, SwitchManagementCred)
 
 
 class EditOptionalUserForm(ModelForm):
@@ -74,14 +60,22 @@ class EditOptionalUserForm(ModelForm):
         self.fields["self_change_shell"].label = _("Self change shell")
         self.fields["self_change_pseudo"].label = _("Self change pseudo")
         self.fields["self_room_policy"].label = _("Self room policy")
-        self.fields["local_email_accounts_enabled"].label = _("Local email accounts enabled")
+        self.fields["local_email_accounts_enabled"].label = _(
+            "Local email accounts enabled"
+        )
         self.fields["local_email_domain"].label = _("Local email domain")
         self.fields["max_email_address"].label = _("Max local email address")
         self.fields["delete_notyetactive"].label = _("Delete not yet active users")
-        self.fields["disable_emailnotyetconfirmed"].label = _("Disabled email not yet confirmed")
+        self.fields["disable_emailnotyetconfirmed"].label = _(
+            "Disabled email not yet confirmed"
+        )
         self.fields["self_adhesion"].label = _("Self registration")
-        self.fields["all_users_active"].label = _("All users are state active by default")
-        self.fields["allow_set_password_during_user_creation"].label = _("Allow set password during user creation")
+        self.fields["all_users_active"].label = _(
+            "All users are state active by default"
+        )
+        self.fields["allow_set_password_during_user_creation"].label = _(
+            "Allow set password during user creation"
+        )
         self.fields["allow_archived_connexion"].label = _("Allow archived connexion")
 
 
@@ -211,9 +205,7 @@ class EditMailMessageOptionForm(ModelForm):
     def __init__(self, *args, **kwargs):
         prefix = kwargs.pop("prefix", self.Meta.model.__name__)
         super(EditMailMessageOptionForm, self).__init__(*args, prefix=prefix, **kwargs)
-        self.fields["welcome_mail_fr"].label = _(
-            "Message for the French welcome email"
-        )
+        self.fields["welcome_mail_fr"].label = _("Message for the French welcome email")
         self.fields["welcome_mail_en"].label = _(
             "Message for the English welcome email"
         )
@@ -355,8 +347,7 @@ class ServiceForm(ModelForm):
 
 
 class DelServiceForm(Form):
-    """Form used to delete one or several services displayed on the home page.
-    """
+    """Form used to delete one or several services displayed on the home page."""
 
     services = forms.ModelMultipleChoiceField(
         queryset=Service.objects.none(),

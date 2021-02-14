@@ -25,157 +25,182 @@ The defined URLs for topologie app. Included in re2o.urls.
 
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.urls import path
 
-from . import views
-from . import views_autocomplete
+from . import views, views_autocomplete
+
+app_name = "topologie"
 
 urlpatterns = [
-    url(r"^$", views.index, name="index"),
-    url(r"^index_ap/$", views.index_ap, name="index-ap"),
-    url(r"^new_ap/$", views.new_ap, name="new-ap"),
-    url(r"^edit_ap/(?P<accesspointid>[0-9]+)$", views.edit_ap, name="edit-ap"),
-    url(
-        r"^create_ports/(?P<switchid>[0-9]+)$", views.create_ports, name="create-ports"
-    ),
-    url(r"^index_room/$", views.index_room, name="index-room"),
-    url(r"^new_room/$", views.new_room, name="new-room"),
-    url(r"^edit_room/(?P<roomid>[0-9]+)$", views.edit_room, name="edit-room"),
-    url(r"^del_room/(?P<roomid>[0-9]+)$", views.del_room, name="del-room"),
-    url(r"^new_switch/$", views.new_switch, name="new-switch"),
-    url(r"^switch/(?P<switchid>[0-9]+)$", views.index_port, name="index-port"),
-    url(r"^edit_port/(?P<portid>[0-9]+)$", views.edit_port, name="edit-port"),
-    url(r"^new_port/(?P<switchid>[0-9]+)$", views.new_port, name="new-port"),
-    url(r"^del_port/(?P<portid>[0-9]+)$", views.del_port, name="del-port"),
-    url(r"^edit_switch/(?P<switchid>[0-9]+)$", views.edit_switch, name="edit-switch"),
-    url(r"^new_stack/$", views.new_stack, name="new-stack"),
-    url(
-        r"^index_stack/$",
+    path("", views.index, name="index"),
+    path("index_ap", views.index_ap, name="index-ap"),
+    path("new_ap", views.new_ap, name="new-ap"),
+    path("edit_ap/<int:accesspointid>", views.edit_ap, name="edit-ap"),
+    path("create_ports/<int:switchid>", views.create_ports, name="create-ports"),
+    path("index_room", views.index_room, name="index-room"),
+    path("new_room", views.new_room, name="new-room"),
+    path("edit_room/<int:roomid>", views.edit_room, name="edit-room"),
+    path("del_room/<int:roomid>", views.del_room, name="del-room"),
+    path("new_switch", views.new_switch, name="new-switch"),
+    path("switch/<int:switchid>", views.index_port, name="index-port"),
+    path("edit_port/<int:portid>", views.edit_port, name="edit-port"),
+    path("new_port/<int:switchid>", views.new_port, name="new-port"),
+    path("del_port/<int:portid>", views.del_port, name="del-port"),
+    path("edit_switch/<int:switchid>", views.edit_switch, name="edit-switch"),
+    path("new_stack", views.new_stack, name="new-stack"),
+    path(
+        "index_stack",
         views.index_stack,
         name="index-stack",
     ),
-    url(
-        r"^index_switch_bay/$",
+    path(
+        "index_switch_bay",
         views.index_switch_bay,
         name="index-switch-bay",
     ),
-    url(
-        r"^index_building/$",
+    path(
+        "index_building",
         views.index_building,
         name="index-building",
     ),
-    url(
-        r"^index_dormitory/$",
+    path(
+        "index_dormitory",
         views.index_dormitory,
         name="index-dormitory",
     ),
-    url(r"^edit_stack/(?P<stackid>[0-9]+)$", views.edit_stack, name="edit-stack"),
-    url(r"^del_stack/(?P<stackid>[0-9]+)$", views.del_stack, name="del-stack"),
-    url(r"^index_model_switch/$", views.index_model_switch, name="index-model-switch"),
-    url(r"^index_model_switch/$", views.index_model_switch, name="index-model-switch"),
-    url(r"^new_model_switch/$", views.new_model_switch, name="new-model-switch"),
-    url(
-        r"^edit_model_switch/(?P<modelswitchid>[0-9]+)$",
+    path("edit_stack/<int:stackid>", views.edit_stack, name="edit-stack"),
+    path("del_stack/<int:stackid>", views.del_stack, name="del-stack"),
+    path("index_model_switch", views.index_model_switch, name="index-model-switch"),
+    path("index_model_switch", views.index_model_switch, name="index-model-switch"),
+    path("new_model_switch", views.new_model_switch, name="new-model-switch"),
+    path(
+        "edit_model_switch/<int:modelswitchid>",
         views.edit_model_switch,
         name="edit-model-switch",
     ),
-    url(
-        r"^del_model_switch/(?P<modelswitchid>[0-9]+)$",
+    path(
+        "del_model_switch/<int:modelswitchid>",
         views.del_model_switch,
         name="del-model-switch",
     ),
-    url(
-        r"^new_constructor_switch/$",
+    path(
+        "new_constructor_switch",
         views.new_constructor_switch,
         name="new-constructor-switch",
     ),
-    url(
-        r"^edit_constructor_switch/(?P<constructorswitchid>[0-9]+)$",
+    path(
+        "edit_constructor_switch/<int:constructorswitchid>",
         views.edit_constructor_switch,
         name="edit-constructor-switch",
     ),
-    url(
-        r"^del_constructor_switch/(?P<constructorswitchid>[0-9]+)$",
+    path(
+        "del_constructor_switch/<int:constructorswitchid>",
         views.del_constructor_switch,
         name="del-constructor-switch",
     ),
-    url(r"^new_switch_bay/$", views.new_switch_bay, name="new-switch-bay"),
-    url(
-        r"^edit_switch_bay/(?P<switchbayid>[0-9]+)$",
+    path("new_switch_bay", views.new_switch_bay, name="new-switch-bay"),
+    path(
+        "edit_switch_bay/<int:switchbayid>",
         views.edit_switch_bay,
         name="edit-switch-bay",
     ),
-    url(
-        r"^del_switch_bay/(?P<switchbayid>[0-9]+)$",
+    path(
+        "del_switch_bay/<int:switchbayid>",
         views.del_switch_bay,
         name="del-switch-bay",
     ),
-    url(r"^new_building/$", views.new_building, name="new-building"),
-    url(
-        r"^edit_building/(?P<buildingid>[0-9]+)$",
+    path("new_building", views.new_building, name="new-building"),
+    path(
+        "edit_building/<int:buildingid>",
         views.edit_building,
         name="edit-building",
     ),
-    url(
-        r"^del_building/(?P<buildingid>[0-9]+)$",
+    path(
+        "del_building/<int:buildingid>",
         views.del_building,
         name="del-building",
     ),
-    url(r"^new_dormitory/$", views.new_dormitory, name="new-dormitory"),
-    url(
-        r"^edit_dormitory/(?P<dormitoryid>[0-9]+)$",
+    path("new_dormitory", views.new_dormitory, name="new-dormitory"),
+    path(
+        "edit_dormitory/<int:dormitoryid>",
         views.edit_dormitory,
         name="edit-dormitory",
     ),
-    url(
-        r"^del_dormitory/(?P<dormitoryid>[0-9]+)$",
+    path(
+        "del_dormitory/<int:dormitoryid>",
         views.del_dormitory,
         name="del-dormitory",
     ),
-    url(r"^index_port_profile/$", views.index_port_profile, name="index-port-profile"),
-    url(r"^new_port_profile/$", views.new_port_profile, name="new-port-profile"),
-    url(
-        r"^edit_port_profile/(?P<portprofileid>[0-9]+)$",
+    path("index_port_profile", views.index_port_profile, name="index-port-profile"),
+    path("new_port_profile", views.new_port_profile, name="new-port-profile"),
+    path(
+        "edit_port_profile/<int:portprofileid>",
         views.edit_port_profile,
         name="edit-port-profile",
     ),
-    url(
-        r"^del_port_profile/(?P<portprofileid>[0-9]+)$",
+    path(
+        "del_port_profile/<int:portprofileid>",
         views.del_port_profile,
         name="del-port-profile",
     ),
-    url(
-        r"^edit_vlanoptions/(?P<vlanid>[0-9]+)$",
+    path(
+        "edit_vlanoptions/<int:vlanid>",
         views.edit_vlanoptions,
         name="edit-vlanoptions",
     ),
-    url(r"^add_module/$", views.add_module, name="add-module"),
-    url(
-        r"^edit_module/(?P<moduleswitchid>[0-9]+)$",
+    path("add_module", views.add_module, name="add-module"),
+    path(
+        "edit_module/<int:moduleswitchid>",
         views.edit_module,
         name="edit-module",
     ),
-    url(
-        r"^del_module/(?P<moduleswitchid>[0-9]+)$", views.del_module, name="del-module"
-    ),
-    url(r"^index_module/$", views.index_module, name="index-module"),
-    url(r"^add_module_on/$", views.add_module_on, name="add-module-on"),
-    url(
-        r"^edit_module_on/(?P<moduleonswitchid>[0-9]+)$",
+    path("del_module/<int:moduleswitchid>", views.del_module, name="del-module"),
+    path("index_module", views.index_module, name="index-module"),
+    path("add_module_on", views.add_module_on, name="add-module-on"),
+    path(
+        "edit_module_on/<int:moduleonswitchid>",
         views.edit_module_on,
         name="edit-module-on",
     ),
-    url(
-        r"^del_module_on/(?P<moduleonswitchid>[0-9]+)$",
+    path(
+        "del_module_on/<int:moduleonswitchid>",
         views.del_module_on,
         name="del-module-on",
     ),
     ### Autocomplete Views
-    url(r'^room-autocomplete/$', views_autocomplete.RoomAutocomplete.as_view(), name='room-autocomplete',),
-    url(r'^building-autocomplete/$', views_autocomplete.BuildingAutocomplete.as_view(), name='building-autocomplete',),
-    url(r'^dormitory-autocomplete/$', views_autocomplete.DormitoryAutocomplete.as_view(), name='dormitory-autocomplete',),
-    url(r'^switch-autocomplete/$', views_autocomplete.SwitchAutocomplete.as_view(), name='switch-autocomplete',),
-    url(r'^port-autocomplete/$', views_autocomplete.PortAutocomplete.as_view(), name='profile-autocomplete',),
-    url(r'^portprofile-autocomplete/$', views_autocomplete.PortProfileAutocomplete.as_view(), name='portprofile-autocomplete',),
-    url(r'^switchbay-autocomplete/$', views_autocomplete.SwitchBayAutocomplete.as_view(), name='switchbay-autocomplete',),
+    path(
+        "room-autocomplete",
+        views_autocomplete.RoomAutocomplete.as_view(),
+        name="room-autocomplete",
+    ),
+    path(
+        "building-autocomplete",
+        views_autocomplete.BuildingAutocomplete.as_view(),
+        name="building-autocomplete",
+    ),
+    path(
+        "dormitory-autocomplete",
+        views_autocomplete.DormitoryAutocomplete.as_view(),
+        name="dormitory-autocomplete",
+    ),
+    path(
+        "switch-autocomplete",
+        views_autocomplete.SwitchAutocomplete.as_view(),
+        name="switch-autocomplete",
+    ),
+    path(
+        "port-autocomplete",
+        views_autocomplete.PortAutocomplete.as_view(),
+        name="profile-autocomplete",
+    ),
+    path(
+        "portprofile-autocomplete",
+        views_autocomplete.PortProfileAutocomplete.as_view(),
+        name="portprofile-autocomplete",
+    ),
+    path(
+        "switchbay-autocomplete",
+        views_autocomplete.SwitchBayAutocomplete.as_view(),
+        name="switchbay-autocomplete",
+    ),
 ]

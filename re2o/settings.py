@@ -36,7 +36,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 from __future__ import unicode_literals
 
 import os
+
 from .settings_default import *
+
 try:
     from .settings_local import *
 except ImportError:
@@ -60,7 +62,11 @@ LOGIN_REDIRECT_URL = "/"  # The URL for redirecting after login
 
 # Application definition
 # dal_legacy_static only needed for Django < 2.0 (https://django-autocomplete-light.readthedocs.io/en/master/install.html#django-versions-earlier-than-2-0)
-EARLY_EXTERNAL_CONTRIB_APPS = ("dal", "dal_select2", "dal_legacy_static")  # Need to be added before django.contrib.admin (https://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration)
+EARLY_EXTERNAL_CONTRIB_APPS = (
+    "dal",
+    "dal_select2",
+    "dal_legacy_static",
+)  # Need to be added before django.contrib.admin (https://django-autocomplete-light.readthedocs.io/en/master/install.html#configuration)
 DJANGO_CONTRIB_APPS = (
     "django.contrib.admin",
     "django.contrib.auth",
@@ -82,18 +88,21 @@ LOCAL_APPS = (
     "logs",
 )
 INSTALLED_APPS = (
-    EARLY_EXTERNAL_CONTRIB_APPS + DJANGO_CONTRIB_APPS + EXTERNAL_CONTRIB_APPS + LOCAL_APPS + OPTIONNAL_APPS 
+    EARLY_EXTERNAL_CONTRIB_APPS
+    + DJANGO_CONTRIB_APPS
+    + EXTERNAL_CONTRIB_APPS
+    + LOCAL_APPS
+    + OPTIONNAL_APPS
 )
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
+    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.middleware.security.SecurityMiddleware",
     "reversion.middleware.RevisionMiddleware",
 )
 
@@ -194,6 +203,21 @@ GRAPH_MODELS = {"all_applications": True, "group_models": True}
 
 # Timeout when sending emails through Django (in seconds)
 EMAIL_TIMEOUT = 10
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
 
 # Activate API
 if "api" in INSTALLED_APPS:

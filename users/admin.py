@@ -30,27 +30,13 @@ with AdherentAdmin, ClubAdmin and ServiceUserAdmin.
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Group
 from reversion.admin import VersionAdmin
 
-from .models import (
-    User,
-    EMailAddress,
-    ServiceUser,
-    School,
-    ListRight,
-    ListShell,
-    Adherent,
-    Club,
-    Ban,
-    Whitelist,
-    Request,
-)
-from .forms import (
-    UserAdminForm,
-    ServiceUserAdminForm,
-)
+from .forms import ServiceUserAdminForm, UserAdminForm
+from .models import (Adherent, Ban, Club, EMailAddress, ListRight, ListShell,
+                     Request, School, ServiceUser, User, Whitelist)
 
 
 class SchoolAdmin(VersionAdmin):
@@ -167,7 +153,18 @@ class AdherentAdmin(VersionAdmin, BaseUserAdmin):
         (None, {"fields": ("pseudo",)}),
         (
             "Personal info",
-            {"fields": ("surname", "name", "email", "school", "shell", "uid_number", "password1", "password2")},
+            {
+                "fields": (
+                    "surname",
+                    "name",
+                    "email",
+                    "school",
+                    "shell",
+                    "uid_number",
+                    "password1",
+                    "password2",
+                )
+            },
         ),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -205,6 +202,7 @@ class ClubAdmin(VersionAdmin, BaseUserAdmin):
         Django ModelAdmin: Apply on django ModelAdmin
 
     """
+
     # The forms to add and change user instances
     add_form = UserAdminForm
     form = UserAdminForm
@@ -223,7 +221,17 @@ class ClubAdmin(VersionAdmin, BaseUserAdmin):
         (None, {"fields": ("pseudo",)}),
         (
             "Personal info",
-            {"fields": ("surname", "email", "school", "shell", "uid_number", "password1", "password2")},
+            {
+                "fields": (
+                    "surname",
+                    "email",
+                    "school",
+                    "shell",
+                    "uid_number",
+                    "password1",
+                    "password2",
+                )
+            },
         ),
     )
 
@@ -269,7 +277,12 @@ class ServiceUserAdmin(VersionAdmin, BaseUserAdmin):
     # that reference specific fields on auth.User.
     list_display = ("pseudo", "access_group")
     list_filter = ()
-    fieldsets = ((None, {"fields": ("pseudo", "access_group", "comment", "password1", "password2")}),)
+    fieldsets = (
+        (
+            None,
+            {"fields": ("pseudo", "access_group", "comment", "password1", "password2")},
+        ),
+    )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (

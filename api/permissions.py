@@ -22,8 +22,9 @@
 """Defines the permission classes used in the API.
 """
 
-from rest_framework import permissions, exceptions
 from django.http import Http404
+from rest_framework import exceptions, permissions
+
 from . import acl
 
 

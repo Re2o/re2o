@@ -14,14 +14,14 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-from django.core.management.base import BaseCommand, CommandError
-
-from users.models import User
-from cotisations.models import Facture
-from preferences.models import OptionalUser
 from datetime import timedelta
 
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
+
+from cotisations.models import Facture
+from preferences.models import OptionalUser
+from users.models import User
 
 
 class Command(BaseCommand):

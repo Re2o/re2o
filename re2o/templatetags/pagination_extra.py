@@ -20,9 +20,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from django import template
+
 from .url_insert_param import url_insert_param
 
 register = template.Library()
+
 
 @register.simple_tag
 def pagination_insert_page_and_id(url, page=1, id=None, **kwargs):
@@ -77,10 +79,14 @@ def pagination_insert_page_and_id(url, page=1, id=None, **kwargs):
     """
 
     page_arg = "page"
-    if "page_arg" in kwargs and kwargs["page_arg"] is not None and len(kwargs["page_arg"]) > 0:
+    if (
+        "page_arg" in kwargs
+        and kwargs["page_arg"] is not None
+        and len(kwargs["page_arg"]) > 0
+    ):
         page_arg = kwargs["page_arg"]
 
-    args = { "url": url, page_arg: page}
+    args = {"url": url, page_arg: page}
     new_url = url_insert_param(**args)
 
     if id != None:

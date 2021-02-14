@@ -4,7 +4,7 @@
 # quelques clics.
 #
 # Copyright © 2020  Gabriel Détraz
-# Copyright © 2019 Arthur Grisel-Davy 
+# Copyright © 2019 Arthur Grisel-Davy
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

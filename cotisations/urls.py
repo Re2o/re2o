@@ -25,85 +25,84 @@ The defined URLs for the Cotisations app
 
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.urls import path
 
-from . import views, views_autocomplete
-from . import payment_methods
+from . import payment_methods, views, views_autocomplete
+
+app_name = "cotisations"
 
 urlpatterns = [
-    url(r"^new_facture/(?P<userid>[0-9]+)$", views.new_facture, name="new-facture"),
-    url(
-        r"^edit_facture/(?P<factureid>[0-9]+)$", views.edit_facture, name="edit-facture"
-    ),
-    url(r"^del_facture/(?P<factureid>[0-9]+)$", views.del_facture, name="del-facture"),
-    url(r"^facture_pdf/(?P<factureid>[0-9]+)$", views.facture_pdf, name="facture-pdf"),
-    url(r"^voucher_pdf/(?P<factureid>[0-9]+)$", views.voucher_pdf, name="voucher-pdf"),
-    url(r"^new_cost_estimate/$", views.new_cost_estimate, name="new-cost-estimate"),
-    url(
-        r"^index_cost_estimate/$", views.index_cost_estimate, name="index-cost-estimate"
-    ),
-    url(
-        r"^cost_estimate_pdf/(?P<costestimateid>[0-9]+)$",
+    path("new_facture/<int:userid>", views.new_facture, name="new-facture"),
+    path("edit_facture/<int:factureid>", views.edit_facture, name="edit-facture"),
+    path("del_facture/<int:factureid>", views.del_facture, name="del-facture"),
+    path("facture_pdf/<int:factureid>", views.facture_pdf, name="facture-pdf"),
+    path("voucher_pdf/<int:factureid>", views.voucher_pdf, name="voucher-pdf"),
+    path("new_cost_estimate", views.new_cost_estimate, name="new-cost-estimate"),
+    path("index_cost_estimate", views.index_cost_estimate, name="index-cost-estimate"),
+    path(
+        "cost_estimate_pdf/<int:costestimateid>",
         views.cost_estimate_pdf,
         name="cost-estimate-pdf",
     ),
-    url(
-        r"^index_custom_invoice/$",
+    path(
+        "index_custom_invoice",
         views.index_custom_invoice,
         name="index-custom-invoice",
     ),
-    url(
-        r"^edit_cost_estimate/(?P<costestimateid>[0-9]+)$",
+    path(
+        "edit_cost_estimate/<int:costestimateid>",
         views.edit_cost_estimate,
         name="edit-cost-estimate",
     ),
-    url(
-        r"^cost_estimate_to_invoice/(?P<costestimateid>[0-9]+)$",
+    path(
+        "cost_estimate_to_invoice/<int:costestimateid>",
         views.cost_estimate_to_invoice,
         name="cost-estimate-to-invoice",
     ),
-    url(
-        r"^del_cost_estimate/(?P<costestimateid>[0-9]+)$",
+    path(
+        "del_cost_estimate/<int:costestimateid>",
         views.del_cost_estimate,
         name="del-cost-estimate",
     ),
-    url(r"^new_custom_invoice/$", views.new_custom_invoice, name="new-custom-invoice"),
-    url(
-        r"^edit_custom_invoice/(?P<custominvoiceid>[0-9]+)$",
+    path("new_custom_invoice", views.new_custom_invoice, name="new-custom-invoice"),
+    path(
+        "edit_custom_invoice/<int:custominvoiceid>",
         views.edit_custom_invoice,
         name="edit-custom-invoice",
     ),
-    url(
-        r"^custom_invoice_pdf/(?P<custominvoiceid>[0-9]+)$",
+    path(
+        "custom_invoice_pdf/<int:custominvoiceid>",
         views.custom_invoice_pdf,
         name="custom-invoice-pdf",
     ),
-    url(
-        r"^del_custom_invoice/(?P<custominvoiceid>[0-9]+)$",
+    path(
+        "del_custom_invoice/<int:custominvoiceid>",
         views.del_custom_invoice,
         name="del-custom-invoice",
     ),
-    url(r"^credit_solde/(?P<userid>[0-9]+)$", views.credit_solde, name="credit-solde"),
-    url(r"^add_article/$", views.add_article, name="add-article"),
-    url(
-        r"^edit_article/(?P<articleid>[0-9]+)$", views.edit_article, name="edit-article"
-    ),
-    url(r"^del_article/$", views.del_article, name="del-article"),
-    url(r"^add_paiement/$", views.add_paiement, name="add-paiement"),
-    url(
-        r"^edit_paiement/(?P<paiementid>[0-9]+)$",
+    path("credit_solde/<int:userid>", views.credit_solde, name="credit-solde"),
+    path("add_article", views.add_article, name="add-article"),
+    path("edit_article/<int:articleid>", views.edit_article, name="edit-article"),
+    path("del_article", views.del_article, name="del-article"),
+    path("add_paiement", views.add_paiement, name="add-paiement"),
+    path(
+        "edit_paiement/<int:paiementid>",
         views.edit_paiement,
         name="edit-paiement",
     ),
-    url(r"^del_paiement/$", views.del_paiement, name="del-paiement"),
-    url(r"^add_banque/$", views.add_banque, name="add-banque"),
-    url(r"^edit_banque/(?P<banqueid>[0-9]+)$", views.edit_banque, name="edit-banque"),
-    url(r"^del_banque/$", views.del_banque, name="del-banque"),
-    url(r"^index_article/$", views.index_article, name="index-article"),
-    url(r"^index_banque/$", views.index_banque, name="index-banque"),
-    url(r"^index_paiement/$", views.index_paiement, name="index-paiement"),
-    url(r"^control/$", views.control, name="control"),
-    url(r"^$", views.index, name="index"),
+    path("del_paiement", views.del_paiement, name="del-paiement"),
+    path("add_banque", views.add_banque, name="add-banque"),
+    path("edit_banque/<int:banqueid>", views.edit_banque, name="edit-banque"),
+    path("del_banque", views.del_banque, name="del-banque"),
+    path("index_article", views.index_article, name="index-article"),
+    path("index_banque", views.index_banque, name="index-banque"),
+    path("index_paiement", views.index_paiement, name="index-paiement"),
+    path("control", views.control, name="control"),
+    path("", views.index, name="index"),
     ### Autocomplete Views
-    url(r'^banque-autocomplete/$', views_autocomplete.BanqueAutocomplete.as_view(), name='banque-autocomplete',),
+    path(
+        "banque-autocomplete",
+        views_autocomplete.BanqueAutocomplete.as_view(),
+        name="banque-autocomplete",
+    ),
 ] + payment_methods.urls.urlpatterns

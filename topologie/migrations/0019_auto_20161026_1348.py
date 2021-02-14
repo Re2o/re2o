@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="switch",
             name="switch_interface",
-            field=models.OneToOneField(default=1, to="machines.Interface"),
+            field=models.OneToOneField(default=1, to="machines.Interface", on_delete=models.CASCADE),
             preserve_default=False,
         ),
         migrations.AlterUniqueTogether(name="switch", unique_together=set([])),

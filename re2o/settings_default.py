@@ -56,7 +56,7 @@ GID_RANGES = {"posix": [501, 600]}
 
 # If you want to add a database routers, please fill in above and add your databse.
 # Then, add a file "local_routers.py" in folder app re2o, and add your router path in
-# the LOCAL_ROUTERS var as "re2o.local_routers.DbRouter". You can also add extra routers. 
+# the LOCAL_ROUTERS var as "re2o.local_routers.DbRouter". You can also add extra routers.
 LOCAL_ROUTERS = []
 
 # Some optionnal Re2o Apps
@@ -65,24 +65,24 @@ OPTIONNAL_APPS_RE2O = ()
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + ()
 
-#Set auth password validator
+# Set auth password validator
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-        'OPTIONS': {
-            'user_attributes': ['surname', 'pseudo', 'name', 'email'],
-        }
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "OPTIONS": {
+            "user_attributes": ["surname", "pseudo", "name", "email"],
+        },
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 8,
-        }
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 8,
+        },
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]

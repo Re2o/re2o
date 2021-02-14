@@ -27,8 +27,8 @@ with multiple operators.
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from re2o.mixins import AclMixin, RevMixin
 from preferences.models import PreferencesModel
+from re2o.mixins import AclMixin, RevMixin
 
 
 class MultiopOption(AclMixin, PreferencesModel):

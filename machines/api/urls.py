@@ -45,9 +45,8 @@ urls_viewset = [
     (r"machines/ouvertureport", views.OuverturePortViewSet, None),
     (r"machines/role", views.RoleViewSet, None),
     (r"machines/services-regen", views.ServiceRegenViewSet, "serviceregen"),
-    
     # Deprecated
-    (r"services/regen", views.ServiceRegenViewSet, "serviceregen") 
+    (r"services/regen", views.ServiceRegenViewSet, "serviceregen"),
 ]
 
 urls_view = [
@@ -56,7 +55,6 @@ urls_view = [
     (r"machines/firewall-interface-ports", views.InterfacePortsOpenView),
     (r"machines/dns-zones", views.DNSZonesView),
     (r"machines/dns-reverse-zones", views.DNSReverseZonesView),
-
     # Deprecated
     (r"dhcp/hostmacip", views.HostMacIpView),
     (r"firewall/subnet-ports", views.SubnetPortsOpenView),

@@ -26,19 +26,16 @@
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext as _
 from django.urls import reverse
-
-from re2o.base import re2o_paginator
-
-from re2o.acl import can_view, can_view_all, can_edit, can_create
+from django.utils.translation import ugettext as _
 
 from preferences.views import edit_options_template_function
+from re2o.acl import can_create, can_edit, can_view, can_view_all
+from re2o.base import re2o_paginator
 
-from . import forms
-from . import models
+from . import forms, models
 
 
 def aff_preferences(request):

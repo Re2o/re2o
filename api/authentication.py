@@ -31,12 +31,10 @@ from rest_framework.authentication import TokenAuthentication
 
 
 class ExpiringTokenAuthentication(TokenAuthentication):
-    """Authenticate a user if the provided token is valid and not expired.
-    """
+    """Authenticate a user if the provided token is valid and not expired."""
 
     def authenticate_credentials(self, key):
-        """See base class. Add the verification the token is not expired.
-        """
+        """See base class. Add the verification the token is not expired."""
         base = super(ExpiringTokenAuthentication, self)
         user, token = base.authenticate_credentials(key)
 

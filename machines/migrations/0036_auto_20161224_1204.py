@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="domain",
             name="interface_parent",
-            field=models.ForeignKey(to="machines.Interface", null=True, blank=True),
+            field=models.ForeignKey(to="machines.Interface", null=True, blank=True, on_delete=models.CASCADE),
         ),
         migrations.AlterUniqueTogether(
             name="domain", unique_together=set([("name", "extension")])

@@ -20,15 +20,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os
-import sys
 import pwd
+import sys
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from reversion import revisions as reversion
 
-from users.models import User, ListShell
-from re2o.script_utils import get_user, get_system_user
+from re2o.script_utils import get_system_user, get_user
+from users.models import ListShell, User
 
 
 class Command(BaseCommand):

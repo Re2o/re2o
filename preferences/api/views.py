@@ -19,16 +19,16 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from rest_framework import viewsets, generics
+from rest_framework import generics, viewsets
 
-from . import serializers
 import preferences.models as preferences
 from api.permissions import ACLPermission
 
+from . import serializers
+
 
 class OptionalUserView(generics.RetrieveAPIView):
-    """Exposes details of `preferences.models.` settings.
-    """
+    """Exposes details of `preferences.models.` settings."""
 
     permission_classes = (ACLPermission,)
     perms_map = {"GET": [preferences.OptionalUser.can_view_all]}
@@ -39,8 +39,7 @@ class OptionalUserView(generics.RetrieveAPIView):
 
 
 class OptionalMachineView(generics.RetrieveAPIView):
-    """Exposes details of `preferences.models.OptionalMachine` settings.
-    """
+    """Exposes details of `preferences.models.OptionalMachine` settings."""
 
     permission_classes = (ACLPermission,)
     perms_map = {"GET": [preferences.OptionalMachine.can_view_all]}
@@ -51,8 +50,7 @@ class OptionalMachineView(generics.RetrieveAPIView):
 
 
 class OptionalTopologieView(generics.RetrieveAPIView):
-    """Exposes details of `preferences.models.OptionalTopologie` settings.
-    """
+    """Exposes details of `preferences.models.OptionalTopologie` settings."""
 
     permission_classes = (ACLPermission,)
     perms_map = {"GET": [preferences.OptionalTopologie.can_view_all]}
@@ -63,8 +61,7 @@ class OptionalTopologieView(generics.RetrieveAPIView):
 
 
 class RadiusOptionView(generics.RetrieveAPIView):
-    """Exposes details of `preferences.models.OptionalTopologie` settings.
-    """
+    """Exposes details of `preferences.models.OptionalTopologie` settings."""
 
     permission_classes = (ACLPermission,)
     perms_map = {"GET": [preferences.RadiusOption.can_view_all]}
@@ -75,8 +72,7 @@ class RadiusOptionView(generics.RetrieveAPIView):
 
 
 class GeneralOptionView(generics.RetrieveAPIView):
-    """Exposes details of `preferences.models.GeneralOption` settings.
-    """
+    """Exposes details of `preferences.models.GeneralOption` settings."""
 
     permission_classes = (ACLPermission,)
     perms_map = {"GET": [preferences.GeneralOption.can_view_all]}
@@ -87,16 +83,14 @@ class GeneralOptionView(generics.RetrieveAPIView):
 
 
 class HomeServiceViewSet(viewsets.ReadOnlyModelViewSet):
-    """Exposes list and details of `preferences.models.Service` objects.
-    """
+    """Exposes list and details of `preferences.models.Service` objects."""
 
     queryset = preferences.Service.objects.all()
     serializer_class = serializers.HomeServiceSerializer
 
 
 class AssoOptionView(generics.RetrieveAPIView):
-    """Exposes details of `preferences.models.AssoOption` settings.
-    """
+    """Exposes details of `preferences.models.AssoOption` settings."""
 
     permission_classes = (ACLPermission,)
     perms_map = {"GET": [preferences.AssoOption.can_view_all]}
@@ -107,8 +101,7 @@ class AssoOptionView(generics.RetrieveAPIView):
 
 
 class HomeOptionView(generics.RetrieveAPIView):
-    """Exposes details of `preferences.models.HomeOption` settings.
-    """
+    """Exposes details of `preferences.models.HomeOption` settings."""
 
     permission_classes = (ACLPermission,)
     perms_map = {"GET": [preferences.HomeOption.can_view_all]}
@@ -119,8 +112,7 @@ class HomeOptionView(generics.RetrieveAPIView):
 
 
 class MailMessageOptionView(generics.RetrieveAPIView):
-    """Exposes details of `preferences.models.MailMessageOption` settings.
-    """
+    """Exposes details of `preferences.models.MailMessageOption` settings."""
 
     permission_classes = (ACLPermission,)
     perms_map = {"GET": [preferences.MailMessageOption.can_view_all]}

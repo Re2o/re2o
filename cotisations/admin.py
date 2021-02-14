@@ -29,8 +29,8 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import Facture, Article, Banque, Paiement, Cotisation, Vente
-from .models import CustomInvoice, CostEstimate
+from .models import (Article, Banque, CostEstimate, Cotisation, CustomInvoice,
+                     Facture, Paiement, Vente)
 
 
 class FactureAdmin(VersionAdmin):

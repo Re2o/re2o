@@ -27,27 +27,23 @@
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
-from django.views.decorators.cache import cache_page
-from django.utils.translation import ugettext as _
-from django.urls import reverse
-from django.forms import modelformset_factory
 from django.db.models import Q
+from django.forms import modelformset_factory
+from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.translation import ugettext as _
+from django.views.decorators.cache import cache_page
+
+from preferences.models import AssoOption, GeneralOption
+from re2o.acl import can_create, can_edit, can_view, can_view_all
+from re2o.base import SortTable, re2o_paginator
+from re2o.utils import all_adherent, all_has_access
 from re2o.views import form
-from re2o.utils import all_has_access, all_adherent
-
-from re2o.base import re2o_paginator, SortTable
-
-from re2o.acl import can_view, can_view_all, can_edit, can_create
-
-from preferences.models import GeneralOption, AssoOption
+from topologie.models import Dormitory, Room
 
 from .forms import DormitoryForm
-
 from .preferences.models import MultiopOption
-
-from topologie.models import Room, Dormitory
 
 
 def display_rooms_connection(request, dormitory=None):
@@ -58,9 +54,13 @@ def display_rooms_connection(request, dormitory=None):
         dormitory: Dormitory, the dormitory used to filter rooms. If no
             dormitory is given, all rooms are displayed (default: None).
     """
-    room_list = Room.objects.select_related("building__dormitory").filter(
-        building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all()
-    ).order_by("building_dormitory", "port")
+    room_list = (
+        Room.objects.select_related("building__dormitory")
+        .filter(
+            building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all()
+        )
+        .order_by("building_dormitory", "port")
+    )
     if dormitory:
         room_list = room_list.filter(building__dormitory=dormitory)
     room_list = SortTable.sort(
@@ -113,7 +113,9 @@ def aff_pending_connection(request):
         Room.objects.select_related("building__dormitory")
         .filter(port__isnull=True)
         .filter(adherent__in=all_has_access())
-        .filter(building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all())
+        .filter(
+            building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all()
+        )
         .order_by("building_dormitory", "port")
     )
     dormitory_form = DormitoryForm(request.POST or None)
@@ -151,7 +153,9 @@ def aff_pending_disconnection(request):
         Room.objects.select_related("building__dormitory")
         .filter(port__isnull=False)
         .exclude(Q(adherent__in=all_has_access()) | Q(adherent__in=all_adherent()))
-        .filter(building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all())
+        .filter(
+            building__dormitory__in=MultiopOption.get_cached_value("enabled_dorm").all()
+        )
         .order_by("building_dormitory", "port")
     )
     dormitory_form = DormitoryForm(request.POST or None)

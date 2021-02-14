@@ -33,13 +33,12 @@ urls_viewset = [
     (r"topologie/dormitory", views.DormitoryViewSet, None),
     (r"topologie/switchport", views.SwitchPortViewSet, "switchport"),
     (r"topologie/portprofile", views.PortProfileViewSet, "portprofile"),
-    (r"topologie/room", views.RoomViewSet, None)
+    (r"topologie/room", views.RoomViewSet, None),
 ]
 
 urls_view = [
     (r"topologie/switchs-ports-config", views.SwitchPortView),
     (r"topologie/switchs-role", views.RoleView),
-
     # Deprecated
     (r"switchs/ports-config", views.SwitchPortView),
     (r"switchs/role", views.RoleView),

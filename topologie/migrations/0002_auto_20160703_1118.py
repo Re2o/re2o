@@ -52,12 +52,12 @@ class Migration(migrations.Migration):
                 (
                     "_content_type",
                     models.ForeignKey(
-                        null=True, blank=True, to="contenttypes.ContentType"
+                        null=True, blank=True, to="contenttypes.ContentType", on_delete=models.CASCADE
                     ),
                 ),
                 (
                     "switch",
-                    models.ForeignKey(related_name="ports", to="topologie.Switch"),
+                    models.ForeignKey(related_name="ports", to="topologie.Switch", on_delete=models.CASCADE),
                 ),
             ],
         ),

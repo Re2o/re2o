@@ -1,13 +1,14 @@
+import datetime
+
+from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth.models import Permission
-
-import datetime
-from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
 from users.models import Adherent
-from .models import Vente, Facture, Cotisation, Paiement, Article
+
+from .models import Article, Cotisation, Facture, Paiement, Vente
 
 
 class NewFactureTests(TestCase):

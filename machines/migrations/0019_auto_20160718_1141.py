@@ -34,6 +34,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="interface",
             name="machine",
-            field=models.ForeignKey(to="machines.Machine"),
+            field=models.ForeignKey(to="machines.Machine", on_delete=models.CASCADE),
         )
     ]

@@ -23,13 +23,14 @@
 """Defines the custom runners for Re2o.
 """
 
-import volatildap
 import os.path
 
-from django.test.runner import DiscoverRunner
+import volatildap
 from django.conf import settings
+from django.test.runner import DiscoverRunner
 
-from users.models import LdapUser, LdapUserGroup, LdapServiceUser, LdapServiceUserGroup
+from users.models import (LdapServiceUser, LdapServiceUserGroup, LdapUser,
+                          LdapUserGroup)
 
 # The path of this file
 __here = os.path.dirname(os.path.realpath(__file__))

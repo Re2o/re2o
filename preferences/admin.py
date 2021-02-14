@@ -28,21 +28,10 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from reversion.admin import VersionAdmin
 
-from .models import (
-    OptionalUser,
-    OptionalMachine,
-    OptionalTopologie,
-    GeneralOption,
-    Service,
-    MailContact,
-    AssoOption,
-    MailMessageOption,
-    HomeOption,
-    RadiusKey,
-    SwitchManagementCred,
-    Reminder,
-    DocumentTemplate,
-)
+from .models import (AssoOption, DocumentTemplate, GeneralOption, HomeOption,
+                     MailContact, MailMessageOption, OptionalMachine,
+                     OptionalTopologie, OptionalUser, RadiusKey, Reminder,
+                     Service, SwitchManagementCred)
 
 
 class OptionalUserAdmin(VersionAdmin):

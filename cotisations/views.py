@@ -29,62 +29,38 @@ The different views used in the Cotisations module
 """
 
 from __future__ import unicode_literals
+
 import os
 
-from django.urls import reverse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.template.loader import render_to_string
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import ProtectedError
-from django.db.models import Q
-from django.forms import modelformset_factory, formset_factory
+from django.contrib.auth.decorators import login_required
+from django.db.models import ProtectedError, Q
+from django.forms import formset_factory, modelformset_factory
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-
 # Import des models, forms et fonctions re2o
 from reversion import revisions as reversion
-from users.models import User
-from re2o.settings import LOGO_PATH
-from re2o import settings
-from re2o.views import form
-from re2o.base import SortTable, re2o_paginator
-from re2o.acl import (
-    can_create,
-    can_edit,
-    can_delete,
-    can_view,
-    can_view_all,
-    can_delete_set,
-    can_change,
-)
+
 from preferences.models import AssoOption, GeneralOption, Mandate
-from .models import (
-    Facture,
-    Article,
-    Vente,
-    Paiement,
-    Banque,
-    CustomInvoice,
-    BaseInvoice,
-    CostEstimate,
-)
-from .forms import (
-    FactureForm,
-    ArticleForm,
-    DelArticleForm,
-    PaiementForm,
-    DelPaiementForm,
-    BanqueForm,
-    DelBanqueForm,
-    SelectArticleForm,
-    RechargeForm,
-    CustomInvoiceForm,
-    DiscountForm,
-    CostEstimateForm,
-)
-from .tex import render_invoice, render_voucher, escape_chars
+from re2o import settings
+from re2o.acl import (can_change, can_create, can_delete, can_delete_set,
+                      can_edit, can_view, can_view_all)
+from re2o.base import SortTable, re2o_paginator
+from re2o.settings import LOGO_PATH
+from re2o.views import form
+from users.models import User
+
+from .forms import (ArticleForm, BanqueForm, CostEstimateForm,
+                    CustomInvoiceForm, DelArticleForm, DelBanqueForm,
+                    DelPaiementForm, DiscountForm, FactureForm, PaiementForm,
+                    RechargeForm, SelectArticleForm)
+from .models import (Article, Banque, BaseInvoice, CostEstimate, CustomInvoice,
+                     Facture, Paiement, Vente)
 from .payment_methods.forms import payment_method_factory
+from .tex import escape_chars, render_invoice, render_voucher
 from .utils import find_payment_method
 
 
@@ -136,7 +112,7 @@ def new_facture(request, user, userid):
                         duration_membership=article.duration_membership,
                         duration_days_membership=article.duration_days_membership,
                         number=quantity,
-                    ) 
+                    )
                     purchases.append(new_purchase)
             p = find_payment_method(new_invoice_instance.paiement)
             if hasattr(p, "check_price"):
@@ -1057,12 +1033,15 @@ def voucher_pdf(request, invoice, **_kwargs):
             "lastname": invoice.user.surname,
             "email": invoice.user.email,
             "phone": invoice.user.telephone,
-            "date_end": invoice.get_subscription().latest("date_end_memb").date_end_memb,
+            "date_end": invoice.get_subscription()
+            .latest("date_end_memb")
+            .date_end_memb,
             "date_begin": invoice.date,
         },
     )
 
-def aff_profil(request,user):
+
+def aff_profil(request, user):
     """View used to display the cotisations on a user's profil."""
 
     factures = Facture.objects.filter(user=user)
@@ -1071,16 +1050,16 @@ def aff_profil(request,user):
         request.GET.get("col"),
         request.GET.get("order"),
         SortTable.COTISATIONS_INDEX,
-    ) 
-    
+    )
+
     pagination_large_number = GeneralOption.get_cached_value("pagination_large_number")
-    factures = re2o_paginator(request, factures,pagination_large_number)
+    factures = re2o_paginator(request, factures, pagination_large_number)
 
     context = {
-        "users":user,
+        "users": user,
         "facture_list": factures,
-    }    
+    }
 
     return render_to_string(
-            "cotisations/aff_profil.html",context=context,request=request,using=None
-    )  
+        "cotisations/aff_profil.html", context=context, request=request, using=None
+    )

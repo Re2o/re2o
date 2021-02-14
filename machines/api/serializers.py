@@ -22,12 +22,12 @@
 from rest_framework import serializers
 
 import machines.models as machines
-from api.serializers import NamespacedHRField, NamespacedHIField, NamespacedHMSerializer
+from api.serializers import (NamespacedHIField, NamespacedHMSerializer,
+                             NamespacedHRField)
 
 
 class MachineSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Machine` objects.
-    """
+    """Serialize `machines.models.Machine` objects."""
 
     class Meta:
         model = machines.Machine
@@ -35,8 +35,7 @@ class MachineSerializer(NamespacedHMSerializer):
 
 
 class MachineTypeSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.MachineType` objects.
-    """
+    """Serialize `machines.models.MachineType` objects."""
 
     class Meta:
         model = machines.MachineType
@@ -44,8 +43,7 @@ class MachineTypeSerializer(NamespacedHMSerializer):
 
 
 class IpTypeSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.IpType` objects.
-    """
+    """Serialize `machines.models.IpType` objects."""
 
     class Meta:
         model = machines.IpType
@@ -63,8 +61,7 @@ class IpTypeSerializer(NamespacedHMSerializer):
 
 
 class VlanSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Vlan` objects.
-    """
+    """Serialize `machines.models.Vlan` objects."""
 
     class Meta:
         model = machines.Vlan
@@ -82,8 +79,7 @@ class VlanSerializer(NamespacedHMSerializer):
 
 
 class NasSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Nas` objects.
-    """
+    """Serialize `machines.models.Nas` objects."""
 
     class Meta:
         model = machines.Nas
@@ -98,8 +94,7 @@ class NasSerializer(NamespacedHMSerializer):
 
 
 class SOASerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.SOA` objects.
-    """
+    """Serialize `machines.models.SOA` objects."""
 
     class Meta:
         model = machines.SOA
@@ -107,8 +102,7 @@ class SOASerializer(NamespacedHMSerializer):
 
 
 class ExtensionSerializer(NamespacedHMSerializer):
-    """Serialize machines.models.Extension objects.
-    """
+    """Serialize machines.models.Extension objects."""
 
     class Meta:
         model = machines.Extension
@@ -116,8 +110,7 @@ class ExtensionSerializer(NamespacedHMSerializer):
 
 
 class MxSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Mx` objects.
-    """
+    """Serialize `machines.models.Mx` objects."""
 
     class Meta:
         model = machines.Mx
@@ -125,8 +118,7 @@ class MxSerializer(NamespacedHMSerializer):
 
 
 class DNameSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.DName` objects.
-    """
+    """Serialize `machines.models.DName` objects."""
 
     class Meta:
         model = machines.DName
@@ -134,8 +126,7 @@ class DNameSerializer(NamespacedHMSerializer):
 
 
 class NsSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Ns` objects.
-    """
+    """Serialize `machines.models.Ns` objects."""
 
     class Meta:
         model = machines.Ns
@@ -143,8 +134,7 @@ class NsSerializer(NamespacedHMSerializer):
 
 
 class TxtSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Txt` objects.
-    """
+    """Serialize `machines.models.Txt` objects."""
 
     class Meta:
         model = machines.Txt
@@ -152,8 +142,7 @@ class TxtSerializer(NamespacedHMSerializer):
 
 
 class SrvSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Srv` objects.
-    """
+    """Serialize `machines.models.Srv` objects."""
 
     class Meta:
         model = machines.Srv
@@ -171,8 +160,7 @@ class SrvSerializer(NamespacedHMSerializer):
 
 
 class SshFpSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.SSHFP` objects.
-    """
+    """Serialize `machines.models.SSHFP` objects."""
 
     class Meta:
         model = machines.SshFp
@@ -180,8 +168,7 @@ class SshFpSerializer(NamespacedHMSerializer):
 
 
 class InterfaceSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Interface` objects.
-    """
+    """Serialize `machines.models.Interface` objects."""
 
     mac_address = serializers.CharField()
     active = serializers.BooleanField(source="is_active")
@@ -201,8 +188,7 @@ class InterfaceSerializer(NamespacedHMSerializer):
 
 
 class Ipv6ListSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Ipv6List` objects.
-    """
+    """Serialize `machines.models.Ipv6List` objects."""
 
     class Meta:
         model = machines.Ipv6List
@@ -210,8 +196,7 @@ class Ipv6ListSerializer(NamespacedHMSerializer):
 
 
 class DomainSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Domain` objects.
-    """
+    """Serialize `machines.models.Domain` objects."""
 
     class Meta:
         model = machines.Domain
@@ -219,8 +204,7 @@ class DomainSerializer(NamespacedHMSerializer):
 
 
 class IpListSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.IpList` objects.
-    """
+    """Serialize `machines.models.IpList` objects."""
 
     class Meta:
         model = machines.IpList
@@ -228,8 +212,7 @@ class IpListSerializer(NamespacedHMSerializer):
 
 
 class ServiceSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Service` objects.
-    """
+    """Serialize `machines.models.Service` objects."""
 
     class Meta:
         model = machines.Service
@@ -243,8 +226,7 @@ class ServiceSerializer(NamespacedHMSerializer):
 
 
 class ServiceLinkSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.Service_link` objects.
-    """
+    """Serialize `machines.models.Service_link` objects."""
 
     class Meta:
         model = machines.Service_link
@@ -260,8 +242,7 @@ class ServiceLinkSerializer(NamespacedHMSerializer):
 
 
 class OuverturePortListSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.OuverturePortList` objects.
-    """
+    """Serialize `machines.models.OuverturePortList` objects."""
 
     tcp_ports_in = NamespacedHRField(
         view_name="ouvertureport-detail", many=True, read_only=True
@@ -289,8 +270,7 @@ class OuverturePortListSerializer(NamespacedHMSerializer):
 
 
 class OuverturePortSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.OuverturePort` objects.
-    """
+    """Serialize `machines.models.OuverturePort` objects."""
 
     class Meta:
         model = machines.OuverturePort
@@ -298,8 +278,7 @@ class OuverturePortSerializer(NamespacedHMSerializer):
 
 
 class RoleSerializer(NamespacedHMSerializer):
-    """Serialize `machines.models.OuverturePort` objects.
-    """
+    """Serialize `machines.models.OuverturePort` objects."""
 
     servers = InterfaceSerializer(read_only=True, many=True)
 
@@ -309,8 +288,7 @@ class RoleSerializer(NamespacedHMSerializer):
 
 
 class ServiceRegenSerializer(NamespacedHMSerializer):
-    """Serialize the data about the services to regen.
-    """
+    """Serialize the data about the services to regen."""
 
     hostname = serializers.CharField(source="server.domain.name", read_only=True)
     service_name = serializers.CharField(source="service.service_type", read_only=True)
@@ -517,8 +495,7 @@ class DNAMERecordSerializer(serializers.ModelSerializer):
 
 
 class DNSZonesSerializer(serializers.ModelSerializer):
-    """Serialize the data about DNS Zones.
-    """
+    """Serialize the data about DNS Zones."""
 
     soa = SOARecordSerializer()
     ns_records = NSRecordSerializer(many=True, source="ns_set")
@@ -559,8 +536,7 @@ class DNSZonesSerializer(serializers.ModelSerializer):
 
 
 class DNSReverseZonesSerializer(serializers.ModelSerializer):
-    """Serialize the data about DNS Zones.
-    """
+    """Serialize the data about DNS Zones."""
 
     soa = SOARecordSerializer(source="extension.soa")
     extension = serializers.CharField(source="extension.name", read_only=True)

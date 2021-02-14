@@ -25,23 +25,22 @@ Models defining the preferences for users, machines, emails, general settings
 etc.
 """
 from __future__ import unicode_literals
-import os
 
-from django.utils.functional import cached_property
-from django.utils import timezone
+import os
+from datetime import timedelta
+
+from django.core.cache import cache
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.cache import cache
 from django.forms import ValidationError
+from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 import machines.models
-
-from re2o.mixins import AclMixin, RevMixin
 from re2o.aes_field import AESEncryptedField
-
-from datetime import timedelta
+from re2o.mixins import AclMixin, RevMixin
 
 
 class PreferencesModel(models.Model):
@@ -185,7 +184,6 @@ class OptionalUser(AclMixin, PreferencesModel):
     )
 
     class Meta:
-        permissions = (("view_optionaluser", _("Can view the user preferences")),)
         verbose_name = _("user preferences")
 
     def clean(self):
@@ -241,7 +239,6 @@ class OptionalMachine(AclMixin, PreferencesModel):
         return not self.get_cached_value("ipv6_mode") == "DISABLED"
 
     class Meta:
-        permissions = (("view_optionalmachine", _("Can view the machine preferences")),)
         verbose_name = _("machine preferences")
 
 
@@ -330,7 +327,7 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         configuration.
         """
         if self.switchs_ip_type:
-            from machines.models import Role, Interface
+            from machines.models import Interface, Role
 
             return (
                 Interface.objects.filter(
@@ -366,14 +363,14 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         """Get the dictionary of IP addresses for the configuration of
         switches.
         """
-        from machines.models import Role, Ipv6List, Interface
+        from machines.models import Interface, Ipv6List, Role
 
         def return_ips_dict(interfaces):
             return {
                 "ipv4": [str(interface.ipv4) for interface in interfaces],
-                "ipv6": Ipv6List.objects.filter(interface__in=interfaces).filter(active=True).values_list(
-                    "ipv6", flat=True
-                ),
+                "ipv6": Ipv6List.objects.filter(interface__in=interfaces)
+                .filter(active=True)
+                .values_list("ipv6", flat=True),
             }
 
         ntp_servers = Role.all_interfaces_for_roletype("ntp-server").filter(
@@ -421,9 +418,6 @@ class OptionalTopologie(AclMixin, PreferencesModel):
         )
 
     class Meta:
-        permissions = (
-            ("view_optionaltopologie", _("Can view the topology preferences")),
-        )
         verbose_name = _("topology preferences")
 
 
@@ -453,7 +447,6 @@ class RadiusKey(AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_radiuskey", _("Can view a RADIUS key object")),)
         verbose_name = _("RADIUS key")
         verbose_name_plural = _("RADIUS keys")
 
@@ -483,12 +476,6 @@ class SwitchManagementCred(AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            (
-                "view_switchmanagementcred",
-                _("Can view a switch management credentials object"),
-            ),
-        )
         verbose_name = _("switch management credentials")
 
     def __str__(self):
@@ -518,7 +505,6 @@ class Reminder(AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_reminder", _("Can view a reminder object")),)
         verbose_name = _("reminder")
         verbose_name_plural = _("reminders")
 
@@ -582,7 +568,6 @@ class GeneralOption(AclMixin, PreferencesModel):
     GTU = models.FileField(upload_to="", default="", null=True, blank=True)
 
     class Meta:
-        permissions = (("view_generaloption", _("Can view the general preferences")),)
         verbose_name = _("general preferences")
 
 
@@ -609,7 +594,6 @@ class Service(AclMixin, models.Model):
     image = models.ImageField(upload_to="logo", blank=True)
 
     class Meta:
-        permissions = (("view_service", _("Can view the service preferences")),)
         verbose_name = _("service")
         verbose_name_plural = _("services")
 
@@ -641,9 +625,6 @@ class MailContact(AclMixin, models.Model):
         return self.address.split("@")[0]
 
     class Meta:
-        permissions = (
-            ("view_mailcontact", _("Can view a contact email address object")),
-        )
         verbose_name = _("contact email address")
         verbose_name_plural = _("contact email addresses")
 
@@ -664,7 +645,6 @@ class Mandate(RevMixin, AclMixin, models.Model):
     class Meta:
         verbose_name = _("mandate")
         verbose_name_plural = _("mandates")
-        permissions = (("view_mandate", _("Can view a mandate object")),)
 
     president = models.ForeignKey(
         "users.User",
@@ -679,7 +659,7 @@ class Mandate(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def get_mandate(cls, date=timezone.now):
-        """"Get the mandate taking place at the given date.
+        """ "Get the mandate taking place at the given date.
 
         Args:
             date: the date used to find the mandate (default: timezone.now).
@@ -740,7 +720,6 @@ class AssoOption(AclMixin, PreferencesModel):
     description = models.TextField(null=True, blank=True)
 
     class Meta:
-        permissions = (("view_assooption", _("Can view the organisation preferences")),)
         verbose_name = _("organisation preferences")
 
 
@@ -766,7 +745,6 @@ class HomeOption(AclMixin, PreferencesModel):
     twitter_account_name = models.CharField(max_length=32, null=True, blank=True)
 
     class Meta:
-        permissions = (("view_homeoption", _("Can view the homepage preferences")),)
         verbose_name = _("homepage preferences")
 
 
@@ -793,9 +771,6 @@ class MailMessageOption(AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            ("view_mailmessageoption", _("Can view the email message preferences")),
-        )
         verbose_name = _("email message preferences")
 
 

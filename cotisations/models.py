@@ -32,29 +32,29 @@ each.
 """
 
 from __future__ import unicode_literals
-from dateutil.relativedelta import relativedelta
 
+from dateutil.relativedelta import relativedelta
+from django.contrib import messages
+from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Q, Max
-from django.db.models.signals import post_save, post_delete
+from django.db.models import Max, Q
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.forms import ValidationError
-from django.core.validators import MinValueValidator
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.urls import reverse
-from django.shortcuts import redirect
-from django.contrib import messages
 
-from preferences.models import CotisationsOption
+import users.models
+import users.signals
+from cotisations.utils import (find_payment_method, send_mail_invoice,
+                               send_mail_voucher)
+from cotisations.validators import check_no_balance
 from machines.models import regen
+from preferences.models import CotisationsOption
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mixins import AclMixin, RevMixin
-import users.signals
-import users.models
-
-from cotisations.utils import find_payment_method, send_mail_invoice, send_mail_voucher
-from cotisations.validators import check_no_balance
 
 
 class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
@@ -62,9 +62,6 @@ class BaseInvoice(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     class Meta:
         abstract = False
-        permissions = (
-            ("view_baseinvoice", _("Can view an base invoice object")),
-        )
 
     # TODO : change prix to price
     def prix(self):
@@ -157,7 +154,6 @@ class Facture(BaseInvoice):
         permissions = (
             # TODO : change facture to invoice
             ("change_facture_control", _('Can edit the "controlled" state')),
-            ("view_facture", _("Can view an invoice object")),
             ("change_all_facture", _("Can edit all the previous invoices")),
         )
         verbose_name = _("invoice")
@@ -364,7 +360,13 @@ def facture_post_save(**kwargs):
     if facture.valid:
         user = facture.user
         user.set_active()
-        users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=True, mac_refresh=False)
+        users.signals.synchronise.send(
+            sender=users.models.User,
+            instance=user,
+            base=False,
+            access_refresh=True,
+            mac_refresh=False,
+        )
 
 
 @receiver(post_delete, sender=Facture)
@@ -373,12 +375,16 @@ def facture_post_delete(**kwargs):
     Synchronise the LDAP user after an invoice has been deleted.
     """
     user = kwargs["instance"].user
-    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=True, mac_refresh=False)
+    users.signals.synchronise.send(
+        sender=users.models.User,
+        instance=user,
+        base=False,
+        access_refresh=True,
+        mac_refresh=False,
+    )
 
 
 class CustomInvoice(BaseInvoice):
-    class Meta:
-        permissions = (("view_custominvoice", _("Can view a custom invoice object")),)
 
     recipient = models.CharField(max_length=255, verbose_name=_("recipient"))
     payment = models.CharField(max_length=255, verbose_name=_("payment type"))
@@ -388,8 +394,6 @@ class CustomInvoice(BaseInvoice):
 
 
 class CostEstimate(CustomInvoice):
-    class Meta:
-        permissions = (("view_costestimate", _("Can view a cost estimate object")),)
 
     validity = models.DurationField(
         verbose_name=_("period of validity"), help_text="DD HH:MM:SS"
@@ -489,10 +493,7 @@ class Vente(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            ("view_vente", _("Can view a purchase object")),
-            ("change_all_vente", _("Can edit all the previous purchases")),
-        )
+        permissions = (("change_all_vente", _("Can edit all the previous purchases")),)
         verbose_name = _("purchase")
         verbose_name_plural = _("purchases")
 
@@ -669,7 +670,13 @@ def vente_post_save(**kwargs):
         purchase.cotisation.save()
         user = purchase.facture.facture.user
         user.set_active()
-        users.signals.synchronise.send(sender=users.models.User, instance=user, base=True, access_refresh=True, mac_refresh=False)
+        users.signals.synchronise.send(
+            sender=users.models.User,
+            instance=user,
+            base=True,
+            access_refresh=True,
+            mac_refresh=False,
+        )
 
 
 # TODO : change vente to purchase
@@ -685,7 +692,13 @@ def vente_post_delete(**kwargs):
         return
     if purchase.type_cotisation:
         user = invoice.user
-        users.signals.synchronise.send(sender=users.models.User, instance=user, base=True, access_refresh=True, mac_refresh=False)
+        users.signals.synchronise.send(
+            sender=users.models.User,
+            instance=user,
+            base=True,
+            access_refresh=True,
+            mac_refresh=False,
+        )
 
 
 class Article(RevMixin, AclMixin, models.Model):
@@ -749,10 +762,7 @@ class Article(RevMixin, AclMixin, models.Model):
     unique_together = ("name", "type_user")
 
     class Meta:
-        permissions = (
-            ("view_article", _("Can view an article object")),
-            ("buy_every_article", _("Can buy every article")),
-        )
+        permissions = (("buy_every_article", _("Can buy every article")),)
         verbose_name = "article"
         verbose_name_plural = "articles"
 
@@ -824,7 +834,6 @@ class Banque(RevMixin, AclMixin, models.Model):
     name = models.CharField(max_length=255)
 
     class Meta:
-        permissions = (("view_banque", _("Can view a bank object")),)
         verbose_name = _("bank")
         verbose_name_plural = _("banks")
 
@@ -855,10 +864,7 @@ class Paiement(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            ("view_paiement", _("Can view a payment method object")),
-            ("use_every_payment", _("Can use every payment method")),
-        )
+        permissions = (("use_every_payment", _("Can use every payment method")),)
         verbose_name = _("payment method")
         verbose_name_plural = _("payment methods")
 
@@ -980,7 +986,6 @@ class Cotisation(RevMixin, AclMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_cotisation", _("Can view a subscription object")),
             ("change_all_cotisation", _("Can edit the previous subscriptions")),
         )
         verbose_name = _("subscription")

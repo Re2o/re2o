@@ -34,11 +34,11 @@ from __future__ import unicode_literals
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import ProtectedError, F
 from django.db import IntegrityError
+from django.db.models import F, ProtectedError
 from django.forms import modelformset_factory
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -46,82 +46,28 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 
 from preferences.models import GeneralOption
-from re2o.acl import (
-    can_create,
-    can_edit,
-    can_view,
-    can_delete,
-    can_view_all,
-    can_delete_set,
-)
-from re2o.utils import all_active_assigned_interfaces, filter_active_interfaces
+from re2o.acl import (can_create, can_delete, can_delete_set, can_edit,
+                      can_view, can_view_all)
 from re2o.base import SortTable, re2o_paginator
+from re2o.utils import all_active_assigned_interfaces, filter_active_interfaces
 from re2o.views import form
 from users.models import User
-from .forms import (
-    NewMachineForm,
-    EditMachineForm,
-    EditInterfaceForm,
-    AddInterfaceForm,
-    MachineTypeForm,
-    DelMachineTypeForm,
-    ExtensionForm,
-    DelExtensionForm,
-    EditIpTypeForm,
-    IpTypeForm,
-    DelIpTypeForm,
-    DomainForm,
-    AliasForm,
-    DelAliasForm,
-    SOAForm,
-    DelSOAForm,
-    NsForm,
-    DelNsForm,
-    TxtForm,
-    DelTxtForm,
-    DNameForm,
-    DelDNameForm,
-    MxForm,
-    DelMxForm,
-    VlanForm,
-    DelVlanForm,
-    RoleForm,
-    DelRoleForm,
-    ServiceForm,
-    DelServiceForm,
-    SshFpForm,
-    NasForm,
-    DelNasForm,
-    SrvForm,
-    DelSrvForm,
-    Ipv6ListForm,
-    EditOuverturePortListForm,
-    EditOuverturePortConfigForm,
-)
-from .models import (
-    IpType,
-    Machine,
-    Interface,
-    MachineType,
-    Extension,
-    SOA,
-    Mx,
-    Ns,
-    Domain,
-    Role,
-    Service,
-    Service_link,
-    regen,
-    Vlan,
-    Nas,
-    Txt,
-    DName,
-    Srv,
-    SshFp,
-    OuverturePortList,
-    OuverturePort,
-    Ipv6List,
-)
+
+from .forms import (AddInterfaceForm, AliasForm, DelAliasForm, DelDNameForm,
+                    DelExtensionForm, DelIpTypeForm, DelMachineTypeForm,
+                    DelMxForm, DelNasForm, DelNsForm, DelRoleForm,
+                    DelServiceForm, DelSOAForm, DelSrvForm, DelTxtForm,
+                    DelVlanForm, DNameForm, DomainForm, EditInterfaceForm,
+                    EditIpTypeForm, EditMachineForm,
+                    EditOuverturePortConfigForm, EditOuverturePortListForm,
+                    ExtensionForm, IpTypeForm, Ipv6ListForm, MachineTypeForm,
+                    MxForm, NasForm, NewMachineForm, NsForm, RoleForm,
+                    ServiceForm, SOAForm, SrvForm, SshFpForm, TxtForm,
+                    VlanForm)
+from .models import (SOA, DName, Domain, Extension, Interface, IpType,
+                     Ipv6List, Machine, MachineType, Mx, Nas, Ns,
+                     OuverturePort, OuverturePortList, Role, Service,
+                     Service_link, Srv, SshFp, Txt, Vlan, regen)
 
 
 @login_required
@@ -135,7 +81,9 @@ def new_machine(request, user, **_kwargs):
     """
     machine = NewMachineForm(request.POST or None, user=request.user)
     interface = AddInterfaceForm(request.POST or None, user=request.user)
-    domain = DomainForm(request.POST or None, user=user, initial={'name': user.get_next_domain_name()})
+    domain = DomainForm(
+        request.POST or None, user=user, initial={"name": user.get_next_domain_name()}
+    )
     if machine.is_valid() and interface.is_valid():
         new_machine_obj = machine.save(commit=False)
         new_machine_obj.user = user
@@ -229,7 +177,11 @@ def new_interface(request, machine, **_kwargs):
     machine.
     """
     interface_form = AddInterfaceForm(request.POST or None, user=request.user)
-    domain_form = DomainForm(request.POST or None, user=request.user, initial={'name': machine.user.get_next_domain_name()})
+    domain_form = DomainForm(
+        request.POST or None,
+        user=request.user,
+        initial={"name": machine.user.get_next_domain_name()},
+    )
     if interface_form.is_valid():
         new_interface_obj = interface_form.save(commit=False)
         domain_form.instance.interface_parent = new_interface_obj
@@ -268,7 +220,9 @@ def del_interface(request, interface, **_kwargs):
             reverse("users:profil", kwargs={"userid": str(request.user.id)})
         )
     return form(
-        {"objet": interface, "objet_name": _("interface")}, "machines/delete.html", request
+        {"objet": interface, "objet_name": _("interface")},
+        "machines/delete.html",
+        request,
     )
 
 
@@ -328,7 +282,9 @@ def del_ipv6list(request, ipv6list, **_kwargs):
             reverse("machines:index-ipv6", kwargs={"interfaceid": str(interfaceid)})
         )
     return form(
-        {"objet": ipv6list, "objet_name": _("IPv6 addresses list")}, "machines/delete.html", request
+        {"objet": ipv6list, "objet_name": _("IPv6 addresses list")},
+        "machines/delete.html",
+        request,
     )
 
 
@@ -384,7 +340,9 @@ def del_sshfp(request, sshfp, **_kwargs):
             reverse("machines:index-sshfp", kwargs={"machineid": str(machineid)})
         )
     return form(
-        {"objet": sshfp, "objet_name": _("SSHFP record")}, "machines/delete.html", request
+        {"objet": sshfp, "objet_name": _("SSHFP record")},
+        "machines/delete.html",
+        request,
     )
 
 
@@ -421,7 +379,9 @@ def edit_iptype(request, iptype_instance, **_kwargs):
                 iptype.save()
                 messages.success(request, _("The IP type was edited."))
             except IntegrityError as e:
-                messages.success(request, _("This IP type change would create duplicated domains"))
+                messages.success(
+                    request, _("This IP type change would create duplicated domains")
+                )
         return redirect(reverse("machines:index-iptype"))
     return form(
         {"iptypeform": iptype, "action_name": _("Edit")},
@@ -490,7 +450,10 @@ def edit_machinetype(request, machinetype_instance, **_kwargs):
                 machinetype.save()
                 messages.success(request, _("The machine type was edited."))
             except IntegrityError as e:
-                messages.error(request, _("This machine type change would create duplicated domains"))
+                messages.error(
+                    request,
+                    _("This machine type change would create duplicated domains"),
+                )
         return redirect(reverse("machines:index-machinetype"))
     return form(
         {"machinetypeform": machinetype, "action_name": _("Edit")},
@@ -580,10 +543,16 @@ def del_extension(request, instances):
                         _(
                             "The extension %s is assigned to following %s : %s"
                             ", you can't delete it."
-                        ) % (
+                        )
+                        % (
                             extension_del,
                             str(e.protected_objects.model._meta.verbose_name_plural),
-                            ",".join(map(lambda x: str(x['name']), e.protected_objects.values('name').iterator()))
+                            ",".join(
+                                map(
+                                    lambda x: str(x["name"]),
+                                    e.protected_objects.values("name").iterator(),
+                                )
+                            ),
                         )
                     ),
                 )
@@ -1221,17 +1190,18 @@ def index(request):
     machines_list = re2o_paginator(request, machines_list, pagination_large_number)
     return render(request, "machines/index.html", {"machines_list": machines_list})
 
+
 # Canonic view for displaying machines in users's profil
 def aff_profil(request, user):
     """View used to display the machines on a user's profile."""
     machines = (
-    Machine.objects.filter(user=user)
+        Machine.objects.filter(user=user)
         .select_related("user")
         .prefetch_related("interface_set__domain__extension")
         .prefetch_related("interface_set__ipv4__ip_type__extension")
         .prefetch_related("interface_set__machine_type")
         .prefetch_related("interface_set__domain__related_domain__extension")
-    )    
+    )
     machines = SortTable.sort(
         machines,
         request.GET.get("col"),
@@ -1243,17 +1213,14 @@ def aff_profil(request, user):
     machines = re2o_paginator(request, machines, pagination_large_number)
 
     context = {
-            "users":user,
-            "machines_list": machines,
-            "nb_machines":nb_machines,
+        "users": user,
+        "machines_list": machines,
+        "nb_machines": nb_machines,
     }
 
     return render_to_string(
-            "machines/aff_profil.html",context=context,request=request,using=None
+        "machines/aff_profil.html", context=context, request=request, using=None
     )
-
-
-
 
 
 @login_required
@@ -1531,4 +1498,3 @@ def configure_ports(request, interface_instance, **_kwargs):
         "machines/machine.html",
         request,
     )
-

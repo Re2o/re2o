@@ -28,24 +28,18 @@ Gplv2"""
 
 from __future__ import unicode_literals
 
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
-from users.models import User
 from cotisations.models import Cotisation
 from machines.models import Machine
-from search.forms import (
-    SearchForm,
-    SearchFormPlus,
-    CHOICES_USER,
-    CHOICES_EMAILS,
-    CHOICES_AFF,
-    initial_choices,
-)
 from re2o.acl import can_view_all
+from search.forms import (CHOICES_AFF, CHOICES_EMAILS, CHOICES_USER,
+                          SearchForm, SearchFormPlus, initial_choices)
+from users.models import User
 
-from .engine import empty_filters, create_queries, search_single_query
-from .engine import apply_filters, finish_results
+from .engine import (apply_filters, create_queries, empty_filters,
+                     finish_results, search_single_query)
 
 
 def get_results(query, request, params):
@@ -70,10 +64,7 @@ def get_results(query, request, params):
 
     results = apply_filters(filters, request.user, aff)
     results = finish_results(
-        request,
-        results,
-        request.GET.get("col"),
-        request.GET.get("order")
+        request, results, request.GET.get("col"), request.GET.get("order")
     )
     results.update({"search_term": query})
 
@@ -90,9 +81,7 @@ def search(request):
             request,
             "search/index.html",
             get_results(
-                search_form.cleaned_data.get("q", ""),
-                request,
-                search_form.cleaned_data
+                search_form.cleaned_data.get("q", ""), request, search_form.cleaned_data
             ),
         )
     return render(request, "search/search.html", {"search_form": search_form})
@@ -108,9 +97,7 @@ def searchp(request):
             request,
             "search/index.html",
             get_results(
-                search_form.cleaned_data.get("q", ""),
-                request,
-                search_form.cleaned_data
+                search_form.cleaned_data.get("q", ""), request, search_form.cleaned_data
             ),
         )
     return render(request, "search/search.html", {"search_form": search_form})

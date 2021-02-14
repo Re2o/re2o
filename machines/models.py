@@ -35,26 +35,18 @@ from ipaddress import IPv6Address
 from itertools import chain
 
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.forms import ValidationError
 from django.utils import timezone
-from django.db import transaction
-from reversion import revisions as reversion
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from macaddress.fields import MACAddressField, default_dialect
-from netaddr import (
-    mac_bare,
-    EUI,
-    NotRegisteredError,
-    IPSet,
-    IPRange,
-    IPNetwork,
-    IPAddress,
-)
+from netaddr import (EUI, IPAddress, IPNetwork, IPRange, IPSet,
+                     NotRegisteredError, mac_bare)
+from reversion import revisions as reversion
 
 import preferences.models
 import users.models
@@ -79,10 +71,7 @@ class Machine(RevMixin, FieldPermissionModelMixin, AclMixin, models.Model):
     active = models.BooleanField(default=True)
 
     class Meta:
-        permissions = (
-            ("view_machine", _("Can view a machine object")),
-            ("change_machine_user", _("Can change the user of a machine")),
-        )
+        permissions = (("change_machine_user", _("Can change the user of a machine")),)
         verbose_name = _("machine")
         verbose_name_plural = _("machines")
 
@@ -343,10 +332,7 @@ class MachineType(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            ("view_machinetype", _("Can view a machine type object")),
-            ("use_all_machinetype", _("Can use all machine types")),
-        )
+        permissions = (("use_all_machinetype", _("Can use all machine types")),)
         verbose_name = _("machine type")
         verbose_name_plural = _("machine types")
 
@@ -358,7 +344,9 @@ class MachineType(RevMixin, AclMixin, models.Model):
         """Update domains extension with the extension of interface_parent. Called after update of an ip_type or a machine_type object. Exceptions are handled in the views.
         (Calling domain.clear() for all domains could take several minutes)
         """
-        Domain.objects.filter(interface_parent__machine_type=self).update(extension=self.ip_type.extension)
+        Domain.objects.filter(interface_parent__machine_type=self).update(
+            extension=self.ip_type.extension
+        )
 
     @staticmethod
     def can_use_all(user_request, *_args, **_kwargs):
@@ -381,7 +369,7 @@ class MachineType(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def can_list(cls, user_request, *_args, **_kwargs):
-        """All users can list unprivileged machinetypes 
+        """All users can list unprivileged machinetypes
         Only members of privileged groups can list all.
 
         :param user_request: The user who wants to view the list.
@@ -391,20 +379,13 @@ class MachineType(RevMixin, AclMixin, models.Model):
         """
         can, _message, _group = cls.can_use_all(user_request)
         if can:
-            return (
-                True,
-                None,
-                None,
-                cls.objects.all()
-            )
+            return (True, None, None, cls.objects.all())
         else:
             return (
                 True,
                 _("You don't have the right to use all machine types."),
                 ("machines.use_all_machinetype",),
-                cls.objects.filter(
-                    ip_type__in=IpType.objects.filter(need_infra=False)
-                ),
+                cls.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False)),
             )
 
     def __str__(self):
@@ -457,13 +438,12 @@ class IpType(RevMixin, AclMixin, models.Model):
         default=False, help_text=_("Enable reverse DNS for IPv6.")
     )
     vlan = models.ForeignKey("Vlan", on_delete=models.PROTECT, blank=True, null=True)
-    ouverture_ports = models.ForeignKey("OuverturePortList", blank=True, null=True)
+    ouverture_ports = models.ForeignKey(
+        "OuverturePortList", blank=True, null=True, on_delete=models.PROTECT
+    )
 
     class Meta:
-        permissions = (
-            ("view_iptype", _("Can view an IP type object")),
-            ("use_all_iptype", _("Can use all IP types")),
-        )
+        permissions = (("use_all_iptype", _("Can use all IP types")),)
         verbose_name = _("IP type")
         verbose_name_plural = _("IP types")
 
@@ -729,7 +709,6 @@ class Vlan(RevMixin, AclMixin, models.Model):
     mld = models.BooleanField(default=False, help_text=_("v6 multicast management."))
 
     class Meta:
-        permissions = (("view_vlan", _("Can view a VLAN object")),)
         verbose_name = _("VLAN")
         verbose_name_plural = _("VLANs")
 
@@ -765,7 +744,6 @@ class Nas(RevMixin, AclMixin, models.Model):
     autocapture_mac = models.BooleanField(default=False)
 
     class Meta:
-        permissions = (("view_nas", _("Can view a NAS device object")),)
         verbose_name = _("NAS device")
         verbose_name_plural = _("NAS devices")
 
@@ -819,7 +797,6 @@ class SOA(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_soa", _("Can view an SOA record object")),)
         verbose_name = _("SOA record")
         verbose_name_plural = _("SOA records")
 
@@ -903,10 +880,7 @@ class Extension(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            ("view_extension", _("Can view an extension object")),
-            ("use_all_extension", _("Can use all extensions")),
-        )
+        permissions = (("use_all_extension", _("Can use all extensions")),)
         verbose_name = _("DNS extension")
         verbose_name_plural = _("DNS extensions")
 
@@ -984,7 +958,7 @@ class Extension(RevMixin, AclMixin, models.Model):
 
     @classmethod
     def can_list(cls, user_request, *_args, **_kwargs):
-        """All users can list unprivileged extensions 
+        """All users can list unprivileged extensions
         Only members of privileged groups can list all.
 
         :param user_request: The user who wants to view the list.
@@ -994,12 +968,7 @@ class Extension(RevMixin, AclMixin, models.Model):
         """
         can, _message, _group = cls.can_use_all(user_request)
         if can:
-            return (
-                True,
-                None,
-                None,
-                cls.objects.all()
-            )
+            return (True, None, None, cls.objects.all())
         else:
             return (
                 True,
@@ -1037,14 +1006,12 @@ class Mx(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_mx", _("Can view an MX record object")),)
         verbose_name = _("MX record")
         verbose_name_plural = _("MX records")
 
     @cached_property
     def dns_entry(self):
-        """Get the complete DNS entry of the MX record, to put in zone files.
-        """
+        """Get the complete DNS entry of the MX record, to put in zone files."""
         return "@               IN  MX  {prior} {name}".format(
             prior=str(self.priority).ljust(3), name=str(self.name)
         )
@@ -1069,14 +1036,12 @@ class Ns(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_ns", _("Can view an NS record object")),)
         verbose_name = _("NS record")
         verbose_name_plural = _("NS records")
 
     @cached_property
     def dns_entry(self):
-        """Get the complete DNS entry of the NS record, to put in zone files.
-        """
+        """Get the complete DNS entry of the NS record, to put in zone files."""
         return "@               IN  NS      " + str(self.ns)
 
     def __str__(self):
@@ -1101,7 +1066,6 @@ class Txt(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_txt", _("Can view a TXT record object")),)
         verbose_name = _("TXT record")
         verbose_name_plural = _("TXT records")
 
@@ -1110,8 +1074,7 @@ class Txt(RevMixin, AclMixin, models.Model):
 
     @cached_property
     def dns_entry(self):
-        """Get the complete DNS entry of the TXT record, to put in zone files.
-        """
+        """Get the complete DNS entry of the TXT record, to put in zone files."""
         return str(self.field1).ljust(15) + " IN  TXT     " + str(self.field2)
 
 
@@ -1131,7 +1094,6 @@ class DName(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_dname", _("Can view a DNAME record object")),)
         verbose_name = _("DNAME record")
         verbose_name_plural = _("DNAME records")
 
@@ -1140,8 +1102,7 @@ class DName(RevMixin, AclMixin, models.Model):
 
     @cached_property
     def dns_entry(self):
-        """Get the complete DNS entry of the TXT record, to put in zone files.
-        """
+        """Get the complete DNS entry of the TXT record, to put in zone files."""
         return str(self.alias).ljust(15) + " IN  DNAME   " + str(self.zone)
 
 
@@ -1195,7 +1156,6 @@ class Srv(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (("view_srv", _("Can view an SRV record object")),)
         verbose_name = _("SRV record")
         verbose_name_plural = _("SRV records")
 
@@ -1216,8 +1176,7 @@ class Srv(RevMixin, AclMixin, models.Model):
 
     @cached_property
     def dns_entry(self):
-        """Get the complete DNS entry of the SRV record, to put in zone files.
-        """
+        """Get the complete DNS entry of the SRV record, to put in zone files."""
         return (
             str(self.service)
             + "._"
@@ -1285,7 +1244,6 @@ class SshFp(RevMixin, AclMixin, models.Model):
         }
 
     class Meta:
-        permissions = (("view_sshfp", _("Can view an SSHFP record object")),)
         verbose_name = _("SSHFP record")
         verbose_name_plural = _("SSHFP records")
 
@@ -1350,7 +1308,6 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     class Meta:
         permissions = (
-            ("view_interface", _("Can view an interface object")),
             ("change_interface_machine", _("Can change the owner of an interface")),
         )
         verbose_name = _("interface")
@@ -1401,8 +1358,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         return vendor
 
     def sync_ipv6_dhcpv6(self):
-        """Assign an IPv6 address by DHCPv6, computed from the interface's ID.
-        """
+        """Assign an IPv6 address by DHCPv6, computed from the interface's ID."""
         ipv6_dhcpv6 = self.gen_ipv6_dhcpv6
         if not ipv6_dhcpv6:
             return
@@ -1428,8 +1384,7 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
             ipv6_object.save()
 
     def sync_ipv6(self):
-        """Create and update the IPv6 addresses according to the IPv6 mode set.
-        """
+        """Create and update the IPv6 addresses according to the IPv6 mode set."""
         if preferences.models.OptionalMachine.get_cached_value("ipv6_mode") == "SLAAC":
             self.sync_ipv6_slaac()
         elif (
@@ -1595,8 +1550,10 @@ class Interface(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
                     _("You don't have the right to add a machine."),
                     ("machines.add_interface",),
                 )
-            max_lambdauser_interfaces = preferences.models.OptionalMachine.get_cached_value(
-                "max_lambdauser_interfaces"
+            max_lambdauser_interfaces = (
+                preferences.models.OptionalMachine.get_cached_value(
+                    "max_lambdauser_interfaces"
+                )
             )
             if machine.user != user_request:
                 return (
@@ -1735,13 +1692,11 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     )
     slaac_ip = models.BooleanField(default=False)
     active = models.BooleanField(
-        default=True,
-        help_text=_("If false,the DNS will not provide this ip.")
+        default=True, help_text=_("If false,the DNS will not provide this ip.")
     )
 
     class Meta:
         permissions = (
-            ("view_ipv6list", _("Can view an IPv6 addresses list object")),
             (
                 "change_ipv6list_slaac_ip",
                 _("Can change the SLAAC value of an IPv6 addresses list"),
@@ -1871,8 +1826,9 @@ class Ipv6List(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     def check_and_replace_prefix(self, prefix=None):
         """Check if the IPv6 prefix is correct and update it if not."""
-        prefix_v6 = prefix or self.interface.machine_type.ip_type.prefix_v6.encode().decode(
-            "utf-8"
+        prefix_v6 = (
+            prefix
+            or self.interface.machine_type.ip_type.prefix_v6.encode().decode("utf-8")
         )
         if not prefix_v6:
             return
@@ -1945,7 +1901,11 @@ class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
     )
     extension = models.ForeignKey("Extension", on_delete=models.PROTECT)
     cname = models.ForeignKey(
-        "self", null=True, blank=True, related_name="related_domain"
+        "self",
+        null=True,
+        blank=True,
+        related_name="related_domain",
+        on_delete=models.PROTECT,
     )
     ttl = models.PositiveIntegerField(
         verbose_name=_("Time To Live (TTL)"),
@@ -1955,10 +1915,7 @@ class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
 
     class Meta:
         unique_together = (("name", "extension"),)
-        permissions = (
-            ("view_domain", _("Can view a domain object")),
-            ("change_ttl", _("Can change the TTL of a domain object")),
-        )
+        permissions = (("change_ttl", _("Can change the TTL of a domain object")),)
         verbose_name = _("domain")
         verbose_name_plural = _("domains")
 
@@ -2053,8 +2010,10 @@ class Domain(RevMixin, AclMixin, FieldPermissionModelMixin, models.Model):
         except Interface.DoesNotExist:
             return False, _("Nonexistent interface."), None
         if not user_request.has_perm("machines.add_domain"):
-            max_lambdauser_aliases = preferences.models.OptionalMachine.get_cached_value(
-                "max_lambdauser_aliases"
+            max_lambdauser_aliases = (
+                preferences.models.OptionalMachine.get_cached_value(
+                    "max_lambdauser_aliases"
+                )
             )
             if interface.machine.user != user_request:
                 return (
@@ -2184,14 +2143,12 @@ class IpList(RevMixin, AclMixin, models.Model):
     ip_type = models.ForeignKey("IpType", on_delete=models.CASCADE)
 
     class Meta:
-        permissions = (("view_iplist", _("Can view an IPv4 addresses list object")),)
         verbose_name = _("IPv4 addresses list")
         verbose_name_plural = _("IPv4 addresses lists")
 
     @cached_property
     def need_infra(self):
-        """Check if the 'infra' right is required to assign this IP address.
-        """
+        """Check if the 'infra' right is required to assign this IP address."""
         return self.ip_type.need_infra
 
     def clean(self):
@@ -2223,20 +2180,13 @@ class IpList(RevMixin, AclMixin, models.Model):
         """
         can, _message, _group = IpType.can_use_all(user_request)
         if can:
-            return (
-                True,
-                None,
-                None,
-                cls.objects.all()
-            )
+            return (True, None, None, cls.objects.all())
         else:
             return (
                 True,
                 _("You don't have the right to use all machine types."),
                 ("machines.use_all_machinetype",),
-                cls.objects.filter(
-                    ip_type__in=IpType.objects.filter(need_infra=False)
-                ),
+                cls.objects.filter(ip_type__in=IpType.objects.filter(need_infra=False)),
             )
 
     def __str__(self):
@@ -2275,7 +2225,6 @@ class Role(RevMixin, AclMixin, models.Model):
     specific_role = models.CharField(choices=ROLE, null=True, blank=True, max_length=32)
 
     class Meta:
-        permissions = (("view_role", _("Can view a role object")),)
         verbose_name = _("server role")
         verbose_name_plural = _("server roles")
 
@@ -2325,7 +2274,6 @@ class Service(RevMixin, AclMixin, models.Model):
     servers = models.ManyToManyField("Interface", through="Service_link")
 
     class Meta:
-        permissions = (("view_service", _("Can view a service object")),)
         verbose_name = _("service to generate (DHCP, DNS, ...)")
         verbose_name_plural = _("services to generate (DHCP, DNS, ...)")
 
@@ -2383,9 +2331,6 @@ class Service_link(RevMixin, AclMixin, models.Model):
     asked_regen = models.BooleanField(default=False)
 
     class Meta:
-        permissions = (
-            ("view_service_link", _("Can view a service server link object")),
-        )
         verbose_name = _("link between service and server")
         verbose_name_plural = _("links between service and server")
 
@@ -2438,9 +2383,6 @@ class OuverturePortList(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        permissions = (
-            ("view_ouvertureportlist", _("Can view a ports opening list" " object")),
-        )
         verbose_name = _("ports opening list")
         verbose_name_plural = _("ports opening lists")
 
@@ -2542,7 +2484,13 @@ class OuverturePort(RevMixin, AclMixin, models.Model):
 def machine_post_save(**kwargs):
     """Synchronise LDAP and regen firewall/DHCP after a machine is edited."""
     user = kwargs["instance"].user
-    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=False, mac_refresh=True)
+    users.signals.synchronise.send(
+        sender=users.models.User,
+        instance=user,
+        base=False,
+        access_refresh=False,
+        mac_refresh=True,
+    )
     regen("dhcp")
     regen("mac_ip_list")
 
@@ -2552,7 +2500,13 @@ def machine_post_delete(**kwargs):
     """Synchronise LDAP and regen firewall/DHCP after a machine is deleted."""
     machine = kwargs["instance"]
     user = machine.user
-    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=False, mac_refresh=True)
+    users.signals.synchronise.send(
+        sender=users.models.User,
+        instance=user,
+        base=False,
+        access_refresh=False,
+        mac_refresh=True,
+    )
     regen("dhcp")
     regen("mac_ip_list")
 
@@ -2565,7 +2519,13 @@ def interface_post_save(**kwargs):
     interface = kwargs["instance"]
     interface.sync_ipv6()
     user = interface.machine.user
-    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=False, mac_refresh=True)
+    users.signals.synchronise.send(
+        sender=users.models.User,
+        instance=user,
+        base=False,
+        access_refresh=False,
+        mac_refresh=True,
+    )
     # Regen services
     regen("dhcp")
     regen("mac_ip_list")
@@ -2577,11 +2537,16 @@ def interface_post_save(**kwargs):
 
 @receiver(post_delete, sender=Interface)
 def interface_post_delete(**kwargs):
-    """Synchronise LDAP and regen firewall/DHCP after an interface is deleted.
-    """
+    """Synchronise LDAP and regen firewall/DHCP after an interface is deleted."""
     interface = kwargs["instance"]
     user = interface.machine.user
-    users.signals.synchronise.send(sender=users.models.User, instance=user, base=False, access_refresh=False, mac_refresh=True)
+    users.signals.synchronise.send(
+        sender=users.models.User,
+        instance=user,
+        base=False,
+        access_refresh=False,
+        mac_refresh=True,
+    )
 
 
 @receiver(post_save, sender=IpType)

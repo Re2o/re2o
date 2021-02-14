@@ -34,6 +34,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="domain",
             name="interface_parent",
-            field=models.OneToOneField(blank=True, null=True, to="machines.Interface"),
+            field=models.OneToOneField(blank=True, null=True, to="machines.Interface", on_delete=models.CASCADE),
         )
     ]

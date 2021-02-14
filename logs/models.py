@@ -21,23 +21,17 @@
 """logs.models
 The models definitions for the logs app
 """
-from reversion.models import Version, Revision
-from django.utils.translation import ugettext_lazy as _
+from django.apps import apps
 from django.contrib.auth.models import Group
 from django.db.models import Q
-from django.apps import apps
-from netaddr import EUI
+from django.utils.translation import ugettext_lazy as _
 from macaddress.fields import default_dialect
+from netaddr import EUI
+from reversion.models import Revision, Version
 
-from machines.models import IpList
-from machines.models import Interface
-from machines.models import Machine
-from machines.models import MachineType
-from users.models import User
-from users.models import Adherent
-from users.models import Club
-from topologie.models import Room
-from topologie.models import Port
+from machines.models import Interface, IpList, Machine, MachineType
+from topologie.models import Port, Room
+from users.models import Adherent, Club, User
 
 from .forms import classes_for_action_type
 
@@ -53,19 +47,19 @@ def make_version_filter(key, value):
     # The lookup is done in a json string, so it has to be formated
     # based on the value's type (to add " or not)
     if type(value) is str:
-        formatted_value = "\"{}\"".format(value)
+        formatted_value = '"{}"'.format(value)
     else:
         formatted_value = str(value)
 
-    return (
-        Q(serialized_data__contains='\"{}\": {},'.format(key, formatted_value))
-        | Q(serialized_data__contains='\"{}\": {}}}'.format(key, formatted_value))
+    return Q(serialized_data__contains='"{}": {},'.format(key, formatted_value)) | Q(
+        serialized_data__contains='"{}": {}}}'.format(key, formatted_value)
     )
 
 
 ############################
 #  Machine history search  #
 ############################
+
 
 class MachineHistorySearchEvent:
     def __init__(self, user, machine, interface, start=None, end=None):
@@ -113,7 +107,7 @@ class MachineHistorySearchEvent:
             self.ipv4,
             self.start_date,
             self.end_date,
-            self.comment or "No comment"
+            self.comment or "No comment",
         )
 
 
@@ -300,6 +294,7 @@ class MachineHistorySearch:
 #  Generic history classes #
 ############################
 
+
 class RelatedHistory:
     def __init__(self, version):
         """Initialise an instance of RelatedHistory.
@@ -317,10 +312,7 @@ class RelatedHistory:
             self.name = "{}: {}".format(self.model_name.title(), self.name)
 
     def __eq__(self, other):
-        return (
-            self.model_name == other.model_name
-            and self.object_id == other.object_id
-        )
+        return self.model_name == other.model_name and self.object_id == other.object_id
 
     def __hash__(self):
         return hash((self.model_name, self.object_id))
@@ -382,15 +374,11 @@ class HistoryEvent:
                 # Take into account keys that may exist in only one dict
                 if field in self.previous_version.field_dict:
                     old_value = self._repr(
-                        field,
-                        self.previous_version.field_dict[field]
+                        field, self.previous_version.field_dict[field]
                     )
 
                 if field in self.version.field_dict:
-                    new_value = self._repr(
-                        field,
-                        self.version.field_dict[field]
-                    )
+                    new_value = self._repr(field, self.version.field_dict[field])
 
             edits.append((field, old_value, new_value))
 
@@ -487,6 +475,7 @@ class History:
 #     Revision history     #
 ############################
 
+
 class VersionAction(HistoryEvent):
     def __init__(self, version):
         self.version = version
@@ -533,15 +522,14 @@ class VersionAction(HistoryEvent):
         """
         model = self.object_type()
         try:
-            query = (
-                make_version_filter("pk", self.object_id())
-                & Q(
-                    revision__date_created__lt=self.version.revision.date_created
-                )
+            query = make_version_filter("pk", self.object_id()) & Q(
+                revision__date_created__lt=self.version.revision.date_created
             )
-            return (Version.objects.get_for_model(model)
-                    .filter(query)
-                    .order_by("-revision__date_created")[0])
+            return (
+                Version.objects.get_for_model(model)
+                .filter(query)
+                .order_by("-revision__date_created")[0]
+            )
         except Exception:
             return None
 
@@ -648,6 +636,7 @@ class ActionsSearch:
 #  Class-specific history  #
 ############################
 
+
 class UserHistoryEvent(HistoryEvent):
     def _repr(self, name, value):
         """Get the appropriate representation of the given field.
@@ -733,13 +722,15 @@ class UserHistoryEvent(HistoryEvent):
         )
 
     def __hash__(self):
-        return hash((frozenset(self.edited_fields), self.date, self.performed_by, self.comment))
+        return hash(
+            (frozenset(self.edited_fields), self.date, self.performed_by, self.comment)
+        )
 
     def __repr__(self):
         return "{} edited fields {} ({})".format(
             self.performed_by,
             self.edited_fields or "nothing",
-            self.comment or "No comment"
+            self.comment or "No comment",
         )
 
 
@@ -762,9 +753,8 @@ class UserHistory(History):
 
         # Try to find an Adherent object
         # If it exists, its id will be the same as the user's
-        adherents = (
-            Version.objects.get_for_model(Adherent)
-            .filter(make_version_filter("pk", user_id))
+        adherents = Version.objects.get_for_model(Adherent).filter(
+            make_version_filter("pk", user_id)
         )
         try:
             obj = adherents[0]
@@ -774,9 +764,8 @@ class UserHistory(History):
 
         # Fallback on a Club
         if obj is None:
-            clubs = (
-                Version.objects.get_for_model(Club)
-                .filter(make_version_filter("pk", user_id))
+            clubs = Version.objects.get_for_model(Club).filter(
+                make_version_filter("pk", user_id)
             )
 
             try:
@@ -826,11 +815,7 @@ class UserHistory(History):
 
         # Remove duplicates and sort
         self.events = list(dict.fromkeys(self.events))
-        return sorted(
-            self.events,
-            key=lambda e: e.date,
-            reverse=True
-        )
+        return sorted(self.events, key=lambda e: e.date, reverse=True)
 
     def _add_revision(self, version):
         """Add a new revision to the chronological order.
@@ -843,7 +828,7 @@ class UserHistory(History):
             diff = self._compute_diff(
                 version,
                 self._last_version,
-                ignoring=["last_login", "pwd_ntlm", "email_change_date"]
+                ignoring=["last_login", "pwd_ntlm", "email_change_date"],
             )
 
         # Ignore "empty" events like login
@@ -973,7 +958,7 @@ HISTORY_CLASS_MAPPING = {
     User: UserHistory,
     Machine: MachineHistory,
     Interface: InterfaceHistory,
-    "default": History
+    "default": History,
 }
 
 

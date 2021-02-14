@@ -28,19 +28,16 @@ Gplv2"""
 
 from __future__ import unicode_literals
 
+from django.db.models import Q, Value
+from django.db.models.functions import Concat
 from netaddr import EUI, AddrFormatError
 
-from django.db.models import Q
-from django.db.models import Value
-from django.db.models.functions import Concat
-
-from users.models import User, Adherent, Club, Ban, Whitelist
-from machines.models import Machine
-from topologie.models import Port, Switch, Room
 from cotisations.models import Facture
+from machines.models import Machine
 from preferences.models import GeneralOption
 from re2o.base import SortTable, re2o_paginator
-
+from topologie.models import Port, Room, Switch
+from users.models import Adherent, Ban, Club, User, Whitelist
 
 # List of fields the search applies to
 FILTER_FIELDS = [

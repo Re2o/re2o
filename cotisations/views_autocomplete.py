@@ -31,20 +31,13 @@ Here are defined the autocomplete class based view.
 """
 from __future__ import unicode_literals
 
-from django.db.models import Q, Value, CharField
+from django.db.models import CharField, Q, Value
 
-from .models import (
-    Banque
-)
-
+from re2o.acl import can_view_all
 from re2o.views import AutocompleteViewMixin
 
-from re2o.acl import (
-    can_view_all,
-)
+from .models import Banque
 
 
 class BanqueAutocomplete(AutocompleteViewMixin):
     obj_type = Banque
-
-

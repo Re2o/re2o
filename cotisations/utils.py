@@ -21,14 +21,16 @@
 
 import os
 
-from django.template.loader import get_template
 from django.core.mail import EmailMessage
+from django.template.loader import get_template
+
+from preferences.models import (AssoOption, CotisationsOption, GeneralOption,
+                                Mandate)
+from re2o import settings
 from re2o.mail_utils import send_mail_object
+from re2o.settings import LOGO_PATH
 
 from .tex import create_pdf
-from preferences.models import AssoOption, GeneralOption, CotisationsOption, Mandate
-from re2o.settings import LOGO_PATH
-from re2o import settings
 
 
 def find_payment_method(payment):
@@ -74,7 +76,9 @@ def send_mail_invoice(invoice, request=None):
         "tpl_path": os.path.join(settings.BASE_DIR, LOGO_PATH),
     }
 
-    template = CotisationsOption.get_cached_value("invoice_template").template.name.split("/")[-1]
+    template = CotisationsOption.get_cached_value(
+        "invoice_template"
+    ).template.name.split("/")[-1]
     pdf = create_pdf(template, ctx)
     template = get_template("cotisations/email_invoice")
 
@@ -106,7 +110,9 @@ def send_mail_voucher(invoice, request=None):
         "email": invoice.user.email,
         "phone": invoice.user.telephone,
         "date_end": invoice.get_subscription().latest("date_end_memb").date_end_memb,
-        "date_begin": invoice.get_subscription().earliest("date_start_memb").date_start_memb,
+        "date_begin": invoice.get_subscription()
+        .earliest("date_start_memb")
+        .date_start_memb,
     }
     templatename = CotisationsOption.get_cached_value(
         "voucher_template"

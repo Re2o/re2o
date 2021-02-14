@@ -21,13 +21,11 @@
 
 """The forms used by the machine search view"""
 
+import inspect
+
 from django import forms
 from django.forms import Form
 from django.utils.translation import ugettext_lazy as _
-from re2o.base import get_input_formats_help_text
-from re2o.widgets import AutocompleteModelWidget
-
-import inspect
 
 # Import all models in which there are classes to be filtered on
 import cotisations.models
@@ -35,7 +33,8 @@ import machines.models
 import preferences.models
 import topologie.models
 import users.models
-
+from re2o.base import get_input_formats_help_text
+from re2o.widgets import AutocompleteModelWidget
 
 CHOICES_ACTION_TYPE = (
     ("users", _("Users")),

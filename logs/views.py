@@ -38,84 +38,38 @@ objects for per model, number of actions per user etc.
 
 from __future__ import unicode_literals
 
-from django.urls import reverse
-from django.shortcuts import render, redirect
+from django.apps import apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
 from django.db.models import Count
-from django.apps import apps
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.translation import ugettext as _
+from reversion.models import ContentType, Revision, Version
 
-from reversion.models import Revision
-from reversion.models import Version, ContentType
-
-from users.models import (
-    User,
-    ServiceUser,
-    School,
-    ListRight,
-    ListShell,
-    Ban,
-    Whitelist,
-    Adherent,
-    Club,
-)
-from cotisations.models import Facture, Vente, Article, Banque, Paiement, Cotisation
-from machines.models import (
-    Machine,
-    MachineType,
-    IpType,
-    Extension,
-    Interface,
-    Domain,
-    IpList,
-    OuverturePortList,
-    Service,
-    Vlan,
-    Nas,
-    SOA,
-    Mx,
-    Ns,
-)
-from topologie.models import (
-    Switch,
-    Port,
-    Room,
-    Stack,
-    ModelSwitch,
-    ConstructorSwitch,
-    AccessPoint,
-)
+from cotisations.models import (Article, Banque, Cotisation, Facture, Paiement,
+                                Vente)
+from machines.models import (SOA, Domain, Extension, Interface, IpList, IpType,
+                             Machine, MachineType, Mx, Nas, Ns,
+                             OuverturePortList, Service, Vlan)
 from preferences.models import GeneralOption
+from re2o.acl import (acl_error_message, can_edit_history, can_view,
+                      can_view_all, can_view_app)
+from re2o.base import SortTable, re2o_paginator
+from re2o.utils import (all_active_assigned_interfaces_count,
+                        all_active_interfaces_count, all_adherent, all_baned,
+                        all_has_access, all_whitelisted)
 from re2o.views import form
-from re2o.utils import (
-    all_whitelisted,
-    all_baned,
-    all_has_access,
-    all_adherent,
-    all_active_assigned_interfaces_count,
-    all_active_interfaces_count,
-)
-from re2o.base import re2o_paginator, SortTable
-from re2o.acl import (
-    can_view_all,
-    can_view_app,
-    can_edit_history,
-    can_view,
-    acl_error_message,
-)
-
-from .models import (
-    ActionsSearch,
-    RevisionAction,
-    MachineHistorySearch,
-    get_history_class,
-)
-
-from .forms import ActionsSearchForm, MachineHistorySearchForm
+from topologie.models import (AccessPoint, ConstructorSwitch, ModelSwitch,
+                              Port, Room, Stack, Switch)
+from users.models import (Adherent, Ban, Club, ListRight, ListShell, School,
+                          ServiceUser, User, Whitelist)
 
 from .acl import can_view as can_view_logs
+from .forms import ActionsSearchForm, MachineHistorySearchForm
+from .models import (ActionsSearch, MachineHistorySearch, RevisionAction,
+                     get_history_class)
 
 
 @login_required
@@ -528,7 +482,11 @@ def stats_search_machine_history(request):
         max_result = GeneralOption.get_cached_value("pagination_number")
         events = re2o_paginator(request, events, max_result)
 
-        return render(request, "logs/machine_history.html", {"events": events},)
+        return render(
+            request,
+            "logs/machine_history.html",
+            {"events": events},
+        )
     return render(
         request, "logs/search_machine_history.html", {"history_form": history_form}
     )

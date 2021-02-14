@@ -1,18 +1,16 @@
 import sys
 
-from django.db import models
-from django.conf import settings
-from django.dispatch import receiver
-
-from django.contrib.auth.models import Group
-
 import ldapdb.models
 import ldapdb.models.fields
-
-import users.signals
-import users.models
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.db import models
+from django.dispatch import receiver
 
 import machines.models
+import users.models
+import users.signals
+
 
 class LdapUser(ldapdb.models.Model):
     """A class representing a LdapUser in LDAP, its LDAP conterpart.
@@ -110,13 +108,13 @@ def synchronise_user(sender, **kwargs):
         * mac_refresh : Default `True`. When True, synchronise the list of mac addresses.
         * group_refresh: Default `False`. When `True` synchronise the groups of the instance.
     """
-    base=kwargs.get('base', True)
-    access_refresh=kwargs.get('access_refresh', True)
-    mac_refresh=kwargs.get('mac_refresh', True )
-    group_refresh=kwargs.get('group_refresh', False)
+    base = kwargs.get("base", True)
+    access_refresh = kwargs.get("access_refresh", True)
+    mac_refresh = kwargs.get("mac_refresh", True)
+    group_refresh = kwargs.get("group_refresh", False)
 
-    user=kwargs["instance"]
-    
+    user = kwargs["instance"]
+
     if sys.version_info[0] >= 3 and (
         user.state == user.STATE_ACTIVE
         or user.state == user.STATE_ARCHIVE
@@ -136,9 +134,7 @@ def synchronise_user(sender, **kwargs):
             user_ldap.dialupAccess = str(user.has_access())
             user_ldap.home_directory = user.home_directory
             user_ldap.mail = user.get_mail
-            user_ldap.given_name = (
-                user.surname.lower() + "_" + user.name.lower()[:3]
-            )
+            user_ldap.given_name = user.surname.lower() + "_" + user.name.lower()[:3]
             user_ldap.gid = settings.LDAP["user_gid"]
             if "{SSHA}" in user.password or "{SMD5}" in user.password:
                 # We remove the extra $ added at import from ldap
@@ -169,8 +165,11 @@ def synchronise_user(sender, **kwargs):
             # be part of the updated group (case of group removal)
             for group in Group.objects.all():
                 if hasattr(group, "listright"):
-                    synchronise_usergroup(users.models.ListRight, instance=group.listright)
+                    synchronise_usergroup(
+                        users.models.ListRight, instance=group.listright
+                    )
         user_ldap.save()
+
 
 @receiver(users.signals.remove, sender=users.models.User)
 def remove_user(sender, **kwargs):
@@ -180,6 +179,7 @@ def remove_user(sender, **kwargs):
         user_ldap.delete()
     except LdapUser.DoesNotExist:
         pass
+
 
 @receiver(users.signals.remove_mass, sender=users.models.User)
 def remove_users(sender, **kwargs):
@@ -217,6 +217,7 @@ class LdapUserGroup(ldapdb.models.Model):
     def __str__(self):
         return self.name
 
+
 @receiver(users.signals.synchronise, sender=users.models.ListRight)
 def synchronise_usergroup(sender, **kwargs):
     group = kwargs["instance"]
@@ -228,6 +229,7 @@ def synchronise_usergroup(sender, **kwargs):
     group_ldap.members = [user.pseudo for user in group.user_set.all()]
     group_ldap.save()
 
+
 @receiver(users.signals.remove, sender=users.models.ListRight)
 def remove_usergroup(sender, **kwargs):
     group = kwargs["instance"]
@@ -236,7 +238,6 @@ def remove_usergroup(sender, **kwargs):
         group_ldap.delete()
     except LdapUserGroup.DoesNotExist:
         pass
-
 
 
 class LdapServiceUser(ldapdb.models.Model):
@@ -296,6 +297,7 @@ def synchronise_serviceuser(sender, **kwargs):
     user_ldap.save()
     synchronise_serviceuser_group(user)
 
+
 @receiver(users.signals.remove, sender=users.models.ServiceUser)
 def remove_serviceuser(sender, **kwargs):
     user = kwargs["instance"]
@@ -331,4 +333,3 @@ class LdapServiceUserGroup(ldapdb.models.Model):
 
     def __str__(self):
         return self.name
-

@@ -24,26 +24,32 @@ The defined URLs for the logs app. Included in re2o.urls.
 """
 from __future__ import unicode_literals
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
+app_name = "logs"
+
 urlpatterns = [
-    url(r"^$", views.index, name="index"),
-    url(r"^stats_logs$", views.stats_logs, name="stats-logs"),
-    url(
-        r"^revert_action/(?P<revision_id>[0-9]+)$",
+    path("", views.index, name="index"),
+    path("stats_logs", views.stats_logs, name="stats-logs"),
+    path(
+        "revert_action/<int:revision_id>",
         views.revert_action,
         name="revert-action",
     ),
-    url(
-        r"(?P<application>\w+)/(?P<object_name>\w+)/(?P<object_id>[0-9]+)$",
+    path(
+        "<str:application>/<str:object_name>/<int:object_id>",
         views.history,
         name="history",
     ),
-    url(r"^stats_general/$", views.stats_general, name="stats-general"),
-    url(r"^stats_models/$", views.stats_models, name="stats-models"),
-    url(r"^stats_users/$", views.stats_users, name="stats-users"),
-    url(r"^stats_actions/$", views.stats_actions, name="stats-actions"),
-    url(r"^stats_search_machine/$", views.stats_search_machine_history, name="stats-search-machine"),
+    path("stats_general", views.stats_general, name="stats-general"),
+    path("stats_models", views.stats_models, name="stats-models"),
+    path("stats_users", views.stats_users, name="stats-users"),
+    path("stats_actions", views.stats_actions, name="stats-actions"),
+    path(
+        "stats_search_machine",
+        views.stats_search_machine_history,
+        name="stats-search-machine",
+    ),
 ]

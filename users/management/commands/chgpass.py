@@ -23,8 +23,9 @@ import os
 import pwd
 
 from django.core.management.base import BaseCommand, CommandError
+
+from re2o.script_utils import form_cli, get_system_user, get_user
 from users.forms import PassForm
-from re2o.script_utils import get_user, get_system_user, form_cli
 
 
 class Command(BaseCommand):
@@ -46,6 +47,4 @@ class Command(BaseCommand):
 
         self.stdout.write("Password change of %s" % target_user.pseudo)
 
-        form_cli(
-            PassForm, current_user, "Password change", instance=target_user
-        )
+        form_cli(PassForm, current_user, "Password change", instance=target_user)

@@ -19,8 +19,8 @@
 #
 from django.core.management.base import BaseCommand, CommandError
 
-from users.models import User
 from ldap_sync.models import synchronise_user
+from users.models import User
 
 
 class Command(BaseCommand):

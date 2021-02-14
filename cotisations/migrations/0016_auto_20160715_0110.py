@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="cotisation",
             name="vente",
-            field=models.OneToOneField(to="cotisations.Vente", null=True),
+            field=models.OneToOneField(to="cotisations.Vente", null=True, on_delete=models.CASCADE),
             preserve_default=False,
         ),
     ]

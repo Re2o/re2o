@@ -22,11 +22,12 @@
 from rest_framework import serializers
 
 import preferences.models as preferences
-from api.serializers import NamespacedHRField, NamespacedHIField, NamespacedHMSerializer
+from api.serializers import (NamespacedHIField, NamespacedHMSerializer,
+                             NamespacedHRField)
+
 
 class OptionalUserSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.OptionalUser` objects.
-    """
+    """Serialize `preferences.models.OptionalUser` objects."""
 
     tel_mandatory = serializers.BooleanField(source="is_tel_mandatory")
     shell_default = serializers.StringRelatedField()
@@ -47,8 +48,7 @@ class OptionalUserSerializer(NamespacedHMSerializer):
 
 
 class OptionalMachineSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.OptionalMachine` objects.
-    """
+    """Serialize `preferences.models.OptionalMachine` objects."""
 
     class Meta:
         model = preferences.OptionalMachine
@@ -59,13 +59,12 @@ class OptionalMachineSerializer(NamespacedHMSerializer):
             "ipv6_mode",
             "create_machine",
             "ipv6",
-            "default_dns_ttl"
+            "default_dns_ttl",
         )
 
 
 class OptionalTopologieSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.OptionalTopologie` objects.
-    """
+    """Serialize `preferences.models.OptionalTopologie` objects."""
 
     switchs_management_interface_ip = serializers.CharField()
 
@@ -85,8 +84,7 @@ class OptionalTopologieSerializer(NamespacedHMSerializer):
 
 
 class RadiusOptionSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.RadiusOption` objects
-    """
+    """Serialize `preferences.models.RadiusOption` objects"""
 
     class Meta:
         model = preferences.RadiusOption
@@ -107,8 +105,7 @@ class RadiusOptionSerializer(NamespacedHMSerializer):
 
 
 class GeneralOptionSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.GeneralOption` objects.
-    """
+    """Serialize `preferences.models.GeneralOption` objects."""
 
     class Meta:
         model = preferences.GeneralOption
@@ -128,8 +125,7 @@ class GeneralOptionSerializer(NamespacedHMSerializer):
 
 
 class HomeServiceSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.Service` objects.
-    """
+    """Serialize `preferences.models.Service` objects."""
 
     class Meta:
         model = preferences.Service
@@ -138,8 +134,7 @@ class HomeServiceSerializer(NamespacedHMSerializer):
 
 
 class AssoOptionSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.AssoOption` objects.
-    """
+    """Serialize `preferences.models.AssoOption` objects."""
 
     class Meta:
         model = preferences.AssoOption
@@ -157,8 +152,7 @@ class AssoOptionSerializer(NamespacedHMSerializer):
 
 
 class HomeOptionSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.HomeOption` objects.
-    """
+    """Serialize `preferences.models.HomeOption` objects."""
 
     class Meta:
         model = preferences.HomeOption
@@ -166,8 +160,7 @@ class HomeOptionSerializer(NamespacedHMSerializer):
 
 
 class MailMessageOptionSerializer(NamespacedHMSerializer):
-    """Serialize `preferences.models.MailMessageOption` objects.
-    """
+    """Serialize `preferences.models.MailMessageOption` objects."""
 
     class Meta:
         model = preferences.MailMessageOption

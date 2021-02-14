@@ -23,9 +23,9 @@
 A set of mixins used all over the project to avoid duplicating code
 """
 
-from reversion import revisions as reversion
 from django.db import transaction
 from django.utils.translation import ugettext as _
+from reversion import revisions as reversion
 
 
 class RevMixin(object):
@@ -252,4 +252,3 @@ class AclMixin(object):
             else None,
             (permission,),
         )
-

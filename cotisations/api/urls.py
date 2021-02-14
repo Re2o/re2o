@@ -27,12 +27,11 @@ urls_viewset = [
     (r"cotisations/article", views.ArticleViewSet, None),
     (r"cotisations/banque", views.BanqueViewSet, None),
     (r"cotisations/paiement", views.PaiementViewSet, None),
-    (r"cotisations/cotisation", views.CotisationViewSet, None)
+    (r"cotisations/cotisation", views.CotisationViewSet, None),
 ]
 
 urls_view = [
     (r"cotisations/reminder-get-users", views.ReminderView),
-
     # Deprecated
     (r"reminder/get-users", views.ReminderView),
 ]

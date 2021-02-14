@@ -26,8 +26,8 @@ which indicated if a user can creates an account by himself
 """
 
 from django import template
-from preferences.models import OptionalUser
 
+from preferences.models import OptionalUser
 
 register = template.Library()
 

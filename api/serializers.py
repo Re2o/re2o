@@ -24,7 +24,6 @@
 
 from rest_framework import serializers
 
-
 # The namespace used for the API. It must match the namespace used in the
 # urlpatterns to include the API URLs.
 API_NAMESPACE = "api"
@@ -59,7 +58,3 @@ class NamespacedHMSerializer(serializers.HyperlinkedModelSerializer):
 
     serializer_related_field = NamespacedHRField
     serializer_url_field = NamespacedHIField
-
-
-
-

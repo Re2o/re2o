@@ -1,10 +1,10 @@
-from django.test import TestCase
-
 import datetime
+
+from django.test import TestCase
 from django.utils import timezone
 
+from cotisations.models import Facture, Paiement, Vente
 from users.models import User
-from cotisations.models import Vente, Facture, Paiement
 
 
 class UserModelTests(TestCase):

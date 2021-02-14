@@ -31,33 +31,19 @@ The forms are used to:
 from __future__ import unicode_literals
 
 from django import forms
-from django.forms import ModelForm
 from django.db.models import Prefetch
+from django.forms import ModelForm
 from django.utils.translation import ugettext_lazy as _
 
-from machines.models import Interface
 from machines.forms import EditMachineForm, NewMachineForm
+from machines.models import Interface
 from re2o.mixins import FormRevMixin
-from re2o.widgets import (
-    AutocompleteModelWidget,
-    AutocompleteMultipleModelWidget,
-)
+from re2o.widgets import (AutocompleteModelWidget,
+                          AutocompleteMultipleModelWidget)
 
-from .models import (
-    Port,
-    Switch,
-    Room,
-    Stack,
-    ModelSwitch,
-    ConstructorSwitch,
-    AccessPoint,
-    SwitchBay,
-    Building,
-    Dormitory,
-    PortProfile,
-    ModuleSwitch,
-    ModuleOnSwitch,
-)
+from .models import (AccessPoint, Building, ConstructorSwitch, Dormitory,
+                     ModelSwitch, ModuleOnSwitch, ModuleSwitch, Port,
+                     PortProfile, Room, Stack, Switch, SwitchBay)
 
 
 class PortForm(FormRevMixin, ModelForm):

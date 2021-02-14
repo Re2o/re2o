@@ -30,61 +30,33 @@ services etc.)
 
 from __future__ import unicode_literals
 
-from django.urls import reverse
-from django.shortcuts import redirect
+from importlib import import_module
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import ProtectedError
 from django.db import transaction
+from django.db.models import ProtectedError
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.translation import ugettext as _
-
 from reversion import revisions as reversion
 
-from importlib import import_module
+from re2o.acl import (acl_error_message, can_create, can_delete,
+                      can_delete_set, can_edit, can_view_all)
 from re2o.settings_local import OPTIONNAL_APPS_RE2O
 from re2o.views import form
-from re2o.acl import (
-    can_create,
-    can_edit,
-    can_delete_set,
-    can_view_all,
-    can_delete,
-    acl_error_message,
-)
 
-from .forms import MailContactForm, DelMailContactForm
-from .forms import (
-    ServiceForm,
-    ReminderForm,
-    RadiusKeyForm,
-    SwitchManagementCredForm,
-    DocumentTemplateForm,
-    DelDocumentTemplateForm,
-    RadiusAttributeForm,
-    DelRadiusAttributeForm,
-    MandateForm,
-)
-from .models import (
-    Service,
-    MailContact,
-    OptionalUser,
-    OptionalMachine,
-    AssoOption,
-    MailMessageOption,
-    GeneralOption,
-    OptionalTopologie,
-    HomeOption,
-    Reminder,
-    RadiusKey,
-    SwitchManagementCred,
-    RadiusOption,
-    CotisationsOption,
-    DocumentTemplate,
-    RadiusAttribute,
-    Mandate,
-)
-from . import models
-from . import forms
+from . import forms, models
+from .forms import (DelDocumentTemplateForm, DelMailContactForm,
+                    DelRadiusAttributeForm, DocumentTemplateForm,
+                    MailContactForm, MandateForm, RadiusAttributeForm,
+                    RadiusKeyForm, ReminderForm, ServiceForm,
+                    SwitchManagementCredForm)
+from .models import (AssoOption, CotisationsOption, DocumentTemplate,
+                     GeneralOption, HomeOption, MailContact, MailMessageOption,
+                     Mandate, OptionalMachine, OptionalTopologie, OptionalUser,
+                     RadiusAttribute, RadiusKey, RadiusOption, Reminder,
+                     Service, SwitchManagementCred)
 
 
 def edit_options_template_function(request, section, forms, models):

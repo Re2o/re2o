@@ -41,52 +41,34 @@ of each of the method.
 
 from __future__ import unicode_literals
 
-from os import walk, path
+from os import path, walk
 
 from django import forms
-from django.forms import ModelForm, Form
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.contrib.auth.password_validation import (
-    validate_password,
-    password_validators_help_text_html,
-)
-from django.core.validators import MinLengthValidator
 from django.conf import settings
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.password_validation import (
+    password_validators_help_text_html, validate_password)
+from django.core.validators import MinLengthValidator
+from django.forms import Form, ModelForm
 from django.utils import timezone
 from django.utils.functional import lazy
-from django.contrib.auth.models import Group, Permission
-from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from machines.models import Interface, Machine, Nas
-from topologie.models import Port
-from preferences.models import OptionalUser
-from re2o.utils import remove_user_room
+from preferences.models import GeneralOption, OptionalUser
 from re2o.base import get_input_formats_help_text
-from re2o.mixins import FormRevMixin
-from re2o.widgets import (
-    AutocompleteMultipleModelWidget,
-    AutocompleteModelWidget,
-)
 from re2o.field_permissions import FieldPermissionFormMixin
+from re2o.mixins import FormRevMixin
+from re2o.utils import remove_user_room
+from re2o.widgets import (AutocompleteModelWidget,
+                          AutocompleteMultipleModelWidget)
+from topologie.models import Port
 
-from preferences.models import GeneralOption
-
+from .models import (Adherent, Ban, Club, EMailAddress, ListRight, ListShell,
+                     School, ServiceUser, User, Whitelist)
 from .widgets import DateTimePicker
-
-from .models import (
-    User,
-    ServiceUser,
-    School,
-    ListRight,
-    Whitelist,
-    EMailAddress,
-    ListShell,
-    Ban,
-    Adherent,
-    Club,
-)
-
 
 #### Django Admin Custom Views
 
@@ -126,7 +108,7 @@ class UserAdminForm(FormRevMixin, forms.ModelForm):
 
         Parameters:
             self : Apply on a django Form UserCreationForm instance
-            
+
         Returns:
             password2 (string): The password2 value if all tests returned True
         """
@@ -182,7 +164,7 @@ class ServiceUserAdminForm(FormRevMixin, forms.ModelForm):
 
         Parameters:
             self : Apply on a django Form UserCreationForm instance
- 
+
         Returns:
             password2 (string): The password2 value if all tests returned True
         """
@@ -194,7 +176,7 @@ class ServiceUserAdminForm(FormRevMixin, forms.ModelForm):
 
     def save(self, commit=True):
         """Save function. Call standard "set_password" django function,
-        from provided value for new password, for making hash. 
+        from provided value for new password, for making hash.
 
         Parameters:
             self : Apply on a django Form ServiceUserAdminForm instance
@@ -213,10 +195,10 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
     """Django form for changing password, check if 2 passwords are the same,
     and validate password for django base password validators provided in
     settings_local.
-    
+
     Parameters:
         DjangoForm : Inherit from basic django form
-        
+
     """
 
     selfpasswd = forms.CharField(
@@ -238,11 +220,11 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
 
     def clean_passwd2(self):
         """Clean password 2, check if passwd1 and 2 values match, and
-        apply django validator with validate_password function. 
-        
+        apply django validator with validate_password function.
+
         Parameters:
             self : Apply on a django Form PassForm instance
-            
+
         Returns:
             password2 (string): The password2 value if all tests returned True
         """
@@ -278,7 +260,7 @@ class PassForm(FormRevMixin, FieldPermissionFormMixin, forms.ModelForm):
 
 
 class ResetPasswordForm(forms.Form):
-    """A form for asking to reset password. 
+    """A form for asking to reset password.
 
     Parameters:
         DjangoForm : Inherit from basic django form
@@ -368,10 +350,10 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def clean_telephone(self):
         """Clean telephone, check if telephone is made mandatory, and
         raise error if not provided
-        
+
         Parameters:
             self : Apply on a django Form AdherentForm instance
-            
+
         Returns:
             telephone (string): The telephone string if clean is True
         """
@@ -395,10 +377,10 @@ class AdherentForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
         """Clean room, based on room policy provided by preferences.
         If needed, call remove_user_room to make the room empty before
         saving self.instance into that room.
-        
+
         Parameters:
             self : Apply on a django Form AdherentForm instance
-            
+
         Returns:
             room (string): The room instance
         """
@@ -505,11 +487,11 @@ class AdherentCreationForm(AdherentForm):
 
     def clean_password2(self):
         """Clean password 2, check if passwd1 and 2 values match, and
-        apply django validator with validate_password function. 
+        apply django validator with validate_password function.
 
         Parameters:
             self : Apply on a django Form AdherentCreationForm instance
-            
+
         Returns:
             password2 (string): The password2 value if all tests returned True
         """
@@ -526,7 +508,7 @@ class AdherentCreationForm(AdherentForm):
         return password2
 
     def save(self, commit=True):
-        """Save function. If password has been set during creation, 
+        """Save function. If password has been set during creation,
         call standard "set_password" django function from provided value
         for new password, for making hash.
 
@@ -588,7 +570,7 @@ class AdherentEditForm(AdherentForm):
 
 class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     """ClubForm. For editing club by himself or another user. Labels are provided for
-    help purposes. Add some instructions, and validation, fields depends 
+    help purposes. Add some instructions, and validation, fields depends
     on editing user rights.
 
     Parameters:
@@ -631,10 +613,10 @@ class ClubForm(FormRevMixin, FieldPermissionFormMixin, ModelForm):
     def clean_telephone(self):
         """Clean telephone, check if telephone is made mandatory, and
         raise error if not provided
-        
+
         Parameters:
             self : Apply on a django Form ClubForm instance
-            
+
         Returns:
             telephone (string): The telephone string if clean is True
         """
@@ -671,7 +653,7 @@ class ClubAdminandMembersForm(FormRevMixin, ModelForm):
 
 class PasswordForm(FormRevMixin, ModelForm):
     """PasswordForm. Do not use directly in views without extra validations.
-    
+
     Parameters:
         DjangoForm : Inherit from basic django form
     """
@@ -688,7 +670,7 @@ class PasswordForm(FormRevMixin, ModelForm):
 class ServiceUserForm(FormRevMixin, ModelForm):
     """ServiceUserForm, used for creating a service user, require
     a password and set it.
-    
+
     Parameters:
         DjangoForm : Inherit from basic django form
     """
@@ -710,7 +692,7 @@ class ServiceUserForm(FormRevMixin, ModelForm):
         super(ServiceUserForm, self).__init__(*args, prefix=prefix, **kwargs)
 
     def save(self, commit=True):
-        """Save function. If password has been changed and provided, 
+        """Save function. If password has been changed and provided,
         call standard "set_password" django function from provided value
         for new password, for making hash.
 
@@ -1044,10 +1026,10 @@ class InitialRegisterForm(forms.Form):
     def clean_register_room(self):
         """Clean room, call remove_user_room to make the room empty before
         saving self.instance into that room.
-        
+
         Parameters:
             self : Apply on a django Form InitialRegisterForm instance
-            
+
         """
         if self.cleaned_data["register_room"]:
             if self.user.is_class_adherent:
@@ -1065,7 +1047,7 @@ class InitialRegisterForm(forms.Form):
 
         Parameters:
             self : Apply on a django Form InitialRegisterForm instance
-            
+
         """
         if self.cleaned_data["register_machine"]:
             if self.mac_address and self.nas_type:
@@ -1073,8 +1055,7 @@ class InitialRegisterForm(forms.Form):
 
 
 class ThemeForm(FormRevMixin, forms.Form):
-    """Form to change the theme of a user.
-    """
+    """Form to change the theme of a user."""
 
     theme = forms.ChoiceField(widget=forms.Select())
 

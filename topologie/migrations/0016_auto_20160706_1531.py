@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
             model_name="port",
             name="related",
             field=models.OneToOneField(
-                blank=True, to="topologie.Port", related_name="related_port", null=True
+                blank=True, to="topologie.Port", related_name="related_port", null=True, on_delete=models.CASCADE
             ),
         ),
     ]

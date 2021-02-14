@@ -31,22 +31,13 @@ Here are defined the autocomplete class based view.
 """
 from __future__ import unicode_literals
 
-from django.db.models import Q, Value, CharField
+from django.db.models import CharField, Q, Value
 from django.db.models.functions import Concat
 
-from .models import (
-    Interface,
-    Machine,
-    Vlan,
-    MachineType,
-    IpType,
-    Extension,
-    Domain,
-    OuverturePortList,
-    IpList,
-)
-
 from re2o.views import AutocompleteViewMixin
+
+from .models import (Domain, Extension, Interface, IpList, IpType, Machine,
+                     MachineType, OuverturePortList, Vlan)
 
 
 class VlanAutocomplete(AutocompleteViewMixin):
