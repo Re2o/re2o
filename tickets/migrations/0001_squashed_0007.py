@@ -15,15 +15,6 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
-    replaces = [
-        ("tickets", "0001_initial"),
-        ("tickets", "0002_auto_20191120_0159"),
-        ("tickets", "0003_auto_20200422_1839"),
-        ("tickets", "0004_auto_20200422_2127"),
-        ("tickets", "0005_auto_20200422_2309"),
-        ("tickets", "0006_auto_20200423_0202"),
-        ("tickets", "0007_ticket_language"),
-    ]
 
     operations = [
         migrations.CreateModel(
