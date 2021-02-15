@@ -32,7 +32,7 @@ import binascii
 import crypt
 import hashlib
 import os
-from base64 import b64decode, b64encode, decodestring, encodestring
+from base64 import b64decode, b64encode, decodebytes, encodebytes
 from collections import OrderedDict
 from hmac import compare_digest as constant_time_compare
 
@@ -56,7 +56,7 @@ def makeSecret(password):
     salt = os.urandom(4)
     h = hashlib.sha1(password.encode())
     h.update(salt)
-    return ALGO_NAME + "$" + encodestring(h.digest() + salt).decode()[:-1]
+    return ALGO_NAME + "$" + encodebytes(h.digest() + salt).decode()[:-1]
 
 
 def hashNT(password):
@@ -84,7 +84,7 @@ def checkPassword(challenge_password, password):
         boolean: True if challenge_password and password match
 
     """
-    challenge_bytes = decodestring(challenge_password[ALGO_LEN:].encode())
+    challenge_bytes = decodebytes(challenge_password[ALGO_LEN:].encode())
     digest = challenge_bytes[:DIGEST_LEN]
     salt = challenge_bytes[DIGEST_LEN:]
     hr = hashlib.sha1(password.encode())
@@ -158,7 +158,7 @@ class CryptPasswordHasher(hashers.BasePasswordHasher):
         """
         assert encoded.startswith(self.algorithm)
         hash_str = encoded[7:]
-        hash_str = binascii.hexlify(decodestring(hash_str.encode())).decode()
+        hash_str = binascii.hexlify(decodebytes(hash_str.encode())).decode()
         return OrderedDict(
             [
                 ("algorithm", self.algorithm),
@@ -207,7 +207,7 @@ class MD5PasswordHasher(hashers.BasePasswordHasher):
         """
         assert encoded.startswith(self.algorithm)
         hash_str = encoded[7:]
-        hash_str = binascii.hexlify(decodestring(hash_str.encode())).decode()
+        hash_str = binascii.hexlify(decodebytes(hash_str.encode())).decode()
         return OrderedDict(
             [
                 ("algorithm", self.algorithm),
@@ -255,7 +255,7 @@ class SSHAPasswordHasher(hashers.BasePasswordHasher):
         """
         assert encoded.startswith(self.algorithm)
         hash_str = encoded[ALGO_LEN:]
-        hash_str = binascii.hexlify(decodestring(hash_str.encode())).decode()
+        hash_str = binascii.hexlify(decodebytes(hash_str.encode())).decode()
         return OrderedDict(
             [
                 ("algorithm", self.algorithm),
