@@ -173,22 +173,28 @@ if "LOCAL_ROUTERS" in globals():
     DATABASE_ROUTERS += LOCAL_ROUTERS
 
 # django-bootstrap3 config
-BOOTSTRAP3 = {
-    "css_url": "/javascript/bootstrap/css/bootstrap.min.css",
-    "javascript_url": "/javascript/bootstrap/js/bootstrap.min.js",
-    "jquery_url": "/javascript/jquery/jquery.min.js",
-    "base_url": "/javascript/bootstrap/",
-    "include_jquery": True,
-}
-BOOTSTRAP_BASE_URL = "/javascript/bootstrap/"
+if USE_CDN:
+    BOOTSTRAP3 = {
+        "include_jquery": True,
+    }
+else:
+    BOOTSTRAP3 = {
+        "css_url": "/javascript/bootstrap/css/bootstrap.min.css",
+        "javascript_url": "/javascript/bootstrap/js/bootstrap.min.js",
+        "jquery_url": "/javascript/jquery/jquery.min.js",
+        "base_url": "/javascript/bootstrap/",
+        "include_jquery": True,
+    }
+    BOOTSTRAP_BASE_URL = "/javascript/bootstrap/"
 
 # Directories where collectstatic should look for static files
 # Use only absolute paths with '/' delimiters even on Windows
-STATICFILES_DIRS = (
+RE2O_STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static").replace("\\", "/"),
-    "/usr/share/fonts-font-awesome/",
-    "/usr/share/javascript/",
 )
+
+STATICFILES_DIRS = RE2O_STATICFILES_DIRS + SYSTEM_STATICFILES_DIRS
+
 # Directory where the static files served by the server are stored
 STATIC_ROOT = os.path.join(BASE_DIR, "static_files")
 # The URL to access the static files

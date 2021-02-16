@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% load acl %}
 {% load self_adhesion %}
 {% load i18n %}
+{% load fontawesome %}
 
 {% self_adhesion as var_sa %}
 <!DOCTYPE html>
@@ -46,13 +47,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {# Preload JavaScript #}
     {% bootstrap_javascript %}
     <script src="{% static 'js/collapse-from-url.js' %}"></script>
-
+    
     {% block custom_js %}{% endblock %}
 
     {# Load CSS #}
     {% bootstrap_css %}
     <link href="{% static 'css/autocomplete.css' %}" rel="stylesheet">
-    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+
+    {# Load font-awesome #}
+    <link rel="stylesheet" href="{% font_awesome_url %}"/>
+
     {# load theme #}
     {% if request.user.is_authenticated %}
     <link href="{% static 'css/themes/' %}{{request.user.theme}}" rel="stylesheet">

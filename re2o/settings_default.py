@@ -65,6 +65,12 @@ OPTIONNAL_APPS_RE2O = ()
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + ()
 
+# Add statiffiles dir that were installed using system packaging
+SYSTEM_STATICFILES_DIRS = ()
+
+# Wether to use CDN to retrieve bootstrap, font-aweseome and jquery files
+USE_CDN = False
+
 # Set auth password validator
 AUTH_PASSWORD_VALIDATORS = [
     {
