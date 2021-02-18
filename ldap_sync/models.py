@@ -135,7 +135,7 @@ def synchronise_user(sender, **kwargs):
             user_ldap.home_directory = user.home_directory
             user_ldap.mail = user.get_mail
             user_ldap.given_name = user.surname.lower() + "_" + user.name.lower()[:3]
-            user_ldap.gid = settings.LDAP["user_gid"]
+            user_ldap.gid = settings.DEFAULT_GID
             if "{SSHA}" in user.password or "{SMD5}" in user.password:
                 # We remove the extra $ added at import from ldap
                 user_ldap.user_password = user.password[:6] + user.password[7:]

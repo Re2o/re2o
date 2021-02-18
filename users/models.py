@@ -78,7 +78,7 @@ from re2o.base import smtp_check
 from re2o.field_permissions import FieldPermissionModelMixin
 from re2o.mail_utils import send_mail
 from re2o.mixins import AclMixin, RevMixin
-from re2o.settings import GID_RANGES, LDAP, UID_RANGES
+from re2o.settings import GID_RANGES, DEFAULT_GID, UID_RANGES
 from users import signals
 
 # General utilities
@@ -426,7 +426,7 @@ class User(
         Returns:
             gid (int): Default gid number
         """
-        return int(LDAP["user_gid"])
+        return DEFAULT_GID
 
     @cached_property
     def gid(self):
@@ -439,7 +439,7 @@ class User(
         Returns:
             gid (int): Default gid number
         """
-        return LDAP["user_gid"]
+        return DEFAULT_GID
 
     @cached_property
     def is_class_club(self):

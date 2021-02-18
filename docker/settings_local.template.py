@@ -1,5 +1,5 @@
 # coding: utf-8
-# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+# Re2o est un logiciel d'administration développé initiallement au rezometz. Il
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
@@ -26,12 +26,36 @@ The file with all the available options for a locale configuration of re2o
 
 from __future__ import unicode_literals
 
+# A secret key used by the server.
+SECRET_KEY = "=0u1d+gi6r06+r4gmrtdg6dhsi0mc7v39a37di4m5cfqt2aro2"
+
+# AES key for secret key encryption.
+# The length must be a multiple of 16
+AES_KEY = "gnbe3elnujzlspzkavgdmqho16zizvek"
+
 # Should the server run in debug mode ?
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
+
+# A list of admins of the services. Receive mails when an error occurs
+ADMINS = [("Example", "admin@example.net")]
+
+# The list of hostname the server will respond to.
+ALLOWED_HOSTS = ["*"]
 
 # The time zone the server is runned in
 TIME_ZONE = "Europe/Paris"
+
+# The storage systems parameters to use
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': '${POSTGRES_DB}',
+        'USER': '${POSTGRES_USER}',
+        'PASSWORD': '${POSTGRES_PASSWORD}',
+        'HOST': 'db',
+    }
+}
 
 # Security settings for secure https
 # Activate once https is correctly configured
@@ -41,12 +65,25 @@ SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
 X_FRAME_OPTIONS = "DENY"
-
-# The validity duration of session cookies, in seconds
 SESSION_COOKIE_AGE = 60 * 60 * 3
 
 # The path where your organization logo is stored
 LOGO_PATH = "static_files/logo.png"
+
+# The mail configuration for Re2o to send mails
+SERVER_EMAIL = "no-reply@example.net"  # The mail address to use
+EMAIL_HOST = "example.net"  # The host to use
+# EMAIL_PORT = MY_EMAIL_PORT  # The port to use
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Add statiffiles dir that were installed using system packaging
+# Example to reproduce re2o2.9 behavior
+# SYSTEM_STATICFILES_DIRS = ("/usr/share/fonts-font-awesome/", "/usr/share/javascript/")
+SYSTEM_STATICFILES_DIRS = ()
+
+# Wether to use CDN to retrieve bootstrap, font-aweseome and jquery files
+# Default to False
+USE_CDN = True
 
 # A range of UID to use. Used in linux environement
 UID_RANGES = {"users": [21001, 30000], "service-users": [20000, 21000]}
@@ -57,41 +94,8 @@ GID_RANGES = {"posix": [501, 600]}
 # Default gid
 DEFAULT_GID = 500
 
-# If you want to add a database routers, please fill in above and add your databse.
-# Then, add a file "local_routers.py" in folder app re2o, and add your router path in
-# the LOCAL_ROUTERS var as "re2o.local_routers.DbRouter". You can also add extra routers.
-LOCAL_ROUTERS = []
-
 # Some optionnal Re2o Apps
 OPTIONNAL_APPS_RE2O = ()
 
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + ()
-
-# Add statiffiles dir that were installed using system packaging
-SYSTEM_STATICFILES_DIRS = ()
-
-# Wether to use CDN to retrieve bootstrap, font-aweseome and jquery files
-USE_CDN = False
-
-# Set auth password validator
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-        "OPTIONS": {
-            "user_attributes": ["surname", "pseudo", "name", "email"],
-        },
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {
-            "min_length": 8,
-        },
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]

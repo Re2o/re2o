@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""re2o.settings_locale
+"""re2o.settings_local
 The file with all the available options for a locale configuration of re2o
 """
 
@@ -103,6 +103,9 @@ UID_RANGES = {"users": [21001, 30000], "service-users": [20000, 21000]}
 # A range of GID to use. Used in linux environement
 GID_RANGES = {"posix": [501, 600]}
 
+# Default gid
+DEFAULT_GID = 500
+
 # If you want to add a database routers, please fill in above and add your databse.
 # Then, add a file "local_routers.py" in folder app re2o, and add your router path in
 # the LOCAL_ROUTERS var as "re2o.local_routers.DbRouter". You can also add extra routers.
@@ -114,6 +117,15 @@ OPTIONNAL_APPS_RE2O = ()
 
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + ()
+
+# Add statiffiles dir that were installed using system packaging
+# Example to reproduce re2o2.9 behavior
+# SYSTEM_STATICFILES_DIRS = ("/usr/share/fonts-font-awesome/", "/usr/share/javascript/")
+SYSTEM_STATICFILES_DIRS = ()
+
+# Wether to use CDN to retrieve bootstrap, font-aweseome and jquery files
+# Default to False
+USE_CDN = False
 
 # Set auth password validator
 AUTH_PASSWORD_VALIDATORS = [
