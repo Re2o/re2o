@@ -31,8 +31,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: templates/admin/base_site.html:65 templates/footer.html:28
-msgid "powered by"
-msgstr "propulsé par"
+msgid "Powered by"
+msgstr "Propulsé par"
 
 #: templates/admin/base_site.html:69 templates/footer.html:45
 msgid ""
