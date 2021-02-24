@@ -123,9 +123,16 @@ def instantiate(*_):
     api_password = config.get('Re2o', 'password')
     api_username = config.get('Re2o', 'username')
 
+    def get_api_client():
+        """Gets a Re2o, or tries to initialize one"""
+        if get_api_client.client is None:
+            get_api_client.client = Re2oAPIClient(
+                api_hostname, api_username, api_password, use_tls=True)
+        return get_api_client.client
+    get_api_client.client = None
+
     global api_client
-    api_client = Re2oAPIClient(
-        api_hostname, api_username, api_password, use_tls=True)
+    api_client = get_api_client
 
 
 @radius_event
@@ -143,7 +150,7 @@ def authorize(data):
     mac = data.get("Calling-Station-Id", "")
 
     # Get all required objects from API
-    data_from_api = api_client.view(
+    data_from_api = api_client().view(
         "radius/authorize/{0}/{1}/{2}".format(
             urllib.parse.quote(nas or "None", safe=""),
             urllib.parse.quote(username or "None", safe=""),
@@ -183,7 +190,7 @@ def post_auth(data):
     mac = data.get("Calling-Station-Id", None)
 
     # Get all required objects from API
-    data_from_api = api_client.view(
+    data_from_api = api_client().view(
         "radius/post_auth/{0}/{1}/{2}".format(
             urllib.parse.quote(nas or "None", safe=""),
             urllib.parse.quote(nas_port or "None", safe=""),
@@ -270,7 +277,7 @@ def check_user_machine_and_register(nas_type, user, user_interface, nas_id, user
         elif not user_interface["ipv4"]:
             # Try to autoassign ip
             try:
-                api_client.view(
+                api_client().view(
                     "radius/assign_ip/{0}".format(
                         urllib.parse.quote(mac_address or "None", safe="")
                     ))
@@ -284,7 +291,7 @@ def check_user_machine_and_register(nas_type, user, user_interface, nas_id, user
         # The interface is not yet registred, try to autoregister if enabled
         if nas_type["autocapture_mac"]:
             try:
-                api_client.view(
+                api_client().view(
                     "radius/autoregister/{0}/{1}/{2}".format(
                         urllib.parse.quote(nas_id or "None", safe=""),
                         urllib.parse.quote(username or "None", safe=""),
@@ -504,7 +511,7 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
             DECISION_VLAN = user_interface["vlan_id"]
         if not user_interface["ipv4"]:
             try:
-                api_client.view(
+                api_client().view(
                     "radius/assign_ip/{0}".format(
                         urllib.parse.quote(user_mac or "None", safe="")
                     ))
