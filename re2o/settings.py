@@ -111,9 +111,9 @@ AUTHENTICATION_BACKENDS = ["re2o.login.RecryptBackend"]
 # Include debug_toolbar middleware if activated
 if "debug_toolbar" in INSTALLED_APPS:
     # Include this middleware at the beggining
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         "debug_toolbar.middleware.DebugToolbarMiddleware",
-    ) + MIDDLEWARE_CLASSES
+    ) + MIDDLEWARE
     # Change the default show_toolbar middleware
     DEBUG_TOOLBAR_CONFIG = {
         "SHOW_TOOLBAR_CALLBACK": "re2o.middleware.show_debug_toolbar"

@@ -109,7 +109,7 @@ def about_page(request):
         git_info_commit = NO_GIT_MSG
         git_info_commit_date = NO_GIT_MSG
 
-    dependencies = settings.INSTALLED_APPS + settings.MIDDLEWARE_CLASSES
+    dependencies = settings.INSTALLED_APPS + settings.MIDDLEWARE
 
     try:
         president = Mandate.get_mandate().president.get_full_name()
