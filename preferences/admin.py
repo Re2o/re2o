@@ -29,7 +29,7 @@ from django.contrib import admin
 from reversion.admin import VersionAdmin
 
 from .models import (AssoOption, DocumentTemplate, GeneralOption, HomeOption,
-                     MailContact, MailMessageOption, OptionalMachine,
+                     MailContact, MailMessageOption, Mandate, OptionalMachine,
                      OptionalTopologie, OptionalUser, RadiusKey, Reminder,
                      Service, SwitchManagementCred)
 
@@ -112,6 +112,12 @@ class DocumentTemplateAdmin(VersionAdmin):
     pass
 
 
+class MandateAdmin(VersionAdmin):
+    """Admin class for mandates."""
+
+    pass
+
+
 admin.site.register(OptionalUser, OptionalUserAdmin)
 admin.site.register(OptionalMachine, OptionalMachineAdmin)
 admin.site.register(OptionalTopologie, OptionalTopologieAdmin)
@@ -125,3 +131,4 @@ admin.site.register(SwitchManagementCred, SwitchManagementCredAdmin)
 admin.site.register(AssoOption, AssoOptionAdmin)
 admin.site.register(MailMessageOption, MailMessageOptionAdmin)
 admin.site.register(DocumentTemplate, DocumentTemplateAdmin)
+admin.site.register(Mandate, MandateAdmin)
