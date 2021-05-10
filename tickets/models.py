@@ -25,6 +25,9 @@ Ticket model
 
 from __future__ import absolute_import
 
+import uuid
+
+from django.core.mail import EmailMessage
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.template import loader
@@ -85,8 +88,9 @@ class Ticket(AclMixin, models.Model):
     )
     solved = models.BooleanField(default=False)
     language = models.CharField(
-        max_length=16, help_text=_("Language of the ticket."), default="en" 
+        max_length=16, help_text=_("Language of the ticket."), default="en"
     )
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     request = None
 
     class Meta:
@@ -96,7 +100,9 @@ class Ticket(AclMixin, models.Model):
 
     def __str__(self):
         if self.user:
-            return _("Ticket from {name}. Date: {date}.").format(name=self.user.get_full_name(),date=self.date)
+            return _("Ticket from {name}. Date: {date}.").format(
+                name=self.user.get_full_name(), date=self.date
+            )
         else:
             return _("Anonymous ticket. Date: %s.") % (self.date)
 
@@ -106,12 +112,12 @@ class Ticket(AclMixin, models.Model):
         if self.user:
             return self.user.get_full_name()
         else:
-            return _("Anonymous user") 
+            return _("Anonymous user")
 
     @cached_property
     def get_mail(self):
         """Get the email address of the user who opened the ticket."""
-        return self.email or self.user.get_mail 
+        return self.email or self.user.get_mail
 
     def publish_mail(self):
         """Send an email for a newly opened ticket to the address set in the
@@ -134,9 +140,9 @@ class Ticket(AclMixin, models.Model):
             GeneralOption.get_cached_value("email_from"),
             [to_addr],
             reply_to=[self.get_mail],
+            headers={"re2o-uuid": self.uuid},
         )
         send_mail_object(mail_to_send, self.request)
-
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Check that the user has the right to view the ticket
@@ -189,9 +195,7 @@ class CommentTicket(AclMixin, models.Model):
         blank=False,
         null=False,
     )
-    parent_ticket = models.ForeignKey(
-        "Ticket", on_delete=models.CASCADE
-    )
+    parent_ticket = models.ForeignKey("Ticket", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         "users.User",
@@ -207,7 +211,16 @@ class CommentTicket(AclMixin, models.Model):
 
     @cached_property
     def comment_id(self):
-        return CommentTicket.objects.filter(parent_ticket=self.parent_ticket, pk__lt=self.pk).count() + 1
+        return (
+            CommentTicket.objects.filter(
+                parent_ticket=self.parent_ticket, pk__lt=self.pk
+            ).count()
+            + 1
+        )
+
+    @property
+    def uuid(self):
+        return self.parent_ticket.uuid
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Check that the user has the right to view the ticket comment
@@ -218,7 +231,9 @@ class CommentTicket(AclMixin, models.Model):
         ):
             return (
                 False,
-                _("You don't have the right to view other tickets comments than yours."),
+                _(
+                    "You don't have the right to view other tickets comments than yours."
+                ),
                 ("tickets.view_commentticket",),
             )
         else:
@@ -227,13 +242,15 @@ class CommentTicket(AclMixin, models.Model):
     def can_edit(self, user_request, *_args, **_kwargs):
         """Check that the user has the right to edit the ticket comment
         or that it is the author."""
-        if (
-            not user_request.has_perm("tickets.change_commentticket")
-            and (self.parent_ticket.user != user_request or self.parent_ticket.user != self.created_by)
+        if not user_request.has_perm("tickets.change_commentticket") and (
+            self.parent_ticket.user != user_request
+            or self.parent_ticket.user != self.created_by
         ):
             return (
                 False,
-                _("You don't have the right to edit other tickets comments than yours."),
+                _(
+                    "You don't have the right to edit other tickets comments than yours."
+                ),
                 ("tickets.change_commentticket",),
             )
         else:
@@ -273,6 +290,7 @@ class CommentTicket(AclMixin, models.Model):
             GeneralOption.get_cached_value("email_from"),
             [to_addr, self.parent_ticket.get_mail],
             reply_to=[to_addr, self.parent_ticket.get_mail],
+            headers={"re2o-uuid": self.uuid},
         )
         send_mail_object(mail_to_send, self.request)
 

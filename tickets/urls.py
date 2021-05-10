@@ -29,17 +29,30 @@ from . import views
 from .preferences.views import edit_options
 
 urlpatterns = [
-    url(r"^$", views.aff_tickets, name="aff-tickets"),
-    url(r"^(?P<ticketid>[0-9]+)$", views.aff_ticket, name="aff-ticket"),
-    url(r"^change_ticket_status/(?P<ticketid>[0-9]+)$", views.change_ticket_status, name="change-ticket-status"),
-    url(r"^edit_ticket/(?P<ticketid>[0-9]+)$", views.edit_ticket, name="edit-ticket"),
-    url(
+    path("", views.aff_tickets, name="aff-tickets"),
+    path("<int:ticketid>", views.aff_ticket, name="aff-ticket"),
+    path("by_uuid/<uuid:ticketuuid>", views.aff_ticket_uuid, name="aff-ticket-uuid"),
+    path(
+        "change_ticket_status/<int:ticketid>",
+        views.change_ticket_status,
+        name="change-ticket-status",
+    ),
+    path("edit_ticket/<int:ticketid>", views.edit_ticket, name="edit-ticket"),
+    re_path(
         r"^edit_options/(?P<section>TicketOption)$",
         edit_options,
         name="edit-options",
     ),
     url(r"^new_ticket/$", views.new_ticket, name="new-ticket"),
     url(r"^add_comment/(?P<ticketid>[0-9]+)$", views.add_comment, name="add-comment"),
-    url(r"^edit_comment/(?P<commentticketid>[0-9]+)$", views.edit_comment, name="edit-comment"),
-    url(r"^del_comment/(?P<commentticketid>[0-9]+)$", views.del_comment, name="del-comment"),
+    url(
+        r"^edit_comment/(?P<commentticketid>[0-9]+)$",
+        views.edit_comment,
+        name="edit-comment",
+    ),
+    url(
+        r"^del_comment/(?P<commentticketid>[0-9]+)$",
+        views.del_comment,
+        name="del-comment",
+    ),
 ]

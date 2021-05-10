@@ -22,7 +22,8 @@
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.forms import modelformset_factory
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.cache import cache_page
 from django.utils.translation import ugettext as _
@@ -32,13 +33,7 @@ from re2o.views import form
 
 from re2o.base import re2o_paginator
 
-from re2o.acl import (
-    can_view,
-    can_view_all, 
-    can_edit, 
-    can_create, 
-    can_delete
-)
+from re2o.acl import can_view, can_view_all, can_edit, can_create, can_delete
 
 from preferences.models import GeneralOption
 
@@ -62,10 +57,12 @@ def new_ticket(request):
             return redirect(reverse("index"))
         else:
             return redirect(
-                 reverse("users:profil", kwargs={"userid": str(request.user.id)})
+                reverse("users:profil", kwargs={"userid": str(request.user.id)})
             )
     return form(
-        {"ticketform": ticketform, 'action_name': ("Create a ticket")}, "tickets/edit.html", request
+        {"ticketform": ticketform, "action_name": ("Create a ticket")},
+        "tickets/edit.html",
+        request,
     )
 
 
@@ -81,15 +78,24 @@ def aff_ticket(request, ticket, ticketid):
     )
 
 
+def aff_ticket_uuid(request, ticketuuid):
+    """View used to display a single ticket."""
+    ticket = get_object_or_404(Ticket, uuid=ticketuuid)
+    comments = CommentTicket.objects.filter(parent_ticket=ticket)
+    return render(
+        request,
+        "tickets/aff_ticket.html",
+        {"ticket": ticket, "comments": comments},
+    )
+
+
 @login_required
 @can_edit(Ticket)
 def change_ticket_status(request, ticket, ticketid):
     """View used to change a ticket's status."""
     ticket.solved = not ticket.solved
     ticket.save()
-    return redirect(
-        reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
-    )
+    return redirect(reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)}))
 
 
 @login_required
@@ -101,15 +107,15 @@ def edit_ticket(request, ticket, ticketid):
         ticketform.save()
         messages.success(
             request,
-            _(
-                "Ticket has been updated successfully"
-            ),
+            _("Ticket has been updated successfully"),
         )
         return redirect(
             reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
         )
     return form(
-        {"ticketform": ticketform, 'action_name': ("Edit this ticket")}, "tickets/edit.html", request
+        {"ticketform": ticketform, "action_name": ("Edit this ticket")},
+        "tickets/edit.html",
+        request,
     )
 
 
@@ -128,7 +134,9 @@ def add_comment(request, ticket, ticketid):
             reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
         )
     return form(
-        {"ticketform": commentticket, "action_name": _("Add a comment")}, "tickets/edit.html", request
+        {"ticketform": commentticket, "action_name": _("Add a comment")},
+        "tickets/edit.html",
+        request,
     )
 
 
@@ -136,7 +144,9 @@ def add_comment(request, ticket, ticketid):
 @can_edit(CommentTicket)
 def edit_comment(request, commentticket_instance, **_kwargs):
     """View used to edit a comment of a ticket."""
-    commentticket = CommentTicketForm(request.POST or None, instance=commentticket_instance)
+    commentticket = CommentTicketForm(
+        request.POST or None, instance=commentticket_instance
+    )
     if commentticket.is_valid():
         ticketid = commentticket_instance.parent_ticket.id
         if commentticket.changed_data:
@@ -146,7 +156,9 @@ def edit_comment(request, commentticket_instance, **_kwargs):
             reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
         )
     return form(
-        {"ticketform": commentticket, "action_name": _("Edit")}, "tickets/edit.html", request,
+        {"ticketform": commentticket, "action_name": _("Edit")},
+        "tickets/edit.html",
+        request,
     )
 
 
@@ -162,7 +174,9 @@ def del_comment(request, commentticket, **_kwargs):
             reverse("tickets:aff-ticket", kwargs={"ticketid": str(ticketid)})
         )
     return form(
-        {"objet": commentticket, "objet_name": _("Ticket Comment")}, "tickets/delete.html", request
+        {"objet": commentticket, "objet_name": _("Ticket Comment")},
+        "tickets/delete.html",
+        request,
     )
 
 
