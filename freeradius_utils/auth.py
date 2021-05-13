@@ -141,9 +141,16 @@ def instantiate(*_):
     api_password = config.get('Re2o', 'password')
     api_username = config.get('Re2o', 'username')
 
+    def get_api_client():
+        """Gets a Re2o, or tries to initialize one"""
+        if get_api_client.client is None:
+            get_api_client.client = Re2oAPIClient(
+                api_hostname, api_username, api_password, use_tls=True)
+        return get_api_client.client
+    get_api_client.client = None
+
     global api_client
-    api_client = Re2oAPIClient(
-        api_hostname, api_username, api_password, use_tls=True)
+    api_client = get_api_client
 
 
 @radius_event
@@ -154,19 +161,26 @@ def authorize(data):
     - It the nas is known AND nas auth is enabled with mac address, returns
     accept here"""
     # For proxified request, split
-    nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
-    nas_instance = find_nas_from_request(nas)
-    # For none proxified requests
-    nas_type = None
-    if nas_instance:
-        nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
-    if not nas_type or nas_type.port_access_mode == "802.1X":
-        user = data.get("User-Name", "")
-        user = user.split("@", 1)[0]
-        mac = data.get("Calling-Station-Id", "")
-        result, log, password = check_user_machine_and_register(nas_type, user, mac)
-        logger.info(str(log))
-        logger.info(str(user))
+    username = username.split("@", 1)[0]
+    mac = data.get("Calling-Station-Id", "")
+
+    # Get all required objects from API
+    data_from_api = api_client().view(
+        "radius/authorize/{0}/{1}/{2}".format(
+            urllib.parse.quote(nas or "None", safe=""),
+            urllib.parse.quote(username or "None", safe=""),
+            urllib.parse.quote(mac or "None", safe="")
+        ))
+
+    nas_type = data_from_api["nas"]
+    user = data_from_api["user"]
+    user_interface = data_from_api["user_interface"]
+
+    if not nas_type or nas_type and nas_type["port_access_mode"] == "802.1X":
+        result, log, password = check_user_machine_and_register(
+            nas_type, user, user_interface, nas, username, mac)
+        logger.info(log.encode("utf-8"))
+        logger.info(username.encode("utf-8"))
 
         if not result:
             return radiusd.RLM_MODULE_REJECT
@@ -186,12 +200,22 @@ def post_auth(data):
     """Function called after the user is authenticated"""
 
     nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
-    nas_instance = find_nas_from_request(nas)
-    # All non proxified requests
-    if not nas_instance:
-        logger.info("Proxified request, nas unknown")
-        return radiusd.RLM_MODULE_OK
-    nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
+    nas_port = data.get("NAS-Port-Id", data.get("NAS-Port", None))
+    mac = data.get("Calling-Station-Id", None)
+
+    # Get all required objects from API
+    data_from_api = api_client().view(
+        "radius/post_auth/{0}/{1}/{2}".format(
+            urllib.parse.quote(nas or "None", safe=""),
+            urllib.parse.quote(nas_port or "None", safe=""),
+            urllib.parse.quote(mac or "None", safe="")
+        ))
+
+    nas_type = data_from_api["nas"]
+    port = data_from_api["port"]
+    switch = data_from_api["switch"]
+
+    # If proxified request
     if not nas_type:
         logger.info("Proxified request, nas unknown")
         return radiusd.RLM_MODULE_OK
@@ -267,7 +291,7 @@ def check_user_machine_and_register(nas_type, user, user_interface, nas_id, user
         elif not user_interface["ipv4"]:
             # Try to autoassign ip
             try:
-                api_client.view(
+                api_client().view(
                     "radius/assign_ip/{0}".format(
                         urllib.parse.quote(mac_address or "None", safe="")
                     ))
@@ -281,7 +305,7 @@ def check_user_machine_and_register(nas_type, user, user_interface, nas_id, user
         # The interface is not yet registred, try to autoregister if enabled
         if nas_type["autocapture_mac"]:
             try:
-                api_client.view(
+                api_client().view(
                     "radius/autoregister/{0}/{1}/{2}".format(
                         urllib.parse.quote(nas_id or "None", safe=""),
                         urllib.parse.quote(username or "None", safe=""),
@@ -520,7 +544,7 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
             DECISION_VLAN = user_interface["vlan_id"]
         if not user_interface["ipv4"]:
             try:
-                api_client.view(
+                api_client().view(
                     "radius/assign_ip/{0}".format(
                         urllib.parse.quote(user_mac or "None", safe="")
                     ))
