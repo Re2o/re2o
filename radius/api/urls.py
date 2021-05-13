@@ -28,6 +28,5 @@ urls_functional_view = [
      views.post_auth, None),
     (r"radius/autoregister/(?P<nas_id>[^/]+)/(?P<username>.+)/(?P<mac_address>[0-9a-fA-F\:\-]{17})$",
      views.autoregister_machine, None),
-    (r"radius/assign_ip/(?P<mac_address>[0-9a-fA-F\:\-]{17})$",
-     views.assign_ip, None),
+    (r"radius/assign_ip/(?P<mac_address>[0-9a-fA-F\:\-]{17})$", views.assign_ip, None),
 ]

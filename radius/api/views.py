@@ -33,18 +33,23 @@ from topologie.models import Port, Switch
 
 
 class AuthorizeResponse:
+    """Contains objects the radius needs for the Authorize step
+    """
+
     def __init__(self, nas, user, user_interface):
         self.nas = nas
         self.user = user
         self.user_interface = user_interface
 
     def can_view(self, user):
+        """Temp method to bypass ACL
+        """
         return [True]
 
 
 @api_view(['GET'])
 def authorize(request, nas_id, username, mac_address):
-    """Return objects the radius need for the Authorize step
+    """Return objects the radius needs for the Authorize step
 
     Parameters:
         nas_id (string): NAS name or ipv4
@@ -52,9 +57,10 @@ def authorize(request, nas_id, username, mac_address):
         mac_address (string): mac address of the device which is trying to connect
 
     Return:
-        AuthorizeResponse: contains all the informations
+        AuthorizeResponse: contains all required informations
     """
 
+    # get the Nas object which made the request (if exists)
     nas_interface = Interface.objects.filter(
         Q(domain=Domain.objects.filter(name=nas_id))
         | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
@@ -64,7 +70,11 @@ def authorize(request, nas_id, username, mac_address):
         nas_type = Nas.objects.filter(
             nas_type=nas_interface.machine_type).first()
 
+    # get the User corresponding to the username in the URL
+    # If no username was provided (wired connection), username="None"
     user = User.objects.filter(pseudo__iexact=username).first()
+
+    # get the interface which is trying to connect (if already created)
     user_interface = Interface.objects.filter(mac_address=mac_address).first()
 
     serialized = serializers.AuthorizeResponseSerializer(
@@ -74,6 +84,9 @@ def authorize(request, nas_id, username, mac_address):
 
 
 class PostAuthResponse:
+    """Contains objects the radius needs for the Post-Auth step
+    """
+
     def __init__(self, nas, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT, USER_STATE_ACTIVE):
         self.nas = nas
         self.room_users = room_users
@@ -92,7 +105,18 @@ class PostAuthResponse:
 
 @api_view(['GET'])
 def post_auth(request, nas_id, nas_port, user_mac):
-    # get nas_type
+    """Return objects the radius needs for the Post-Auth step
+
+    Parameters:
+        nas_id (string): NAS name or ipv4
+        nas_port (string): NAS port from wich the request came. Work with Cisco, HP and Juniper convention
+        user_mac (string): mac address of the device which is trying to connect
+
+    Return:
+        PostAuthResponse: contains all required informations
+    """
+
+    # get the Nas object which made the request (if exists)
     nas_interface = Interface.objects.prefetch_related("machine__switch__stack").filter(
         Q(domain=Domain.objects.filter(name=nas_id))
         | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
@@ -102,14 +126,17 @@ def post_auth(request, nas_id, nas_port, user_mac):
         nas_type = Nas.objects.filter(
             nas_type=nas_interface.machine_type).first()
 
-    # get switch
+    # get the switch (if wired connection)
     switch = None
     if nas_interface:
         switch = Switch.objects.filter(
             machine_ptr=nas_interface.machine).first()
+
+        # If the switch is part of a stack, get the correct object
         if hasattr(nas_interface.machine, "switch"):
             stack = nas_interface.machine.switch.stack
             if stack:
+                # magic split
                 id_stack_member = nas_port.split("-")[1].split("/")[0]
                 switch = (
                     Switch.objects.filter(stack=stack)
@@ -117,9 +144,10 @@ def post_auth(request, nas_id, nas_port, user_mac):
                     .first()
                 )
 
-    # get port
+    # get the switch port
     port = None
     if nas_port and nas_port != "None":
+        # magic split
         port_number = nas_port.split(".")[0].split("/")[-1][-2:]
         port = Port.objects.filter(switch=switch, port=port_number).first()
 
@@ -127,7 +155,7 @@ def post_auth(request, nas_id, nas_port, user_mac):
     if port:
         port_profile = port.get_port_profile
 
-    # get user_interface
+    # get the interface which is trying to connect (if already created)
     user_interface = (
         Interface.objects.filter(mac_address=user_mac)
         .select_related("machine__user")
@@ -135,20 +163,22 @@ def post_auth(request, nas_id, nas_port, user_mac):
         .first()
     )
 
-    # get room users
+    # get all users and clubs of the room
     room_users = []
     if port:
         room_users = User.objects.filter(
             Q(club__room=port.room) | Q(adherent__room=port.room)
         )
 
-    # get radius options
+    # get all radius options
     radius_option = RadiusOption.objects.first()
     print(radius_option)
 
+    # get a few class constants the radius will need
     EMAIL_STATE_UNVERIFIED = User.EMAIL_STATE_UNVERIFIED
     RADIUS_OPTION_REJECT = RadiusOption.REJECT
     USER_STATE_ACTIVE = User.STATE_ACTIVE
+
     serialized = serializers.PostAuthResponseSerializer(
         PostAuthResponse(nas_type, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT, USER_STATE_ACTIVE))
 
@@ -157,6 +187,17 @@ def post_auth(request, nas_id, nas_port, user_mac):
 
 @api_view(['GET'])
 def autoregister_machine(request, nas_id, username, mac_address):
+    """Autoregister machine in the Authorize step of the radius
+
+    Parameters:
+        nas_id (string): NAS name or ipv4
+        username (string): username of the user who is trying to connect
+        mac_address (string): mac address of the device which is trying to connect
+
+    Return:
+        200 if autoregistering worked
+        400 if it failed, and the reason why
+    """
     nas_interface = Interface.objects.filter(
         Q(domain=Domain.objects.filter(name=nas_id))
         | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
@@ -170,12 +211,21 @@ def autoregister_machine(request, nas_id, username, mac_address):
 
     result, reason = user.autoregister_machine(mac_address, nas_type)
     if result:
-        return Response(data=reason)
+        return Response(reason)
     return Response(reason, status=400)
 
 
 @api_view(['GET'])
 def assign_ip(request, mac_address):
+    """Autoassign ip in the Authorize and Post-Auth steps of the Radius
+
+    Parameters:
+        mac_address (string): mac address of the device which is trying to connect
+
+    Return:
+        200 if it worked
+        400 if it failed, and the reason why
+    """
     interface = (
         Interface.objects.filter(mac_address=mac_address)
         .first()
