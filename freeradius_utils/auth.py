@@ -35,6 +35,13 @@ https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_pyth
 Inspired by Daniel Stan in Crans
 """
 
+from configparser import ConfigParser
+
+from re2oapi import Re2oAPIClient
+
+import sys
+from pathlib import Path
+import subprocess
 import logging
 import os
 import sys
@@ -125,10 +132,10 @@ def instantiate(*_):
     """
     logger.info("Instantiation")
 
-    path = (os.path.dirname(os.path.abspath(__file__)))
+    path = Path(__file__).resolve(strict=True).parent
 
     config = ConfigParser()
-    config.read(path+'/config.ini')
+    config.read(path / 'config.ini')
 
     api_hostname = config.get('Re2o', 'hostname')
     api_password = config.get('Re2o', 'password')
