@@ -7,7 +7,6 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
-# Copyright © 2020  Corentin Canebier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,19 +34,12 @@ https://github.com/FreeRADIUS/freeradius-server/blob/master/src/modules/rlm_pyth
 Inspired by Daniel Stan in Crans
 """
 
-from configparser import ConfigParser
-
-from re2oapi import Re2oAPIClient
-
-import sys
-from pathlib import Path
-import subprocess
-import logging
 import os
 import sys
+import logging
 import traceback
-
 import radiusd  # Magic module freeradius (radiusd.py is dummy)
+
 from django.core.wsgi import get_wsgi_application
 from django.db.models import Q
 
@@ -62,11 +54,14 @@ os.chdir(proj_path)
 # This is so models get loaded.
 application = get_wsgi_application()
 
-from machines.models import Domain, Interface, IpList, Nas
-from preferences.models import RadiusOption
+from machines.models import Interface, IpList, Nas, Domain
 from topologie.models import Port, Switch
 from users.models import User
+from preferences.models import RadiusOption
 
+
+
+# Logging
 class RadiusdHandler(logging.Handler):
     """Logs handler for freeradius"""
 
@@ -81,7 +76,7 @@ class RadiusdHandler(logging.Handler):
         radiusd.radlog(rad_sig, str(record.msg))
 
 
-# Init for logging
+# Init for logging 
 logger = logging.getLogger("auth.py")
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(name)s: [%(levelname)s] %(message)s")
@@ -112,15 +107,12 @@ def radius_event(fun):
                 # Ex: Calling-Station-Id: "une_adresse_mac"
                 data[key] = value.replace('"', "")
         try:
-            # TODO s'assurer ici que les tuples renvoy  s sont bien des
-            # (str,str) : rlm_python ne dig  re PAS les unicodes
             return fun(data)
         except Exception as err:
             exc_type, exc_instance, exc_traceback = sys.exc_info()
             formatted_traceback = "".join(traceback.format_tb(exc_traceback))
             logger.error("Failed %r on data %r" % (err, auth_data))
-            logger.error("Function %r, Traceback : %r" %
-                         (fun, formatted_traceback))
+            logger.error("Function %r, Traceback : %r" % (fun, formatted_traceback))
             return radiusd.RLM_MODULE_FAIL
 
     return new_f
@@ -128,29 +120,9 @@ def radius_event(fun):
 
 @radius_event
 def instantiate(*_):
-    """Instantiate api connection
-    """
+    """Usefull for instantiate ldap connexions otherwise,
+    do nothing"""
     logger.info("Instantiation")
-
-    path = Path(__file__).resolve(strict=True).parent
-
-    config = ConfigParser()
-    config.read(path / 'config.ini')
-
-    api_hostname = config.get('Re2o', 'hostname')
-    api_password = config.get('Re2o', 'password')
-    api_username = config.get('Re2o', 'username')
-
-    def get_api_client():
-        """Gets a Re2o, or tries to initialize one"""
-        if get_api_client.client is None:
-            get_api_client.client = Re2oAPIClient(
-                api_hostname, api_username, api_password, use_tls=True)
-        return get_api_client.client
-    get_api_client.client = None
-
-    global api_client
-    api_client = get_api_client
 
 
 @radius_event
@@ -160,27 +132,20 @@ def authorize(data):
     - If the nas is known, we apply the 802.1X if enabled,
     - It the nas is known AND nas auth is enabled with mac address, returns
     accept here"""
-    # For proxified request, split
-    username = username.split("@", 1)[0]
-    mac = data.get("Calling-Station-Id", "")
-
-    # Get all required objects from API
-    data_from_api = api_client().view(
-        "radius/authorize/{0}/{1}/{2}".format(
-            urllib.parse.quote(nas or "None", safe=""),
-            urllib.parse.quote(username or "None", safe=""),
-            urllib.parse.quote(mac or "None", safe="")
-        ))
-
-    nas_type = data_from_api["nas"]
-    user = data_from_api["user"]
-    user_interface = data_from_api["user_interface"]
-
-    if not nas_type or nas_type and nas_type["port_access_mode"] == "802.1X":
-        result, log, password = check_user_machine_and_register(
-            nas_type, user, user_interface, nas, username, mac)
-        logger.info(log.encode("utf-8"))
-        logger.info(username.encode("utf-8"))
+    # For proxified request, split 
+    nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
+    nas_instance = find_nas_from_request(nas)
+    # For none proxified requests 
+    nas_type = None
+    if nas_instance:
+        nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
+    if not nas_type or nas_type.port_access_mode == "802.1X":
+        user = data.get("User-Name", "")
+        user = user.split("@", 1)[0]
+        mac = data.get("Calling-Station-Id", "")
+        result, log, password = check_user_machine_and_register(nas_type, user, mac)
+        logger.info(str(log))
+        logger.info(str(user))
 
         if not result:
             return radiusd.RLM_MODULE_REJECT
@@ -197,48 +162,54 @@ def authorize(data):
 
 @radius_event
 def post_auth(data):
-    """Function called after the user is authenticated"""
+    """ Function called after the user is authenticated
+    """
 
     nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
-    nas_port = data.get("NAS-Port-Id", data.get("NAS-Port", None))
-    mac = data.get("Calling-Station-Id", None)
-
-    # Get all required objects from API
-    data_from_api = api_client().view(
-        "radius/post_auth/{0}/{1}/{2}".format(
-            urllib.parse.quote(nas or "None", safe=""),
-            urllib.parse.quote(nas_port or "None", safe=""),
-            urllib.parse.quote(mac or "None", safe="")
-        ))
-
-    nas_type = data_from_api["nas"]
-    port = data_from_api["port"]
-    switch = data_from_api["switch"]
-
-    # If proxified request
-    if not nas_type:
+    nas_instance = find_nas_from_request(nas)
+    # All non proxified requests 
+    if not nas_instance:
         logger.info("Proxified request, nas unknown")
         return radiusd.RLM_MODULE_OK
+    nas_type = Nas.objects.filter(nas_type=nas_instance.machine_type).first()
+    if not nas_type:
+        logger.info("This kind of nas is not registered in the database!")
+        return radiusd.RLM_MODULE_OK
 
-    # If the request is from a switch (wired connection)
-    if switch:
-        # For logging
-        sw_name = switch["name"] or "?"
-        room = port["room"] or "Unknown room" if port else "Unknown port"
+    mac = data.get("Calling-Station-Id", None)
 
-        out = decide_vlan_switch(data_from_api, mac, nas_port)
-        reason, vlan_id, decision, attributes = out
+    # Switchs and access point can have several interfaces
+    nas_machine = nas_instance.machine
+    # If it is a switchs
+    if hasattr(nas_machine, "switch"):
+        port = data.get("NAS-Port-Id", data.get("NAS-Port", None))
+        # If the switch is part of a stack, calling ip is different from calling switch.
+        instance_stack = nas_machine.switch.stack
+        if instance_stack:
+            # If it is a stack, we select the correct switch in the stack
+            id_stack_member = port.split("-")[1].split("/")[0]
+            nas_machine = (
+                Switch.objects.filter(stack=instance_stack)
+                .filter(stack_member_id=id_stack_member)
+                .prefetch_related("interface_set__domain__extension")
+                .first()
+            )
+        # Find the port number from freeradius, works both with HP, Cisco
+        # and juniper output
+        port = port.split(".")[0].split("/")[-1][-2:]
+        out = decide_vlan_switch(nas_machine, nas_type, port, mac)
+        sw_name, room, reason, vlan_id, decision, attributes = out
 
         if decision:
             log_message = "(wired) %s -> %s [%s%s]" % (
-                sw_name + ":" + nas_port + "/" + str(room),
+                sw_name + ":" + port + "/" + str(room),
                 mac,
                 vlan_id,
                 (reason and ": " + reason),
             )
             logger.info(log_message)
 
-            # Apply vlan from decide_vlan_switch
+            # Wired connexion
             return (
                 radiusd.RLM_MODULE_UPDATED,
                 (
@@ -250,8 +221,8 @@ def post_auth(data):
                 (),
             )
         else:
-            log_message = "(wired) %s -> %s [Reject %s]" % (
-                sw_name + ":" + nas_port + "/" + str(room),
+            log_message = "(fil) %s -> %s [Reject %s]" % (
+                sw_name + ":" + port + "/" + str(room),
                 mac,
                 (reason and ": " + reason),
             )
@@ -259,132 +230,113 @@ def post_auth(data):
 
             return (radiusd.RLM_MODULE_REJECT, tuple(attributes), ())
 
-    # Else it is from wifi
     else:
         return radiusd.RLM_MODULE_OK
 
 
-def check_user_machine_and_register(nas_type, user, user_interface, nas_id, username, mac_address):
+# TODO : remove this function
+@radius_event
+def dummy_fun(_):
+    """Do nothing, successfully. """
+    return radiusd.RLM_MODULE_OK
+
+
+def detach(_=None):
+    """Detatch the auth"""
+    print("*** goodbye from auth.py ***")
+    return radiusd.RLM_MODULE_OK
+
+
+def find_nas_from_request(nas_id):
+    """ Get the nas object from its ID """
+    nas = (
+        Interface.objects.filter(
+            Q(domain=Domain.objects.filter(name=nas_id))
+            | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
+        )
+        .select_related("machine_type")
+        .select_related("machine__switch__stack")
+    )
+    return nas.first()
+
+
+def check_user_machine_and_register(nas_type, username, mac_address):
     """Check if username and mac are registered. Register it if unknown.
     Return the user ntlm password if everything is ok.
-    Used for 802.1X auth
-    """
-
+    Used for 802.1X auth"""
+    interface = Interface.objects.filter(mac_address=mac_address).first()
+    user = User.objects.filter(pseudo__iexact=username).first()
     if not user:
-        # No username provided
         return (False, "User unknown", "")
-
-    if not user["access"]:
+    if not user.has_access():
         return (False, "Invalid connexion (non-contributing user)", "")
-
-    if user_interface:
-        if user_interface["user_pk"] != user["pk"]:
+    if interface:
+        if interface.machine.user != user:
             return (
                 False,
                 "Mac address registered on another user account",
                 "",
             )
-
-        elif not user_interface["active"]:
+        elif not interface.is_active:
             return (False, "Interface/Machine disabled", "")
-
-        elif not user_interface["ipv4"]:
-            # Try to autoassign ip
-            try:
-                api_client().view(
-                    "radius/assign_ip/{0}".format(
-                        urllib.parse.quote(mac_address or "None", safe="")
-                    ))
-                return (True, "Ok, new ipv4 assignement...", user.get("pwd_ntlm", ""))
-            except HTTPError as err:
-                return (False, "Error during ip assignement %s" % err.response.text, "")
+        elif not interface.ipv4:
+            interface.assign_ipv4()
+            return (True, "Ok, new ipv4 assignement...", user.pwd_ntlm)
         else:
-            return (True, "Access ok", user.get("pwd_ntlm", ""))
-
+            return (True, "Access ok", user.pwd_ntlm)
     elif nas_type:
-        # The interface is not yet registred, try to autoregister if enabled
-        if nas_type["autocapture_mac"]:
-            try:
-                api_client().view(
-                    "radius/autoregister/{0}/{1}/{2}".format(
-                        urllib.parse.quote(nas_id or "None", safe=""),
-                        urllib.parse.quote(username or "None", safe=""),
-                        urllib.parse.quote(mac_address or "None", safe="")
-                    ))
-                return (True, "Access Ok, Registering mac...", user["pwd_ntlm"])
-            except HTTPError as err:
-                return (False, "Error during mac register %s" % err.response.text, "")
-            return (False, "Autoregistering is disabled", "")
+        if nas_type.autocapture_mac:
+            result, reason = user.autoregister_machine(mac_address, nas_type)
+            if result:
+                return (True, "Access Ok, Registering mac...", user.pwd_ntlm)
+            else:
+                return (False, "Error during mac register %s" % reason, "")
         else:
             return (False, "Unknown interface/machine", "")
     else:
         return (False, "Unknown interface/machine", "")
 
 
-def set_radius_attributes_values(attributes, values):
-    """Set values of parameters in radius attributes"""
-    return (
-        (str(attribute["attribute"]), str(attribute["value"] % values))
-        for attribute in attributes
-    )
-
-
-def decide_vlan_switch(data_from_api, user_mac, nas_port):
+def decide_vlan_switch(nas_machine, nas_type, port_number, mac_address):
     """Function for selecting vlan for a switch with wired mac auth radius.
-    Two modes exist : in strict mode, a registered user cannot connect with
-    their machines in a non-registered user room
-    Sequentially :
+    Several modes are available :
         - all modes:
-            - unknown NAS : VLAN_OK,
-            - unknown port : Decision set in Re2o RadiusOption
-            - No radius on this port : VLAN_OK
-            - force : replace VLAN_OK with vlan provided by the database
+           - unknown NAS : VLAN_OK,
+           - unknown port : Decision set in Re2o RadiusOption
+        - No radius on this port : VLAN_OK
+        - force : returns vlan provided by the database
         - mode strict:
             - no room : Decision set in Re2o RadiusOption,
             - no user in this room : Reject,
             - user of this room is banned or disable : Reject,
-            - user of this room non-contributor and not whitelisted:
+            - user of this room non-contributor and not whitelisted: 
             Decision set in Re2o RadiusOption
         - mode common :
             - mac-address already registered:
                 - related user non contributor / interface disabled:
-                    Decision set in Re2o RadiusOption
+                Decision set in Re2o RadiusOption
                 - related user is banned:
-                    Decision set in Re2o RadiusOption
+                Decision set in Re2o RadiusOption
                 - user contributing : VLAN_OK (can assign ipv4 if needed)
             - unknown interface :
                 - register mac disabled : Decision set in Re2o RadiusOption
-                - register mac enabled : redirect to webauth (not implemented)
+                - register mac enabled : redirect to webauth
     Returns:
         tuple with :
+            - Switch name (str)
+            - Room (str)
             - Reason of the decision (str)
             - vlan_id (int)
             - decision (bool)
-            - Other Attributs (attribut:str, value:str)
+            - Other Attributs (attribut:str, operator:str, value:str)
     """
-
-    # Get values from api
-    nas_type = data_from_api["nas"]
-    room_users = data_from_api["room_users"]
-    port = data_from_api["port"]
-    port_profile = data_from_api["port_profile"]
-    switch = data_from_api["switch"]
-    user_interface = data_from_api["user_interface"]
-    radius_option = data_from_api["radius_option"]
-    EMAIL_STATE_UNVERIFIED = data_from_api["EMAIL_STATE_UNVERIFIED"]
-    RADIUS_OPTION_REJECT = data_from_api["RADIUS_OPTION_REJECT"]
-    USER_STATE_ACTIVE = data_from_api["USER_STATE_ACTIVE"]
-
-    # Values which can be used as parameters in radius attributes
     attributes_kwargs = {
-        "client_mac": str(user_mac),
-        # magic split
-        "switch_port": str(nas_port.split(".")[0].split("/")[-1][-2:]),
-        "switch_ip": str(switch["ipv4"])
+        "client_mac": str(mac_address),
+        "switch_port": str(port_number),
     }
-
+    # Get port from switch and port number
     extra_log = ""
-    # If NAS is unknown, go to default vlan
+    # If NAS is unknown, go to default vlan 
     if not nas_machine:
         return (
             "?",
@@ -401,36 +353,41 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
     attributes_kwargs["switch_ip"] = str(switch.ipv4)
     port = Port.objects.filter(switch=switch, port=port_number).first()
 
-    # If the port is unknown, do as in RadiusOption
-    if not port or not port_profile:
+    # If the port is unknwon, go to default vlan
+    # We don't have enought information to make a better decision
+    if not port:
         return (
+            sw_name,
             "Unknown port",
-            radius_option["unknown_port_vlan"] and radius_option["unknown_port_vlan"]["vlan_id"] or None,
-            radius_option["unknown_port"] != RADIUS_OPTION_REJECT,
-            set_radius_attributes_values(
-                radius_option["unknown_port_attributes"], attributes_kwargs),
+            "PUnknown port",
+            getattr(
+                RadiusOption.get_cached_value("unknown_port_vlan"), "vlan_id", None
+            ),
+            RadiusOption.get_cached_value("unknown_port") != RadiusOption.REJECT,
+            RadiusOption.get_attributes("unknown_port_attributes", attributes_kwargs),
         )
-
+ 
     # Retrieve port profile
     port_profile = port.get_port_profile
 
     # If a vlan is precised in port config, we use it
-    if port_profile["vlan_untagged"]:
-        DECISION_VLAN = int(port_profile["vlan_untagged"]["vlan_id"])
-        extra_log = "Force sur vlan %s" % str(DECISION_VLAN)
+    if port_profile.vlan_untagged:
+        DECISION_VLAN = int(port_profile.vlan_untagged.vlan_id)
+        extra_log = "Force sur vlan " + str(DECISION_VLAN)
         attributes = ()
     else:
-        DECISION_VLAN = radius_option["vlan_decision_ok"]["vlan_id"]
-        attributes = set_radius_attributes_values(
-            radius_option["ok_attributes"], attributes_kwargs)
+        DECISION_VLAN = RadiusOption.get_cached_value("vlan_decision_ok").vlan_id
+        attributes = RadiusOption.get_attributes("ok_attributes", attributes_kwargs)
 
     # If the port is disabled in re2o, REJECT
-    if not port["state"]:
-        return ("Port disabled", None, False, ())
+    if not port.state:
+        return (sw_name, port.room, "Port disabled", None, False, ())
 
     # If radius is disabled, decision is OK
-    if port_profile["radius_type"] == "NO":
+    if port_profile.radius_type == "NO":
         return (
+            sw_name,
+            "",
             "No Radius auth enabled on this port" + extra_log,
             DECISION_VLAN,
             True,
@@ -439,8 +396,11 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
 
     # If 802.1X is enabled, people has been previously accepted.
     # Go to the decision vlan
-    if (nas_type["port_access_mode"], port_profile["radius_type"]) == ("802.1X", "802.1X"):
+    if (nas_type.port_access_mode, port_profile.radius_type) == ("802.1X", "802.1X"):
+        room = port.room or "Room unknown"
         return (
+            sw_name,
+            room,
             "Accept authentication 802.1X",
             DECISION_VLAN,
             True,
@@ -449,123 +409,179 @@ def decide_vlan_switch(data_from_api, user_mac, nas_port):
 
     # Otherwise, we are in mac radius.
     # If strict mode is enabled, we check every user related with this port. If
-    # all users and clubs are disabled, we reject to prevent from sharing or
+    # one user or more is not enabled, we reject to prevent from sharing or
     # spoofing mac.
-    if port_profile["radius_mode"] == "STRICT":
-        if not port["room"]:
+    if port_profile.radius_mode == "STRICT":
+        room = port.room
+        if not room:
             return (
+                sw_name,
+                "Unknown",
                 "Unkwown room",
-                radius_option["unknown_room_vlan"] and radius_option["unknown_room_vlan"]["vlan_id"] or None,
-                radius_option["unknown_room"] != RADIUS_OPTION_REJECT,
-                set_radius_attributes_values(
-                    radius_option["unknown_room_attributes"], attributes_kwargs),
+                getattr(
+                    RadiusOption.get_cached_value("unknown_room_vlan"), "vlan_id", None
+                ),
+                RadiusOption.get_cached_value("unknown_room") != RadiusOption.REJECT,
+                RadiusOption.get_attributes(
+                    "unknown_room_attributes", attributes_kwargs
+                ),
             )
 
-        if not room_users:
+        room_user = User.objects.filter(
+            Q(club__room=port.room) | Q(adherent__room=port.room)
+        )
+        if not room_user:
             return (
+                sw_name,
+                room,
                 "Non-contributing room",
-                radius_option["non_member_vlan"] and radius_option["non_member_vlan"]["vlan_id"] or None,
-                radius_option["non_member"] != RADIUS_OPTION_REJECT,
-                set_radius_attributes_values(
-                    radius_option["non_member_attributes"], attributes_kwargs),
+                getattr(
+                    RadiusOption.get_cached_value("non_member_vlan"), "vlan_id", None
+                ),
+                RadiusOption.get_cached_value("non_member") != RadiusOption.REJECT,
+                RadiusOption.get_attributes("non_member_attributes", attributes_kwargs),
             )
-
-        all_user_ban = True
-        at_least_one_active_user = False
-
-        for user in room_users:
-            if not user["is_ban"] and user["state"] == USER_STATE_ACTIVE:
-                all_user_ban = False
-            if user["email_state"] != EMAIL_STATE_UNVERIFIED and (user["is_connected"] or user["is_whitelisted"]):
-                at_least_one_active_user = True
-
-        if all_user_ban:
-            return (
-                "User is banned or disabled",
-                radius_option["banned_vlan"] and radius_option["banned_vlan"]["vlan_id"] or None,
-                radius_option["banned"] != RADIUS_OPTION_REJECT,
-                set_radius_attributes_values(
-                    radius_option["banned_attributes"], attributes_kwargs),
-            )
-        if not at_least_one_active_user:
-            return (
-                "Non-contributing member or unconfirmed mail",
-                radius_option["non_member_vlan"] and radius_option["non_member_vlan"]["vlan_id"] or None,
-                radius_option["non_member"] != RADIUS_OPTION_REJECT,
-                set_radius_attributes_values(
-                    radius_option["non_member_attributes"], attributes_kwargs),
-            )
+        for user in room_user:
+            if user.is_ban() or user.state != User.STATE_ACTIVE:
+                return (
+                    sw_name,
+                    room,
+                    "User is banned or disabled",
+                    getattr(
+                        RadiusOption.get_cached_value("banned_vlan"), "vlan_id", None
+                    ),
+                    RadiusOption.get_cached_value("banned") != RadiusOption.REJECT,
+                    RadiusOption.get_attributes("banned_attributes", attributes_kwargs),
+                )
+            elif user.email_state == User.EMAIL_STATE_UNVERIFIED:
+                return (
+                    sw_name,
+                    room,
+                    "User is suspended (mail has not been confirmed)",
+                    getattr(
+                        RadiusOption.get_cached_value("non_member_vlan"),
+                        "vlan_id",
+                        None,
+                    ),
+                    RadiusOption.get_cached_value("non_member") != RadiusOption.REJECT,
+                    RadiusOption.get_attributes(
+                        "non_member_attributes", attributes_kwargs
+                    ),
+                )
+            elif not (user.is_connected() or user.is_whitelisted()):
+                return (
+                    sw_name,
+                    room,
+                    "Non-contributing member",
+                    getattr(
+                        RadiusOption.get_cached_value("non_member_vlan"),
+                        "vlan_id",
+                        None,
+                    ),
+                    RadiusOption.get_cached_value("non_member") != RadiusOption.REJECT,
+                    RadiusOption.get_attributes(
+                        "non_member_attributes", attributes_kwargs
+                    ),
+                )
         # else: user OK, so we check MAC now
 
-    # If mac is unknown,
-    if not user_interface:
-        # We try to register mac, if autocapture is enabled
-        # Final decision depend on RADIUSOption set in re2o
-        # Something is not implemented here...
-        if nas_type["autocapture_mac"]:
-            return (
-                "Unknown mac/interface",
-                radius_option["unknown_machine_vlan"] and radius_option["unknown_machine_vlan"]["vlan_id"] or None,
-                radius_option["unknown_machine"] != RADIUS_OPTION_REJECT,
-                set_radius_attributes_values(
-                    radius_option["unknown_machine_attributes"], attributes_kwargs),
-            )
-        # Otherwise, if autocapture mac is not enabled,
-        else:
-            return (
-                "Unknown mac/interface",
-                radius_option["unknown_machine_vlan"] and radius_option["unknown_machine_vlan"]["vlan_id"] or None,
-                radius_option["unknown_machine"] != RADIUS_OPTION_REJECT,
-                set_radius_attributes_values(
-                    radius_option["unknown_machine_attributes"], attributes_kwargs),
-            )
-
-    # Mac/Interface is found, check if related user is contributing and ok
-    # If needed, set ipv4 to it
-    else:
-        if user_interface["is_ban"]:
-            return (
-                "Banned user",
-                radius_option["banned_vlan"] and radius_option["banned_vlan"]["vlan_id"] or None,
-                radius_option["banned"] != RADIUS_OPTION_REJECT,
-                set_radius_attributes_values(
-                    radius_option["banned_attributes"], attributes_kwargs),
-            )
-        if not user_interface["active"]:
-            return (
-                "Disabled interface / non-contributing member",
-                radius_option["non_member_vlan"] and radius_option["non_member_vlan"]["vlan_id"] or None,
-                radius_option["non_member"] != RADIUS_OPTION_REJECT,
-                set_radius_attributes_values(
-                    radius_option["non_member_attributes"], attributes_kwargs),
-            )
-        # If settings is set to related interface vlan policy based on interface type:
-        if radius_option["radius_general_policy"] == "MACHINE":
-            DECISION_VLAN = user_interface["vlan_id"]
-        if not user_interface["ipv4"]:
-            try:
-                api_client().view(
-                    "radius/assign_ip/{0}".format(
-                        urllib.parse.quote(user_mac or "None", safe="")
-                    ))
+    # If we are authenticating with mac, we look for the interfaces and its mac address
+    if port_profile.radius_mode == "COMMON" or port_profile.radius_mode == "STRICT":
+        # Mac auth
+        interface = (
+            Interface.objects.filter(mac_address=mac_address)
+            .select_related("machine__user")
+            .select_related("ipv4")
+            .first()
+        )
+        # If mac is unknown,
+        if not interface:
+            room = port.room
+            # We try to register mac, if autocapture is enabled
+            # Final decision depend on RADIUSOption set in re2o
+            if nas_type.autocapture_mac:
                 return (
+                    sw_name,
+                    room,
+                    "Unknown mac/interface",
+                    getattr(
+                        RadiusOption.get_cached_value("unknown_machine_vlan"),
+                        "vlan_id",
+                        None,
+                    ),
+                    RadiusOption.get_cached_value("unknown_machine")
+                    != RadiusOption.REJECT,
+                    RadiusOption.get_attributes(
+                        "unknown_machine_attributes", attributes_kwargs
+                    ),
+                )
+            # Otherwise, if autocapture mac is not enabled,
+            else:
+                return (
+                    sw_name,
+                    "",
+                    "Unknown mac/interface",
+                    getattr(
+                        RadiusOption.get_cached_value("unknown_machine_vlan"),
+                        "vlan_id",
+                        None,
+                    ),
+                    RadiusOption.get_cached_value("unknown_machine")
+                    != RadiusOption.REJECT,
+                    RadiusOption.get_attributes(
+                        "unknown_machine_attributes", attributes_kwargs
+                    ),
+                )
+
+        # Mac/Interface is found, check if related user is contributing and ok
+        # If needed, set ipv4 to it
+        else:
+            room = port.room
+            if interface.machine.user.is_ban():
+                return (
+                    sw_name,
+                    room,
+                    "Banned user",
+                    getattr(
+                        RadiusOption.get_cached_value("banned_vlan"), "vlan_id", None
+                    ),
+                    RadiusOption.get_cached_value("banned") != RadiusOption.REJECT,
+                    RadiusOption.get_attributes("banned_attributes", attributes_kwargs),
+                )
+            if not interface.is_active:
+                return (
+                    sw_name,
+                    room,
+                    "Disabled interface / non-contributing member",
+                    getattr(
+                        RadiusOption.get_cached_value("non_member_vlan"),
+                        "vlan_id",
+                        None,
+                    ),
+                    RadiusOption.get_cached_value("non_member") != RadiusOption.REJECT,
+                    RadiusOption.get_attributes(
+                        "non_member_attributes", attributes_kwargs
+                    ),
+                )
+            # If settings is set to related interface vlan policy based on interface type:
+            if RadiusOption.get_cached_value("radius_general_policy") == "MACHINE":
+                DECISION_VLAN = interface.machine_type.ip_type.vlan.vlan_id
+            if not interface.ipv4:
+                interface.assign_ipv4()
+                return (
+                    sw_name,
+                    room,
                     "Ok, assigning new ipv4" + extra_log,
                     DECISION_VLAN,
                     True,
                     attributes,
                 )
-            except HTTPError as err:
+            else:
                 return (
-                    "Error during ip assignement %s" % err.response.text + extra_log,
+                    sw_name,
+                    room,
+                    "Interface OK" + extra_log,
                     DECISION_VLAN,
                     True,
                     attributes,
                 )
-
-        else:
-            return (
-                "Interface OK" + extra_log,
-                DECISION_VLAN,
-                True,
-                attributes,
-            )
