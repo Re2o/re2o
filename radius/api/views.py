@@ -43,11 +43,6 @@ class AuthorizeResponse:
         self.user = user
         self.user_interface = user_interface
 
-    def can_view(self, user):
-        """Temp method to bypass ACL
-        """
-        return [True]
-
 
 @api_view(['GET'])
 @login_required
@@ -102,9 +97,6 @@ class PostAuthResponse:
         self.EMAIL_STATE_UNVERIFIED = EMAIL_STATE_UNVERIFIED
         self.RADIUS_OPTION_REJECT = RADIUS_OPTION_REJECT
         self.USER_STATE_ACTIVE = USER_STATE_ACTIVE
-
-    def can_view(self, user):
-        return [True]
 
 
 @api_view(['GET'])
