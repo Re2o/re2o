@@ -170,7 +170,6 @@ def post_auth(request, nas_id, nas_port, user_mac):
 
     # get all radius options
     radius_option = RadiusOption.objects.first()
-    print(radius_option)
 
     # get a few class constants the radius will need
     EMAIL_STATE_UNVERIFIED = User.EMAIL_STATE_UNVERIFIED
