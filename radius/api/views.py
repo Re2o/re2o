@@ -43,6 +43,9 @@ class AuthorizeResponse:
         self.user = user
         self.user_interface = user_interface
 
+    def can_view(self, user):
+        return [True]
+
 
 @api_view(['GET'])
 @login_required
@@ -61,8 +64,8 @@ def authorize(request, nas_id, username, mac_address):
 
     # get the Nas object which made the request (if exists)
     nas_interface = Interface.objects.filter(
-        Q(domain=Domain.objects.filter(name=nas_id))
-        | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
+        Q(domain__name=nas_id)
+        | Q(ipv4__ipv4=nas_id)
     ).first()
     nas_type = None
     if nas_interface:
@@ -98,6 +101,9 @@ class PostAuthResponse:
         self.RADIUS_OPTION_REJECT = RADIUS_OPTION_REJECT
         self.USER_STATE_ACTIVE = USER_STATE_ACTIVE
 
+    def can_view(self, user):
+        return [True]
+
 
 @api_view(['GET'])
 @login_required
@@ -116,8 +122,8 @@ def post_auth(request, nas_id, nas_port, user_mac):
 
     # get the Nas object which made the request (if exists)
     nas_interface = Interface.objects.prefetch_related("machine__switch__stack").filter(
-        Q(domain=Domain.objects.filter(name=nas_id))
-        | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
+        Q(domain__name=nas_id)
+        | Q(ipv4__ipv4=nas_id)
     ).first()
     nas_type = None
     if nas_interface:
@@ -199,8 +205,8 @@ def autoregister_machine(request, nas_id, username, mac_address):
         400 if it failed, and the reason why
     """
     nas_interface = Interface.objects.filter(
-        Q(domain=Domain.objects.filter(name=nas_id))
-        | Q(ipv4=IpList.objects.filter(ipv4=nas_id))
+        Q(domain__name=nas_id)
+        | Q(ipv4__ipv4=nas_id)
     ).first()
     nas_type = None
     if nas_interface:
