@@ -38,8 +38,7 @@ class InterfaceSerializer(Serializer):
     user_pk = serializers.CharField(source="machine.user.pk")
     machine_short_name = serializers.CharField(source="machine.short_name")
     is_ban = serializers.BooleanField(source="machine.user.is_ban")
-    vlan_id = serializers.IntegerField(
-        source="machine_type.ip_type.vlan.vlan_id")
+    vlan_id = serializers.IntegerField(source="machine_type.ip_type.vlan.vlan_id")
 
 
 class NasSerializer(Serializer):
@@ -108,6 +107,7 @@ class AuthorizeResponseSerializer(Serializer):
     """Serializer for AuthorizeResponse objects
     See views.py for the declaration of AuthorizeResponse
     """
+
     nas = NasSerializer(read_only=True)
     user = UserSerializer(read_only=True)
     user_interface = InterfaceSerializer(read_only=True)
@@ -117,6 +117,7 @@ class PostAuthResponseSerializer(Serializer):
     """Serializer for PostAuthResponse objects
     See views.py for the declaration of PostAuthResponse
     """
+
     nas = NasSerializer(read_only=True)
     room_users = UserSerializer(many=True)
     port = PortSerializer()

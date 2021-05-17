@@ -96,7 +96,7 @@ def radius_event(fun):
     """
 
     def new_f(auth_data):
-        """The function transforming the tuples as dict """
+        """ The function transforming the tuples as dict """
         if isinstance(auth_data, dict):
             data = auth_data
         else:
@@ -161,7 +161,7 @@ def authorize(data):
 
 @radius_event
 def post_auth(data):
-    """ Function called after the user is authenticated"""
+    """Function called after the user is authenticated"""
 
     nas = data.get("NAS-IP-Address", data.get("NAS-Identifier", None))
     nas_instance = find_nas_from_request(nas)

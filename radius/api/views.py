@@ -35,8 +35,7 @@ from re2o.acl import can_view_all_api, can_edit_all_api, can_create_api
 
 
 class AuthorizeResponse:
-    """Contains objects the radius needs for the Authorize step
-    """
+    """Contains objects the radius needs for the Authorize step"""
 
     def __init__(self, nas, user, user_interface):
         self.nas = nas
@@ -44,12 +43,11 @@ class AuthorizeResponse:
         self.user_interface = user_interface
 
     def can_view(self, user):
-        """Method to bypass api permissions, because we are using ACL decorators
-        """
+        """Method to bypass api permissions, because we are using ACL decorators"""
         return (True, None, None)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @login_required
 @can_view_all_api(Interface, Domain, IpList, Nas, User)
 def authorize(request, nas_id, username, mac_address):
@@ -66,13 +64,11 @@ def authorize(request, nas_id, username, mac_address):
 
     # get the Nas object which made the request (if exists)
     nas_interface = Interface.objects.filter(
-        Q(domain__name=nas_id)
-        | Q(ipv4__ipv4=nas_id)
+        Q(domain__name=nas_id) | Q(ipv4__ipv4=nas_id)
     ).first()
     nas_type = None
     if nas_interface:
-        nas_type = Nas.objects.filter(
-            nas_type=nas_interface.machine_type).first()
+        nas_type = Nas.objects.filter(nas_type=nas_interface.machine_type).first()
 
     # get the User corresponding to the username in the URL
     # If no username was provided (wired connection), username="None"
@@ -82,16 +78,28 @@ def authorize(request, nas_id, username, mac_address):
     user_interface = Interface.objects.filter(mac_address=mac_address).first()
 
     serialized = serializers.AuthorizeResponseSerializer(
-        AuthorizeResponse(nas_type, user, user_interface))
+        AuthorizeResponse(nas_type, user, user_interface)
+    )
 
     return Response(data=serialized.data)
 
 
 class PostAuthResponse:
-    """Contains objects the radius needs for the Post-Auth step
-    """
+    """Contains objects the radius needs for the Post-Auth step"""
 
-    def __init__(self, nas, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT, USER_STATE_ACTIVE):
+    def __init__(
+        self,
+        nas,
+        room_users,
+        port,
+        port_profile,
+        switch,
+        user_interface,
+        radius_option,
+        EMAIL_STATE_UNVERIFIED,
+        RADIUS_OPTION_REJECT,
+        USER_STATE_ACTIVE,
+    ):
         self.nas = nas
         self.room_users = room_users
         self.port = port
@@ -104,12 +112,11 @@ class PostAuthResponse:
         self.USER_STATE_ACTIVE = USER_STATE_ACTIVE
 
     def can_view(self, user):
-        """Method to bypass api permissions, because we are using ACL decorators
-        """
+        """Method to bypass api permissions, because we are using ACL decorators"""
         return (True, None, None)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @login_required
 @can_view_all_api(Interface, Domain, IpList, Nas, Switch, Port, User)
 def post_auth(request, nas_id, nas_port, user_mac):
@@ -125,20 +132,19 @@ def post_auth(request, nas_id, nas_port, user_mac):
     """
 
     # get the Nas object which made the request (if exists)
-    nas_interface = Interface.objects.prefetch_related("machine__switch__stack").filter(
-        Q(domain__name=nas_id)
-        | Q(ipv4__ipv4=nas_id)
-    ).first()
+    nas_interface = (
+        Interface.objects.prefetch_related("machine__switch__stack")
+        .filter(Q(domain__name=nas_id) | Q(ipv4__ipv4=nas_id))
+        .first()
+    )
     nas_type = None
     if nas_interface:
-        nas_type = Nas.objects.filter(
-            nas_type=nas_interface.machine_type).first()
+        nas_type = Nas.objects.filter(nas_type=nas_interface.machine_type).first()
 
     # get the switch (if wired connection)
     switch = None
     if nas_interface:
-        switch = Switch.objects.filter(
-            machine_ptr=nas_interface.machine).first()
+        switch = Switch.objects.filter(machine_ptr=nas_interface.machine).first()
 
         # If the switch is part of a stack, get the correct object
         if hasattr(nas_interface.machine, "switch"):
@@ -187,12 +193,24 @@ def post_auth(request, nas_id, nas_port, user_mac):
     USER_STATE_ACTIVE = User.STATE_ACTIVE
 
     serialized = serializers.PostAuthResponseSerializer(
-        PostAuthResponse(nas_type, room_users, port, port_profile, switch, user_interface, radius_option, EMAIL_STATE_UNVERIFIED, RADIUS_OPTION_REJECT, USER_STATE_ACTIVE))
+        PostAuthResponse(
+            nas_type,
+            room_users,
+            port,
+            port_profile,
+            switch,
+            user_interface,
+            radius_option,
+            EMAIL_STATE_UNVERIFIED,
+            RADIUS_OPTION_REJECT,
+            USER_STATE_ACTIVE,
+        )
+    )
 
     return Response(data=serialized.data)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @login_required
 @can_view_all_api(Interface, Domain, IpList, Nas, User)
 @can_edit_all_api(User, Domain, Machine, Interface)
@@ -209,13 +227,11 @@ def autoregister_machine(request, nas_id, username, mac_address):
         400 if it failed, and the reason why
     """
     nas_interface = Interface.objects.filter(
-        Q(domain__name=nas_id)
-        | Q(ipv4__ipv4=nas_id)
+        Q(domain__name=nas_id) | Q(ipv4__ipv4=nas_id)
     ).first()
     nas_type = None
     if nas_interface:
-        nas_type = Nas.objects.filter(
-            nas_type=nas_interface.machine_type).first()
+        nas_type = Nas.objects.filter(nas_type=nas_interface.machine_type).first()
 
     user = User.objects.filter(pseudo__iexact=username).first()
 
@@ -225,7 +241,7 @@ def autoregister_machine(request, nas_id, username, mac_address):
     return Response(reason, status=400)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @can_view_all_api(Interface)
 @can_edit_all_api(Interface)
 def assign_ip(request, mac_address):
@@ -238,10 +254,7 @@ def assign_ip(request, mac_address):
         200 if it worked
         400 if it failed, and the reason why
     """
-    interface = (
-        Interface.objects.filter(mac_address=mac_address)
-        .first()
-    )
+    interface = Interface.objects.filter(mac_address=mac_address).first()
 
     try:
         interface.assign_ipv4()
