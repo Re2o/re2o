@@ -44,7 +44,9 @@ class AuthorizeResponse:
         self.user_interface = user_interface
 
     def can_view(self, user):
-        return [True]
+        """Method to bypass api permissions, because we are using ACL decorators
+        """
+        return (True, None, None)
 
 
 @api_view(['GET'])
@@ -102,7 +104,9 @@ class PostAuthResponse:
         self.USER_STATE_ACTIVE = USER_STATE_ACTIVE
 
     def can_view(self, user):
-        return [True]
+        """Method to bypass api permissions, because we are using ACL decorators
+        """
+        return (True, None, None)
 
 
 @api_view(['GET'])
