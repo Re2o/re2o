@@ -150,7 +150,10 @@ def post_auth(request, nas_id, nas_port, user_mac):
         if hasattr(nas_interface.machine, "switch"):
             stack = nas_interface.machine.switch.stack
             if stack:
-                # magic split
+                # For Juniper, the result looks something like this: NAS-Port-Id = "ge-0/0/6.0""
+                # For other brands (e.g. HP or Mikrotik), the result usually looks like: NAS-Port-Id = "6.0"
+                # This "magic split" handles both cases
+                # Cisco can rot in Hell for all I care, so their format is not supported (it looks like NAS-Port-ID = atm 31/31/7:255.65535 guangzhou001/0/31/63/31/127)
                 id_stack_member = nas_port.split("-")[1].split("/")[0]
                 switch = (
                     Switch.objects.filter(stack=stack)
@@ -161,7 +164,7 @@ def post_auth(request, nas_id, nas_port, user_mac):
     # get the switch port
     port = None
     if nas_port and nas_port != "None":
-        # magic split
+        # magic split (see above)
         port_number = nas_port.split(".")[0].split("/")[-1][-2:]
         port = Port.objects.filter(switch=switch, port=port_number).first()
 

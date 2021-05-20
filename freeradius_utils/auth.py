@@ -198,11 +198,7 @@ def post_auth(data):
                 .first()
             )
         # Find the port number from freeradius
-        #
-        # For Juniper, the result looks something like this: NAS-Port-Id = "ge-0/0/6.0""
-        # For other brands (e.g. HP or Mikrotik), the result usually looks like: NAS-Port-Id = "6.0"
-        # This "magic split" handles both cases
-        # Cisco can rot in Hell for all I care, so their format is not supported (it looks like NAS-Port-ID = atm 31/31/7:255.65535 guangzhou001/0/31/63/31/127)
+        # See above for details about this "magic split"
         port = port.split(".")[0].split("/")[-1][-2:]
         out = decide_vlan_switch(nas_machine, nas_type, port, mac)
         sw_name, room, reason, vlan_id, decision, attributes = out
