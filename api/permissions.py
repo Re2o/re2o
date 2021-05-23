@@ -63,7 +63,7 @@ def _get_param_in_view(view, param_name):
         "cannot apply {} on a view that does not set "
         "`.{}` or have a `.get_{}()` method."
     ).format(
-        self.__class__.__name__, param_name, param_name
+        view.__class__.__name__, param_name, param_name
     )
 
     if hasattr(view, "get_" + param_name):
