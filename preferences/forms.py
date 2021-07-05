@@ -398,7 +398,7 @@ class RadiusKeyForm(FormRevMixin, ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit)
-        instance.switch_set = self.cleaned_data["members"]
+        instance.switch_set.set(self.cleaned_data["members"])
         return instance
 
 
@@ -424,7 +424,7 @@ class SwitchManagementCredForm(FormRevMixin, ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit)
-        instance.switch_set = self.cleaned_data["members"]
+        instance.switch_set.set(self.cleaned_data["members"])
         return instance
 
 
