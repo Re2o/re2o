@@ -70,7 +70,7 @@ def hashNT(password):
 
     """
     hash_str = hashlib.new("md4", password.encode("utf-16le")).digest()
-    return binascii.hexlify(hash_str).upper()
+    return binascii.hexlify(hash_str).upper().decode('utf-8')
 
 
 def checkPassword(challenge_password, password):
