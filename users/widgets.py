@@ -23,8 +23,8 @@ def list2str(str_iterable):
 class DateTimePicker(Input):
     is_localized = False
 
-    def render(self, name, value, attrs=None):
-        super().render(name, value, attrs)
+    def render(self, name, value, attrs=None, renderer=None):
+        super().render(name, value, attrs, renderer)
         flat_attrs = flatatt(attrs)
         context = {
             "name": name,
