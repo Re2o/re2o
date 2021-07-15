@@ -21,9 +21,8 @@ from base64 import decodebytes
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from ldap_sync.models import (synchronise_serviceuser, synchronise_user,
-                              synchronise_usergroup)
-from users.models import ListRight, User
+from users.models import User, ListRight, ServiceUser
+from ldap_sync.models import synchronise_user, synchronise_serviceuser, synchronise_usergroup
 
 
 def split_lines(lines):
@@ -95,6 +94,8 @@ def sync_ldap():
         synchronise_user(sender=User, instance=u)
     for lr in ListRight.objects.all():
         synchronise_usergroup(sender=ListRight, instance=lr)
+    for s in ServiceUser.objects.all():
+        synchronise_serviceuser(sender=ServiceUser, instance=s)
 
 
 class Command(BaseCommand):
