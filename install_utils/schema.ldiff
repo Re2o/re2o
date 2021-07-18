@@ -1063,10 +1063,13 @@ dn: olcDatabase={-1}frontend,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcFrontendConfig
 olcDatabase: {-1}frontend
-olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=extern
- al,cn=auth manage by * break
-olcAccess: {1}to dn.exact="" by * read
-olcAccess: {2}to dn.base="cn=Subschema" by * read
+olcAccess: {0}to *
+        by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+        by * break
+olcAccess: {1}to dn.exact=""
+        by * read
+olcAccess: {2}to dn.base="cn=Subschema"
+        by * read
 olcSizeLimit: 5000
 structuralObjectClass: olcDatabaseConfig
 entryUUID: fc8f0016-514b-1034-9c2d-0faf5bc7ead5
@@ -1079,8 +1082,9 @@ modifyTimestamp: 20150225150906Z
 dn: olcDatabase={0}config,cn=config
 objectClass: olcDatabaseConfig
 olcDatabase: {0}config
-olcAccess: {0}to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=extern
- al,cn=auth manage by * break
+olcAccess: {0}to *
+        by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+        by * break
 olcRootDN: cn=config
 olcRootPW: FILL_IT
 structuralObjectClass: olcDatabaseConfig
@@ -1109,33 +1113,42 @@ objectClass: olcHdbConfig
 olcDatabase: {1}hdb
 olcDbDirectory: /var/lib/ldap
 olcSuffix: dc=example,dc=net
-olcAccess: {0}to attrs=userPassword,sambaNTPassword,mail by self write by an
- onymous auth by dn="cn=admin,dc=example,dc=net" write by group="cn
- =readonly,ou=services,ou=groups,dc=example,dc=net" read by group="
- cn=usermgmt,ou=services,ou=groups,dc=example,dc=net" write by * no
- ne
-olcAccess: {1}to attrs=shadowLastChange,gecos,loginShell by self write by an
- onymous auth by dn="cn=admin,dc=example,dc=net" write by group="cn
- =readonly,ou=services,ou=groups,dc=example,dc=net" read by group="
- cn=auth,ou=services,ou=groups,dc=example,dc=net" read by group="cn
- =usermgmt,ou=services,ou=groups,dc=example,dc=net" write by * none
-olcAccess: {2}to dn.base="" by * read
-olcAccess: {3}to dn.sub="ou=groups,dc=example,dc=net" by group="cn=
- auth,ou=services,ou=groups,dc=example,dc=net" read by group="cn=re
- adonly,ou=services,ou=groups,dc=example,dc=net" read
-olcAccess: {4}to dn.base="cn=Utilisateurs,dc=example,dc=net" by * read
-olcAccess: {5}to dn.sub="cn=Utilisateurs,dc=example,dc=net" by grou
- p="cn=auth,ou=services,ou=groups,dc=example,dc=net" read by self r
- ead by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net"
-  read by group="cn=usermgmt,ou=services,ou=groups,dc=example,dc=or
- g" write
-olcAccess: {6}to dn.sub="ou=service-users,dc=example,dc=net" by gro
- up="cn=auth,ou=services,ou=groups,dc=example,dc=net" read by group
- ="cn=readonly,ou=services,ou=groups,dc=example,dc=net" read
-olcAccess: {7}to dn.base="dc=example,dc=net" by * read
-olcAccess: {8}to * by dn="cn=admin,dc=example,dc=net" write by self
-  read by group="cn=readonly,ou=services,ou=groups,dc=example,dc=or
- g" read
+olcAccess: {0}to attrs=userPassword,sambaNTPassword,mail
+        by self write
+        by anonymous auth
+        by dn="cn=admin,dc=example,dc=net" write
+        by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net" read
+        by group="cn=usermgmt,ou=services,ou=groups,dc=example,dc=net" write
+        by * none
+olcAccess: {1}to attrs=shadowLastChange,gecos,loginShell
+        by self write
+        by anonymous auth
+        by dn="cn=admin,dc=example,dc=net" write
+        by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net" read
+        by group="cn=auth,ou=services,ou=groups,dc=example,dc=net" read
+        by group="cn=usermgmt,ou=services,ou=groups,dc=example,dc=net" write
+        by * none
+olcAccess: {2}to dn.base=""
+        by * read
+olcAccess: {3}to dn.sub="ou=groups,dc=example,dc=net"
+        by group="cn=auth,ou=services,ou=groups,dc=example,dc=net" read
+        by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net" read
+olcAccess: {4}to dn.base="cn=Utilisateurs,dc=example,dc=net"
+        by * read
+olcAccess: {5}to dn.sub="cn=Utilisateurs,dc=example,dc=net"
+        by group="cn=auth,ou=services,ou=groups,dc=example,dc=net" read
+        by self read
+        by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net" read
+        by group="cn=usermgmt,ou=services,ou=groups,dc=example,dc=net" write
+olcAccess: {6}to dn.sub="ou=service-users,dc=example,dc=net"
+        by group="cn=auth,ou=services,ou=groups,dc=example,dc=net" read
+        by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net" read
+olcAccess: {7}to dn.base="dc=example,dc=net"
+        by * read
+olcAccess: {8}to *
+        by dn="cn=admin,dc=example,dc=net" write
+        by self read
+        by group="cn=readonly,ou=services,ou=groups,dc=example,dc=net" read
 olcLastMod: TRUE
 olcRootDN: cn=admin,dc=example,dc=net
 olcRootPW: FILL_IT
