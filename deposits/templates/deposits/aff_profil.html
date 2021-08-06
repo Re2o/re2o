@@ -1,0 +1,48 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2021  Jean-Romain Garnier
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load acl %}
+{% load i18n %}
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#deposits">
+        <h3 class="panel-title pull-left">
+            <i class="fa fa-balance-scale"></i> {% trans "Deposits" %}
+        </h3> 
+    </div>
+    <div id="deposits" class="panel-collapse collapse">
+        <div class="panel-body">
+        {% can_create Deposit %}
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'deposits:new-deposit' %}">
+            <i class="fa fa-balance-scale"></i> {% trans "Add a deposit" %}
+        </a>
+        {% acl_end %}
+        </div>
+        <div class="panel-body">
+        {% if deposits_list %} 
+            {% include 'deposits/aff_deposits.html' with deposits_list=deposits_list %}
+        {% else %}
+            <p>{% trans "No deposit" %}</p>
+        {% endif %}
+        </div>
+    </div>
+</div>
