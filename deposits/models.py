@@ -61,8 +61,8 @@ class Deposit(RevMixin, AclMixin, models.Model):
 
     def __init__(self, *args, **kwargs):
         super(Deposit, self).__init__(*args, **kwargs)
-        self.__original_item = self.item
-        self.__original_deposit_amount = self.deposit_amount
+        self.__original_item = getattr(self, "item", None)
+        self.__original_deposit_amount = getattr(self, "deposit_amount", None)
 
     def __str__(self):
         if self.returned:
