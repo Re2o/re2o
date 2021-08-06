@@ -29,14 +29,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 <div class="table-responsive">
 
-	<table class="table">
+    <table class="table">
     <thead>
         <tr>
-	    <th scope="col">{% trans "User" %}</th>
-	    <th scope="col">{% trans "Item" %}</th>
+        <th scope="col">{% trans "User" %}</th>
+        <th scope="col">{% trans "Item" %}</th>
         <th scope="col">{% trans "Amount" %}</th>
-	    <th scope="col">{% trans "Date" %}</th>
-	    <th scope="col">{% trans "Returned" %}</th>
+        <th scope="col">{% trans "Date" %}</th>
+        <th scope="col">{% trans "Returned" %}</th>
         <th scope="col"></th>
         </tr>
         {% for deposit in deposits_list %}
@@ -62,8 +62,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </thead>
     </table>
 
-	{% if deposits_list.paginator %}
-    	{% include 'pagination.html' with list=deposits_list go_to_id="deposits" %}
-	{% endif %}
+    {% if deposits_list.paginator %}
+        {% include 'pagination.html' with list=deposits_list go_to_id="deposits" %}
+    {% endif %}
 </div>
 {% endblock %}
