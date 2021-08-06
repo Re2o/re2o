@@ -17,3 +17,189 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+#: deposits/forms.py:44
+msgid "Deposit returned"
+msgstr "Caution rendue"
+
+#: deposits/forms.py:71
+msgid "Current deposit items"
+msgstr "Articles sous cautions actuels"
+
+#: deposits/models.py:50
+msgid "date"
+msgstr "date"
+
+#: deposits/models.py:51
+msgid "returned"
+msgstr "rendu"
+
+#: deposits/models.py:55 deposits/views.py:113
+msgid "deposit"
+msgstr "caution"
+
+#: deposits/models.py:56
+msgid "deposits"
+msgstr "cautions"
+
+#: deposits/models.py:61
+#, python-brace-format
+msgid "Deposit from {name} for {item} at {date}, returned"
+msgstr "Caution de {name} pour {item} à {date}, rendu"
+
+#: deposits/models.py:69
+#, python-brace-format
+msgid "Deposit from {name} for {item} at {date}, not yet returned"
+msgstr "Caution de {name} pour {item} à {date}, pas encore rendu"
+
+#: deposits/models.py:85
+msgid "You don't have the right to view other deposits than yours."
+msgstr "Vous n'avez pas le droit de voir les cautions d'autres utilisateurs."
+
+#: deposits/models.py:97
+msgid "You don't have the right to view the list of deposits."
+msgstr "Vous n'avez pas le droit de voir la liste des cautions."
+
+#: deposits/models.py:117
+msgid "designation"
+msgstr "désignation"
+
+#: deposits/models.py:120
+msgid "deposit amount"
+msgstr "montant de la caution"
+
+#: deposits/models.py:128
+#, python-brace-format
+msgid "Deposit item {name}"
+msgstr "Article {name}"
+
+#: deposits/templates/deposits/aff_deposit_item.html:31
+msgid "Deposit"
+msgstr "Caution"
+
+#: deposits/templates/deposits/aff_deposit_item.html:32
+#: deposits/templates/deposits/aff_deposits.html:37
+msgid "Amount"
+msgstr "Montant"
+
+#: deposits/templates/deposits/aff_deposits.html:35
+msgid "User"
+msgstr "Utilisateur"
+
+#: deposits/templates/deposits/aff_deposits.html:36
+msgid "Item"
+msgstr "Article"
+
+#: deposits/templates/deposits/aff_deposits.html:38
+msgid "Date"
+msgstr "Date"
+
+#: deposits/templates/deposits/aff_deposits.html:39
+msgid "Returned"
+msgstr "Rendu"
+
+#: deposits/templates/deposits/aff_profil.html:29
+msgid "Deposits"
+msgstr "Cautions"
+
+#: deposits/templates/deposits/aff_profil.html:36
+msgid "Add a deposit"
+msgstr "Ajouter une caution"
+
+#: deposits/templates/deposits/aff_profil.html:44
+msgid "No deposit"
+msgstr "Pas de caution"
+
+#: deposits/templates/deposits/delete.html:27
+msgid "Deletion of deposits"
+msgstr "Suppression d'articles sous caution"
+
+#: deposits/templates/deposits/delete.html:34
+#, python-format
+msgid ""
+"Warning: are you sure you really want to delete this %(objet_name)s object "
+"( %(objet)s )?"
+msgstr ""
+"Attention: voulez-vous vraiment supprimer cet objet %(objet_name)s  "
+"( %(objet)s ) ?"
+
+#: deposits/templates/deposits/delete.html:36 deposits/views.py:69
+msgid "Confirm"
+msgstr "Confirmer"
+
+#: deposits/templates/deposits/deposit.html:28
+msgid "Create or edit deposit"
+msgstr "Créer ou modifier les cautions"
+
+#: deposits/templates/deposits/deposit.html:35 deposits/views.py:144
+msgid "Add"
+msgstr "Ajouter"
+
+#: deposits/templates/deposits/index_deposit_item.html:27
+#: deposits/templates/deposits/navbar.html:24
+msgid "Deposit items"
+msgstr "Articles sous caution"
+
+#: deposits/templates/deposits/index_deposit_item.html:30
+msgid "List of deposit items"
+msgstr "Liste d'articles sous caution"
+
+#: deposits/templates/deposits/index_deposit_item.html:33
+msgid "Add a deposit item"
+msgstr "Ajouter un article"
+
+#: deposits/templates/deposits/index_deposit_item.html:36
+msgid "Delete one or several deposit items"
+msgstr "Supprimer ou un plusieurs articles"
+
+#: deposits/views.py:63
+msgid "The deposit was created."
+msgstr "La caution a été crée."
+
+#: deposits/views.py:70
+msgid "New deposit"
+msgstr "Nouvelle caution"
+
+#: deposits/views.py:88
+msgid "The deposit was edited."
+msgstr "La caution a été modifiée."
+
+#: deposits/views.py:94 deposits/views.py:167
+msgid "Edit"
+msgstr "Modifier"
+
+#: deposits/views.py:95
+msgid "Edit deposit"
+msgstr "Modifier la caution"
+
+#: deposits/views.py:110
+msgid "The deposit was deleted."
+msgstr "La caution a été supprimée."
+
+#: deposits/views.py:139
+msgid "The item was created."
+msgstr "L'article a été créé."
+
+#: deposits/views.py:145
+msgid "New deposit item"
+msgstr "Nouvel article"
+
+#: deposits/views.py:162
+msgid "The item was edited."
+msgstr "L'article a été modifié."
+
+#: deposits/views.py:168
+msgid "Edit deposit item"
+msgstr "Modifier l'article"
+
+#: deposits/views.py:185
+msgid "The items were deleted."
+msgstr "Les articles ont été supprimés."
+
+#: deposits/views.py:190
+msgid "Delete"
+msgstr "Supprimer"
+
+#: deposits/views.py:191
+msgid "Delete deposit item"
+msgstr "Supprimer l'article"
