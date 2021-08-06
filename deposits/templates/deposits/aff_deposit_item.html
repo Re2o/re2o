@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     {% for item in item_list %}
     <tr>
         <td>{{ item.name }}</td>
-        <td>{{ item.deposit_amount }}</td>
+        <td>{{ item.deposit_amount }} €</td>
         <td class="text-right">
             {% can_edit item %}
             {% include 'buttons/edit.html' with href='deposits:edit-deposit-item' id=item.id %}

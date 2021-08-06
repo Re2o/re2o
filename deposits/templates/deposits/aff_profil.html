@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <div id="deposits" class="panel-collapse collapse">
         <div class="panel-body">
         {% can_create Deposit %}
-        <a class="btn btn-primary btn-sm" role="button" href="{% url 'deposits:new-deposit' %}">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'deposits:new-deposit' users.id %}">
             <i class="fa fa-balance-scale"></i> {% trans "Add a deposit" %}
         </a>
         {% acl_end %}

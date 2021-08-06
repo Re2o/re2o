@@ -228,6 +228,7 @@ def aff_profil(request, user):
 
     deposits = re2o_paginator(request, deposits_list, pagination_number)
     context = {
+        "user": user,
         "deposits_list": deposits,
     }
     return render_to_string(

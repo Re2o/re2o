@@ -50,7 +50,7 @@ class Deposit(RevMixin, AclMixin, models.Model):
     item = models.ForeignKey("DepositItem", on_delete=models.PROTECT)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
     returned = models.BooleanField(default=False, verbose_name=_("returned"))
-    return_date = models.DateTimeField(default=None, verbose_name=_("return date"))
+    return_date = models.DateTimeField(default=None, null=True, verbose_name=_("return date"))
 
     class Meta:
         abstract = False

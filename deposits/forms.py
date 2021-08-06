@@ -26,14 +26,13 @@ from django import forms
 from django.forms import Form, ModelForm
 from django.utils.translation import ugettext_lazy as _
 
-from re2o.field_permissions import FieldPermissionFormMixin
 from re2o.mixins import FormRevMixin
 from re2o.widgets import AutocompleteModelWidget
 
 from .models import Deposit, DepositItem
 
 
-class DepositForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
+class DepositForm(FormRevMixin, ModelForm):
     """
     Form used to manage and create an invoice and its fields.
     """
@@ -45,6 +44,8 @@ class DepositForm(FieldPermissionFormMixin, FormRevMixin, ModelForm):
             self.fields["user"].label = _("Member")
             self.fields["user"].empty_label = _("Select the proprietary member")
             self.fields["returned"].label = _("Deposit returned")
+        else:
+            self.fields = {"item": self.fields["item"]}
 
     class Meta:
         model = Deposit
