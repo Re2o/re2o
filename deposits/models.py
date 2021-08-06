@@ -50,7 +50,9 @@ class Deposit(RevMixin, AclMixin, models.Model):
     item = models.ForeignKey("DepositItem", on_delete=models.PROTECT)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
     returned = models.BooleanField(default=False, verbose_name=_("returned"))
-    deposit_amount = models.DecimalField(verbose_name=_("deposit amount"))
+    deposit_amount = models.DecimalField(
+        max_digits=5, decimal_places=2, verbose_name=_("deposit amount")
+    )
 
     class Meta:
         abstract = False
