@@ -32,7 +32,6 @@ urlpatterns = [
     path("new_deposit/<int:userid>", views.new_deposit, name="new-deposit"),
     path("edit_deposit/<int:depositid>", views.edit_deposit, name="edit-deposit"),
     path("del_deposit/<int:depositid>", views.del_deposit, name="del-deposit"),
-    path("aff_deposit/<int:depositid>", views.aff_deposit, name="aff-deposit"),
     path(
         "change_deposit_status/<int:depositid>",
         views.change_deposit_status,

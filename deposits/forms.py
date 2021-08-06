@@ -27,7 +27,6 @@ from django.forms import Form, ModelForm
 from django.utils.translation import ugettext_lazy as _
 
 from re2o.mixins import FormRevMixin
-from re2o.widgets import AutocompleteModelWidget
 
 from .models import Deposit, DepositItem
 
@@ -38,21 +37,17 @@ class DepositForm(FormRevMixin, ModelForm):
     """
 
     def __init__(self, *args, creation=False, **kwargs):
+        user = kwargs.pop("user")
         super(DepositForm, self).__init__(*args, **kwargs)
 
         if not creation:
-            self.fields["user"].label = _("Member")
-            self.fields["user"].empty_label = _("Select the proprietary member")
             self.fields["returned"].label = _("Deposit returned")
         else:
             self.fields = {"item": self.fields["item"]}
 
     class Meta:
         model = Deposit
-        fields = ("user", "item", "returned")
-        widgets = {
-            "user": AutocompleteModelWidget(url="/users/user-autocomplete"),
-        }
+        fields = ("item", "returned")
 
 
 class DepositItemForm(FormRevMixin, ModelForm):

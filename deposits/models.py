@@ -42,15 +42,13 @@ class Deposit(RevMixin, AclMixin, models.Model):
         * an item (borrowed in exchange for the deposit)
     Every deposit is dated throught the 'date' value.
     A deposit has a 'returned' value (default: False) which means that the item
-    was returned by the user and the deposit was payed back. The
-    'returned_date' attribute stores when the item was returned.
+    was returned by the user and the deposit was payed back.
     """
 
     user = models.ForeignKey("users.User", on_delete=models.PROTECT)
     item = models.ForeignKey("DepositItem", on_delete=models.PROTECT)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
     returned = models.BooleanField(default=False, verbose_name=_("returned"))
-    return_date = models.DateTimeField(default=None, null=True, verbose_name=_("return date"))
 
     class Meta:
         abstract = False
@@ -60,12 +58,11 @@ class Deposit(RevMixin, AclMixin, models.Model):
     def __str__(self):
         if self.returned:
             return _(
-                "Deposit from {name} for {item} at {date}, returned at {return_date}"
+                "Deposit from {name} for {item} at {date}, returned"
             ).format(
                 name=self.user.get_full_name(),
                 item=self.item,
                 date=self.date,
-                return_date=self.return_date,
             )
         else:
             return _(

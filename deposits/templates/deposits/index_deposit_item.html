@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 {% endcomment %}
 
-{% load bootstrap3 %}
 {% load acl %}
 {% load i18n %}
 
@@ -33,8 +32,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <a class="btn btn-primary btn-sm" role="button" href="{% url 'deposits:add-deposit-item' %}">
         <i class="fa fa-plus"></i> {% trans "Add a deposit item" %}
     </a>
-    {% acl_end %}
-    {% can_delete DepositItem %}
     <a class="btn btn-danger btn-sm" role="button" href="{% url 'deposits:del-deposit-item' %}">
         <i class="fa fa-trash"></i> {% trans "Delete one or several deposit items" %}
     </a>

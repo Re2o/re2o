@@ -35,7 +35,6 @@ from re2o.acl import (
     can_delete,
     can_delete_set,
     can_edit,
-    can_view,
     can_view_all,
 )
 from re2o.base import re2o_paginator
@@ -118,19 +117,6 @@ def del_deposit(request, deposit, **_kwargs):
 
 
 @login_required
-@can_view(Deposit)
-def aff_deposit(request, deposit, **_kwargs):
-    """
-    View used to view an existing deposit.
-    """
-    return render(
-        request,
-        "deposits/aff_deposit.html",
-        {"deposit": deposit},
-    )
-
-
-@login_required
 @can_edit(Deposit)
 def change_deposit_status(request, deposit, depositid):
     """View used to change a ticket's status."""
@@ -194,7 +180,7 @@ def del_deposit_item(request, instances):
     """
     item = DelDepositItemForm(request.POST or None, instances=instances)
     if item.is_valid():
-        item_del = item.cleaned_data["items"]
+        item_del = item.cleaned_data["deposit_items"]
         item_del.delete()
         messages.success(request, _("The items were deleted."))
         return redirect(reverse("deposits:index-deposit-item"))
@@ -228,7 +214,7 @@ def aff_profil(request, user):
 
     deposits = re2o_paginator(request, deposits_list, pagination_number)
     context = {
-        "user": user,
+        "users": user,
         "deposits_list": deposits,
     }
     return render_to_string(
