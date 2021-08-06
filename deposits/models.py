@@ -40,7 +40,8 @@ class Deposit(RevMixin, AclMixin, models.Model):
     A deposit is linked to :
         * a user (the one who made the deposit)
         * an item (borrowed in exchange for the deposit)
-    Every deposit is dated throught the 'date' value.
+    Every deposit is dated throught the 'date' value. Its amount is saved in
+    the 'deposit_amount' in case an item's amount changes later on.
     A deposit has a 'returned' value (default: False) which means that the item
     was returned by the user and the deposit was payed back.
     """
@@ -49,17 +50,21 @@ class Deposit(RevMixin, AclMixin, models.Model):
     item = models.ForeignKey("DepositItem", on_delete=models.PROTECT)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
     returned = models.BooleanField(default=False, verbose_name=_("returned"))
+    deposit_amount = models.DecimalField(verbose_name=_("deposit amount"))
 
     class Meta:
         abstract = False
         verbose_name = _("deposit")
         verbose_name_plural = _("deposits")
 
+    def __init__(self, *args, **kwargs):
+        super(Deposit, self).__init__(*args, **kwargs)
+        self.__original_item = self.item
+        self.__original_deposit_amount = self.deposit_amount
+
     def __str__(self):
         if self.returned:
-            return _(
-                "Deposit from {name} for {item} at {date}, returned"
-            ).format(
+            return _("Deposit from {name} for {item} at {date}, returned").format(
                 name=self.user.get_full_name(),
                 item=self.item,
                 date=self.date,
@@ -72,6 +77,18 @@ class Deposit(RevMixin, AclMixin, models.Model):
                 item=self.item,
                 date=self.date,
             )
+
+    def save(self, *args, **kwargs):
+        # Save the item's deposit amount in the deposit's attribute
+        self.deposit_amount = self.item.deposit_amount
+
+        # If the item didn't change, keep the previous deposit_amount
+        # This is done in case a DepositItem's deposit_amount is changed, we
+        # want to make sure deposits created before keep the same amount
+        if self.__original_deposit_amount and self.item == self.__original_item:
+            self.deposit_amount = self.__original_deposit_amount
+
+        super(Deposit, self).save(*args, **kwargs)
 
     def can_view(self, user_request, *_args, **_kwargs):
         """Check that the user has the right to view the deposit or that it
@@ -121,8 +138,9 @@ class DepositItem(RevMixin, AclMixin, models.Model):
     )
 
     class Meta:
-        verbose_name = "deposit item"
-        verbose_name_plural = "deposit items"
+        abstract = False
+        verbose_name = _("deposit item")
+        verbose_name_plural = _("deposit items")
 
     def __str__(self):
-        return _("Deposit item {name}").format(name=self.name)
+        return self.name

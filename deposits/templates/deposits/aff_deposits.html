@@ -43,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         <tr>
             <td><a href="{% url 'users:profil' deposit.user.id %}" role="button">{{ deposit.user.get_short_name }}</a></td>
             <td>{{ deposit.item.name }}</td>
-            <td>{{ deposit.item.deposit_amount }} €</td>
+            <td>{{ deposit.deposit_amount }} €</td>
             <td>{{ deposit.date }}</td>
             {% if deposit.returned %}
                 <td><i class="fa fa-check" style="color:green"></i></td>
