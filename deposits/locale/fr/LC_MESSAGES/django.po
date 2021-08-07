@@ -33,7 +33,7 @@ msgstr ""
 
 #: deposits/forms.py:44 deposits/templates/deposits/aff_deposit_item.html:31
 msgid "Deposit item"
-msgstr "Article"
+msgstr "Article (caution)"
 
 #: deposits/forms.py:45 deposits/templates/deposits/aff_deposits.html:48
 msgid "Payment method"
@@ -53,7 +53,7 @@ msgstr "date"
 
 #: deposits/models.py:53
 msgid "returned"
-msgstr "rendu"
+msgstr "rendue"
 
 #: deposits/models.py:55 deposits/models.py:140
 msgid "deposit amount"
@@ -70,12 +70,12 @@ msgstr "cautions"
 #: deposits/models.py:70
 #, python-brace-format
 msgid "Deposit from {name} for {item} at {date}, returned"
-msgstr "Caution de {name} pour {item} à {date}, rendu"
+msgstr "Caution de {name} pour {item} à {date}, rendue"
 
 #: deposits/models.py:77
 #, python-brace-format
 msgid "Deposit from {name} for {item} at {date}, not yet returned"
-msgstr "Caution de {name} pour {item} à {date}, pas encore rendu"
+msgstr "Caution de {name} pour {item} à {date}, pas encore rendue"
 
 #: deposits/models.py:105
 msgid "You don't have the right to view other deposits than yours."
@@ -91,11 +91,11 @@ msgstr "désignation"
 
 #: deposits/models.py:145
 msgid "deposit item"
-msgstr "article"
+msgstr "article (caution)"
 
 #: deposits/models.py:146
 msgid "deposit items"
-msgstr "articles"
+msgstr "articles (cautions)"
 
 #: deposits/templates/deposits/aff_deposit_item.html:32
 #: deposits/templates/deposits/aff_deposits.html:44
@@ -108,7 +108,7 @@ msgstr "Utilisateur"
 
 #: deposits/templates/deposits/aff_deposits.html:40
 msgid "Item"
-msgstr "Article"
+msgstr "Article (caution)"
 
 #: deposits/templates/deposits/aff_deposits.html:52
 msgid "Date"
@@ -116,7 +116,7 @@ msgstr "Date"
 
 #: deposits/templates/deposits/aff_deposits.html:56
 msgid "Returned"
-msgstr "Rendu"
+msgstr "Rendue"
 
 #: deposits/templates/deposits/aff_profil.html:29
 #: deposits/templates/deposits/navbar.html:25
@@ -150,7 +150,7 @@ msgstr "Confirmer"
 
 #: deposits/templates/deposits/deposit.html:28
 msgid "Create or edit deposit"
-msgstr "Créer ou modifier les cautions"
+msgstr "Créer ou modifier une caution"
 
 #: deposits/templates/deposits/deposit.html:35 deposits/views.py:173
 msgid "Add"
@@ -203,7 +203,7 @@ msgstr "Voir les cautions"
 
 #: deposits/views.py:64
 msgid "The deposit was created."
-msgstr "La caution a été crée."
+msgstr "La caution a été créée."
 
 #: deposits/views.py:71
 msgid "New deposit"
@@ -231,7 +231,7 @@ msgstr "L'article a été créé."
 
 #: deposits/views.py:174
 msgid "New deposit item"
-msgstr "Nouvel article"
+msgstr "Nouvel article (caution)"
 
 #: deposits/views.py:191
 msgid "The item was edited."
