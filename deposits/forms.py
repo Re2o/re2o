@@ -40,6 +40,11 @@ class DepositForm(FormRevMixin, ModelForm):
         user = kwargs.pop("user")
         super(DepositForm, self).__init__(*args, **kwargs)
 
+        # Set the fields' label to handle translation
+        self.fields["item"].label = _("Deposit item")
+        self.fields["payment_method"].label = _("Payment method")
+        self.fields["returned"].label = _("Deposit returned")
+
         if creation:
             # During creation, we only need to select the item and payment
             # method, no need to add the "returned" checkbox
@@ -47,8 +52,6 @@ class DepositForm(FormRevMixin, ModelForm):
                 "item": self.fields["item"],
                 "payment_method": self.fields["payment_method"],
             }
-        else:
-            self.fields["returned"].label = _("Deposit returned")
 
     class Meta:
         model = Deposit
