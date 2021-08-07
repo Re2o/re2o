@@ -199,7 +199,7 @@ msgstr "Cautions rendues"
 
 #: deposits/templates/deposits/navbar.html:30
 msgid "View deposits"
-msgstr "Gérer les cautions"
+msgstr "Voir les cautions"
 
 #: deposits/views.py:64
 msgid "The deposit was created."
