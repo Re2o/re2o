@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-07 13:20+0200\n"
+"POT-Creation-Date: 2021-08-07 18:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,11 +31,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: deposits/forms.py:51
+#: deposits/forms.py:44 deposits/templates/deposits/aff_deposit_item.html:31
+msgid "Deposit item"
+msgstr "Article"
+
+#: deposits/forms.py:45 deposits/templates/deposits/aff_deposits.html:48
+msgid "Payment method"
+msgstr "Moyen de paiement"
+
+#: deposits/forms.py:46
 msgid "Deposit returned"
 msgstr "Caution rendue"
 
-#: deposits/forms.py:76
+#: deposits/forms.py:79
 msgid "Current deposit items"
 msgstr "Articles sous cautions actuels"
 
@@ -51,7 +59,7 @@ msgstr "rendu"
 msgid "deposit amount"
 msgstr "montant de la caution"
 
-#: deposits/models.py:60 deposits/views.py:113
+#: deposits/models.py:60 deposits/views.py:114
 msgid "deposit"
 msgstr "caution"
 
@@ -89,36 +97,29 @@ msgstr "article"
 msgid "deposit items"
 msgstr "articles"
 
-#: deposits/templates/deposits/aff_deposit_item.html:31
-msgid "Deposit item"
-msgstr "Article"
-
 #: deposits/templates/deposits/aff_deposit_item.html:32
-#: deposits/templates/deposits/aff_deposits.html:37
+#: deposits/templates/deposits/aff_deposits.html:44
 msgid "Amount"
 msgstr "Montant"
 
-#: deposits/templates/deposits/aff_deposits.html:35
+#: deposits/templates/deposits/aff_deposits.html:36
 msgid "User"
 msgstr "Utilisateur"
 
-#: deposits/templates/deposits/aff_deposits.html:36
+#: deposits/templates/deposits/aff_deposits.html:40
 msgid "Item"
 msgstr "Article"
 
-#: deposits/templates/deposits/aff_deposits.html:38
-msgid "Payment method"
-msgstr "Moyen de paiement"
-
-#: deposits/templates/deposits/aff_deposits.html:39
+#: deposits/templates/deposits/aff_deposits.html:52
 msgid "Date"
 msgstr "Date"
 
-#: deposits/templates/deposits/aff_deposits.html:40
+#: deposits/templates/deposits/aff_deposits.html:56
 msgid "Returned"
 msgstr "Rendu"
 
 #: deposits/templates/deposits/aff_profil.html:29
+#: deposits/templates/deposits/navbar.html:25
 msgid "Deposits"
 msgstr "Cautions"
 
@@ -143,7 +144,7 @@ msgstr ""
 "Attention: voulez-vous vraiment supprimer cet objet %(objet_name)s  "
 "( %(objet)s ) ?"
 
-#: deposits/templates/deposits/delete.html:36 deposits/views.py:69
+#: deposits/templates/deposits/delete.html:36 deposits/views.py:70
 msgid "Confirm"
 msgstr "Confirmer"
 
@@ -151,12 +152,12 @@ msgstr "Confirmer"
 msgid "Create or edit deposit"
 msgstr "Créer ou modifier les cautions"
 
-#: deposits/templates/deposits/deposit.html:35 deposits/views.py:144
+#: deposits/templates/deposits/deposit.html:35 deposits/views.py:173
 msgid "Add"
 msgstr "Ajouter"
 
 #: deposits/templates/deposits/index_deposit_item.html:27
-#: deposits/templates/deposits/navbar.html:24
+#: deposits/templates/deposits/navbar.html:33
 msgid "Deposit items"
 msgstr "Articles sous caution"
 
@@ -172,54 +173,82 @@ msgstr "Ajouter un article"
 msgid "Delete one or several deposit items"
 msgstr "Supprimer ou un plusieurs articles"
 
-#: deposits/views.py:63
+#: deposits/templates/deposits/index_deposits.html:29
+msgid "List of deposits"
+msgstr "Liste de cautions"
+
+#: deposits/templates/deposits/index_deposits.html:35
+msgid "Deposit"
+msgid_plural "Deposits"
+msgstr[0] "Caution"
+msgstr[1] "Cautions"
+
+#: deposits/templates/deposits/index_deposits.html:38
+msgid "Unreturned deposit"
+msgid_plural "Unreturned deposits"
+msgstr[0] "Caution non rendue"
+msgstr[1] "Cautions non rendues"
+
+#: deposits/templates/deposits/index_deposits.html:46
+msgid "Unreturned deposits"
+msgstr "Cautions non rendues"
+
+#: deposits/templates/deposits/index_deposits.html:57
+msgid "Returned deposits"
+msgstr "Cautions rendues"
+
+#: deposits/templates/deposits/navbar.html:30
+msgid "View deposits"
+msgstr "Gérer les cautions"
+
+#: deposits/views.py:64
 msgid "The deposit was created."
 msgstr "La caution a été crée."
 
-#: deposits/views.py:70
+#: deposits/views.py:71
 msgid "New deposit"
 msgstr "Nouvelle caution"
 
-#: deposits/views.py:88
+#: deposits/views.py:89
 msgid "The deposit was edited."
 msgstr "La caution a été modifiée."
 
-#: deposits/views.py:94 deposits/views.py:167
+#: deposits/views.py:95 deposits/views.py:196
 msgid "Edit"
 msgstr "Modifier"
 
-#: deposits/views.py:95
+#: deposits/views.py:96
 msgid "Edit deposit"
 msgstr "Modifier la caution"
 
-#: deposits/views.py:110
+#: deposits/views.py:111
 msgid "The deposit was deleted."
 msgstr "La caution a été supprimée."
 
-#: deposits/views.py:139
+#: deposits/views.py:168
 msgid "The item was created."
 msgstr "L'article a été créé."
 
-#: deposits/views.py:145
+#: deposits/views.py:174
 msgid "New deposit item"
 msgstr "Nouvel article"
 
-#: deposits/views.py:162
+#: deposits/views.py:191
 msgid "The item was edited."
 msgstr "L'article a été modifié."
 
-#: deposits/views.py:168
+#: deposits/views.py:197
 msgid "Edit deposit item"
 msgstr "Modifier l'article"
 
-#: deposits/views.py:185
+#: deposits/views.py:214
 msgid "The items were deleted."
 msgstr "Les articles ont été supprimés."
 
-#: deposits/views.py:190
+#: deposits/views.py:219
 msgid "Delete"
 msgstr "Supprimer"
 
-#: deposits/views.py:191
+#: deposits/views.py:220
 msgid "Delete deposit item"
 msgstr "Supprimer l'article"

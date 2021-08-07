@@ -19,26 +19,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Deposits url
+Deposits utils
 """
+from re2o.base import SortTable
 
-from django.urls import path
 
-from . import views
+class DepositSortTable(SortTable):
+    """Extension of the SortTable class to handle the deposit optional app"""
 
-app_name = "deposits"
-
-urlpatterns = [
-    path("new_deposit/<int:userid>", views.new_deposit, name="new-deposit"),
-    path("edit_deposit/<int:depositid>", views.edit_deposit, name="edit-deposit"),
-    path("del_deposit/<int:depositid>", views.del_deposit, name="del-deposit"),
-    path("index_deposits", views.index_deposits, name="index-deposits"),
-    path("add_deposit_item", views.add_deposit_item, name="add-deposit-item"),
-    path(
-        "edit_deposit_item/<int:itemid>",
-        views.edit_deposit_item,
-        name="edit-deposit-item",
-    ),
-    path("del_deposit_item", views.del_deposit_item, name="del-deposit-item"),
-    path("index_deposit_item", views.index_deposit_item, name="index-deposit-item"),
-]
+    DEPOSIT_INDEX = {
+        "deposit_user": ["user__pseudo"],
+        "deposit_item": ["item__name"],
+        "deposit_payment": ["payment_method__moyen"],
+        "deposit_date": ["date"],
+        "deposit_returned": ["returned"],
+        "deposit_amount": ["deposit_amount"],
+        "default": ["-date"],
+    }

@@ -21,4 +21,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 {% endcomment %}
 
 {% load i18n %}
-<li><a href="{% url 'deposits:index-deposit-item' %}"><i class="fa fa-balance-scale"></i> {% trans "Deposit items" %}</a></li>
+ <li><a class="dropdown-item" href="#"><i class="fa fa-balance-scale"></i>
+        {% trans "Deposits" %}
+        &raquo </a>
+    <ul class="submenu dropdown-menu">
+        <li><a class="dropdown-item" href="{% url 'deposits:index-deposits' %}"><i
+                    class="fa fa-eye"></i>
+                {% trans "View deposits" %}</a></li>
+        <li><a class="dropdown-item" href="{% url 'deposits:index-deposit-item' %}"><i
+                    class="fa fa-barcode"></i>
+                {% trans "Deposit items" %}</a></li>
+    </ul>
+</li>

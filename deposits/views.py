@@ -43,6 +43,7 @@ from users.models import User
 
 from .forms import DepositForm, DepositItemForm, DelDepositItemForm
 from .models import Deposit, DepositItem
+from .utils import DepositSortTable
 
 
 @login_required
@@ -117,13 +118,45 @@ def del_deposit(request, deposit, **_kwargs):
 
 
 @login_required
-@can_edit(Deposit)
-def change_deposit_status(request, deposit, depositid):
-    """View used to change a ticket's status."""
-    deposit.returned = not deposit.solved
-    deposit.save()
-    return redirect(
-        reverse("deposits:aff-deposit", kwargs={"depositid": str(depositid)})
+@can_view_all(Deposit)
+def index_deposits(request):
+    """
+    View used to display the list of all deposits.
+    """
+    pagination_number = GeneralOption.get_cached_value("pagination_number")
+
+    # Get the list of all deposits, sorted according to the user's request
+    deposits_list = Deposit.objects.select_related("user", "item", "payment_method")
+    deposits_list = DepositSortTable.sort(
+        deposits_list,
+        request.GET.get("col"),
+        request.GET.get("order"),
+        DepositSortTable.DEPOSIT_INDEX,
+    )
+    nbr_deposits = deposits_list.count()
+
+    # Split it into 2: the list of those which have not yet been returned...
+    lent_deposits_list = deposits_list.filter(returned=False)
+    nbr_deposits_lent = lent_deposits_list.count()
+    lent_deposits_list = re2o_paginator(
+        request, lent_deposits_list, pagination_number, page_arg="lpage"
+    )
+
+    # ... and the list of those that have already been returned
+    returned_deposits_list = deposits_list.filter(returned=True)
+    returned_deposits_list = re2o_paginator(
+        request, returned_deposits_list, pagination_number, page_arg="rpage"
+    )
+
+    return render(
+        request,
+        "deposits/index_deposits.html",
+        {
+            "lent_deposits_list": lent_deposits_list,
+            "returned_deposits_list": returned_deposits_list,
+            "nbr_deposits": nbr_deposits,
+            "nbr_deposits_lent": nbr_deposits_lent,
+        },
     )
 
 
@@ -209,7 +242,15 @@ def index_deposit_item(request):
 # Canonic views for optional apps
 def aff_profil(request, user):
     """View used to display the deposits on a user's profile."""
-    deposits_list = Deposit.objects.filter(user=user).all().order_by("-date")
+    deposits_list = Deposit.objects.filter(user=user).select_related(
+        "user", "item", "payment_method"
+    )
+    deposits_list = DepositSortTable.sort(
+        deposits_list,
+        request.GET.get("col"),
+        request.GET.get("order"),
+        DepositSortTable.DEPOSIT_INDEX,
+    )
     pagination_number = GeneralOption.get_cached_value("pagination_large_number")
 
     deposits = re2o_paginator(request, deposits_list, pagination_number)

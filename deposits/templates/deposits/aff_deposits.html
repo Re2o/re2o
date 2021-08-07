@@ -32,13 +32,31 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     <table class="table">
     <thead>
         <tr>
-        <th scope="col">{% trans "User" %}</th>
-        <th scope="col">{% trans "Item" %}</th>
-        <th scope="col">{% trans "Amount" %}</th>
-        <th scope="col">{% trans "Payment method" %}</th>
-        <th scope="col">{% trans "Date" %}</th>
-        <th scope="col">{% trans "Returned" %}</th>
-        <th scope="col"></th>
+            <th>
+                {% trans "User" as tr_user %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="user" text=tr_user %}
+            </th>
+            <th>
+                {% trans "Item" as tr_item %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="item" text=tr_item %}
+            </th>
+            <th>
+                {% trans "Amount" as tr_amount %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="amount" text=tr_amount %}
+            </th>
+            <th>
+                {% trans "Payment method" as tr_payment %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="payment" text=tr_payment %}
+            </th>
+            <th>
+                {% trans "Date" as tr_date %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="date" text=tr_date %}
+            </th>
+            <th>
+                {% trans "Returned" as tr_returned %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="returned" text=tr_returned %}
+            </th>
+            <th></th>
         </tr>
         {% for deposit in deposits_list %}
         <tr>
@@ -64,7 +82,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
     </thead>
     </table>
 
-    {% if deposits_list.paginator %}
+    {% if deposits_list.paginator and show_pagination is not False %}
         {% include 'pagination.html' with list=deposits_list go_to_id="deposits" %}
     {% endif %}
 </div>
