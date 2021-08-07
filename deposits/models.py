@@ -48,6 +48,7 @@ class Deposit(RevMixin, AclMixin, models.Model):
 
     user = models.ForeignKey("users.User", on_delete=models.PROTECT)
     item = models.ForeignKey("DepositItem", on_delete=models.PROTECT)
+    payment_method = models.ForeignKey("cotisations.Paiement", on_delete=models.PROTECT)
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
     returned = models.BooleanField(default=False, verbose_name=_("returned"))
     deposit_amount = models.DecimalField(

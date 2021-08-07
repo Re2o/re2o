@@ -40,14 +40,19 @@ class DepositForm(FormRevMixin, ModelForm):
         user = kwargs.pop("user")
         super(DepositForm, self).__init__(*args, **kwargs)
 
-        if not creation:
-            self.fields["returned"].label = _("Deposit returned")
+        if creation:
+            # During creation, we only need to select the item and payment
+            # method, no need to add the "returned" checkbox
+            self.fields = {
+                "item": self.fields["item"],
+                "payment_method": self.fields["payment_method"],
+            }
         else:
-            self.fields = {"item": self.fields["item"]}
+            self.fields["returned"].label = _("Deposit returned")
 
     class Meta:
         model = Deposit
-        fields = ("item", "returned")
+        fields = ("item", "payment_method", "returned")
 
 
 class DepositItemForm(FormRevMixin, ModelForm):
