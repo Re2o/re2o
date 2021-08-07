@@ -1,0 +1,293 @@
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2021 Jean-Romain Garnier
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-08-07 23:10+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: deposits/forms.py:44 deposits/templates/deposits/aff_deposit_item.html:31
+#: deposits/views.py:301
+msgid "Deposit item"
+msgstr "Article (caution)"
+
+#: deposits/forms.py:45 deposits/templates/deposits/aff_deposits.html:48
+#: deposits/views.py:272
+msgid "Payment method"
+msgstr "Moyen de paiement"
+
+#: deposits/forms.py:46
+msgid "Deposit returned"
+msgstr "Caution rendue"
+
+#: deposits/forms.py:79
+msgid "Current deposit items"
+msgstr "Articles sous cautions actuels"
+
+#: deposits/models.py:52
+msgid "date"
+msgstr "date"
+
+#: deposits/models.py:53
+msgid "returned"
+msgstr "rendue"
+
+#: deposits/models.py:55 deposits/models.py:140
+msgid "deposit amount"
+msgstr "montant de la caution"
+
+#: deposits/models.py:60 deposits/views.py:116
+msgid "deposit"
+msgstr "caution"
+
+#: deposits/models.py:61
+msgid "deposits"
+msgstr "cautions"
+
+#: deposits/models.py:70
+#, python-brace-format
+msgid "Deposit from {name} for {item} at {date}, returned"
+msgstr "Caution de {name} pour {item} à {date}, rendue"
+
+#: deposits/models.py:77
+#, python-brace-format
+msgid "Deposit from {name} for {item} at {date}, not yet returned"
+msgstr "Caution de {name} pour {item} à {date}, pas encore rendue"
+
+#: deposits/models.py:105
+msgid "You don't have the right to view other deposits than yours."
+msgstr "Vous n'avez pas le droit de voir les cautions d'autres utilisateurs."
+
+#: deposits/models.py:117
+msgid "You don't have the right to view the list of deposits."
+msgstr "Vous n'avez pas le droit de voir la liste des cautions."
+
+#: deposits/models.py:137
+msgid "designation"
+msgstr "désignation"
+
+#: deposits/models.py:145
+msgid "deposit item"
+msgstr "article (caution)"
+
+#: deposits/models.py:146
+msgid "deposit items"
+msgstr "articles (cautions)"
+
+#: deposits/templates/deposits/aff_deposit_item.html:32
+#: deposits/templates/deposits/aff_deposits.html:44 deposits/views.py:276
+#: deposits/views.py:305 deposits/views.py:338
+msgid "Amount"
+msgstr "Montant"
+
+#: deposits/templates/deposits/aff_deposits.html:36
+msgid "User"
+msgstr "Utilisateur"
+
+#: deposits/templates/deposits/aff_deposits.html:40
+msgid "Item"
+msgstr "Article (caution)"
+
+#: deposits/templates/deposits/aff_deposits.html:52
+msgid "Date"
+msgstr "Date"
+
+#: deposits/templates/deposits/aff_deposits.html:56
+msgid "Returned"
+msgstr "Rendue"
+
+#: deposits/templates/deposits/aff_profil.html:29
+#: deposits/templates/deposits/navbar.html:25
+msgid "Deposits"
+msgstr "Cautions"
+
+#: deposits/templates/deposits/aff_profil.html:36
+msgid "Add a deposit"
+msgstr "Ajouter une caution"
+
+#: deposits/templates/deposits/aff_profil.html:44
+msgid "No deposit"
+msgstr "Pas de caution"
+
+#: deposits/templates/deposits/delete.html:27
+msgid "Deletion of deposit items"
+msgstr "Suppression d'articles sous caution"
+
+#: deposits/templates/deposits/delete.html:34
+#, python-format
+msgid ""
+"Warning: are you sure you really want to delete this %(objet_name)s object "
+"( %(objet)s )?"
+msgstr ""
+"Attention: voulez-vous vraiment supprimer cet objet %(objet_name)s  "
+"( %(objet)s ) ?"
+
+#: deposits/templates/deposits/delete.html:36 deposits/views.py:72
+msgid "Confirm"
+msgstr "Confirmer"
+
+#: deposits/templates/deposits/deposit.html:28
+msgid "Create or edit deposit"
+msgstr "Créer ou modifier une caution"
+
+#: deposits/templates/deposits/deposit.html:35 deposits/views.py:179
+msgid "Add"
+msgstr "Ajouter"
+
+#: deposits/templates/deposits/index_deposit_item.html:27
+#: deposits/templates/deposits/navbar.html:33
+msgid "Deposit items"
+msgstr "Articles sous caution"
+
+#: deposits/templates/deposits/index_deposit_item.html:30
+msgid "List of deposit items"
+msgstr "Liste des articles sous caution"
+
+#: deposits/templates/deposits/index_deposit_item.html:33
+msgid "Add a deposit item"
+msgstr "Ajouter un article"
+
+#: deposits/templates/deposits/index_deposit_item.html:36
+msgid "Delete one or several deposit items"
+msgstr "Supprimer ou un plusieurs articles"
+
+#: deposits/templates/deposits/index_deposits.html:29
+msgid "List of deposits"
+msgstr "Liste des cautions"
+
+#: deposits/templates/deposits/index_deposits.html:35
+msgid "Deposit"
+msgid_plural "Deposits"
+msgstr[0] "Caution"
+msgstr[1] "Cautions"
+
+#: deposits/templates/deposits/index_deposits.html:38
+msgid "Unreturned deposit"
+msgid_plural "Unreturned deposits"
+msgstr[0] "Caution non rendue"
+msgstr[1] "Cautions non rendues"
+
+#: deposits/templates/deposits/index_deposits.html:45 deposits/views.py:274
+#: deposits/views.py:303
+msgid "Unreturned deposits"
+msgstr "Cautions non rendues"
+
+#: deposits/templates/deposits/index_deposits.html:56 deposits/views.py:273
+#: deposits/views.py:302
+msgid "Returned deposits"
+msgstr "Cautions rendues"
+
+#: deposits/templates/deposits/index_stats.html:28
+#: deposits/templates/deposits/index_stats.html:31
+#: deposits/templates/deposits/navbar.html:36
+msgid "Deposits statistics"
+msgstr "Statistiques sur les cautions"
+
+#: deposits/templates/deposits/navbar.html:30
+msgid "View deposits"
+msgstr "Voir les cautions"
+
+#: deposits/views.py:66
+msgid "The deposit was created."
+msgstr "La caution a été créée."
+
+#: deposits/views.py:73
+msgid "New deposit"
+msgstr "Nouvelle caution"
+
+#: deposits/views.py:91
+msgid "The deposit was edited."
+msgstr "La caution a été modifiée."
+
+#: deposits/views.py:97 deposits/views.py:202
+msgid "Edit"
+msgstr "Modifier"
+
+#: deposits/views.py:98
+msgid "Edit deposit"
+msgstr "Modifier la caution"
+
+#: deposits/views.py:113
+msgid "The deposit was deleted."
+msgstr "La caution a été supprimée."
+
+#: deposits/views.py:174
+msgid "The item was created."
+msgstr "L'article a été créé."
+
+#: deposits/views.py:180
+msgid "New deposit item"
+msgstr "Nouvel article (caution)"
+
+#: deposits/views.py:197
+msgid "The item was edited."
+msgstr "L'article a été modifié."
+
+#: deposits/views.py:203
+msgid "Edit deposit item"
+msgstr "Modifier l'article"
+
+#: deposits/views.py:220
+msgid "The items were deleted."
+msgstr "Les articles ont été supprimés."
+
+#: deposits/views.py:225
+msgid "Delete"
+msgstr "Supprimer"
+
+#: deposits/views.py:226
+msgid "Delete deposit item"
+msgstr "Supprimer l'article"
+
+#: deposits/views.py:270
+msgid "Deposits by payment method"
+msgstr "Cautions par moyen de paiement"
+
+#: deposits/views.py:275 deposits/views.py:304 deposits/views.py:337
+msgid "Total"
+msgstr "Total"
+
+#: deposits/views.py:299
+msgid "Deposits by item type"
+msgstr "Cautions par type d'article"
+
+#: deposits/views.py:321
+msgid "Not yet returned"
+msgstr "Pas encore rendues"
+
+#: deposits/views.py:326
+msgid "Already returned"
+msgstr "Déjà rendues"
+
+#: deposits/views.py:334
+msgid "Deposits amounts"
+msgstr "Montants de cautions"
+
+#: deposits/views.py:336
+msgid "Category"
+msgstr "Catégorie"
