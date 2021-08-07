@@ -272,8 +272,8 @@ def index_stats(request):
             "title": _("Deposits by payment method"),
             "headers": [
                 _("Payment method"),
-                _("Returned deposits"),
                 _("Unreturned deposits"),
+                _("Returned deposits"),
                 _("Total"),
                 _("Amount"),
             ],
@@ -303,8 +303,8 @@ def index_stats(request):
             "title": _("Deposits by item type"),
             "headers": [
                 _("Deposit item"),
-                _("Returned deposits"),
                 _("Unreturned deposits"),
+                _("Returned deposits"),
                 _("Total"),
                 _("Amount"),
             ],
@@ -318,7 +318,7 @@ def index_stats(request):
         .aggregate(Sum("deposit_amount"))
         .get("deposit_amount__sum", None)
     )
-    reimbursed_amount = (
+    returned_amount = (
         Deposit.objects.filter(returned=True)
         .aggregate(Sum("deposit_amount"))
         .get("deposit_amount__sum", None)
@@ -333,7 +333,7 @@ def index_stats(request):
         (
             _("Already returned"),
             Deposit.objects.filter(returned=True).count(),
-            "{} €".format(reimbursed_amount or 0),
+            "{} €".format(returned_amount or 0),
         ),
     ]
 
