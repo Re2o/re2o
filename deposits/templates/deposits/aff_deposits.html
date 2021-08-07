@@ -1,0 +1,89 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2021  Jean-Romain Garnier
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load bootstrap3 %}
+{% load acl %}
+{% load i18n %}
+{% load logs_extra %}
+
+{% block content %}
+
+<div class="table-responsive">
+
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                {% trans "User" as tr_user %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="user" text=tr_user %}
+            </th>
+            <th>
+                {% trans "Item" as tr_item %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="item" text=tr_item %}
+            </th>
+            <th>
+                {% trans "Amount" as tr_amount %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="amount" text=tr_amount %}
+            </th>
+            <th>
+                {% trans "Payment method" as tr_payment %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="payment" text=tr_payment %}
+            </th>
+            <th>
+                {% trans "Date" as tr_date %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="date" text=tr_date %}
+            </th>
+            <th>
+                {% trans "Returned" as tr_returned %}
+                {% include 'buttons/sort.html' with prefix='deposit' col="returned" text=tr_returned %}
+            </th>
+            <th></th>
+        </tr>
+        {% for deposit in deposits_list %}
+        <tr>
+            <td><a href="{% url 'users:profil' deposit.user.id %}" role="button">{{ deposit.user.get_short_name }}</a></td>
+            <td>{{ deposit.item.name }}</td>
+            <td>{{ deposit.deposit_amount }} €</td>
+            <td>{{ deposit.payment_method.moyen }}</td>
+            <td>{{ deposit.date }}</td>
+            {% if deposit.returned %}
+                <td><i class="fa fa-check" style="color:green"></i></td>
+            {% else %}
+                <td><i class="fa fa-times" style="color:red"></i></td>
+            {% endif %}
+            <td class="text-right">
+                {% can_edit deposit %}
+                {% include 'buttons/edit.html' with href='deposits:edit-deposit' id=deposit.id %}
+                {% acl_end %}
+                {% history_button deposit %}
+            </td>
+        </tr>
+        {% endfor %}
+        
+    </thead>
+    </table>
+
+    {% if deposits_list.paginator and show_pagination is not False %}
+        {% include 'pagination.html' with list=deposits_list go_to_id="deposits" %}
+    {% endif %}
+</div>
+{% endblock %}

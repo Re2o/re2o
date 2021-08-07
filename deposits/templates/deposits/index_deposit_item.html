@@ -1,0 +1,40 @@
+{% extends 'deposits/sidebar.html' %}
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2021  Jean-Romain Garnier
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load acl %}
+{% load i18n %}
+
+{% block title %}{% trans "Deposit items" %}{% endblock %}
+
+{% block content %}
+    <h2>{% trans "List of deposit items" %}</h2>
+    {% can_create DepositItem %}
+    <a class="btn btn-primary btn-sm" role="button" href="{% url 'deposits:add-deposit-item' %}">
+        <i class="fa fa-plus"></i> {% trans "Add a deposit item" %}
+    </a>
+    <a class="btn btn-danger btn-sm" role="button" href="{% url 'deposits:del-deposit-item' %}">
+        <i class="fa fa-trash"></i> {% trans "Delete one or several deposit items" %}
+    </a>
+    {% acl_end %}
+    {% include 'deposits/aff_deposit_item.html' with item_list=item_list %}
+{% endblock %}
