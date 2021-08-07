@@ -28,6 +28,7 @@ from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import ugettext as _
+from django.db.models import Sum
 
 from preferences.models import GeneralOption
 from re2o.acl import (
@@ -40,6 +41,7 @@ from re2o.acl import (
 from re2o.base import re2o_paginator
 from re2o.views import form
 from users.models import User
+from cotisations.models import Paiement
 
 from .forms import DepositForm, DepositItemForm, DelDepositItemForm
 from .models import Deposit, DepositItem
@@ -118,7 +120,7 @@ def del_deposit(request, deposit, **_kwargs):
 
 
 @login_required
-@can_view_all(Deposit)
+@can_view_all(Deposit, DepositItem, Paiement, User)
 def index_deposits(request):
     """
     View used to display the list of all deposits.
@@ -237,6 +239,117 @@ def index_deposit_item(request):
     # TODO : Offer other means of sorting
     item_list = DepositItem.objects.order_by("name")
     return render(request, "deposits/index_deposit_item.html", {"item_list": item_list})
+
+
+@login_required
+@can_view_all(Deposit, DepositItem, Paiement, User)
+def index_stats(request):
+    """
+    View used to display general statistics about deposits
+    """
+    # We want to build a list of tables for statistics
+    stats = []
+
+    # Statistics for payment methods
+    payment_data = []
+    for method in Paiement.objects.order_by("moyen"):
+        deposits = Deposit.objects.filter(payment_method=method)
+        amount = deposits.aggregate(Sum("deposit_amount")).get(
+            "deposit_amount__sum", None
+        )
+        payment_data.append(
+            (
+                method.moyen,
+                deposits.filter(returned=False).count(),
+                deposits.filter(returned=True).count(),
+                deposits.count(),
+                "{} €".format(amount or 0),
+            )
+        )
+
+    stats.append(
+        {
+            "title": _("Deposits by payment method"),
+            "headers": [
+                _("Payment method"),
+                _("Returned deposits"),
+                _("Unreturned deposits"),
+                _("Total"),
+                _("Amount"),
+            ],
+            "data": payment_data,
+        }
+    )
+
+    # Statistics for deposit items
+    items_data = []
+    for item in DepositItem.objects.order_by("name"):
+        deposits = Deposit.objects.filter(item=item)
+        amount = deposits.aggregate(Sum("deposit_amount")).get(
+            "deposit_amount__sum", None
+        )
+        items_data.append(
+            (
+                item.name,
+                deposits.filter(returned=False).count(),
+                deposits.filter(returned=True).count(),
+                deposits.count(),
+                "{} €".format(amount or 0),
+            )
+        )
+
+    stats.append(
+        {
+            "title": _("Deposits by item type"),
+            "headers": [
+                _("Deposit item"),
+                _("Returned deposits"),
+                _("Unreturned deposits"),
+                _("Total"),
+                _("Amount"),
+            ],
+            "data": items_data,
+        }
+    )
+
+    # Statistics for amounts
+    pending_amount = (
+        Deposit.objects.filter(returned=False)
+        .aggregate(Sum("deposit_amount"))
+        .get("deposit_amount__sum", None)
+    )
+    reimbursed_amount = (
+        Deposit.objects.filter(returned=True)
+        .aggregate(Sum("deposit_amount"))
+        .get("deposit_amount__sum", None)
+    )
+
+    amounts_data = [
+        (
+            _("Not yet returned"),
+            Deposit.objects.filter(returned=False).count(),
+            "{} €".format(pending_amount or 0),
+        ),
+        (
+            _("Already returned"),
+            Deposit.objects.filter(returned=True).count(),
+            "{} €".format(reimbursed_amount or 0),
+        ),
+    ]
+
+    stats.append(
+        {
+            "title": _("Deposits amounts"),
+            "headers": [
+                _("Category"),
+                _("Total"),
+                _("Amount"),
+            ],
+            "data": amounts_data,
+        }
+    )
+
+    return render(request, "deposits/index_stats.html", {"stats_list": stats})
 
 
 # Canonic views for optional apps

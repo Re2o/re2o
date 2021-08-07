@@ -1,3 +1,4 @@
+{% extends 'deposits/sidebar.html' %}
 {% comment %}
 Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
 se veut agnostique au réseau considéré, de manière à être installable en
@@ -22,18 +23,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 {% load i18n %}
 
- <li><a class="dropdown-item" href="#"><i class="fa fa-balance-scale"></i>
-        {% trans "Deposits" %}
-        &raquo </a>
-    <ul class="submenu dropdown-menu">
-        <li><a class="dropdown-item" href="{% url 'deposits:index-deposits' %}"><i
-                    class="fa fa-eye"></i>
-                {% trans "View deposits" %}</a></li>
-        <li><a class="dropdown-item" href="{% url 'deposits:index-deposit-item' %}"><i
-                    class="fa fa-barcode"></i>
-                {% trans "Deposit items" %}</a></li>
-        <li><a class="dropdown-item" href="{% url 'deposits:index-stats' %}"><i
-                    class="fa fa-area-chart"></i>
-                {% trans "Deposits statistics" %}</a></li>
-    </ul>
-</li>
+{% block title %}{% trans "Deposits statistics" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Deposits statistics" %}</h2>
+
+{% for stats_dict in stats_list %}
+    {%  include 'deposits/aff_stats.html' with stats_dict=stats_dict %}
+    <br/>
+{% endfor %}
+
+{% endblock %}

@@ -41,4 +41,5 @@ urlpatterns = [
     ),
     path("del_deposit_item", views.del_deposit_item, name="del-deposit-item"),
     path("index_deposit_item", views.index_deposit_item, name="index-deposit-item"),
+    path("index_stats", views.index_stats, name="index-stats"),
 ]
