@@ -163,7 +163,7 @@ msgstr "Articles sous caution"
 
 #: deposits/templates/deposits/index_deposit_item.html:30
 msgid "List of deposit items"
-msgstr "Liste d'articles sous caution"
+msgstr "Liste des articles sous caution"
 
 #: deposits/templates/deposits/index_deposit_item.html:33
 msgid "Add a deposit item"
@@ -175,7 +175,7 @@ msgstr "Supprimer ou un plusieurs articles"
 
 #: deposits/templates/deposits/index_deposits.html:29
 msgid "List of deposits"
-msgstr "Liste de cautions"
+msgstr "Liste des cautions"
 
 #: deposits/templates/deposits/index_deposits.html:35
 msgid "Deposit"
