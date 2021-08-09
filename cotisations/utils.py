@@ -30,7 +30,7 @@ from re2o import settings
 from re2o.mail_utils import send_mail_object
 from re2o.settings import LOGO_PATH
 
-from .tex import create_pdf
+from .pdf import create_pdf
 
 
 def find_payment_method(payment):

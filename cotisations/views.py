@@ -60,7 +60,7 @@ from .forms import (ArticleForm, BanqueForm, CostEstimateForm,
 from .models import (Article, Banque, BaseInvoice, CostEstimate, CustomInvoice,
                      Facture, Paiement, Vente)
 from .payment_methods.forms import payment_method_factory
-from .tex import escape_chars, render_invoice, render_voucher
+from .pdf import render_invoice, render_voucher
 from .utils import find_payment_method
 
 
@@ -443,7 +443,7 @@ def cost_estimate_pdf(request, invoice, **_kwargs):
     for purchase in purchases_objects:
         purchases_info.append(
             {
-                "name": escape_chars(purchase.name),
+                "name": purchase.name,
                 "price": purchase.prix,
                 "quantity": purchase.number,
                 "total_price": purchase.prix_total,
@@ -508,7 +508,7 @@ def custom_invoice_pdf(request, invoice, **_kwargs):
     for purchase in purchases_objects:
         purchases_info.append(
             {
-                "name": escape_chars(purchase.name),
+                "name": purchase.name,
                 "price": purchase.prix,
                 "quantity": purchase.number,
                 "total_price": purchase.prix_total,

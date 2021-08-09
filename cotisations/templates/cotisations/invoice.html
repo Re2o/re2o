@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<!--
+Modified from the Simple HTML Invoice Template
+at https://github.com/sparksuite/simple-html-invoice-template
+
+Original license:
+
+Copyright (c) 2021 Sparksuite
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Facture {{asso_name|safe}}</title>
+
+  <style>
+    .invoice-box {
+      padding: 30px;
+      font-size: 16px;
+      line-height: 24px;
+      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+      color: #333;
+    }
+
+    hr {
+      border: 1px solid #eee;
+    }
+
+    table {
+      display: table;
+      padding: 0;
+      width: 100%;
+      line-height: inherit;
+      text-align: left;
+    }
+
+    table tr {
+      padding: 0;
+    }
+
+    table td {
+      width: auto;
+      padding: 5px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .title {
+      padding: 0;
+      text-align: left;
+      font-size: 32px;
+    }
+
+    table .heading td {
+      line-height: 12px;
+      background-color: #eee;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+
+    table .details td {
+      padding-bottom: 20px;
+    }
+
+    table .fullwidth td {
+      text-align: left;
+    }
+
+    table .item td {
+      border-bottom: 1px solid #eee;
+    }
+
+    table .total td {
+      border-top: 2px solid #eee;
+      font-weight: bold;
+      padding: 5px 0 0 0;
+    }
+
+    table .total .last {
+      border-top: 5px solid #eee;
+    }
+
+    table .detail td {
+      border: none;
+      padding: 0;
+    }
+
+    table .vat td {
+      border: none;
+      font-weight: initial;
+      font-style: italic;
+      text-align: right
+    }
+  </style>
+</head>
+
+<body>
+  <div class="invoice-box">
+    <table cellpadding="0" cellspacing="0">
+      <tr class="top">
+        <h1 class="title">Facture {{asso_name|safe}}</h1>
+        <hr />
+      </tr>
+
+      <tr class="information">
+        <td colspan="2">
+          {% if phone != "0000000000" %}<b>Téléphone :</b> {{phone|safe}}<br />{% endif %}
+          <b>Mail :</b> {{email|safe}}<br />
+          {% if siret != "00000000000000" %}<b>Siret :</b> {{siret|safe}}{% endif %}
+        </td>
+        <td colspan="2">
+          <b>Adresse :</b><br />
+          {{line1|safe}}<br />
+          {{line2|safe}}<br />
+        </td>
+      </tr>
+
+      <tr class="information">
+        <td colspan="4">
+          {% if fid is not None %}
+          {% if is_estimate %}
+          <b>Devis n° :</b> {{fid}}<br />
+          {% else %}
+          <b>Facture n° :</b> {{fid}}<br />
+          {% endif %}
+          {% endif %}
+          <b>Date :</b> {{DATE}}<br />
+        </td>
+      </tr>
+
+      <tr class="information">
+        <td colspan="4">
+          <b>Pour :</b> {{recipient_name|safe}}<br />
+          <b>Adresse :</b> {% if address is None %}Aucune adresse renseignée{% else %}{{address}}{% endif %}
+        </td>
+      </tr>
+
+      <tr class="heading fullwidth">
+        <td colspan="4">
+          Moyen de paiement
+        </td>
+      </tr>
+
+      <tr class="details fullwidth">
+        <td colspan="4">
+          {{payment_method|default:"Non spécifié"}}
+        </td>
+      </tr>
+
+      <tr class="heading">
+        <td width="35%">Désignation</td>
+        <td width="20%">Prix unitaire HT</td>
+        <td width="15%">Quantité</td>
+        <td width="30%">Prix total HT</td>
+      </tr>
+
+      {% for a in article %}
+      <tr class="item">
+        <td>{{a.name}}</td>
+        <td>{{a.price|floatformat:2}}&nbsp;€</td>
+        <td>{{a.quantity}}</td>
+        <td>{{a.total_price|floatformat:2}}&nbsp;€</td>
+      </tr>
+      {% endfor %}
+
+      <tr class="total">
+        <td colspan="3"></td>
+        <td class="last">
+          Total HT : {{total|floatformat:2}}&nbsp;€
+        </td>
+      </tr>
+
+
+      {% if not is_estimate %}
+      <tr class="total detail">
+        <td colspan="3"></td>
+        <td>
+          Votre règlement : {% if paid %}{{total|floatformat:2}}{% else %}00,00{% endif %}&nbsp;€
+        </td>
+      </tr>
+
+      <tr class="total detail">
+        <td colspan="3"></td>
+        <td>
+          À payer : {% if not paid %}{{total|floatformat:2}}{% else %}00,00{% endif %}&nbsp;€
+        </td>
+      </tr>
+      {% endif %}
+
+
+      <tr class="total vat">
+        <td colspan="4">
+          TVA non applicable, art. 261 7.1°a du CGI
+        </td>
+      </tr>
+
+
+      {% if remark %}
+      <tr class="heading fullwidth">
+        <td colspan="4">
+          Remarque
+        </td>
+      </tr>
+
+      <tr class="details fullwidth">
+        <td colspan="4">
+          {{remark|safe}}
+        </td>
+      </tr>
+      {% endif %}
+
+      {% if end_validity %}
+      <tr class="heading fullwidth">
+        <td colspan="4">
+          Validité
+        </td>
+      </tr>
+
+      <tr class="details fullwidth">
+        <td colspan="4">
+          Jusqu'au {{end_validity}}
+        </td>
+      </tr>
+      {% endif %}
+
+    </table>
+  </div>
+</body>
+
+</html>
