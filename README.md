@@ -32,6 +32,13 @@ Les données stockées dans Re2o sont disponibles via un API Rest. Les services 
 
 Le [Wiki](https://gitlab.federez.net/re2o/re2o/-/wikis/home) est accessible sur le gitlab de Federez. Il regroupe les informations et instructions pour la plupart des composants de Re2o.
 
+# Crédits
+
+Ce projet inclus des versions modifiées de fichiers du projet [Simple HTML Invoice Template](https://github.com/sparksuite/simple-html-invoice-template), publié sous [license MIT](https://github.com/sparksuite/simple-html-invoice-template/blob/master/LICENSE) :
+
+* [invoice.html](./cotisations/templates/cotisations/invoice.html),
+* [voucher.html](./cotisations/templates/cotisations/voucher.html).
+
 ----
 
 # Re2o
@@ -62,3 +69,10 @@ Re2o provide a Rest API to allow external services (dhcp, dns, firewall,...) ins
 # Wiki
 
 The [Wiki](https://gitlab.federez.net/re2o/re2o/-/wikis/home) is available to provide information and instruction for most components of Re2o.
+
+# Credits
+
+This project includes modified versions of files from the [Simple HTML Invoice Template](https://github.com/sparksuite/simple-html-invoice-template) project, published under an [MIT licence](https://github.com/sparksuite/simple-html-invoice-template/blob/master/LICENSE):
+
+* [invoice.html](./cotisations/templates/cotisations/invoice.html),
+* [voucher.html](./cotisations/templates/cotisations/voucher.html).

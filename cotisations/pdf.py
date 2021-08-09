@@ -6,6 +6,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
+# Copyright © 2021  Jean-Romain Garnier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,29 +21,25 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""tex.py
-Module in charge of rendering some LaTex templates.
-Used to generated PDF invoice.
+
+"""pdf.py
+Module in charge of rendering some HTML templates to generated PDF invoices.
 """
 
 
 import os
 import tempfile
 from datetime import datetime
-from subprocess import PIPE, Popen
 
 from django.conf import settings
-from django.db import models
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.utils.text import slugify
 
 from preferences.models import CotisationsOption
-from re2o.mixins import AclMixin, RevMixin
 
-TEMP_PREFIX = getattr(settings, "TEX_TEMP_PREFIX", "render_tex-")
-CACHE_PREFIX = getattr(settings, "TEX_CACHE_PREFIX", "render-tex")
-CACHE_TIMEOUT = getattr(settings, "TEX_CACHE_TIMEOUT", 86400)  # 1 day
+from xhtml2pdf import pisa
+from django.contrib.staticfiles import finders
 
 
 def render_invoice(_request, ctx={}):
@@ -63,8 +60,7 @@ def render_invoice(_request, ctx={}):
         ]
     )
     templatename = options.invoice_template.template.name.split("/")[-1]
-    r = render_tex(_request, templatename, ctx)
-    r["Content-Disposition"] = 'attachment; filename="{name}.pdf"'.format(name=filename)
+    r = render_pdf(_request, templatename, ctx, filename)
     return r
 
 
@@ -85,18 +81,48 @@ def render_voucher(_request, ctx={}):
         ]
     )
     templatename = options.voucher_template.template.name.split("/")[-1]
-    r = render_tex(_request, templatename, ctx)
-    r["Content-Disposition"] = 'attachment; filename="{name}.pdf"'.format(name=filename)
+    r = render_pdf(_request, templatename, ctx, filename)
     return r
 
 
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+    resources
+    See https://xhtml2pdf.readthedocs.io/en/latest/usage.html#using-xhtml2pdf-in-django
+    """
+    result = finders.find(uri)
+    if result:
+        if not isinstance(result, (list, tuple)):
+            result = [result]
+            result = list(os.path.realpath(path) for path in result)
+            path = result[0]
+    else:
+        sUrl = settings.STATIC_URL  # Typically /static/
+        sRoot = settings.STATIC_ROOT  # Typically /project_static/
+        mUrl = settings.MEDIA_URL  # Typically /media/
+        mRoot = settings.MEDIA_ROOT  # Typically /project_static/media/
+
+        if uri.startswith(mUrl):
+            path = os.path.join(mRoot, uri.replace(mUrl, ""))
+        elif uri.startswith(sUrl):
+            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+        else:
+            return uri
+
+    # Make sure that file exists
+    if not os.path.isfile(path):
+        raise Exception("media URI must start with %s or %s" % (sUrl, mUrl))
+    return path
+
+
 def create_pdf(template, ctx={}):
-    """Creates and returns a PDF from a LaTeX template using pdflatex.
+    """Creates and returns a PDF from an HTML template using xhtml2pdf.
 
     It create a temporary file for the PDF then read it to return its content.
 
     Args:
-        template: Path to the LaTeX template.
+        template: Path to the HTML template.
         ctx: Dict with the context for rendering the template.
 
     Returns:
@@ -106,46 +132,37 @@ def create_pdf(template, ctx={}):
     template = get_template(template)
     rendered_tpl = template.render(context).encode("utf-8")
 
-    with tempfile.TemporaryDirectory() as tempdir:
-        for _ in range(2):
-            process = Popen(
-                ["pdflatex", "-output-directory", tempdir],
-                stdin=PIPE,
-                stdout=PIPE,
-            )
-            process.communicate(rendered_tpl)
-        with open(os.path.join(tempdir, "texput.pdf"), "rb") as f:
-            pdf = f.read()
+    with tempfile.TemporaryFile("wb+") as tempf:
+        pisa_status = pisa.CreatePDF(rendered_tpl, dest=tempf)
+
+        if pisa_status.err:
+            raise pisa_status.err
+
+        tempf.seek(0)
+        pdf = tempf.read()
 
     return pdf
 
 
-def escape_chars(string):
-    """Escape the '%' and the '€' signs to avoid messing with LaTeX"""
-    if not isinstance(string, str):
-        return string
-    mapping = (("€", r"\euro"), ("%", r"\%"))
-    r = str(string)
-    for k, v in mapping:
-        r = r.replace(k, v)
-    return r
+def render_pdf(_request, template, ctx={}, filename="invoice"):
+    """
+    Creates a PDF from an HTML template using xhtml2pdf.
 
-
-def render_tex(_request, template, ctx={}):
-    """Creates a PDF from a LaTex templates using pdflatex.
-
-    Calls `create_pdf` and send back an HTTP response for
-    accessing this file.
+    Calls `create_pdf` and send back an HTTP response for accessing this file.
 
     Args:
         _request: Unused, but allow using this function as a Django view.
-        template: Path to the LaTeX template.
+        template: Path to the HTML template.
         ctx: Dict with the context for rendering the template.
+        filename: The name of the file to include in the request headers.
 
     Returns:
-        An HttpResponse with type `application/pdf` containing the PDF file.
+        The content of the temporary PDF file generated.
     """
     pdf = create_pdf(template, ctx)
+
     r = HttpResponse(content_type="application/pdf")
+    r["Content-Disposition"] = 'attachment; filename="{name}.pdf"'.format(name=filename)
     r.write(pdf)
+
     return r

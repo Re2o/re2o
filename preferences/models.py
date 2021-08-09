@@ -986,14 +986,14 @@ class RadiusOption(AclMixin, PreferencesModel):
 
 def default_invoice():
     tpl, _ = DocumentTemplate.objects.get_or_create(
-        name="Re2o default invoice", template="templates/default_invoice.tex"
+        name="Re2o default invoice", template="templates/default_invoice.html"
     )
     return tpl.id
 
 
 def default_voucher():
     tpl, _ = DocumentTemplate.objects.get_or_create(
-        name="Re2o default voucher", template="templates/default_voucher.tex"
+        name="Re2o default voucher", template="templates/default_voucher.html"
     )
     return tpl.id
 

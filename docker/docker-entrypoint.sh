@@ -3,6 +3,9 @@ set -euo pipefail
 
 cat docker/settings_local.template.py | envsubst > re2o/settings_local.py
 
+cp cotisations/templates/cotisations/invoice.html templates/default_invoice.html
+cp cotisations/templates/cotisations/voucher.html templates/default_voucher.html
+
 AUTOMIGRATE=${AUTOMIGRATE:-yes}
 
 if [ "$AUTOMIGRATE" != "skip" ]; then

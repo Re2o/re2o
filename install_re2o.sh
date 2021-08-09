@@ -376,14 +376,14 @@ update_django() {
 copy_templates_files() {
     ### Usage: copy_templates_files
     #
-    #   This will copy LaTeX templates in the media root.
+    #   This will copy HTML templates in the media root.
 
-    echo "Copying LaTeX templates ..."
+    echo "Copying HTML invoice templates ..."
     mkdir -p media/templates/
-    cp cotisations/templates/cotisations/factures.tex media/templates/default_invoice.tex
-    cp cotisations/templates/cotisations/voucher.tex media/templates/default_voucher.tex
+    cp cotisations/templates/cotisations/invoice.html media/templates/default_invoice.html
+    cp cotisations/templates/cotisations/voucher.html media/templates/default_voucher.html
     chown -R www-data:www-data media/templates/
-    echo "Copying LaTeX templates: Done"
+    echo "Copying HTML invoice templates: Done"
 }
 
 
@@ -1099,12 +1099,12 @@ main_function() {
         echo "  * {setup-radius} -- Launch the full interactive guide to setup entirely"
         echo "                      re2o radius from scratch"
         echo "  * {update} -------- Collect frontend statics, install the missing APT"
-        echo "                      and pip packages, copy LaTeX templates files"
+        echo "                      and pip packages, copy invoice template files"
 	echo "                      and apply the migrations to the DB"
         echo "  * {update-radius} - Update radius apt and pip packages and copy radius"
         echo "                      configuration files to their proper location."
         echo "  * {update-django} - Apply Django migration and collect frontend statics"
-        echo "  * {copy-template-files} - Copy LaTeX templates files to media/templates"
+        echo "  * {copy-template-files} - Copy invoice template files to media/templates"
         echo "  * {update-packages} Install the missing APT and pip packages"
         echo "  * {update-settings} Interactively rewrite the settings file"
         echo "  * {reset-db} ------ Erase the previous local database, setup a new empty"

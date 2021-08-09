@@ -51,3 +51,6 @@ media/
 # themes
 static/css/themes/*
 !static/css/themes/default.css
+
+templates/default_invoice.html
+templates/default_voucher.html

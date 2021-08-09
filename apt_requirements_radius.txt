@@ -1,7 +1,5 @@
 python3-django
 python3-dateutil
-texlive-latex-base
-texlive-fonts-recommended
 python3-djangorestframework
 python3-django-reversion
 python3-pip
