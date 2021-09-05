@@ -19,8 +19,8 @@
 #
 from django.core.management.base import BaseCommand, CommandError
 
-from ldap_sync.models import synchronise_user
-from users.models import User
+from users.models import User, ListRight, ServiceUser
+from ldap_sync.models import synchronise_user, synchronise_serviceuser, synchronise_usergroup
 
 
 class Command(BaseCommand):
@@ -40,3 +40,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for user in User.objects.all():
             synchronise_user(sender=User, instance=user)
+        for lr in ListRight.objects.all():
+            synchronise_usergroup(sender=ListRight, instance=lr)
+        for service_user in ServiceUser.objects.all():
+            synchronise_serviceuser(sender=ServiceUser, instance=service_user)
