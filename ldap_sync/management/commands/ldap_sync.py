@@ -42,5 +42,5 @@ class Command(BaseCommand):
             synchronise_user(sender=User, instance=user)
         for lr in ListRight.objects.all():
             synchronise_usergroup(sender=ListRight, instance=lr)
-        for s in ServiceUser.objects.all():
-            synchronise_serviceuser(sender=ServiceUser, instance=s)
+        for service_user in ServiceUser.objects.all():
+            synchronise_serviceuser(sender=ServiceUser, instance=service_user)
