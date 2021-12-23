@@ -21,7 +21,6 @@
 """
 Footprint optional app utils
 """
-import os
 import pathlib
 import subprocess
 

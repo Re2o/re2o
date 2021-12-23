@@ -26,8 +26,6 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from preferences.views import edit_options_template_function
-from re2o.acl import can_create, can_edit, can_view, can_view_all
-from re2o.base import re2o_paginator
 
 from . import forms, models
 
