@@ -1,0 +1,116 @@
+# Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+# se veut agnostique au réseau considéré, de manière à être installable en
+# quelques clics.
+#
+# Copyright © 2021  Jean-Romain Garnier
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+msgid ""
+msgstr ""
+"Project-Id-Version: 2.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-23 22:39+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Jean-Romain Garnier <git@jean-romain.com>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: footprint/preferences/models.py:38
+#: footprint/templates/footprint/preferences.html:44
+msgid "Estimated monthly infrastructure emissions"
+msgstr "Estimation des émissions mensuelles de l'infrastructure"
+
+#: footprint/preferences/models.py:47
+#: footprint/templates/footprint/preferences.html:55
+msgid "User monthly data usage estimation script"
+msgstr "Script d'estimation du volume de données mensuelles d'un utilisateur "
+
+#: footprint/preferences/models.py:52
+msgid "Estimation script timeout (in seconds)"
+msgstr ""
+"Temps imparti pour le script d'estimation de volume de données (en secondes)"
+
+#: footprint/preferences/models.py:59
+msgid "Footprint preferences"
+msgstr "Préférences d'empreinte"
+
+#: footprint/templates/footprint/aff_profil.html:29
+#: footprint/templates/footprint/preferences.html:29
+msgid "Footprint"
+msgstr "Empreinte"
+
+#: footprint/templates/footprint/aff_profil.html:38
+msgid "Estimated monthly emissions"
+msgstr "Estimation des émissions mensuelles"
+
+#: footprint/templates/footprint/aff_profil.html:41
+#: footprint/templates/footprint/aff_profil.html:55
+msgid "n/a"
+msgstr "n/a"
+
+#: footprint/templates/footprint/aff_profil.html:43
+msgid "Unavailable"
+msgstr "Indisponible"
+
+#: footprint/templates/footprint/aff_profil.html:45
+#: footprint/templates/footprint/preferences.html:49
+msgid "kgCO₂e/month"
+msgstr "kgCO₂e/mois"
+
+#: footprint/templates/footprint/aff_profil.html:48
+#: footprint/templates/footprint/aff_profil.html:60
+msgid "[Learn more]"
+msgstr "[En savoir plus]"
+
+#: footprint/templates/footprint/aff_profil.html:52
+msgid "Estimated monthly data usage"
+msgstr "Estimation du volume de données mensuel"
+
+#: footprint/templates/footprint/aff_profil.html:57
+msgid "Compute"
+msgstr "Calculer"
+
+#: footprint/templates/footprint/aff_profil.html:81
+msgid "GiB/month"
+msgstr "GiO/mois"
+
+#: footprint/templates/footprint/aff_profil.html:83
+msgid "Unknown error"
+msgstr "Erreur inconnue"
+
+#: footprint/templates/footprint/preferences.html:36
+msgid "Edit"
+msgstr "Modifier"
+
+#: footprint/templates/footprint/preferences.html:47
+msgid "Not specified"
+msgstr "Non spécifié"
+
+#: footprint/templates/footprint/preferences.html:60
+msgid "Data estimation script timeout (in seconds)"
+msgstr ""
+"Temps imparti pour le script d'estimation de volume de données (en secondes)"
+
+#: footprint/views.py:45
+msgid "Nonexistent user."
+msgstr "Utilisateur inconnu"
+
+#: footprint/views.py:50
+msgid "Failed to compute data usage."
+msgstr "Échec du calcul du volume de données."

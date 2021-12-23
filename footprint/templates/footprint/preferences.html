@@ -1,0 +1,66 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2021  Jean-Romain Garnier
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load design %}
+{% load i18n %}
+
+<div  class="panel panel-default" id="footprint">
+    <div class="panel-heading" data-toggle="collapse" href="#collapse_footprint">
+        <h4 class="panel-title">
+            <a><i class="fa fa-leaf"></i>   {% trans "Footprint" %}</a>
+        </h4>
+    </div>
+
+    <div id="collapse_footprint" class="panel-collapse panel-body collapse">
+        <a class="btn btn-primary btn-sm" role="button" href="{% url 'footprint:edit-options' 'FootprintOption' %}">
+            <i class="fa fa-edit"></i>
+            {% trans "Edit" %}
+        </a>
+
+        <p></p>
+
+        <div class="table-responsive">
+        <table class="table">
+            <tr>
+                <th><p>{% trans "Estimated monthly infrastructure emissions" %}</p></th>
+
+                {% if preferences.monthly_infra_emissions is None %}
+                <td><p>{% trans "Not specified" %}</p></td>
+                {% else %}
+                <td><p>{{ preferences.monthly_infra_emissions }} {% trans "kgCO₂e/month" %}</p></td>
+                {% endif %}
+
+            </tr>
+
+            <tr>
+                <th><p>{% trans "User monthly data usage estimation script" %}</p></th>
+                <td><p>{{ preferences.data_usage_script_path }}</p></td>
+            </tr>
+
+            <tr>
+                <th><p>{% trans "Data estimation script timeout (in seconds)" %}</p></th>
+                <td><p>{{ preferences.data_usage_script_timeout }}</p></td>
+            </tr>
+
+        </table>
+    </div>
+</div>

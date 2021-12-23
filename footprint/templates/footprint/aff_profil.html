@@ -1,0 +1,97 @@
+{% comment %}
+Re2o est un logiciel d'administration développé initiallement au Rézo Metz. Il
+se veut agnostique au réseau considéré, de manière à être installable en
+quelques clics.
+
+Copyright © 2021  Jean-Romain Garnier
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+{% endcomment %}
+
+{% load acl %}
+{% load i18n %}
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix profil" data-parent="#accordion" data-toggle="collapse" data-target="#footprint">
+        <h3 class="panel-title pull-left">
+            <i class="fa fa-leaf"></i> {% trans "Footprint" %}
+        </h3> 
+    </div>
+    <div id="footprint" class="panel-collapse collapse">
+        <div class="panel-body">
+
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th>{% trans "Estimated monthly emissions" %}</th>
+
+                        {% if not user.has_access %}
+                        <td>{% trans "n/a" %}</td>
+                        {% elif monthly_emissions is None %}
+                        <td>{% trans "Unavailable" %}</td>
+                        {% else %}
+                        <td>{{ monthly_emissions }} {% trans "kgCO₂e/month" %}</td>
+                        {% endif %}
+
+                        <td><a target="_blank" rel="noreferrer noopener" href="https://www.ademe.fr/expertises/consommer-autrement/passer-a-laction/reconnaitre-produit-plus-respectueux-lenvironnement/dossier/laffichage-environnemental/affichage-environnemental-secteur-numerique">{% trans "[Learn more]" %}</a></td>
+                    </tr>
+
+                    <tr>
+                        <th>{% trans "Estimated monthly data usage" %}</th>
+
+                        {% if not user.has_access %}
+                        <td>{% trans "n/a" %}</td>
+                        {% else %}
+                        <td id="data_usage_estimate"><a href="javascript:get_data_usage_estimate()">{% trans "Compute" %}</a></td>
+                        {% endif %}
+
+                        <td><a target="_blank" rel="noreferrer noopener" href="https://www.ademe.fr/expertises/consommer-autrement/passer-a-laction/reconnaitre-produit-plus-respectueux-lenvironnement/dossier/laffichage-environnemental/affichage-environnemental-secteur-numerique">{% trans "[Learn more]" %}</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      function get_data_usage_estimate() {
+        td = document.getElementById("data_usage_estimate");
+        td.innerHTML = "<progress></progress>"
+
+        $.ajax({
+          url: "{% url 'footprint:data-usage-estimate' user.id %}",
+          type: "get",
+          dataType: "json",
+          success: function(data) {
+            if (data["error"] != null) {
+              td.innerHTML = "<i class=\"text-danger\">" + data["error"] + "</i>";
+              td.style.color = "red";
+            } else if (data["data"] != null) {
+              td.innerHTML = data["data"] + " {% trans 'GiB/month' %}";
+            } else {
+              td.innerHTML = "<i class=\"text-danger\">{% trans 'Unknown error' %}</i>";
+            }
+          },
+          error: function(xhr, errmsg, err) {
+            td.innerHTML = "<i class=\"text-danger\">" + errmsg + "</i>";
+          }
+        });
+      }
+      /*$(document).ready(function() {
+        $("#data_usage_estimate_action").href(function() {
+        });
+      });*/
+    </script>
+</div>
+
