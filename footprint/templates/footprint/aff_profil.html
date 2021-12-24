@@ -76,7 +76,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
           success: function(data) {
             if (data["error"] != null) {
               td.innerHTML = "<i class=\"text-danger\">" + data["error"] + "</i>";
-              td.style.color = "red";
             } else if (data["data"] != null) {
               td.innerHTML = data["data"] + " {% trans 'GiB/month' %}";
             } else {
