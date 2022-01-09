@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-23 22:39+0100\n"
+"POT-Creation-Date: 2022-01-09 18:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Jean-Romain Garnier <git@jean-romain.com>\n"
 "Language-Team: \n"
@@ -32,9 +32,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: footprint/preferences/models.py:38
-#: footprint/templates/footprint/preferences.html:44
-msgid "Estimated monthly infrastructure emissions"
-msgstr "Estimation des émissions mensuelles de l'infrastructure"
+msgid "Estimated monthly infrastructure emissions (in kgCO₂e/month)"
+msgstr "Estimation des émissions mensuelles de l'infrastructure (en kgCO₂e/mois)"
 
 #: footprint/preferences/models.py:47
 #: footprint/templates/footprint/preferences.html:55
@@ -86,17 +85,21 @@ msgstr "Estimation du volume de données mensuel"
 msgid "Compute"
 msgstr "Calculer"
 
-#: footprint/templates/footprint/aff_profil.html:81
+#: footprint/templates/footprint/aff_profil.html:80
 msgid "GiB/month"
 msgstr "GiO/mois"
 
-#: footprint/templates/footprint/aff_profil.html:83
+#: footprint/templates/footprint/aff_profil.html:82
 msgid "Unknown error"
 msgstr "Erreur inconnue"
 
 #: footprint/templates/footprint/preferences.html:36
 msgid "Edit"
 msgstr "Modifier"
+
+#: footprint/templates/footprint/preferences.html:44
+msgid "Estimated monthly infrastructure emissions"
+msgstr "Estimation des émissions mensuelles de l'infrastructure"
 
 #: footprint/templates/footprint/preferences.html:47
 msgid "Not specified"

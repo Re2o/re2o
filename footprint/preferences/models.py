@@ -35,7 +35,7 @@ class FootprintOption(AclMixin, PreferencesModel):
 
     # https://www.ademe.fr/expertises/consommer-autrement/passer-a-laction/reconnaitre-produit-plus-respectueux-lenvironnement/dossier/laffichage-environnemental/affichage-environnemental-secteur-numerique
     monthly_infra_emissions = models.DecimalField(
-        verbose_name=_("Estimated monthly infrastructure emissions"),
+        verbose_name=_("Estimated monthly infrastructure emissions (in kgCO₂e/month)"),
         max_digits=10,
         decimal_places=2,
         null=True,
