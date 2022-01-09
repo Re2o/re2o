@@ -37,10 +37,9 @@ from re2o.acl import can_view_all_api, can_edit_all_api, can_create_api
 class AuthorizeResponse:
     """Contains objects the radius needs for the Authorize step"""
 
-    def __init__(self, nas, user, user_interface):
+    def __init__(self, nas, user):
         self.nas = nas
         self.user = user
-        self.user_interface = user_interface
 
     def can_view(self, user):
         """Method to bypass api permissions, because we are using ACL decorators"""
@@ -50,13 +49,12 @@ class AuthorizeResponse:
 @api_view(["GET"])
 @login_required
 @can_view_all_api(Interface, Domain, IpList, Nas, User)
-def authorize(request, nas_id, username, mac_address):
+def authorize(request, nas_id, username):
     """Return objects the radius needs for the Authorize step
 
     Parameters:
         nas_id (string): NAS name or ipv4
         username (string): username of the user who is trying to connect
-        mac_address (string): mac address of the device which is trying to connect
 
     Return:
         AuthorizeResponse: contains all required informations
@@ -74,11 +72,8 @@ def authorize(request, nas_id, username, mac_address):
     # If no username was provided (wired connection), username="None"
     user = User.objects.filter(pseudo__iexact=username).first()
 
-    # get the interface which is trying to connect (if already created)
-    user_interface = Interface.objects.filter(mac_address=mac_address).first()
-
     serialized = serializers.AuthorizeResponseSerializer(
-        AuthorizeResponse(nas_type, user, user_interface)
+        AuthorizeResponse(nas_type, user)
     )
 
     return Response(data=serialized.data)
@@ -94,6 +89,7 @@ class PostAuthResponse:
         port,
         port_profile,
         switch,
+        user,
         user_interface,
         radius_option,
         EMAIL_STATE_UNVERIFIED,
@@ -105,6 +101,7 @@ class PostAuthResponse:
         self.port = port
         self.port_profile = port_profile
         self.switch = switch
+        self.user = user
         self.user_interface = user_interface
         self.radius_option = radius_option
         self.EMAIL_STATE_UNVERIFIED = EMAIL_STATE_UNVERIFIED
@@ -119,13 +116,14 @@ class PostAuthResponse:
 @api_view(["GET"])
 @login_required
 @can_view_all_api(Interface, Domain, IpList, Nas, Switch, Port, User)
-def post_auth(request, nas_id, nas_port, user_mac):
+def post_auth(request, nas_id, nas_port, user_mac, username):
     """Return objects the radius needs for the Post-Auth step
 
     Parameters:
         nas_id (string): NAS name or ipv4
         nas_port (string): NAS port from wich the request came. Work with Cisco, HP and Juniper convention
         user_mac (string): mac address of the device which is trying to connect
+        username (string): username of the user who is trying to connect
 
     Return:
         PostAuthResponse: contains all required informations
@@ -172,6 +170,10 @@ def post_auth(request, nas_id, nas_port, user_mac):
     if port:
         port_profile = port.get_port_profile
 
+    # get the User corresponding to the username in the URL
+    # If no username was provided (wired connection), username="None"
+    user = User.objects.filter(pseudo__iexact=username).first()
+
     # get the interface which is trying to connect (if already created)
     user_interface = (
         Interface.objects.filter(mac_address=user_mac)
@@ -202,6 +204,7 @@ def post_auth(request, nas_id, nas_port, user_mac):
             port,
             port_profile,
             switch,
+            user,
             user_interface,
             radius_option,
             EMAIL_STATE_UNVERIFIED,

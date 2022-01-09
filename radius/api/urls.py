@@ -23,12 +23,12 @@ from . import views
 
 urls_functional_view = [
     (
-        r"radius/authorize/(?P<nas_id>[^/]+)/(?P<username>.+)/(?P<mac_address>[^/]{17})$",
+        r"radius/authorize/(?P<nas_id>[^/]+)/(?P<username>.+)$",
         views.authorize,
         None,
     ),
     (
-        r"radius/post_auth/(?P<nas_id>[^/]+)/(?P<nas_port>.+)/(?P<user_mac>[^/]{17})$",
+        r"radius/post_auth/(?P<nas_id>[^/]+)/(?P<nas_port>.+)/(?P<user_mac>[^/]{17})/(?P<username>.+)$",
         views.post_auth,
         None,
     ),
