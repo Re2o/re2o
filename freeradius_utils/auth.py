@@ -141,19 +141,15 @@ def authorize(data):
     if not nas_type or nas_type.port_access_mode == "802.1X":
         user = data.get("User-Name", "")
         user = user.split("@", 1)[0]
-        mac = data.get("Calling-Station-Id", "")
-        result, log, password = check_user_machine_and_register(nas_type, user, mac)
-        logger.info(str(log))
-        logger.info(str(user))
-
-        if not result:
-            return radiusd.RLM_MODULE_REJECT
-        else:
-            return (
-                radiusd.RLM_MODULE_UPDATED,
-                (),
-                ((str("NT-Password"), str(password)),),
-            )
+        user = User.objects.filter(pseudo__iexact=user).first()
+        if not user:
+            return (False, "User unknown", "")
+        password = user.pwd_ntlm
+        return (
+            radiusd.RLM_MODULE_UPDATED,
+            (),
+            ((str("NT-Password"), str(password)),),
+        )
 
     else:
         return (radiusd.RLM_MODULE_UPDATED, (), (("Auth-Type", "Accept"),))
@@ -234,6 +230,14 @@ def post_auth(data):
             return (radiusd.RLM_MODULE_REJECT, tuple(attributes), ())
 
     else:
+        user = data.get("User-Name", "")
+        user = user.split("@", 1)[0]
+        result, log, password = check_user_machine_and_register(nas_type, user, mac)
+        logger.info(str(log))
+        logger.info(str(user))
+
+        if not result:
+            return radiusd.RLM_MODULE_REJECT
         return radiusd.RLM_MODULE_OK
 
 

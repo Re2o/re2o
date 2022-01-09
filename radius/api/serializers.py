@@ -110,7 +110,6 @@ class AuthorizeResponseSerializer(Serializer):
 
     nas = NasSerializer(read_only=True)
     user = UserSerializer(read_only=True)
-    user_interface = InterfaceSerializer(read_only=True)
 
 
 class PostAuthResponseSerializer(Serializer):
@@ -123,6 +122,7 @@ class PostAuthResponseSerializer(Serializer):
     port = PortSerializer()
     port_profile = PortProfileSerializer(partial=True)
     switch = SwitchSerializer()
+    user = UserSerializer(read_only=True)
     user_interface = InterfaceSerializer()
     radius_option = RadiusOptionSerializer()
     EMAIL_STATE_UNVERIFIED = serializers.IntegerField()
