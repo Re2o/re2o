@@ -32,14 +32,16 @@ from django.utils.translation import ugettext as _
 from cotisations.models import Facture as Invoice
 from cotisations.utils import find_payment_method
 
+from re2o.acl import can_view
+
 from .forms import InvoiceForm
 from .models import ChequePayment
 
 
 @login_required
-def cheque(request, invoice_pk):
+@can_view(Invoice)
+def cheque(request, invoice, **_kwargs):
     """This view validate an invoice with the data from a cheque."""
-    invoice = get_object_or_404(Invoice, pk=invoice_pk)
     payment_method = find_payment_method(invoice.paiement)
     if invoice.valid or not isinstance(payment_method, ChequePayment):
         messages.error(request, _("You can't pay this invoice with a cheque."))

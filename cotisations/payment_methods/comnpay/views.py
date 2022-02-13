@@ -34,7 +34,10 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
+from re2o.acl import can_view
+
 from cotisations.models import Facture
+from cotisations.utils import find_payment_method
 
 from .comnpay import Transaction
 from .models import ComnpayPayment
@@ -42,13 +45,14 @@ from .models import ComnpayPayment
 
 @csrf_exempt
 @login_required
-def accept_payment(request, factureid):
+@can_view(Facture)
+def accept_payment(request, invoice, **_kwargs):
     """
     The view where the user is redirected when a comnpay payment has been
     accepted.
     """
-    invoice = get_object_or_404(Facture, id=factureid)
-    if invoice.valid:
+    payment_method = find_payment_method(invoice.paiement)
+    if invoice.valid and isinstance(payment_method, ComnpayPayment):
         messages.success(
             request,
             _("The payment of %(amount)s € was accepted.")
