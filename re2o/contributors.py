@@ -33,7 +33,7 @@ CONTRIBUTORS = [
     'Pierre Cadart',
     'Antoine Vintache',
     'Thibault De Boutray',
-    'Delphine Salvy',
+    'Zéphyr Salvy',
     'Joanne Steiner',
     'Krokmou',
     'B',
