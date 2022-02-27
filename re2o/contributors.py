@@ -16,7 +16,7 @@ CONTRIBUTORS = [
     "Alexandre Iooss",
     "Yoann Piétri",
     "Charlie Jacomme",
-    "Corentin Canebier",
+    "Caroline Canebier",
     "Bombar Maxime",
     "Guillaume Goessel",
     "Matthieu Michelet",
