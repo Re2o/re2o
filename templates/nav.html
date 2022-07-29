@@ -266,10 +266,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                 </li>
                 {% acl_end %}
                 {% autoescape off %}
-                    {% nav_link %}
+                    {% nav_link "left"%}
                 {% endautoescape %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                {% autoescape off %}
+                    {% nav_link "right"%}
+                {% endautoescape %}
                 <li><a href="{% url 'contact' %}"><i class="fa fa-at"></i> {% trans "Contact" %}</a>
                     {% if not request.user.is_authenticated %}
                     {% for template in optionnal_templates_navbar_logout_list %}

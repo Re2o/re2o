@@ -23,7 +23,7 @@ from django.conf import settings
 register = template.Library()
 
 @register.simple_tag
-def nav_link():
+def nav_link(position):
     template = """
     <li>
         <a href="{}">
@@ -33,5 +33,6 @@ def nav_link():
     """
     res = ""
     for link in settings.NAVBAR_LINKS:
-        res += template.format(link[0],link[1],link[2])
+        if position == link[3]:
+            res += template.format(link[0],link[1],link[2])
     return res
