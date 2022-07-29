@@ -118,8 +118,8 @@ OPTIONNAL_APPS_RE2O = ()
 # Some Django apps you want to add in you local project
 OPTIONNAL_APPS = OPTIONNAL_APPS_RE2O + ()
 
-# Some optinnal link for the navbar in a tuple (link,class,text)
-OPTIONNAL_LINK_RE2O = ()
+# Some optinnal link for the navbar in a tuple (link,icon class,text)
+NAVBAR_LINKS= ()
 
 # Add statiffiles dir that were installed using system packaging
 # Example to reproduce re2o2.9 behavior

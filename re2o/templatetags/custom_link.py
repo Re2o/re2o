@@ -17,12 +17,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.from django import template
-from re2o.settings_local import OPTIONNAL_LINK_RE2O
+from django import template
+from django.conf import settings
 
 register = template.Library()
 
 @register.simple_tag
-def nav_link_nologin():
+def nav_link():
     template = """
     <li>
         <a href="{}">
@@ -31,6 +32,6 @@ def nav_link_nologin():
     </li>
     """
     res = ""
-    for link in OPTIONNAL_LINK_RE2O:
+    for link in settings.NAVBAR_LINKS:
         res += template.format(link[0],link[1],link[2])
     return res
