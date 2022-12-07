@@ -6,7 +6,7 @@
 # Copyright © 2017  Gabriel Détraz
 # Copyright © 2017  Lara Kermarec
 # Copyright © 2017  Augustin Lemesle
-# Copyright © 2020  Corentin Canebier
+# Copyright © 2020  Caroline Canebier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -3,7 +3,7 @@
 # se veut agnostique au réseau considéré, de manière à être installable en
 # quelques clics.
 #
-# Copyright © 2020 Corentin Canebier
+# Copyright © 2020 Caroline Canebier
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
